@@ -1,0 +1,33 @@
+{
+  "name": "appspice",
+  "version": "0.0.0",
+  "description": "Cross promotion ads",
+  "main": "src/index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cartesian-product": "^2.1.2",
+    "co": "^4.0.2",
+    "deck": "0.0.4",
+    "hapi": "^8.0.0",
+    "joi": "latest",
+    "mongoose": "3.9.7",
+    "mongoose-timestamp": "~0.2.0",
+    "randomstring": "^1.0.3",
+    "underscore": "~1.6.0"
+  },
+  "devDependencies": {
+    "casual": "^1.4.6",
+    "chai": "^1.10.0",
+    "co-mocha": "^1.1.0",
+    "inject-then": "^2.0.0",
+    "mocha": "^2.0.1",
+    "mocha-mongoose": "^1.0.3"
+  },
+  "scripts": {
+    "test": "./node_modules/lab/bin/lab -c test"
+  },
+  "engines": {
+    "node": "0.11.x"
+  }
+}
