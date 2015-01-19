@@ -1,7 +1,7 @@
 var Mongoose = require('mongoose')
 var Schema = Mongoose.Schema
 var Co = require('co')
-Timestamps = require('mongoose-timestamp')
+Timestamps = require("./timestamp_plugin")
 
 Mongoose.plugin(function(schema) {
 
@@ -24,31 +24,50 @@ Mongoose.plugin(function(schema) {
 
 var userSchema = new Schema(
     {
-        advertisingId: {type: String, index: true}
-    }
-)
-
-var clientSchema = new Schema(
-    {
-        username: String,
-        password: String,
-        appSpiceId: {type: String, index: true},
-        spiceCoins: Number
-    }
-)
-
-var eventSchema = new Schema(
-    {
         name: String,
-        data: Schema.Types.Mixed
+        email: {type: String, index: true},
+        profilePicture: String,
+        advertisingId: String,
+        loginType: String,
+        notificationsEnabled: Boolean
+    }
+)
+
+
+var appSchema = new Schema(
+    {
+        title: String,
+        icon: String,
+        url: String,
+        description: String,
+        createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
+        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}]
+    }
+)
+
+var voteSchema = new Schema(
+    {
+        userId: {type: Schema.Types.ObjectId, ref: 'User'}
+    }
+)
+
+appSchema.methods.getVotesCount = function () {
+    return this.votes.count();
+}
+
+var notificationSchema = new Schema(
+    {
+        sendTime: Date,
+        message: String
     }
 )
 
 userSchema.plugin(Timestamps)
-clientSchema.plugin(Timestamps)
-eventSchema.plugin(Timestamps)
+appSchema.plugin(Timestamps)
+voteSchema.plugin(Timestamps)
+notificationSchema.plugin(Timestamps)
 
 module.exports.User = Mongoose.model('User', userSchema)
-module.exports.Client = Mongoose.model('Client', clientSchema)
-module.exports.Event = Mongoose.model('Event', eventSchema)
+module.exports.App = Mongoose.model('App', appSchema)
+module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 
