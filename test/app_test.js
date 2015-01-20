@@ -24,4 +24,17 @@ describe("Apps", function() {
 
         response.statusCode.should.equal(400)
     });
+
+    it("should get all apps", function*() {
+        yield dbHelper.createUser()
+        yield dbHelper.createApp()
+        var opts = {
+            method: 'GET',
+            url: '/apps'
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.statusCode.should.equal(200)
+        response.result.length.should.equal(1)
+    });
 })
