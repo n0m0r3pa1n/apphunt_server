@@ -1,5 +1,4 @@
 var AppsHandler = require('../handlers/apps_handler')
-var UsersHandler = require('../handlers/users_handler')
 var App = require('../models').App
 
 var Joi = require('joi')
@@ -17,17 +16,34 @@ var routes = [
         path: "/apps",
         handler: function(req,reply) {
             var app = new App(req.payload);
-
-            reply.co(AppsHandler.create(app, req.payload.email))
+            reply.co(AppsHandler.create(app, req.payload.userId))
         },
         config: {
             validate: {
                 payload: {
-                    title: Joi.string().required(),
+                    name: Joi.string().required(),
                     icon: Joi.string().required(),
                     url: Joi.string().required(),
                     package: Joi.string().required(),
-                    email: Joi.string().required()
+                    userId: Joi.string().required()
+                }
+            }
+        }
+    },
+    {
+        method: "POST",
+        path: "/apps/{appId}/votes",
+        handler: function(req,reply) {
+            var app = new App(req.payload);
+            reply.co(AppsHandler.createVote(req.payload.userId, req.params.appId))
+        },
+        config: {
+            validate: {
+                payload: {
+                    userId: Joi.string().required()
+                },
+                params: {
+                    appId: Joi.string().required()
                 }
             }
         }

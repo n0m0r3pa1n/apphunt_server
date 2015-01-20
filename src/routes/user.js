@@ -14,15 +14,7 @@ var routes = [
         method: "POST",
         path: "/users",
         handler: function(req,reply) {
-            var user = new User();
-            user.name = req.payload.name;
-            user.email = req.payload.email;
-
-            user.profilePicture = req.payload.profilePicture;
-            user.advertisingId = req.payload.advertisingId;
-            user.loginType = req.payload.loginType;
-            user.notificationsEnabled = req.payload.notificationsEnabled === undefined ? true : req.payload.notificationsEnabled;
-
+            var user = new User(req.payload);
             reply.co(UsersHandler.create(user))
         },
         config: {

@@ -42,7 +42,7 @@ var platforms = ["GooglePlay", "AppStore"]
 
 var appSchema = new Schema(
     {
-        title: String,
+        name: String,
         icon: String,
         url: String,
         description: String,
@@ -57,7 +57,7 @@ var appSchema = new Schema(
 
 var voteSchema = new Schema(
     {
-        userId: {type: Schema.Types.ObjectId, ref: 'User'}
+        user: {type: Schema.Types.ObjectId, ref: 'User'}
     }
 )
 
