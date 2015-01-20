@@ -34,11 +34,11 @@ var userSchema = new Schema(
 
 var appCategorySchema = new Schema(
     {
-        title: String
+        name: String
     }
 )
 
-var platforms = ["GooglePlay", "AppStore"]
+var platforms = ["Android", "iOS"]
 
 var appSchema = new Schema(
     {

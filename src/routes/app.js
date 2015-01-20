@@ -1,6 +1,5 @@
 var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
-
 var Joi = require('joi')
 
 var routes = [
@@ -15,8 +14,10 @@ var routes = [
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {
+            var categories = req.payload.categories;
             var app = new App(req.payload);
-            reply.co(AppsHandler.create(app, req.payload.userId))
+
+            reply.co(AppsHandler.create(app, req.payload.userId, categories))
         },
         config: {
             validate: {
@@ -25,7 +26,11 @@ var routes = [
                     icon: Joi.string().required(),
                     url: Joi.string().required(),
                     package: Joi.string().required(),
-                    userId: Joi.string().required()
+                    userId: Joi.string().required(),
+                    description: Joi.string().optional(),
+                    categories: Joi.array().optional(),
+                    isFree: Joi.boolean().optional(),
+                    platform: Joi.string().optional()
                 }
             }
         }

@@ -1,4 +1,6 @@
 var email = "dummy@dummy.com"
+var category1 = "TEST1"
+var category2 = "TEST2"
 
 function createApp(userId) {
     var name = "Example App";
@@ -15,7 +17,10 @@ function createApp(userId) {
             icon: icon,
             url: url,
             package: package,
-            userId: userId
+            userId: userId,
+            description: "Test description",
+            isFree: false,
+            categories: [category1, category2]
         }
     }
 
@@ -50,3 +55,5 @@ module.exports.createApp = createApp
 module.exports.createUser = createUser
 module.exports.getUsers = getUsers
 module.exports.EMAIL = email
+module.exports.CATEGORY_1 = category1
+module.exports.CATEGORY_2 = category2

@@ -8,7 +8,10 @@ describe("Apps", function() {
     it("should create app", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)
+
         response.statusCode.should.equal(200)
+        response.result.categories.length.should.equal(2)
+        response.result.description.should.exist();
     });
 
     it("should not create app", function*() {

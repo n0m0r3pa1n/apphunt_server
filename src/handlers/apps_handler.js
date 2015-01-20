@@ -2,16 +2,24 @@ var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Vote = require('../models').Vote
+var AppCategory = require('../models').AppCategory
 
-function* create(app, userId) {
+function* create(app, userId, categories) {
     var existingApp = yield App.findOne({package: app.package}).exec()
-    if(existingApp) {
+    if (existingApp) {
         return {statusCode: 409, message: "App already exists"}
+    }
+
+    var appCategories = []
+    for (var index in categories) {
+        var category = yield AppCategory.findOneOrCreate({name: categories[index]}, {name: categories[index]})
+        appCategories.push(category)
     }
 
     var user = yield User.findOne({_id: userId}).exec()
     if(user) {
         app.createdBy = user
+        app.categories = appCategories
         return yield App.create(app)
     } else {
         return {statusCode: 400}
@@ -46,7 +54,7 @@ function* createVote(userId, appId) {
 
     var vote = new Vote()
     vote.user = user
-    vote = yield vote.save()
+    vote = yield Vote.create(vote)
 
     app.votes.push(vote)
     yield app.save()
