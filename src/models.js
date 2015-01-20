@@ -1,7 +1,7 @@
 var Mongoose = require('mongoose')
 var Schema = Mongoose.Schema
 var Co = require('co')
-Timestamps = require("./timestamp_plugin")
+Timestamps = require('mongoose-timestamp')
 
 Mongoose.plugin(function(schema) {
 
@@ -27,7 +27,6 @@ var userSchema = new Schema(
         profilePicture: String,
         advertisingId: String,
         loginType: String,
-        createdAt: {type: Date, default: Date.now() },
         notificationsEnabled: { type:Boolean, default: true}
     }
 )
@@ -35,8 +34,7 @@ var userSchema = new Schema(
 
 var appCategorySchema = new Schema(
     {
-        title: String,
-        createdAt: {type: Date, default: Date.now() }
+        title: String
     }
 )
 
@@ -52,15 +50,13 @@ var appSchema = new Schema(
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
         isFree: Boolean,
-        createdAt: {type: Date, default: Date.now()},
         platform: {type: String, enum: platforms}
     }
 )
 
 var voteSchema = new Schema(
     {
-        userId: {type: Schema.Types.ObjectId, ref: 'User'},
-        createdAt: {type: Date, default: Date.now() }
+        userId: {type: Schema.Types.ObjectId, ref: 'User'}
     }
 )
 
@@ -71,16 +67,15 @@ appSchema.methods.getVotesCount = function () {
 var notificationSchema = new Schema(
     {
         sendTime: Date,
-        message: String,
-        createdAt: {type: Date, default: Date.now() }
+        message: String
     }
 )
 
-//userSchema.plugin(Timestamps)
-//appSchema.plugin(Timestamps)
-//voteSchema.plugin(Timestamps)
-//notificationSchema.plugin(Timestamps)
-//appCategorySchema.plugin(Timestamps)
+userSchema.plugin(Timestamps)
+appSchema.plugin(Timestamps)
+voteSchema.plugin(Timestamps)
+notificationSchema.plugin(Timestamps)
+appCategorySchema.plugin(Timestamps)
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)
