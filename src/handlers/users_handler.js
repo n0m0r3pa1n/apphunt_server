@@ -9,5 +9,9 @@ function* getAll() {
     return yield User.find({}).exec();
 }
 
+function* get(email) {
+    return yield User.findOne({email: email});
+}
+
 module.exports.create = create
 module.exports.getAll = getAll

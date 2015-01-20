@@ -46,11 +46,12 @@ var appSchema = new Schema(
         icon: String,
         url: String,
         description: String,
+        package: String,
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
-        isFree: Boolean,
-        platform: {type: String, enum: platforms}
+        isFree: {type: Boolean, default: true},
+        platform: {type: String, enum: platforms, default: platforms[0]}
     }
 )
 

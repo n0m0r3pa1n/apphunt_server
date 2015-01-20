@@ -1,27 +1,27 @@
 var should = require('chai').should()
-
+var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 
-function createUser() {
-    var name = "dummy"
-    var email = "dummy@dummy.com"
+describe("Apps", function() {
 
-    var opts = {
-        method: 'POST',
-        url: '/users',
-        payload: {
-            name: name,
-            email: email
-        }
-    }
+    it("should create app", function*() {
+        yield dbHelper.createUser()
+        var response = yield dbHelper.createApp()
+        response.statusCode.should.equal(200)
+    });
 
-    return Server.injectThen(opts)
-}
+    it("should not create app", function*() {
+        yield dbHelper.createUser()
+        var response = yield dbHelper.createApp()
 
-describe("Users", function() {
+        var response2 = yield dbHelper.createApp()
+        response2.statusCode.should.equal(409)
+    });
 
-    //it("should create app", function*() {
-    //    var response = yield createUser()
-    //    response.statusCode.should.equal(200)
-    //});
+    it("should not create app with not existing user", function*() {
+        yield dbHelper.createUser()
+        var response = yield dbHelper.createAppWithMail("test@test.com")
+
+        response.statusCode.should.equal(400)
+    });
 })

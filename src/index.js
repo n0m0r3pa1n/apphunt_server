@@ -28,7 +28,6 @@ server.ext('onPreResponse', function (request, reply) {
     var source = request.response.source
     if(source && source.statusCode) {
         var statusCode = source.statusCode
-        console.log(statusCode)
         reply(source).code(statusCode)
     } else {
     	return reply.continue()
