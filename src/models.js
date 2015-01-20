@@ -7,9 +7,7 @@ Mongoose.plugin(function(schema) {
 
     schema.statics.findOneOrCreate = function findOneOrCreate(condition, doc) {
         var wrapper = Co.wrap(function* (self, condition, doc) {
-            console.log("FindOne");
             var foundDoc = yield self.findOne(condition).exec();
-            console.log("Doc:" + foundDoc)
             if (foundDoc) {
                 return foundDoc
             } else {
@@ -29,10 +27,20 @@ var userSchema = new Schema(
         profilePicture: String,
         advertisingId: String,
         loginType: String,
-        notificationsEnabled: Boolean
+        createdAt: {type: Date, default: Date.now() },
+        notificationsEnabled: { type:Boolean, default: true}
     }
 )
 
+
+var appCategorySchema = new Schema(
+    {
+        title: String,
+        createdAt: {type: Date, default: Date.now() }
+    }
+)
+
+var platforms = ["GooglePlay", "AppStore"]
 
 var appSchema = new Schema(
     {
@@ -41,13 +49,18 @@ var appSchema = new Schema(
         url: String,
         description: String,
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
-        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}]
+        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
+        categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
+        isFree: Boolean,
+        createdAt: {type: Date, default: Date.now()},
+        platform: {type: String, enum: platforms}
     }
 )
 
 var voteSchema = new Schema(
     {
-        userId: {type: Schema.Types.ObjectId, ref: 'User'}
+        userId: {type: Schema.Types.ObjectId, ref: 'User'},
+        createdAt: {type: Date, default: Date.now() }
     }
 )
 
@@ -58,16 +71,21 @@ appSchema.methods.getVotesCount = function () {
 var notificationSchema = new Schema(
     {
         sendTime: Date,
-        message: String
+        message: String,
+        createdAt: {type: Date, default: Date.now() }
     }
 )
 
-userSchema.plugin(Timestamps)
-appSchema.plugin(Timestamps)
-voteSchema.plugin(Timestamps)
-notificationSchema.plugin(Timestamps)
+//userSchema.plugin(Timestamps)
+//appSchema.plugin(Timestamps)
+//voteSchema.plugin(Timestamps)
+//notificationSchema.plugin(Timestamps)
+//appCategorySchema.plugin(Timestamps)
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)
+module.exports.Vote = Mongoose.model('Vote', voteSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
+module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
+
 

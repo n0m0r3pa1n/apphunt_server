@@ -3,13 +3,15 @@ var should = require('chai').should()
 require('./spec_helper')
 
 function createUser() {
-    var advertisingId = "12321321"
+    var name = "dummy"
+    var email = "dummy@dummy.com"
 
     var opts = {
         method: 'POST',
         url: '/users',
         payload: {
-            advertisingId: advertisingId
+            name: name,
+            email: email
         }
     }
 

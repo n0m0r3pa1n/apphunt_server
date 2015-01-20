@@ -1,9 +1,5 @@
-/*!
- * Mongoose Timestamps Plugin
- * Copyright(c) 2012 Nicholas Penree <nick@penree.com>
- * Original work Copyright(c) 2012 Brian Noguchi
- * MIT Licensed
- */
+var moment = require('moment-timezone');
+var Mongoose = require('mongoose')
 
 function timestampsPlugin(schema, options) {
     var updatedAt = 'updatedAt';
@@ -33,13 +29,14 @@ function timestampsPlugin(schema, options) {
         schema.virtual(createdAt)
             .get( function () {
                 if (this["_" + createdAt]) return this["_" + createdAt];
+                console.log("Timestamp: " + this._id.getTimestamp());
                 return this["_" + createdAt] = this._id.getTimestamp();
             });
         schema.pre('save', function (next) {
             if (this.isNew) {
                 this[updatedAt] = this[createdAt];
             } else if (this.isModified()) {
-                this[updatedAt] = new Date;
+                this[updatedAt] = dateToUTCDate(new Date);
             }
             next();
         });
@@ -48,13 +45,30 @@ function timestampsPlugin(schema, options) {
         schema.add(dataObj);
         schema.pre('save', function (next) {
             if (!this[createdAt]) {
-                this[createdAt] = this[updatedAt] = new Date;
+                this[createdAt] = this[updatedAt] = dateToUTCDate(new Date);
             } else if (this.isModified()) {
-                this[updatedAt] = new Date;
+                this[updatedAt] = dateToUTCDate(new Date);
             }
             next();
         });
     }
+}
+
+function dateToUTCDate(date) {
+    //console.log(moment().tz("Europe/London").format());
+    //console.log("dateToUTCDate: " + date.toString());
+    //var utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    ////var utc = new Date(Date.UTC(
+    ////    date.getUTCFullYear(),
+    ////    date.getUTCMonth(),
+    ////    date.getUTCDate(),
+    ////    date.getUTCHours(),
+    ////    date.getUTCMinutes()
+    ////));
+    //console.log("dateToUTCDate result: " + utc.toString());
+    //var utc = Mongoose.Date.now();
+    console.log(Date.now())
+    return new Date();
 }
 
 module.exports = timestampsPlugin;

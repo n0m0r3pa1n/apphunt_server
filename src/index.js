@@ -4,7 +4,7 @@ var Co = require('co')
 var Routes = require('./routes').routes
 var Client = require('./models').Client
 
-var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/appspice'
+var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 
 Mongoose.connect(dbURI)
 var serverPort = process.env.PORT || 8080
@@ -22,22 +22,6 @@ server.connection({
 server.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
 })
-
-server.ext('onRequest', function (request, reply) {
-    var appSpiceId = request.query.appSpiceId
-    if(appSpiceId) {
-        var client = Client.findOne({appSpiceId: appSpiceId}).exec()
-        client.then(function(client) {
-            if(client) {
-                reply.continue();
-            } else {
-                reply().code(400).takeover()
-            }
-        })
-    } else {
-        reply.continue()
-    }
-});
 
 server.ext('onPreResponse', function (request, reply) {
     
@@ -57,7 +41,7 @@ server.route(Routes)
 
 if (!module.parent) {
     server.start(function() {
-        console.log('AppSpice is rocking your world at port %s', serverPort)
+        console.log('AppHunt is rocking your world at port %s', serverPort)
     })
 }
 

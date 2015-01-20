@@ -1,4 +1,5 @@
 var UsersHandler = require('../handlers/users_handler')
+var User = require('../models').User
 var Joi = require('joi')
 
 var routes = [
@@ -13,12 +14,17 @@ var routes = [
         method: "POST",
         path: "/users",
         handler: function(req,reply) {
-            reply.co(UsersHandler.create(req.payload.advertisingId))
+            var user = new User();
+            user.name = req.payload.name;
+            user.email = req.payload.email;
+
+            reply.co(UsersHandler.create(user))
         },
         config: {
             validate: {
                 payload: {
-                    advertisingId: Joi.string().required()
+                    name: Joi.string().required(),
+                    email: Joi.string().required()
                 }
             }
         }

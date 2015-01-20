@@ -1,8 +1,8 @@
 var Mongoose = require('mongoose')
 var User = require('../models').User
 
-function* create(advertisingId) {
-    yield User.findOneOrCreate({advertisingId: advertisingId}, {advertisingId: advertisingId});
+function* create(user) {
+    yield User.findOneOrCreate({email: user.email}, user);
 }
 
 function* getAll() {
