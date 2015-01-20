@@ -31,33 +31,36 @@ function* getAll() {
 }
 
 function* createVote(userId, appId) {
-    var user = yield User.findOne({_id: userId}).exec()
+    var user = yield User.findById(userId).exec()
     if(!user) {
         return {statusCode: 400}
     }
 
-    var app = yield App.findOne({_id: appId}).populate("votes").exec()
+    var query = App.findById(appId)
+    var app = yield query.populate("votes").exec()
+    console.dir(app)
     if(!app) {
         return {statusCode: 400}
     }
 
-    console.log("UserId: " + userId)
-    console.log("Votes: " + app.votes);
-    //for(v in app.votes) {
-    //    var currUserId = v.user
-    //    console.log("CurrIserId: " + v);
-    //    if(currUserId == userId) {
-    //        console.log("IFFFFF");
-    //        return {statusCode: 400}
-    //    }
-    //}
+    console.log(app.votes)
+    for(var index in app.votes) {
+
+        var currUserId = app.votes[index].user
+        console.log("Current user id " + currUserId)
+        if(currUserId == userId) {
+            return {statusCode: 400}
+        }
+    }
 
     var vote = new Vote()
     vote.user = user
-    vote = yield Vote.create(vote)
+    vote = yield vote.save()
 
     app.votes.push(vote)
     yield app.save()
+
+
 }
 
 module.exports.create = create

@@ -45,6 +45,7 @@ describe("Apps", function() {
     it("should vote app", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)
+        console.log("id " + response.result.id)
         var opts = {
             method: 'POST',
             url: '/apps/' + response.result.id + "/votes",
@@ -68,27 +69,14 @@ describe("Apps", function() {
             }
         }
 
-        var response1 =  yield Server.injectThen(opts)
-
-        var opts1 = {
-            method: 'POST',
-            url: '/users',
-            payload: {
-                name: "test",
-                email: "test@test"
-            }
-        }
-
-        var userResponse2 = yield Server.injectThen(opts1)
-
         var opts2 = {
             method: 'POST',
             url: '/apps/' + response.result.id + "/votes",
             payload: {
-                userId: userResponse2.result.id
+                userId: userResponse.result.id
             }
         }
         var response2 =  yield Server.injectThen(opts2);
-        //response2.statusCode.should.equal(400)
+        response2.statusCode.should.equal(400)
     });
 })
