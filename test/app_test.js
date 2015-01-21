@@ -90,4 +90,25 @@ describe("Apps", function() {
         var vote2Response =  yield Server.injectThen(opts2);
         vote2Response.statusCode.should.equal(400)
     });
+
+    it("should get apps by date", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createApp(userResponse.result.id)
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+        console.log(todayStr)
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/' + todayStr + '?page=1&pageSize=2'
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.statusCode.should.equal(200)
+        response.result.length.should.equal(2)
+
+    });
+
 })

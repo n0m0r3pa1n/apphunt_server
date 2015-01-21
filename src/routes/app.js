@@ -52,6 +52,31 @@ var routes = [
                 }
             }
         }
+    },
+    {
+        method: "GET",
+        path: "/apps/{date}",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            var date = req.params.date
+            reply.co(AppsHandler.getApps(date, page, pageSize))
+            //var app = new App(req.payload);
+            //reply.co(AppsHandler.createVote(req.payload.userId, req.params.appId))
+            //return apps + totalPages + totalCount + nextPageLink + prevPageLink
+            //reply({})
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().optional(),
+                    pageSize: Joi.number().integer().optional()
+                },
+                params: {
+                    date: Joi.string().required()
+                }
+            }
+        }
     }
 ]
 
