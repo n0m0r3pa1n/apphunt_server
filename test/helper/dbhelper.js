@@ -1,13 +1,16 @@
+
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
 var category2 = "TEST2"
 
 function createApp(userId) {
+    return createAppWithPackage(userId, "com.example.test")
+}
+
+function createAppWithPackage(userId, package) {
     var name = "Example App";
     var icon = "http://example.com/icon.png";
     var url = "http://example.com";
-    var package = "com.example.test";
-
 
     var opts = {
         method: 'POST',
@@ -52,6 +55,7 @@ function getUsers() {
 }
 
 module.exports.createApp = createApp
+module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createUser = createUser
 module.exports.getUsers = getUsers
 module.exports.EMAIL = email

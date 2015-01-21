@@ -38,21 +38,16 @@ function* createVote(userId, appId) {
 
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
-    console.dir(app)
     if(!app) {
         return {statusCode: 400}
     }
 
-    console.log(app.votes)
-    for(var index in app.votes) {
-
-        var currUserId = app.votes[index].user
-        console.log("Current user id " + currUserId)
+    for(var i=0; i< app.votes.length; i++) {
+        var currUserId = app.votes[i].user
         if(currUserId == userId) {
             return {statusCode: 400}
         }
     }
-
     var vote = new Vote()
     vote.user = user
     vote = yield vote.save()

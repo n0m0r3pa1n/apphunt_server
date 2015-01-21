@@ -1,7 +1,8 @@
+var Mongoose = require("mongoose")
 var should = require('chai').should()
 var dbHelper = require('./helper/dbhelper')
-var Mongoose = require('mongoose')
 require('./spec_helper')
+var AppCategory = require("../src/models").AppCategory
 
 describe("Apps", function() {
 
@@ -12,6 +13,15 @@ describe("Apps", function() {
         response.statusCode.should.equal(200)
         response.result.categories.length.should.equal(2)
         response.result.description.should.exist();
+    });
+
+    it("should create 2 categories", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var r = yield dbHelper.createApp(userResponse.result.id)
+        var r2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli.com")
+        var categories = yield AppCategory.find({}).exec()
+        categories.length.should.equal(2)
+
     });
 
     it("should not create app", function*() {
@@ -60,23 +70,24 @@ describe("Apps", function() {
 
     it("should not vote app", function*() {
         var userResponse = yield dbHelper.createUser()
-        var response = yield dbHelper.createApp(userResponse.result.id)
+        var appResponse = yield dbHelper.createApp(userResponse.result.id)
         var opts = {
             method: 'POST',
-            url: '/apps/' + response.result.id + "/votes",
+            url: '/apps/' + appResponse.result.id + "/votes",
             payload: {
                 userId: userResponse.result.id
             }
         }
+        var vote1Response =  yield Server.injectThen(opts);
 
         var opts2 = {
             method: 'POST',
-            url: '/apps/' + response.result.id + "/votes",
+            url: '/apps/' + appResponse.result.id + "/votes",
             payload: {
                 userId: userResponse.result.id
             }
         }
-        var response2 =  yield Server.injectThen(opts2);
-        response2.statusCode.should.equal(400)
+        var vote2Response =  yield Server.injectThen(opts2);
+        vote2Response.statusCode.should.equal(400)
     });
 })
