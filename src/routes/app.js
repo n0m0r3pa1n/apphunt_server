@@ -29,6 +29,7 @@ var routes = [
                     name: Joi.string().required(),
                     icon: Joi.string().required(),
                     url: Joi.string().required(),
+                    shortUrl: Joi.string().optional(),
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
                     description: Joi.string().optional(),
