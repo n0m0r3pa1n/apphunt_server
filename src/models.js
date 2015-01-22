@@ -26,8 +26,7 @@ var userSchema = new Schema(
         email: {type: String, index: true, unique: true},
         profilePicture: String,
         advertisingId: { type: String, unique: true },
-        loginType: String,
-        notificationsEnabled: { type:Boolean, default: true}
+        loginType: String
     }
 )
 
@@ -68,10 +67,15 @@ appSchema.methods.getVotesCount = function () {
 
 var notificationSchema = new Schema(
     {
+        type: String,
         sendTime: Date,
         message: String
     }
 )
+
+var deviceSchema = new Schema({
+    notificationsEnabled: { type:Boolean, default: true}
+})
 
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)

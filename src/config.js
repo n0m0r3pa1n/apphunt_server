@@ -1,0 +1,2 @@
+var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs"
+module.exports.GCM_API_KEY = GCM_API_KEY

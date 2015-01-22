@@ -17,6 +17,5 @@ describe("Users", function() {
         var usersResponse = yield dbHelper.getUsers()
         var users = usersResponse.result
         users.length.should.equal(1)
-        users[0].notificationsEnabled.should.equal(true)
     })
 })

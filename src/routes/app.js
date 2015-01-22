@@ -4,17 +4,6 @@ var Joi = require('joi')
 
 var routes = [
     {
-        method: "GET",
-        path: "/apps",
-        handler: function(req,reply) {
-            reply.co(AppsHandler.getAll())
-        },
-        config: {
-            description: 'Get all apps',
-            tags: ['api']
-        }
-    },
-    {
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {
@@ -78,12 +67,13 @@ var routes = [
     },
     {
         method: "GET",
-        path: "/apps/{date}",
+        path: "/apps",
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
             var userId = req.query.userId
-            var date = req.params.date
+            var date = req.query.date
+
             reply.co(AppsHandler.getApps(date, page, pageSize, userId))
         },
         config: {
@@ -91,10 +81,8 @@ var routes = [
                 query: {
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
-                    userId: Joi.string().optional()
-                },
-                params: {
-                    date: Joi.date().iso().required()
+                    userId: Joi.string().optional(),
+                    date: Joi.date().optional()
                 }
             },
             description: 'Get apps by date',

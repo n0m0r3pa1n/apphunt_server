@@ -50,7 +50,7 @@ describe("Apps", function() {
 
         var response =  yield Server.injectThen(opts);
         response.statusCode.should.equal(200)
-        response.result.length.should.equal(1)
+        response.result.apps.length.should.equal(1)
     });
 
     it("should vote app", function*() {
@@ -90,7 +90,7 @@ describe("Apps", function() {
         var vote2Response =  yield Server.injectThen(opts2);
         vote2Response.statusCode.should.equal(400)
     });
-
+    //
     it("should remove app vote", function*() {
         var userResponse = yield dbHelper.createUser()
         var appCreatedResponse = yield dbHelper.createApp(userResponse.result.id)
@@ -122,7 +122,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps/' + todayStr
+            url: '/apps?date=' + todayStr
         }
 
         var allAppsResponse =  yield Server.injectThen(opts);
@@ -139,7 +139,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps/' + todayStr + '?page=1&pageSize=2'
+            url: '/apps?date='+todayStr+'&page=1&pageSize=2'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -169,7 +169,7 @@ describe("Apps", function() {
 
         var opts1 = {
             method: 'GET',
-            url: '/apps/' + todayStr + '?page=1&pageSize=1&userId=' + userResponse.result.id
+            url: '/apps?date='+todayStr+'&page=1&pageSize=1&userId=' + userResponse.result.id
         }
 
         var response =  yield Server.injectThen(opts1);
@@ -185,14 +185,12 @@ describe("Apps", function() {
         yield dbHelper.createApp(userResponse.result.id)
         yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
 
-
-
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps/' + todayStr
+            url: '/apps?date='+todayStr
         }
 
         var response =  yield Server.injectThen(opts);
@@ -214,7 +212,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps/' + todayStr + '?page=0'
+            url: '/apps?date='+todayStr+'&page=0'
         }
 
         var response =  yield Server.injectThen(opts);

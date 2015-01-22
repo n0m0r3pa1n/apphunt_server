@@ -85,10 +85,15 @@ function* deleteVote(userId, appId) {
 
 
 function* getApps(dateStr, page, pageSize, userId) {
-    var date = new Date(dateStr);
-    var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
+    var where = {};
+    if(date !== undefined) {
+        var date = new Date(dateStr);
+        var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
+        where = {createdAt: {"$gte": date, "$lt": nextDate}};
+    }
 
-    var query = App.find({createdAt: {"$gte": date, "$lt": nextDate}}).populate("votes")
+    var query = App.find(where).populate("votes")
+
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
     }

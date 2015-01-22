@@ -24,8 +24,7 @@ var routes = [
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
                     advertisingId: Joi.string().optional(),
-                    loginType: Joi.string().optional(),
-                    notificationsEnabled: Joi.boolean().optional()
+                    loginType: Joi.string().optional()
                 }
             }
         }
