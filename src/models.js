@@ -23,9 +23,9 @@ Mongoose.plugin(function(schema) {
 var userSchema = new Schema(
     {
         name: String,
-        email: {type: String, index: true},
+        email: {type: String, index: true, unique: true},
         profilePicture: String,
-        advertisingId: String,
+        advertisingId: { type: String, unique: true },
         loginType: String,
         notificationsEnabled: { type:Boolean, default: true}
     }
@@ -47,7 +47,7 @@ var appSchema = new Schema(
         url: String,
         shortUrl: String,
         description: String,
-        package: String,
+        package: {type: String, unique: true},
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
