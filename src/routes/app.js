@@ -39,8 +39,24 @@ var routes = [
         method: "POST",
         path: "/apps/{appId}/votes",
         handler: function(req,reply) {
-            var app = new App(req.payload);
             reply.co(AppsHandler.createVote(req.payload.userId, req.params.appId))
+        },
+        config: {
+            validate: {
+                payload: {
+                    userId: Joi.string().required()
+                },
+                params: {
+                    appId: Joi.string().required()
+                }
+            }
+        }
+    },
+    {
+        method: "DELETE",
+        path: "/apps/{appId}/votes",
+        handler: function(req,reply) {
+            reply.co(AppsHandler.deleteVote(req.payload.userId, req.params.appId))
         },
         config: {
             validate: {

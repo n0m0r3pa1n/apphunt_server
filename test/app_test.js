@@ -91,6 +91,44 @@ describe("Apps", function() {
         vote2Response.statusCode.should.equal(400)
     });
 
+    it("should remove app vote", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var appCreatedResponse = yield dbHelper.createApp(userResponse.result.id)
+
+        var opts = {
+            method: 'POST',
+            url: '/apps/' + appCreatedResponse.result.id + "/votes",
+            payload: {
+                userId: userResponse.result.id
+            }
+        }
+
+        var userVotedResponse =  yield Server.injectThen(opts);
+        userVotedResponse.statusCode.should.equal(200)
+
+        opts = {
+            method: 'DELETE',
+            url: '/apps/' + appCreatedResponse.result.id + "/votes",
+            payload: {
+                userId: userResponse.result.id
+            }
+        }
+
+        var voteDeletedResponse = yield Server.injectThen(opts)
+        voteDeletedResponse.statusCode.should.equal(200)
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/' + todayStr
+        }
+
+        var allAppsResponse =  yield Server.injectThen(opts);
+        allAppsResponse.result.apps[0].votesCount.should.equal(0)
+    });
+
     it("should get apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)

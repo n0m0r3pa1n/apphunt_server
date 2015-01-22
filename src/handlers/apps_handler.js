@@ -61,6 +61,28 @@ function* createVote(userId, appId) {
     yield app.save()
 }
 
+function* deleteVote(userId, appId) {
+    var user = yield User.findById(userId).exec()
+    if(!user) {
+        return {statusCode: 400}
+    }
+
+    var query = App.findById(appId)
+    var app = yield query.populate("votes").exec()
+    if(!app) {
+        return {statusCode: 400}
+    }
+
+    for(var i=0; i< app.votes.length; i++) {
+        var currUserId = app.votes[i].user
+        if(currUserId == userId) {
+            app.votes.remove(app.votes[i])
+        }
+    }
+
+    yield app.save()
+}
+
 
 function* getApps(dateStr, page, pageSize, userId) {
     var date = new Date(dateStr);
@@ -123,4 +145,5 @@ function hasVoted(app, userId) {
 module.exports.create = create
 module.exports.getAll = getAll
 module.exports.createVote = createVote
+module.exports.deleteVote = deleteVote
 module.exports.getApps = getApps
