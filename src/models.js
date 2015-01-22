@@ -34,7 +34,7 @@ var userSchema = new Schema(
 
 var appCategorySchema = new Schema(
     {
-        name: String
+        name: {type: String, unique: true}
     }
 )
 
@@ -45,6 +45,7 @@ var appSchema = new Schema(
         name: String,
         icon: String,
         url: String,
+        shortUrl: String,
         description: String,
         package: String,
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},

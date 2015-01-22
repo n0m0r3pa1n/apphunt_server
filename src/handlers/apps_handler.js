@@ -5,6 +5,8 @@ var Vote = require('../models').Vote
 var AppCategory = require('../models').AppCategory
 var Moment = require("moment-timezone")
 
+var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+
 function* create(app, userId, categories) {
     var existingApp = yield App.findOne({package: app.package}).exec()
     if (existingApp) {
@@ -51,23 +53,71 @@ function* createVote(userId, appId) {
     }
     var vote = new Vote()
     vote.user = user
+
     vote = yield vote.save()
-
     app.votes.push(vote)
+
+
     yield app.save()
-
-
 }
 
-function* getApps(date, page, pageSize) {
-    var d = new Date(date);
-    console.log(d)
-    var nextDay = new Date(d.getTime() + (24 * 60 * 60 * 1000));
-    console.log(nextDay)
 
-    var apps = yield App.find({createdAt: {"$gte": d, "$lt": nextDay}}).exec()
-    console.log(apps)
-    return apps
+function* getApps(dateStr, page, pageSize, userId) {
+    var date = new Date(dateStr);
+    var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
+
+    var query = App.find({createdAt: {"$gte": date, "$lt": nextDate}}).populate("votes")
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
+
+    var apps = yield query.exec()
+    var resultApps = addVotesCount(apps)
+
+    if(userId !== undefined) {
+        setHasVoted(resultApps, userId)
+    }
+
+    var allAppsCount = yield App.count({}).exec()
+    var response = {
+        apps: resultApps,
+        totalCount: allAppsCount,
+        page: page
+    }
+    if(page != 0 && pageSize != 0) {
+        response.totalPages = Math.round(allAppsCount / pageSize)
+    }
+
+    return response
+}
+
+function addVotesCount(apps) {
+    var resultApps = []
+
+    for (var i = 0; i < apps.length; i++) {
+        var app = apps[i].toObject()
+        app.votesCount = app.votes.length
+        resultApps.push(app)
+    }
+    return resultApps
+}
+
+function setHasVoted(apps, userId) {
+    for (var i = 0; i < apps.length; i++) {
+        var app = apps[i]
+        app.hasVoted = hasVoted(app, userId)
+    }
+}
+
+function hasVoted(app, userId) {
+    var hasVoted = false
+    for (var j = 0; j < app.votes.length; j++) {
+        if (userId == app.votes[j].user) {
+            hasVoted = true
+            break
+        }
+    }
+    return hasVoted
 }
 
 module.exports.create = create
