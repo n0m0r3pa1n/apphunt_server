@@ -8,6 +8,10 @@ var routes = [
         path: "/apps",
         handler: function(req,reply) {
             reply.co(AppsHandler.getAll())
+        },
+        config: {
+            description: 'Get all apps',
+            tags: ['api']
         }
     },
     {
@@ -28,11 +32,13 @@ var routes = [
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
                     description: Joi.string().optional(),
-                    categories: Joi.array().optional(),
+                    categories: Joi.array().includes(Joi.string()).optional(),
                     isFree: Joi.boolean().optional(),
                     platform: Joi.string().optional()
                 }
-            }
+            },
+            description: 'Get all apps',
+            tags: ['api']
         }
     },
     {
@@ -87,9 +93,11 @@ var routes = [
                     userId: Joi.string().optional()
                 },
                 params: {
-                    date: Joi.string().required()
+                    date: Joi.date().iso().required()
                 }
-            }
+            },
+            description: 'Get apps by date',
+            tags: ['api']
         }
     }
 ]

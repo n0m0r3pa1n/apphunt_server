@@ -10,12 +10,13 @@
     "co": "^4.0.2",
     "deck": "0.0.4",
     "hapi": "^8.0.0",
+    "hapi-swagger": "^0.6.1",
     "joi": "latest",
+    "moment-timezone": "latest",
     "mongoose": "3.9.7",
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
-    "underscore": "~1.6.0",
-    "moment-timezone": "latest"
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "casual": "^1.4.6",

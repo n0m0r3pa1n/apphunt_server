@@ -21,7 +21,11 @@ var routes = [
             validate: {
                 payload: {
                     name: Joi.string().required(),
-                    email: Joi.string().required()
+                    email: Joi.string().required(),
+                    profilePicture: Joi.string().optional(),
+                    advertisingId: Joi.string().optional(),
+                    loginType: Joi.string().optional(),
+                    notificationsEnabled: Joi.boolean().optional()
                 }
             }
         }

@@ -38,7 +38,8 @@ function createUser() {
         url: '/users',
         payload: {
             name: name,
-            email: email
+            email: email,
+            profilePicture: "http://pic-bg.net"
         }
     }
 

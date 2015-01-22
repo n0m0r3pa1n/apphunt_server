@@ -9,15 +9,28 @@ var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 Mongoose.connect(dbURI)
 var serverPort = process.env.PORT || 8080
 
+var pack = require('../package'),
+    swaggerOptions = {
+        basePath: 'http://localhost:' + serverPort,
+        apiVersion: pack.version
+    };
 
 var server = new Hapi.Server()
 
-server.connection({ 
-    port: serverPort,
-    routes: {
-      cors: true
-    }
+server.connection({
+    port: serverPort
 })
+
+server.register({
+    register: require('hapi-swagger'),
+    options: swaggerOptions
+}, function (err) {
+    if (err) {
+        server.log(['error'], 'hapi-swagger load error: ' + err)
+    }else{
+        server.log(['start'], 'hapi-swagger interface loaded')
+    }
+});
 
 server.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
