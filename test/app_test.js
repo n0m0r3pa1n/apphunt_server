@@ -220,4 +220,20 @@ describe("Apps", function() {
 
     });
 
+    it("should get apps by platform", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.poli", "Android")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.koli", "iOS")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android'
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.statusCode.should.equal(200)
+        response.result.apps.length.should.equal(1)
+    });
+
+
 })

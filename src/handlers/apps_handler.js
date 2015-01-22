@@ -3,7 +3,8 @@ var App = require('../models').App
 var User = require('../models').User
 var Vote = require('../models').Vote
 var AppCategory = require('../models').AppCategory
-var Moment = require("moment-timezone")
+var platforms = require('../models').platforms
+var _ = require("underscore")
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -84,15 +85,24 @@ function* deleteVote(userId, appId) {
 }
 
 
-function* getApps(dateStr, page, pageSize, userId) {
+function* getApps(dateStr, page, pageSize, userId, platform) {
     var where = {};
     if(date !== undefined) {
         var date = new Date(dateStr);
         var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
         where = {createdAt: {"$gte": date, "$lt": nextDate}};
     }
+console.log("Platform: "  + platform)
 
-    var query = App.find(where).populate("votes")
+    if(platform !== undefined) {
+        if(!isPlatformValid(platform)) {
+            console.log("Not valid");
+            return {statusCode: 400, message: "Invalid platform parameter"}
+        }
+        where.platform = platform
+    }
+
+    var query = App.find(where).populate("votes").populate("categories")
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
@@ -114,8 +124,11 @@ function* getApps(dateStr, page, pageSize, userId) {
     if(page != 0 && pageSize != 0) {
         response.totalPages = Math.round(allAppsCount / pageSize)
     }
-
     return response
+}
+
+function isPlatformValid(platform) {
+    return _.contains(platforms, platform)
 }
 
 function addVotesCount(apps) {

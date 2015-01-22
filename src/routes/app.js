@@ -73,8 +73,9 @@ var routes = [
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
             var userId = req.query.userId
             var date = req.query.date
+            var platform = req.query.platform
 
-            reply.co(AppsHandler.getApps(date, page, pageSize, userId))
+            reply.co(AppsHandler.getApps(date, page, pageSize, userId, platform))
         },
         config: {
             validate: {
@@ -82,7 +83,8 @@ var routes = [
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
-                    date: Joi.date().optional()
+                    date: Joi.date().optional(),
+                    platform: Joi.string().optional()
                 }
             },
             description: 'Get apps by date',

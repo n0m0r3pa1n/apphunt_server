@@ -2,12 +2,22 @@
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
 var category2 = "TEST2"
+var appPackage = "com.example.test"
+var platform = "Android"
 
 function createApp(userId) {
-    return createAppWithPackage(userId, "com.example.test")
+    return createAppWithParams(userId, appPackage, platform)
 }
 
-function createAppWithPackage(userId, package) {
+function createAppWithPlatform(userId, platform) {
+    return createAppWithParams(userId, appPackage, platform)
+}
+
+function createAppWithPackage(userId, appPackage) {
+    return createAppWithParams(userId, appPackage)
+}
+
+function createAppWithParams(userId, appPackage, platform) {
     var name = "Example App";
     var icon = "http://example.com/icon.png";
     var url = "http://example.com";
@@ -19,11 +29,12 @@ function createAppWithPackage(userId, package) {
             name: name,
             icon: icon,
             url: url,
-            package: package,
+            package: appPackage,
             userId: userId,
             description: "Test description",
             isFree: false,
-            categories: [category1, category2]
+            categories: [category1, category2],
+            platform: platform
         }
     }
 
@@ -57,6 +68,8 @@ function getUsers() {
 
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
+module.exports.createAppWithPlatform = createAppWithPlatform
+module.exports.createAppWithParams = createAppWithParams
 module.exports.createUser = createUser
 module.exports.getUsers = getUsers
 module.exports.EMAIL = email

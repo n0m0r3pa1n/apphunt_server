@@ -89,4 +89,6 @@ module.exports.Vote = Mongoose.model('Vote', voteSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 
+module.exports.platforms = platforms
+
 
