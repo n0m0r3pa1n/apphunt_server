@@ -19,6 +19,7 @@ describe("Votes", function() {
 
         var response1 =  yield Server.injectThen(opts);
         response1.statusCode.should.equal(200)
+        expect(response1.result.votesCount).to.exist()
     });
 
     it("should not vote app", function*() {

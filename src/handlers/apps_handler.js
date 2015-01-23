@@ -54,6 +54,10 @@ function* createVote(userId, appId) {
 
 
     yield app.save()
+    return {
+        statusCode: 200,
+        votesCount: app.votes.length
+    }
 }
 
 function* deleteVote(userId, appId) {
