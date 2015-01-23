@@ -4,6 +4,7 @@ var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppCategory = require("../src/models").AppCategory
+var STATUS_CODES = require('../src/config').STATUS_CODES
 
 describe("Votes", function() {
     it("should vote app", function*() {
@@ -18,7 +19,7 @@ describe("Votes", function() {
         }
 
         var response1 =  yield Server.injectThen(opts);
-        response1.statusCode.should.equal(200)
+        response1.statusCode.should.equal(STATUS_CODES.OK)
         expect(response1.result.votesCount).to.exist()
     });
 
@@ -42,9 +43,9 @@ describe("Votes", function() {
             }
         }
         var vote2Response =  yield Server.injectThen(opts2);
-        vote2Response.statusCode.should.equal(400)
+        vote2Response.statusCode.should.equal(STATUS_CODES.NOT_FOUND)
     });
-    //
+
     it("should remove app vote", function*() {
         var userResponse = yield dbHelper.createUser()
         var appCreatedResponse = yield dbHelper.createApp(userResponse.result.id)
@@ -58,7 +59,7 @@ describe("Votes", function() {
         }
 
         var userVotedResponse =  yield Server.injectThen(opts);
-        userVotedResponse.statusCode.should.equal(200)
+        userVotedResponse.statusCode.should.equal(STATUS_CODES.OK)
 
         opts = {
             method: 'DELETE',
@@ -69,7 +70,7 @@ describe("Votes", function() {
         }
 
         var voteDeletedResponse = yield Server.injectThen(opts)
-        voteDeletedResponse.statusCode.should.equal(200)
+        voteDeletedResponse.statusCode.should.equal(STATUS_CODES.OK)
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")

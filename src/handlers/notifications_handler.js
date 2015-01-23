@@ -6,7 +6,7 @@ function* create(message, type, sendTime) {
 }
 
 function getAll() {
-
+    return yield Notification.find({}).exec();
 }
 
 module.exports.create = create

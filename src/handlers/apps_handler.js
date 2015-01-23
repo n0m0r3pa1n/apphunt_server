@@ -4,6 +4,7 @@ var User = require('../models').User
 var Vote = require('../models').Vote
 var AppCategory = require('../models').AppCategory
 var platforms = require('../models').platforms
+var STATUS_CODES = require('../config').STATUS_CODES
 var _ = require("underscore")
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
@@ -11,7 +12,7 @@ var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 function* create(app, userId, categories) {
     var existingApp = yield App.findOne({package: app.package}).exec()
     if (existingApp) {
-        return {statusCode: 409, message: "App already exists"}
+        return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
     }
 
     var appCategories = []
@@ -37,13 +38,13 @@ function* createVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-        return {statusCode: 400}
+        return {statusCode: STATUS_CODES.NOT_FOUND}
     }
 
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: 400}
+            return {statusCode: STATUS_CODES.NOT_FOUND}
         }
     }
     var vote = new Vote()
@@ -55,7 +56,7 @@ function* createVote(userId, appId) {
 
     yield app.save()
     return {
-        statusCode: 200,
+        statusCode:  STATUS_CODES.OK,
         votesCount: app.votes.length
     }
 }
@@ -66,7 +67,7 @@ function* deleteVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-        return {statusCode: 400}
+        return {statusCode: STATUS_CODES.NOT_FOUND}
     }
 
     for(var i=0; i< app.votes.length; i++) {

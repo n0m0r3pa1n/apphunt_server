@@ -4,6 +4,7 @@ var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppCategory = require("../src/models").AppCategory
+var STATUS_CODES = require('../src/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 describe("Apps", function() {
@@ -12,7 +13,7 @@ describe("Apps", function() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)
 
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(2)
         response.result.description.should.exist();
     });
@@ -31,14 +32,14 @@ describe("Apps", function() {
         var response = yield dbHelper.createApp(userResponse.result.id)
 
         var response2 = yield dbHelper.createApp(userResponse.result.id)
-        response2.statusCode.should.equal(409)
+        response2.statusCode.should.equal(STATUS_CODES.CONFLICT)
     });
 
     it("should not create app with not existing user", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(Mongoose.Types.ObjectId())
 
-        response.statusCode.should.equal(400)
+        response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
     });
 
     it("should get all apps", function*() {
@@ -50,7 +51,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
     });
 
@@ -68,7 +69,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
         expect(response.result.totalCount).to.exist()
         response.result.totalCount.should.equal(2)
@@ -91,7 +92,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
         expect(response.result.totalCount).to.exist()
         expect(response.result.totalPages).to.not.exist()
@@ -112,7 +113,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(0)
     });
 
@@ -130,7 +131,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(400)
+        response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
 
     });
 
@@ -145,7 +146,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(200)
+        response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
         response.result.totalCount.should.equal(1)
     });
@@ -161,7 +162,7 @@ describe("Apps", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.statusCode.should.equal(400)
+        response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
     });
 
 

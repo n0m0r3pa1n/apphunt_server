@@ -3,6 +3,7 @@ var Hapi = require('hapi')
 var Co = require('co')
 var Routes = require('./routes').routes
 var User = require('./models').User
+var STATUS_CODES = require('../config').STATUS_CODES
 
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 
@@ -53,7 +54,7 @@ server.ext('onPreHandler', function (request, reply) {
             if(user) {
                 reply.continue();
             } else {
-                reply().code(400).takeover()
+                reply().code(STATUS_CODES.BAD_REQUEST).takeover()
             }
         })
     } else {
