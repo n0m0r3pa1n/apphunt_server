@@ -1,2 +1,4 @@
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs"
+var API_VERSION = 1.0;
 module.exports.GCM_API_KEY = GCM_API_KEY
+module.exports.API_VERSION = API_VERSION

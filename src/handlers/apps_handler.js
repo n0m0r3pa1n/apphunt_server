@@ -78,10 +78,10 @@ function* deleteVote(userId, appId) {
 
 function* getApps(dateStr, platform, page, pageSize, userId) {
     var where = {};
-    if(date !== undefined) {
+    if(dateStr !== undefined) {
         var date = new Date(dateStr);
         var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
-        where = {createdAt: {"$gte": date, "$lt": nextDate}};
+        where = {createdAt: {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": nextDate.toISOString()}};
     }
 
     if(platform !== undefined) {
