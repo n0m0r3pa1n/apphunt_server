@@ -78,10 +78,12 @@ function* deleteVote(userId, appId) {
 
 function* getApps(dateStr, platform, page, pageSize, userId) {
     var where = {};
+    var responseDate = ""
     if(dateStr !== undefined) {
         var date = new Date(dateStr);
         var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
         where = {createdAt: {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": nextDate.toISOString()}};
+        responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
     if(platform !== undefined) {
@@ -104,9 +106,10 @@ function* getApps(dateStr, platform, page, pageSize, userId) {
     var allAppsCount = yield App.count(where).exec()
 
     removeVotesField(resultApps)
+
     var response = {
         apps: resultApps,
-        date: dateStr,
+        date: responseDate,
         totalCount: allAppsCount,
         page: page
     }

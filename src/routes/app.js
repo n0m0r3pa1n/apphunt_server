@@ -75,7 +75,6 @@ var routes = [
             var userId = req.query.userId
             var date = req.query.date
             var platform = req.query.platform
-
             reply.co(AppsHandler.getApps(date, platform, page, pageSize, userId))
         },
         config: {

@@ -36,6 +36,15 @@ server.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
 })
 
+server.ext('onRequest', function (request, reply) {
+    var path = request.path
+    var query = request.query
+    path = path.replace('/v1','')
+    request.setUrl(path);
+    request.query = query
+    return reply.continue();
+});
+
 server.ext('onPreHandler', function (request, reply) {
     var userId = request.payload !== null ? request.payload.userId : request.query.userId
     if(userId) {
@@ -63,7 +72,6 @@ server.ext('onPreResponse', function (request, reply) {
     }
 
 });
-
 
 server.route(Routes)
 

@@ -24,7 +24,7 @@ function createAppWithParams(userId, appPackage, platform) {
 
     var opts = {
         method: 'POST',
-        url: '/apps',
+        url: '/v1/apps',
         payload: {
             name: name,
             icon: icon,
@@ -46,7 +46,7 @@ function createUser() {
 
     var opts = {
         method: 'POST',
-        url: '/users',
+        url: '/v1/users',
         payload: {
             name: name,
             email: email,
@@ -60,7 +60,7 @@ function createUser() {
 function getUsers() {
     var opts = {
         method: 'GET',
-        url: '/users'
+        url: '/v1/users'
     }
 
     return Server.injectThen(opts)

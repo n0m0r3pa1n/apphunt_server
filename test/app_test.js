@@ -5,6 +5,7 @@ var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppCategory = require("../src/models").AppCategory
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+
 describe("Apps", function() {
 
     it("should create app", function*() {
