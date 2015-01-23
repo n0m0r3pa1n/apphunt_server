@@ -9,7 +9,7 @@
     "cartesian-product": "^2.1.2",
     "co": "^4.0.2",
     "deck": "0.0.4",
-    "hapi": "^8.0.0",
+    "hapi": "^8.1.0",
     "hapi-swagger": "^0.6.1",
     "joi": "latest",
     "moment-timezone": "latest",

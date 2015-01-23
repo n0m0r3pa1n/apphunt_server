@@ -2,7 +2,7 @@ var Mongoose = require('mongoose')
 var Hapi = require('hapi')
 var Co = require('co')
 var Routes = require('./routes').routes
-var Client = require('./models').Client
+var User = require('./models').User
 
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 
@@ -18,7 +18,7 @@ var pack = require('../package'),
 var server = new Hapi.Server()
 
 server.connection({
-    port: serverPort
+    port: serverPort,
 })
 
 server.register({
@@ -35,6 +35,22 @@ server.register({
 server.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
 })
+
+server.ext('onPreHandler', function (request, reply) {
+    var userId = request.payload !== null ? request.payload.userId : request.query.userId
+    if(userId) {
+        var user = User.findOne({_id: userId}).exec()
+        user.then(function(user) {
+            if(user) {
+                reply.continue();
+            } else {
+                reply().code(400).takeover()
+            }
+        })
+    } else {
+        reply.continue()
+    }
+});
 
 server.ext('onPreResponse', function (request, reply) {
     

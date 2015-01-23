@@ -1,6 +1,7 @@
 var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
 var Joi = require('joi')
+var platforms = require('../models').platforms
 
 var routes = [
     {
@@ -24,7 +25,7 @@ var routes = [
                     description: Joi.string().optional(),
                     categories: Joi.array().includes(Joi.string()).optional(),
                     isFree: Joi.boolean().optional(),
-                    platform: Joi.string().optional()
+                    platform: Joi.array().includes(Joi.string()).valid(platforms).optional()
                 }
             },
             description: 'Get all apps',
@@ -75,7 +76,7 @@ var routes = [
             var date = req.query.date
             var platform = req.query.platform
 
-            reply.co(AppsHandler.getApps(date, page, pageSize, userId, platform))
+            reply.co(AppsHandler.getApps(date, platform, page, pageSize, userId))
         },
         config: {
             validate: {
@@ -84,7 +85,7 @@ var routes = [
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
-                    platform: Joi.string().optional()
+                    platform: Joi.array().includes(Joi.string()).valid(platforms).optional()
                 }
             },
             description: 'Get apps by date',

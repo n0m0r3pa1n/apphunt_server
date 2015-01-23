@@ -21,13 +21,10 @@ function* create(app, userId, categories) {
     }
 
     var user = yield User.findOne({_id: userId}).exec()
-    if(user) {
-        app.createdBy = user
-        app.categories = appCategories
-        return yield App.create(app)
-    } else {
-        return {statusCode: 400}
-    }
+
+    app.createdBy = user
+    app.categories = appCategories
+    return yield App.create(app)
 }
 
 function* getAll() {
@@ -36,9 +33,6 @@ function* getAll() {
 
 function* createVote(userId, appId) {
     var user = yield User.findById(userId).exec()
-    if(!user) {
-        return {statusCode: 400}
-    }
 
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
@@ -64,9 +58,6 @@ function* createVote(userId, appId) {
 
 function* deleteVote(userId, appId) {
     var user = yield User.findById(userId).exec()
-    if(!user) {
-        return {statusCode: 400}
-    }
 
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
@@ -85,7 +76,7 @@ function* deleteVote(userId, appId) {
 }
 
 
-function* getApps(dateStr, page, pageSize, userId, platform) {
+function* getApps(dateStr, platform, page, pageSize, userId) {
     var where = {};
     if(date !== undefined) {
         var date = new Date(dateStr);
@@ -94,9 +85,6 @@ function* getApps(dateStr, page, pageSize, userId, platform) {
     }
 
     if(platform !== undefined) {
-        if(!isPlatformValid(platform)) {
-            return {statusCode: 400, message: "Invalid platform parameter"}
-        }
         where.platform = platform
     }
 
@@ -118,6 +106,7 @@ function* getApps(dateStr, page, pageSize, userId, platform) {
     removeVotesField(resultApps)
     var response = {
         apps: resultApps,
+        date: dateStr,
         totalCount: allAppsCount,
         page: page
     }
@@ -127,10 +116,9 @@ function* getApps(dateStr, page, pageSize, userId, platform) {
     return response
 }
 
-function isPlatformValid(platform) {
-    return _.contains(platforms, platform)
-}
-
+//==========================================================
+// Helper functions
+//==========================================================
 function addVotesCount(apps) {
     var resultApps = []
 
