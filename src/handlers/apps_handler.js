@@ -92,11 +92,9 @@ function* getApps(dateStr, page, pageSize, userId, platform) {
         var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
         where = {createdAt: {"$gte": date, "$lt": nextDate}};
     }
-console.log("Platform: "  + platform)
 
     if(platform !== undefined) {
         if(!isPlatformValid(platform)) {
-            console.log("Not valid");
             return {statusCode: 400, message: "Invalid platform parameter"}
         }
         where.platform = platform
@@ -115,7 +113,9 @@ console.log("Platform: "  + platform)
         setHasVoted(resultApps, userId)
     }
 
-    var allAppsCount = yield App.count({}).exec()
+    var allAppsCount = yield App.count(where).exec()
+
+    removeVotesField(resultApps)
     var response = {
         apps: resultApps,
         totalCount: allAppsCount,
@@ -159,6 +159,13 @@ function hasVoted(app, userId) {
     }
     return hasVoted
 }
+
+function removeVotesField(apps) {
+    for(var i=0; i<apps.length; i++) {
+        delete apps[i].votes
+    }
+}
+
 
 module.exports.create = create
 module.exports.getAll = getAll

@@ -146,6 +146,7 @@ describe("Apps", function() {
         response.statusCode.should.equal(200)
         response.result.apps.length.should.equal(2)
         expect(response.result.totalCount).to.exist()
+        response.result.totalCount.should.equal(2)
         expect(response.result.totalPages).to.exist()
         response.result.page.should.equal(1)
 
@@ -177,6 +178,7 @@ describe("Apps", function() {
         response.result.apps[0].hasVoted.should.equal(true)
         expect(response.result.apps[0].votesCount).to.exist()
         response.result.apps[0].votesCount.should.equal(1)
+        expect(response.result.apps[0].votes).to.not.exist()
     });
 
 
@@ -233,6 +235,7 @@ describe("Apps", function() {
         var response =  yield Server.injectThen(opts);
         response.statusCode.should.equal(200)
         response.result.apps.length.should.equal(1)
+        response.result.totalCount.should.equal(1)
     });
 
 
