@@ -3,7 +3,7 @@ var Hapi = require('hapi')
 var Co = require('co')
 var Routes = require('./routes').routes
 var User = require('./models').User
-var STATUS_CODES = require('../config').STATUS_CODES
+var STATUS_CODES = require('./config').STATUS_CODES
 
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 

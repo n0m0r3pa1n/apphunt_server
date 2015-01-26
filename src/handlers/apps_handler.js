@@ -2,17 +2,26 @@ var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Vote = require('../models').Vote
+
+var Badboy = require('badboy')
 var AppCategory = require('../models').AppCategory
-var platforms = require('../models').platforms
+var appStatuses = require('../models').appStatuses
 var STATUS_CODES = require('../config').STATUS_CODES
+var platforms = require('../config').platforms
 var _ = require("underscore")
+
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 function* create(app, userId, categories) {
-    var existingApp = yield App.findOne({package: app.package}).exec()
+    var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
         return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
+    }
+    if(app.platform == platforms.Android) {
+        var parsedApp = yield Badboy.getAndroidApp(app.package)
+    } else {
+        var parsedApp = yield Badboy.getiOSApp(app.package)
     }
 
     var appCategories = []
@@ -21,11 +30,36 @@ function* create(app, userId, categories) {
         appCategories.push(category)
     }
 
-    var user = yield User.findOne({_id: userId}).exec()
+    if(appCategories.length == 0) {
+        appCategories = parsedApp.categories
+    }
 
+    var user = yield User.findOne({_id: userId}).exec()
+    app.status = appStatuses.WAITING
     app.createdBy = user
     app.categories = appCategories
+    app.isFree = parsedApp.isFree
+    app.icon = parsedApp.icon
+    app.name = parsedApp.name
+    app.url = parsedApp.url
+
     return yield App.create(app)
+}
+
+function* update(app) {
+    var existingApp = yield App.findOne({package: app.package }).exec()
+    if (!existingApp) {
+        return {statusCode: STATUS_CODES.BAD_REQUEST, message: "App does not exist"}
+    }
+    var user = yield User.findOne({_id: userId}).exec()
+    existingApp.createdAt = new Date()
+    existingApp.createdBy = user
+    existingApp.status = app.status
+
+}
+
+function* deleteApp(package) {
+    yield App.remove({package: package})
 }
 
 function* getAll() {
@@ -52,7 +86,6 @@ function* createVote(userId, appId) {
 
     vote = yield vote.save()
     app.votes.push(vote)
-
 
     yield app.save()
     return {
@@ -91,9 +124,7 @@ function* getApps(dateStr, platform, page, pageSize, userId) {
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
-    if(platform !== undefined) {
-        where.platform = platform
-    }
+    where.platform = platform
 
     var query = App.find(where).populate("votes").populate("categories")
 
