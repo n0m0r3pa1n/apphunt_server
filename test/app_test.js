@@ -3,7 +3,6 @@ var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var AppCategory = require("../src/models").AppCategory
 var STATUS_CODES = require('../src/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -16,17 +15,8 @@ describe("Apps", function() {
         var response = yield dbHelper.createApp(userResponse.result.id)
 
         response.statusCode.should.equal(STATUS_CODES.OK)
-        response.result.categories.length.should.equal(2)
+        response.result.categories.length.should.equal(1)
         response.result.description.should.exist();
-    });
-
-    it("should create 2 categories", function*() {
-        var userResponse = yield dbHelper.createUser()
-        var r = yield dbHelper.createApp(userResponse.result.id)
-        var r2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.gameinsight.flowerhouseandroid")
-        var categories = yield AppCategory.find({}).exec()
-        categories.length.should.equal(2)
-
     });
 
     it("should not create app", function*() {

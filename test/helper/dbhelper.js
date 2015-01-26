@@ -26,14 +26,9 @@ function createAppWithParams(userId, appPackage, platform) {
         method: 'POST',
         url: '/v1/apps',
         payload: {
-            name: name,
-            icon: icon,
-            url: url,
             package: appPackage,
             userId: userId,
             description: "Test description",
-            isFree: false,
-            categories: [category1, category2],
             platform: platform
         }
     }

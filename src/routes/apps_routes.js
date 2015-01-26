@@ -9,23 +9,17 @@ var routes = [
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {
-            var categories = req.payload.categories;
             var app = new App(req.payload);
 
-            reply.co(AppsHandler.create(app, req.payload.userId, categories))
+            reply.co(AppsHandler.create(app, req.payload.userId))
         },
         config: {
             validate: {
                 payload: {
-                    name: Joi.string().optional(),
-                    icon: Joi.string().optional(),
-                    url: Joi.string().optional(),
                     shortUrl: Joi.string().optional(),
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
                     description: Joi.string().required(),
-                    categories: Joi.array().includes(Joi.string()).optional(),
-                    isFree: Joi.boolean().optional(),
                     platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },

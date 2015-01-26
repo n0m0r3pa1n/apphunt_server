@@ -86,7 +86,7 @@ describe("Votes", function() {
 
     it("should get apps by date with votes info", function*() {
         var userResponse = yield dbHelper.createUser()
-        var appResponse = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
+        var appResponse = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliii")
 
         var opts = {
             method: 'POST',

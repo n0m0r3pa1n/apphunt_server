@@ -13,25 +13,23 @@ var _ = require("underscore")
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
-function* create(app, userId, categories) {
+function* create(app, userId) {
     var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
         return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
     }
+
+    var parsedApp = {}
     if(app.platform == platforms.Android) {
-        var parsedApp = yield Badboy.getAndroidApp(app.package)
+        parsedApp = yield Badboy.getAndroidApp(app.package)
     } else {
-        var parsedApp = yield Badboy.getiOSApp(app.package)
+        parsedApp = yield Badboy.getiOSApp(app.package)
     }
 
     var appCategories = []
-    for (var index in categories) {
-        var category = yield AppCategory.findOneOrCreate({name: categories[index]}, {name: categories[index]})
+    for (var index in parsedApp.categories) {
+        var category = yield AppCategory.findOneOrCreate({name: parsedApp.categories[index]}, {name: parsedApp.categories[index]})
         appCategories.push(category)
-    }
-
-    if(appCategories.length == 0) {
-        appCategories = parsedApp.categories
     }
 
     var user = yield User.findOne({_id: userId}).exec()
