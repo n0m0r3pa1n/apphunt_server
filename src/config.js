@@ -1,5 +1,11 @@
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs"
 var API_VERSION = 1.0;
+var Android = "Android"
+var iOS = "iOS"
+var platforms = {
+    Android: "Android",
+    iOS: "iOS"
+}
 var STATUS_CODES = {
     CONTINUE: 100,
     SWITCHING_PROTOCOLS: 101,
@@ -62,3 +68,6 @@ var STATUS_CODES = {
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES
+module.exports.Android = Android
+module.exports.iOS = iOS
+module.exports.platforms = platforms

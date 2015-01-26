@@ -2,7 +2,7 @@
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
 var category2 = "TEST2"
-var appPackage = "com.example.test"
+var appPackage = "com.dasfqwersdcxxdfgh"
 var platform = "Android"
 
 function createApp(userId) {
@@ -14,7 +14,7 @@ function createAppWithPlatform(userId, platform) {
 }
 
 function createAppWithPackage(userId, appPackage) {
-    return createAppWithParams(userId, appPackage)
+    return createAppWithParams(userId, appPackage, platform)
 }
 
 function createAppWithParams(userId, appPackage, platform) {

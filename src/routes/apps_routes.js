@@ -1,7 +1,8 @@
 var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
 var Joi = require('joi')
-var platforms = require('../models').platforms
+var platformsEnum = require('../config').platforms
+var platforms = [platformsEnum.Android, platformsEnum.iOS]
 
 var routes = [
     {
@@ -16,16 +17,16 @@ var routes = [
         config: {
             validate: {
                 payload: {
-                    name: Joi.string().required(),
-                    icon: Joi.string().required(),
-                    url: Joi.string().required(),
+                    name: Joi.string().optional(),
+                    icon: Joi.string().optional(),
+                    url: Joi.string().optional(),
                     shortUrl: Joi.string().optional(),
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
-                    description: Joi.string().optional(),
+                    description: Joi.string().required(),
                     categories: Joi.array().includes(Joi.string()).optional(),
                     isFree: Joi.boolean().optional(),
-                    platform: Joi.array().includes(Joi.string()).valid(platforms).optional()
+                    platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },
             description: 'Get all apps',
@@ -84,7 +85,7 @@ var routes = [
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
-                    platform: Joi.array().includes(Joi.string()).valid(platforms).optional()
+                    platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },
             description: 'Get apps by date',

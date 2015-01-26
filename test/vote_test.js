@@ -77,7 +77,7 @@ describe("Votes", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date=' + todayStr
+            url: '/apps?platform=Android&date=' + todayStr
         }
 
         var allAppsResponse =  yield Server.injectThen(opts);
@@ -102,7 +102,7 @@ describe("Votes", function() {
 
         var opts1 = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=1&pageSize=1&userId=' + userResponse.result.id
+            url: '/apps?date='+todayStr+'&platform=Android&page=1&pageSize=1&userId=' + userResponse.result.id
         }
 
         var response =  yield Server.injectThen(opts1);

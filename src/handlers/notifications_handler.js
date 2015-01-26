@@ -5,7 +5,11 @@ function* create(message, type, sendTime) {
     return yield Notification.create({message: message, type: type, sendTime: sendTime });
 }
 
-function getAll() {
+function* create(user) {
+    return yield User.create(user);
+}
+
+function* getAll() {
     return yield Notification.find({}).exec();
 }
 

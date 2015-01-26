@@ -7,6 +7,8 @@ var AppCategory = require("../src/models").AppCategory
 var STATUS_CODES = require('../src/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
+
+
 describe("Apps", function() {
 
     it("should create app", function*() {
@@ -21,7 +23,7 @@ describe("Apps", function() {
     it("should create 2 categories", function*() {
         var userResponse = yield dbHelper.createUser()
         var r = yield dbHelper.createApp(userResponse.result.id)
-        var r2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli.com")
+        var r2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.gameinsight.flowerhouseandroid")
         var categories = yield AppCategory.find({}).exec()
         categories.length.should.equal(2)
 
@@ -47,7 +49,7 @@ describe("Apps", function() {
         yield dbHelper.createApp(userResponse.result.id)
         var opts = {
             method: 'GET',
-            url: '/apps'
+            url: '/apps?platform=Android'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -58,14 +60,14 @@ describe("Apps", function() {
     it("should get apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
-        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=1&pageSize=2'
+            url: '/apps?date='+todayStr+'&page=1&pageSize=2&platform=Android'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -81,14 +83,14 @@ describe("Apps", function() {
     it("should get all apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
-        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr
+            url: '/apps?platform=Android&date='+todayStr
         }
 
         var response =  yield Server.injectThen(opts);
@@ -102,14 +104,14 @@ describe("Apps", function() {
     it("should  not get all apps with future date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
-        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poli")
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
         var today = new Date();
         var dateString = new Date(today.getTime() + DAY_MILLISECONDS*6).toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+dateString
+            url: '/apps?platform=Android&date='+dateString
         }
 
         var response =  yield Server.injectThen(opts);
@@ -127,7 +129,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=0'
+            url: '/apps?date='+todayStr+'&page=0&platform=Android'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -153,8 +155,8 @@ describe("Apps", function() {
 
     it("should not get apps with invalid platform", function*() {
         var userResponse = yield dbHelper.createUser()
-        yield dbHelper.createAppWithParams(userResponse.result.id, "com.poli", "Android")
-        yield dbHelper.createAppWithParams(userResponse.result.id, "com.koli", "iOS")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.poliiiii", "Android")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.koliiii", "iOS")
 
         var opts = {
             method: 'GET',

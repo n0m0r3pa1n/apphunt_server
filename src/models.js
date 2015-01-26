@@ -2,6 +2,7 @@ var Mongoose = require('mongoose')
 var Schema = Mongoose.Schema
 var Co = require('co')
 Timestamps = require('mongoose-timestamp')
+var platforms = require('./config').platforms
 
 Mongoose.plugin(function(schema) {
 
@@ -26,7 +27,8 @@ var userSchema = new Schema(
         email: {type: String, index: true, unique: true},
         profilePicture: String,
         advertisingId: { type: String, unique: true },
-        loginType: String
+        loginType: String,
+        devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
     }
 )
 
@@ -37,7 +39,10 @@ var appCategorySchema = new Schema(
     }
 )
 
-var platforms = ["Android", "iOS"]
+var appStatuses = {
+    WAITING: "Waiting",
+    APPROVED: "Approved"
+}
 
 var appSchema = new Schema(
     {
@@ -47,11 +52,12 @@ var appSchema = new Schema(
         shortUrl: String,
         description: String,
         package: {type: String, unique: true},
+        status: {type: String, enum: [appStatuses.WAITING, appStatuses.APPROVED], default: appStatuses.WAITING},
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
         isFree: {type: Boolean, default: true},
-        platform: {type: String, enum: platforms, default: platforms[0]}
+        platform: {type: String, enum: [platforms.Android, platforms.iOS], default: platforms.Android}
     }
 )
 
@@ -74,7 +80,8 @@ var notificationSchema = new Schema(
 )
 
 var deviceSchema = new Schema({
-    notificationsEnabled: { type:Boolean, default: true}
+    notificationsEnabled: { type:Boolean, default: true},
+    deviceId: {type: String, unique: true}
 })
 
 userSchema.plugin(Timestamps)
@@ -87,8 +94,8 @@ module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)
 module.exports.Vote = Mongoose.model('Vote', voteSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
+module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 
-module.exports.platforms = platforms
-
+module.exports.appStatuses = appStatuses
 
