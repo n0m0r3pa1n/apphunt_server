@@ -10,9 +10,18 @@ var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 describe("Apps", function() {
 
-    it("should create app", function*() {
+    it("should create Android app", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)
+
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.categories.length.should.equal(1)
+        response.result.description.should.exist();
+    });
+
+    it("should create iOS app", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var response = yield dbHelper.createAppWithParams(userResponse.result.id, "908842747", "iOS")
 
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
