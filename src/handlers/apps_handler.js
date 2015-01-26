@@ -46,18 +46,6 @@ function* create(app, userId, categories) {
     return yield App.create(app)
 }
 
-function* update(app) {
-    var existingApp = yield App.findOne({package: app.package }).exec()
-    if (!existingApp) {
-        return {statusCode: STATUS_CODES.BAD_REQUEST, message: "App does not exist"}
-    }
-    var user = yield User.findOne({_id: userId}).exec()
-    existingApp.createdAt = new Date()
-    existingApp.createdBy = user
-    existingApp.status = app.status
-
-}
-
 function* deleteApp(package) {
     yield App.remove({package: package})
 }

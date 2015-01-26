@@ -3,6 +3,7 @@ var Schema = Mongoose.Schema
 var Co = require('co')
 Timestamps = require('mongoose-timestamp')
 var platforms = require('./config').platforms
+var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {
 
@@ -52,12 +53,12 @@ var appSchema = new Schema(
         shortUrl: String,
         description: String,
         package: {type: String, unique: true},
-        status: {type: String, enum: [appStatuses.WAITING, appStatuses.APPROVED], default: appStatuses.WAITING},
+        status: {type: String, enum: _.values(appStatuses), default: appStatuses.WAITING},
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
         isFree: {type: Boolean, default: true},
-        platform: {type: String, enum: [platforms.Android, platforms.iOS], default: platforms.Android}
+        platform: {type: String, enum: _.values(platforms), default: platforms.Android}
     }
 )
 

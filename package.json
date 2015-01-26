@@ -1,7 +1,7 @@
 {
-  "name": "appspice",
+  "name": "apphunt",
   "version": "0.0.0",
-  "description": "Cross promotion ads",
+  "description": "Find the best new apps, every day",
   "main": "src/index.js",
   "author": "",
   "license": "ISC",
@@ -12,7 +12,6 @@
     "hapi": "^8.1.0",
     "hapi-swagger": "^0.6.1",
     "joi": "latest",
-    "moment-timezone": "latest",
     "mongoose": "3.9.7",
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
