@@ -4,22 +4,18 @@ How to install
 Go to the project dir and run
 
     npm install
-
-    npm install -g jitter
-
-    npm install -g nodemon
     
 How to run
 ==========
 
-    nodemon .
+    node --harmony
     
 Development
 ==========
 
-Run jitter
+Run tests
 
-    jitter src lib
+    ./run_tests.sh
 
 Do some changes 
 Commit and push
