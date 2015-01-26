@@ -76,6 +76,7 @@ var notificationSchema = new Schema(
     {
         type: String,
         sendTime: Date,
+        title: String,
         message: String
     }
 )

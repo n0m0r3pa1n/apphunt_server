@@ -7,7 +7,14 @@ var routes = [
         method: "GET",
         path: "/notifications",
         handler: function(req,reply) {
-            reply.co(NotificationsHandler.getAll())
+            reply.co(NotificationsHandler.get(req.query.type))
+        },
+        config: {
+            validate: {
+                query: {
+                    type: Joi.string().required()
+                }
+            }
         }
     },
     {
@@ -22,6 +29,7 @@ var routes = [
                 payload: {
                     message: Joi.string().required(),
                     type: Joi.string().required(),
+                    title: Joi.string().required(),
                     sendTime: Joi.date().optional()
                 }
             }

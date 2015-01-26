@@ -52,6 +52,20 @@ function createUser() {
     return Server.injectThen(opts)
 }
 
+function createNotification() {
+    var opts = {
+        method: 'POST',
+        url: '/notifications',
+        payload: {
+            title: "Title",
+            message: "Message",
+            type: "DailyReminder"
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 function getUsers() {
     var opts = {
         method: 'GET',
@@ -66,6 +80,7 @@ module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
 module.exports.createAppWithParams = createAppWithParams
 module.exports.createUser = createUser
+module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1

@@ -1,12 +1,12 @@
 var Mongoose = require('mongoose')
 var Notification = require('../models').Notification
 
-function* create(message, type, sendTime) {
-    return yield Notification.create({message: message, type: type, sendTime: sendTime });
+function* create(notification) {
+    return yield Notification.create(notification);
 }
 
-function* create(user) {
-    return yield User.create(user);
+function* get(type) {
+    return yield Notification.findOne({type: type}).exec();
 }
 
 function* getAll() {
@@ -14,3 +14,5 @@ function* getAll() {
 }
 
 module.exports.create = create
+module.exports.get = get
+module.exports.getAll = getAll
