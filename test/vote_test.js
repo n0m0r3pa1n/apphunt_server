@@ -56,6 +56,7 @@ describe("Votes", function() {
 
         var voteDeletedResponse = yield Server.injectThen(opts)
         voteDeletedResponse.statusCode.should.equal(STATUS_CODES.OK)
+        voteDeletedResponse.result.votesCount.should.equal(0)
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")

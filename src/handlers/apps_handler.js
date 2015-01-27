@@ -86,6 +86,7 @@ function* deleteVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
+
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
     for(var i=0; i< app.votes.length; i++) {
@@ -96,9 +97,9 @@ function* deleteVote(userId, appId) {
     }
 
     yield app.save()
+    var appVotes = app.votes !== undefined && app.votes !== null ? app.votes.length : 0;
     return {
-        statusCode:  STATUS_CODES.OK,
-        votesCount: app.votes.length
+        votesCount: appVotes
     }
 }
 
