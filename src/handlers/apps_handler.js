@@ -88,11 +88,10 @@ function* deleteVote(userId, appId) {
     if(!app) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
-
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
-            app.votes.remove(app.votes[i])
+            app.votes.splice(i, 1);
         }
     }
 
@@ -170,8 +169,8 @@ function hasVoted(app, userId) {
     var hasVoted = false
     for (var j = 0; j < app.votes.length; j++) {
         if (userId == app.votes[j].user) {
-            hasVoted = true
-            break
+            hasVoted = true;
+            break;
         }
     }
     return hasVoted
