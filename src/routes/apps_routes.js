@@ -29,16 +29,14 @@ var routes = [
     },
     {
         method: "POST",
-        path: "/apps/{appId}/votes",
+        path: "/apps/votes",
         handler: function(req,reply) {
-            reply.co(AppsHandler.createVote(req.payload.userId, req.params.appId))
+            reply.co(AppsHandler.createVote(req.query.userId, req.query.appId))
         },
         config: {
             validate: {
-                payload: {
-                    userId: Joi.string().required()
-                },
-                params: {
+                query: {
+                    userId: Joi.string().required(),
                     appId: Joi.string().required()
                 }
             }
@@ -46,16 +44,14 @@ var routes = [
     },
     {
         method: "DELETE",
-        path: "/apps/{appId}/votes",
+        path: "/apps/votes",
         handler: function(req,reply) {
-            reply.co(AppsHandler.deleteVote(req.payload.userId, req.params.appId))
+            reply.co(AppsHandler.deleteVote(req.query.userId, req.query.appId))
         },
         config: {
             validate: {
-                payload: {
-                    userId: Joi.string().required()
-                },
-                params: {
+                query: {
+                    userId: Joi.string().required(),
                     appId: Joi.string().required()
                 }
             }

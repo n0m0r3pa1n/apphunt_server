@@ -12,10 +12,7 @@ describe("Votes", function() {
         var response = yield dbHelper.createApp(userResponse.result.id)
         var opts = {
             method: 'POST',
-            url: '/apps/' + response.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + response.result.id + "&userId=" + userResponse.result.id
         }
 
         var response1 =  yield Server.injectThen(opts);
@@ -28,19 +25,13 @@ describe("Votes", function() {
         var appResponse = yield dbHelper.createApp(userResponse.result.id)
         var opts = {
             method: 'POST',
-            url: '/apps/' + appResponse.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + appResponse.result.id + "&userId=" + userResponse.result.id
         }
         var vote1Response =  yield Server.injectThen(opts);
 
         var opts2 = {
             method: 'POST',
-            url: '/apps/' + appResponse.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + appResponse.result.id + "&userId=" + userResponse.result.id
         }
         var vote2Response =  yield Server.injectThen(opts2);
         vote2Response.statusCode.should.equal(STATUS_CODES.NOT_FOUND)
@@ -52,10 +43,7 @@ describe("Votes", function() {
 
         var opts = {
             method: 'POST',
-            url: '/apps/' + appCreatedResponse.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + appCreatedResponse.result.id + "&userId=" + userResponse.result.id
         }
 
         var userVotedResponse =  yield Server.injectThen(opts);
@@ -63,10 +51,7 @@ describe("Votes", function() {
 
         opts = {
             method: 'DELETE',
-            url: '/apps/' + appCreatedResponse.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + appCreatedResponse.result.id + "&userId=" + userResponse.result.id
         }
 
         var voteDeletedResponse = yield Server.injectThen(opts)
@@ -90,10 +75,7 @@ describe("Votes", function() {
 
         var opts = {
             method: 'POST',
-            url: '/apps/' + appResponse.result.id + "/votes",
-            payload: {
-                userId: userResponse.result.id
-            }
+            url: '/apps/votes?appId=' + appResponse.result.id + "&userId=" + userResponse.result.id
         }
         var vote1Response =  yield Server.injectThen(opts);
 
