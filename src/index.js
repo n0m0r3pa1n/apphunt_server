@@ -12,7 +12,7 @@ var serverPort = process.env.PORT || 8080
 
 var pack = require('../package'),
     swaggerOptions = {
-        basePath: (dbURI.contains('localhost') ? 'http://localhost:' : 'http://apphunt.herokuapp.com:') + serverPort,
+        basePath: (dbURI.contains('localhost') ? ('http://localhost:' + serverPort ) : 'http://apphunt.herokuapp.com') ,
         apiVersion: pack.version
     };
 
