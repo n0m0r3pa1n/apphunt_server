@@ -8,6 +8,10 @@ var routes = [
         path: "/users",
         handler: function(req,reply) {
             reply.co(UsersHandler.getAll())
+        },
+        config: {
+            description: 'Get a list of all registered users.',
+            tags: ['api']
         }
     },
     {
@@ -28,7 +32,9 @@ var routes = [
                     deviceNotificationId: Joi.string().optional(),
                     loginType: Joi.string().optional()
                 }
-            }
+            },
+            description: 'Create a user registration',
+            tags: ['api']
         }
     }
 ]

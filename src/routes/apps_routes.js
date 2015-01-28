@@ -23,7 +23,7 @@ var routes = [
                     platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },
-            description: 'Get all apps',
+            description: 'Create new app',
             tags: ['api']
         }
     },
@@ -39,7 +39,9 @@ var routes = [
                     userId: Joi.string().required(),
                     appId: Joi.string().required()
                 }
-            }
+            },
+            description: 'Vote for an app',
+            tags: ['api']
         }
     },
     {
@@ -54,7 +56,9 @@ var routes = [
                     userId: Joi.string().required(),
                     appId: Joi.string().required()
                 }
-            }
+            },
+            description: 'Downvote for an app',
+            tags: ['api']
         }
     },
     {
@@ -78,7 +82,7 @@ var routes = [
                     platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },
-            description: 'Get apps by date',
+            description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
             tags: ['api']
         }
     }

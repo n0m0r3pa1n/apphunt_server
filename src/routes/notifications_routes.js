@@ -14,7 +14,9 @@ var routes = [
                 query: {
                     type: Joi.string().required()
                 }
-            }
+            },
+            description: 'Get all available notifications.',
+            tags: ['api']
         }
     },
     {
@@ -32,7 +34,9 @@ var routes = [
                     title: Joi.string().required(),
                     sendTime: Joi.date().optional()
                 }
-            }
+            },
+            description: 'Create a new notification to be send to devices.',
+            tags: ['api']
         }
     }
 ]
