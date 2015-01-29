@@ -69,7 +69,10 @@ var routes = [
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            var appStatus = req.query.status === undefined ? appStatuses.APPROVED : req.query.status
+            var appStatus = appStatusesFilterEnum.APPROVED
+            if(typeof req.query.status !== 'undefined') {
+                appStatus = req.query.status
+            }
             var userId = req.query.userId
             var date = req.query.date
             var platform = req.query.platform
