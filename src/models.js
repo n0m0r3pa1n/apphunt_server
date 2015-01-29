@@ -3,6 +3,7 @@ var Schema = Mongoose.Schema
 var Co = require('co')
 Timestamps = require('mongoose-timestamp')
 var platforms = require('./config').platforms
+var appStatuses = require('./config').appStatuses
 var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {
@@ -40,10 +41,7 @@ var appCategorySchema = new Schema(
     }
 )
 
-var appStatuses = {
-    WAITING: "Waiting",
-    APPROVED: "Approved"
-}
+
 
 var appSchema = new Schema(
     {
@@ -98,6 +96,4 @@ module.exports.Vote = Mongoose.model('Vote', voteSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
-
-module.exports.appStatuses = appStatuses
 

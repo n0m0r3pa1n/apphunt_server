@@ -2,10 +2,10 @@ var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Vote = require('../models').Vote
-
 var Badboy = require('badboy')
 var AppCategory = require('../models').AppCategory
-var appStatuses = require('../models').appStatuses
+var appStatuses = require('../config').appStatuses
+var appStatusesFilter = require('../config').appStatusesFilter
 var STATUS_CODES = require('../config').STATUS_CODES
 var platforms = require('../config').platforms
 var _ = require("underscore")
@@ -14,6 +14,7 @@ var _ = require("underscore")
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 function* create(app, userId) {
+
     var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
         return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
@@ -41,7 +42,16 @@ function* create(app, userId) {
     app.name = parsedApp.name
     app.url = parsedApp.url
 
-    return yield App.create(app)
+    var parsedDescription = app.description;
+    if(parsedDescription == '' || parsedDescription === undefined) {
+        parsedDescription = parsedApp.description
+        app.description = parsedDescription.length > 100 ?
+                            parsedDescription.substring(0,10) :
+                            parsedDescription;
+    }
+
+    var createdApp = yield App.create(app)
+    return createdApp
 }
 
 function* deleteApp(package) {
@@ -104,7 +114,7 @@ function* deleteVote(userId, appId) {
 }
 
 
-function* getApps(dateStr, platform, page, pageSize, userId) {
+function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var where = {};
     var responseDate = ""
     if(dateStr !== undefined) {
@@ -115,6 +125,10 @@ function* getApps(dateStr, platform, page, pageSize, userId) {
     }
 
     where.platform = platform
+
+    if(appStatus !== appStatusesFilter.ALL) {
+        where.status = appStatus
+    }
 
     var query = App.find(where).populate("votes").populate("categories")
 
@@ -143,6 +157,18 @@ function* getApps(dateStr, platform, page, pageSize, userId) {
         response.totalPages = Math.round(allAppsCount / pageSize)
     }
     return response
+}
+
+function* filterApps(packages) {
+    var existingApps = yield App.find( { package: { $in: packages } } ).exec()
+    var existingAppsPackages = []
+    for(var i in existingApps) {
+        existingAppsPackages.push(existingApps[i].package)
+    }
+
+    var difference = _.difference(packages, existingAppsPackages)
+    var existing = _.intersection(packages. existingAppsPackages)
+    return {"availablePackages": difference, "existingPackages": existingAppsPackages }
 }
 
 //==========================================================
@@ -189,3 +215,4 @@ module.exports.getAll = getAll
 module.exports.createVote = createVote
 module.exports.deleteVote = deleteVote
 module.exports.getApps = getApps
+module.exports.filterApps = filterApps

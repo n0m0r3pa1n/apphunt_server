@@ -48,7 +48,7 @@ describe("Apps", function() {
         yield dbHelper.createApp(userResponse.result.id)
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android'
+            url: '/apps?platform=Android&status=all'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -66,7 +66,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=1&pageSize=2&platform=Android'
+            url: '/apps?date='+todayStr+'&page=1&pageSize=2&platform=Android&status=all'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -81,15 +81,16 @@ describe("Apps", function() {
 
     it("should get all apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
-        yield dbHelper.createApp(userResponse.result.id)
-        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+        var appR1 = yield dbHelper.createApp(userResponse.result.id)
+        var appR2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android&date='+todayStr
+            url: '/apps?platform=Android&status=all&date='+todayStr
         }
 
         var response =  yield Server.injectThen(opts);
@@ -110,7 +111,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android&date='+dateString
+            url: '/apps?platform=Android&status=all&date='+dateString
         }
 
         var response =  yield Server.injectThen(opts);
@@ -128,7 +129,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=0&platform=Android'
+            url: '/apps?date='+todayStr+'&status=all&page=0&platform=Android'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -143,7 +144,7 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android'
+            url: '/apps?platform=Android&status=all'
         }
 
         var response =  yield Server.injectThen(opts);
@@ -159,12 +160,31 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=invalidPlatform'
+            url: '/apps?platform=invalidPlatform&status=all'
         }
 
         var response =  yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
     });
 
+    it("should return non-existing packages", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.test3", "Android")
 
+        var existingAppList = ['com.test1', 'com.test2', 'com.test4']
+
+        var opts = {
+            method: 'POST',
+            url: '/apps/actions/filter',
+            payload: {
+                packages: existingAppList
+            }
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.result.availablePackages.length.should.equal(1)
+        response.result.existingPackages.length.should.equal(2)
+    });
 })

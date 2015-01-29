@@ -6,6 +6,17 @@ var platforms = {
     Android: "Android",
     iOS: "iOS"
 }
+var appStatuses = {
+    WAITING: "Waiting",
+    APPROVED: "Approved"
+}
+
+var appStatusesFilter = {
+    WAITING: "waiting",
+    APPROVED: "approved",
+    ALL: "all"
+}
+
 var STATUS_CODES = {
     CONTINUE: 100,
     SWITCHING_PROTOCOLS: 101,
@@ -71,3 +82,5 @@ module.exports.STATUS_CODES = STATUS_CODES
 module.exports.Android = Android
 module.exports.iOS = iOS
 module.exports.platforms = platforms
+module.exports.appStatuses = appStatuses
+module.exports.appStatusesFilter = appStatusesFilter
