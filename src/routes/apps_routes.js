@@ -82,7 +82,7 @@ var routes = [
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
-                    status: Joi.array().includes(Joi.string()).valid(appStatuses).optional(),
+                    status: Joi.string().valid(appStatuses).optional(),
                     platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },

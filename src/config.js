@@ -7,8 +7,8 @@ var platforms = {
     iOS: "iOS"
 }
 var appStatuses = {
-    WAITING: "Waiting",
-    APPROVED: "Approved"
+    WAITING: "waiting",
+    APPROVED: "approved"
 }
 
 var appStatusesFilter = {
