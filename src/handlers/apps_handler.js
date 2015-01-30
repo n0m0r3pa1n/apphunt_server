@@ -175,21 +175,21 @@ function* filterApps(packages, platform) {
     }
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages)
-    var nonExistingApps = []
-    for(var i = 0; i < appsToBeAdded.length; i++) {
-        try {
-            if (platform == platforms.Android) {
-                var app = yield Badboy.getAndroidApp(appsToBeAdded[i])
-            } else {
-                var app = yield Badboy.getiOSApp(appsToBeAdded[i])
-            }
-        } catch (e) {
-            nonExistingApps.push(appsToBeAdded[i])
-        }
-    }
-    var availablePackages = _.difference(appsToBeAdded, nonExistingApps)
+    //var nonExistingApps = []
+    //for(var i = 0; i < appsToBeAdded.length; i++) {
+    //    try {
+    //        if (platform == platforms.Android) {
+    //            var app = yield Badboy.getAndroidApp(appsToBeAdded[i])
+    //        } else {
+    //            var app = yield Badboy.getiOSApp(appsToBeAdded[i])
+    //        }
+    //    } catch (e) {
+    //        nonExistingApps.push(appsToBeAdded[i])
+    //    }
+    //}
+    //var availablePackages = _.difference(appsToBeAdded, nonExistingApps)
     var existing = _.intersection(packages. existingAppsPackages)
-    return {"availablePackages": availablePackages, "existingPackages": existingAppsPackages }
+    return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
 }
 
 
