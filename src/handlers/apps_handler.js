@@ -21,10 +21,18 @@ function* create(app, userId) {
     }
 
     var parsedApp = {}
-    if(app.platform == platforms.Android) {
-        parsedApp = yield Badboy.getAndroidApp(app.package)
-    } else {
-        parsedApp = yield Badboy.getiOSApp(app.package)
+    try {
+        if(app.platform == platforms.Android) {
+            parsedApp = yield Badboy.getAndroidApp(app.package)
+        } else {
+            parsedApp = yield Badboy.getiOSApp(app.package)
+        }
+    } catch (e) {
+        console.log("EXCEPTION")
+    }
+
+    if(Object.keys(parsedApp).length === 0) {
+        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
 
     var appCategories = []
@@ -159,17 +167,31 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     return response
 }
 
-function* filterApps(packages) {
+function* filterApps(packages, platform) {
     var existingApps = yield App.find( { package: { $in: packages } } ).exec()
     var existingAppsPackages = []
     for(var i in existingApps) {
         existingAppsPackages.push(existingApps[i].package)
     }
 
-    var difference = _.difference(packages, existingAppsPackages)
+    var appsToBeAdded = _.difference(packages, existingAppsPackages)
+    var nonExistingApps = []
+    for(var i = 0; i < appsToBeAdded.length; i++) {
+        try {
+            if (platform == platforms.Android) {
+                var app = yield Badboy.getAndroidApp(appsToBeAdded[i])
+            } else {
+                var app = yield Badboy.getiOSApp(appsToBeAdded[i])
+            }
+        } catch (e) {
+            nonExistingApps.push(appsToBeAdded[i])
+        }
+    }
+    var availablePackages = _.difference(appsToBeAdded, nonExistingApps)
     var existing = _.intersection(packages. existingAppsPackages)
-    return {"availablePackages": difference, "existingPackages": existingAppsPackages }
+    return {"availablePackages": availablePackages, "existingPackages": existingAppsPackages }
 }
+
 
 //==========================================================
 // Helper functions
@@ -208,7 +230,6 @@ function removeVotesField(apps) {
         delete apps[i].votes
     }
 }
-
 
 module.exports.create = create
 module.exports.getAll = getAll

@@ -179,7 +179,8 @@ describe("Apps", function() {
             method: 'POST',
             url: '/apps/actions/filter',
             payload: {
-                packages: existingAppList
+                packages: existingAppList,
+                platform: "Android"
             }
         }
 

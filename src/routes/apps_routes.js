@@ -97,12 +97,12 @@ var routes = [
         method: "POST",
         path: "/apps/actions/filter",
         handler: function(req, reply) {
-
-            reply.co(AppsHandler.filterApps(req.payload.packages))
+            reply.co(AppsHandler.filterApps(req.payload.packages, req.payload.platform))
         } ,
         config: {
             validate: {
                 payload: {
+                    platform: Joi.string().valid(platforms).required(),
                     packages: Joi.array().includes(Joi.string()).required()
                 }
             }
