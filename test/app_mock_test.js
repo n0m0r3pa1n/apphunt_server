@@ -6,8 +6,6 @@ require('./spec_helper')
 var STATUS_CODES = require('../src/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
-
-
 describe("Apps", function() {
 
     it("should create Android app", function*() {

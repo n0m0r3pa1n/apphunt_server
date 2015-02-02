@@ -5,10 +5,9 @@ var dbHelper = require('./helper/dbhelper')
 require('./helper/cleardb')
 require('./helper/dbhelper')
 require('./helper/inject-server')
+var initMock = require('./spec_helper').initMock
 var STATUS_CODES = require('../src/config').STATUS_CODES
-var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 var simple = require('simple-mock');
-
 
 describe("Real Apps", function() {
     before(function() {
@@ -30,7 +29,6 @@ describe("Real Apps", function() {
     //});
 
     after(function() {
-        require('./helper/mock-badboy')
-        require('./helper/mock-bitly')
+        initMock()
     })
 })

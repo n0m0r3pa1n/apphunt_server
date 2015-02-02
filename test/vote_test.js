@@ -5,14 +5,8 @@ var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppCategory = require("../src/models").AppCategory
 var STATUS_CODES = require('../src/config').STATUS_CODES
-var mockBadboy = require('./helper/mock-badboy')
-var mockBitly = require('./helper/mock-bitly')
 
 describe("Votes", function() {
-    beforeEach(function() {
-        mockBadboy.mockGetAndroidApp()
-        mockBitly.mockUrlsHandler()
-    })
 
     it("should vote app", function*() {
         var userResponse = yield dbHelper.createUser()
