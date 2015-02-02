@@ -6,6 +6,7 @@ var Badboy = require('badboy')
 var AppCategory = require('../models').AppCategory
 var appStatuses = require('../config').appStatuses
 var appStatusesFilter = require('../config').appStatusesFilter
+var UrlsHandler = require('./urls_handler')
 var STATUS_CODES = require('../config').STATUS_CODES
 var platforms = require('../config').platforms
 var _ = require("underscore")
@@ -41,6 +42,11 @@ function* create(app, userId) {
         appCategories.push(category)
     }
 
+    var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
+    if(shortUrl.status_code == 500 || shortUrl.data == null) {
+        shortUrl = null
+    }
+
     var user = yield User.findOne({_id: userId}).exec()
     app.status = appStatuses.WAITING
     app.createdBy = user
@@ -48,7 +54,7 @@ function* create(app, userId) {
     app.isFree = parsedApp.isFree
     app.icon = parsedApp.icon
     app.name = parsedApp.name
-    app.url = parsedApp.url
+    app.url = shortUrl
 
     var parsedDescription = app.description;
     if(parsedDescription == '' || parsedDescription === undefined) {

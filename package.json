@@ -16,7 +16,8 @@
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
     "underscore": "~1.6.0",
-    "badboy": "latest"
+    "badboy": "latest",
+    "request-promise": "^0.3.3"
   },
   "devDependencies": {
     "casual": "^1.4.6",

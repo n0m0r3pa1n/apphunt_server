@@ -76,6 +76,12 @@ var STATUS_CODES = {
     NETWORK_AUTHENTICATION_REQUIRED: 511
 }
 
+var bitly =  {
+        url: "https://api-ssl.bitly.com/v3/user/link_save?",
+        user: "naughtyspirit",
+        apiKey: "c068748d49c9fa346083e6fcaf343b67b7f8492c"
+}
+
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES
@@ -84,3 +90,4 @@ module.exports.iOS = iOS
 module.exports.platforms = platforms
 module.exports.appStatuses = appStatuses
 module.exports.appStatusesFilter = appStatusesFilter
+module.exports.bitly = bitly
