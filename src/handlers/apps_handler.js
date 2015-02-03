@@ -68,8 +68,26 @@ function* create(app, userId) {
     return createdApp
 }
 
+function* update(app) {
+    var existingApp = yield App.findOne({package: app.package }).exec()
+    if(!existingApp) {
+        return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
+    }
+
+    existingApp.createdAt = app.createdAt
+    existingApp.description = app.description
+    existingApp.status = app.status
+
+    return yield existingApp.save()
+
+}
+
 function* deleteApp(package) {
-    yield App.remove({package: package})
+    yield App.remove({package: package}).exec()
+
+    return {
+        statusCode: STATUS_CODES.OK
+    }
 }
 
 function* getAll() {
@@ -238,8 +256,11 @@ function removeVotesField(apps) {
 }
 
 module.exports.create = create
+module.exports.getApps = getApps
 module.exports.getAll = getAll
+module.exports.update = update
+module.exports.deleteApp = deleteApp
+module.exports.filterApps = filterApps
 module.exports.createVote = createVote
 module.exports.deleteVote = deleteVote
-module.exports.getApps = getApps
-module.exports.filterApps = filterApps
+

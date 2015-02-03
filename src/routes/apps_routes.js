@@ -30,6 +30,39 @@ var routes = [
         }
     },
     {
+        method: "PUT",
+        path: "/apps",
+        handler: function(req,reply) {
+            var app = new App(req.payload.app);
+            reply.co(AppsHandler.update(app))
+        },
+        config: {
+            validate: {
+                payload: {
+                    app: Joi.object().required()
+                }
+            },
+            description: 'Create new app',
+            tags: ['api']
+        }
+    },
+    {
+      method: "DELETE",
+        path:"/apps",
+        handler: function(req, reply) {
+            reply.co(AppsHandler.deleteApp(req.query.package))
+        },
+        config: {
+            validate: {
+                query: {
+                    package: Joi.string().required()
+                }
+            },
+            description: 'Delete app',
+            tags: ['api']
+        }
+    },
+    {
         method: "POST",
         path: "/apps/votes",
         handler: function(req,reply) {

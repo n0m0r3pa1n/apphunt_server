@@ -20,13 +20,13 @@ describe("Real Apps", function() {
 
         response.statusCode.should.equal(STATUS_CODES.NOT_FOUND)
     });
-
-    it("should create app with valid bit.ly link", function*() {
-        var userResponse = yield dbHelper.createUser()
-        var response = yield dbHelper.createAppWithPackage(userResponse.result.id, 'com.bandainamcogames.outcast')
-
-        response.statusCode.should.equal(STATUS_CODES.OK)
-    });
+    //
+    //it("should create app with valid bit.ly link", function*() {
+    //    var userResponse = yield dbHelper.createUser()
+    //    var response = yield dbHelper.createAppWithPackage(userResponse.result.id, 'com.bandainamcogames.outcast')
+    //
+    //    response.statusCode.should.equal(STATUS_CODES.OK)
+    //});
 
     after(function() {
         initMock()

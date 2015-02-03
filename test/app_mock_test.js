@@ -42,6 +42,50 @@ describe("Apps", function() {
         response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
     });
 
+    it("should update app", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var appResponse = yield dbHelper.createApp(userResponse.result.id)
+        var app = appResponse.result
+        app.status = "approved"
+        app.createdAt = new Date(2015, 3, 14)
+
+        var opts = {
+            method: 'PUT',
+            url: '/apps',
+            payload: {
+                app: app
+            }
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.status.should.equal("approved")
+        response.result.createdAt.getDate().should.equal(14)
+    });
+
+
+    it("should delete app", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var appResponse = yield dbHelper.createApp(userResponse.result.id)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/apps?package=' + appResponse.result.package
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+
+        opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all'
+        }
+
+        var getAppsResponse =  yield Server.injectThen(opts);
+        getAppsResponse.statusCode.should.equal(STATUS_CODES.OK)
+        getAppsResponse.result.apps.length.should.equal(0)
+    });
+
     it("should get all apps", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
