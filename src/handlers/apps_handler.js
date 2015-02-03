@@ -44,12 +44,8 @@ function* create(app, userId) {
     }
 
     var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
-    console.log(shortUrl)
-    if(shortUrl.status_code == 500 || shortUrl.data == null) {
-        shortUrl = null
-    }
-
     var user = yield User.findOne({_id: userId}).exec()
+
     app.status = appStatuses.WAITING
     app.createdBy = user
     app.categories = appCategories
