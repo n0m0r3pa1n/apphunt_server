@@ -30,9 +30,10 @@ function* create(app, userId) {
         }
     } catch (e) {
         console.log("EXCEPTION")
+        parsedApp = null
     }
 
-    if(Object.keys(parsedApp).length === 0) {
+    if(parsedApp == null) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
 
@@ -43,6 +44,7 @@ function* create(app, userId) {
     }
 
     var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
+    console.log(shortUrl)
     if(shortUrl.status_code == 500 || shortUrl.data == null) {
         shortUrl = null
     }
@@ -54,7 +56,9 @@ function* create(app, userId) {
     app.isFree = parsedApp.isFree
     app.icon = parsedApp.icon
     app.name = parsedApp.name
-    app.url = shortUrl
+    app.url = parsedApp.url
+    app.shortUrl = shortUrl
+
 
     var parsedDescription = app.description;
     if(parsedDescription == '' || parsedDescription === undefined) {
