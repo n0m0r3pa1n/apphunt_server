@@ -19,7 +19,10 @@ var pack = require('../package'),
 var server = new Hapi.Server()
 
 server.connection({
-    port: serverPort
+    port: serverPort,
+    routes: {
+        cors: true
+    }
 })
 
 server.register({
