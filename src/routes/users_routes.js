@@ -7,9 +7,14 @@ var routes = [
         method: "GET",
         path: "/users",
         handler: function(req,reply) {
-            reply.co(UsersHandler.getAll())
+            reply.co(UsersHandler.get(req.query.email))
         },
         config: {
+            validate: {
+                query: {
+                    email: Joi.string().optional()
+                }
+            },
             description: 'Get a list of all registered users.',
             tags: ['api']
         }
@@ -28,7 +33,6 @@ var routes = [
                     name: Joi.string().required(),
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
-                    advertisingId: Joi.string().optional(),
                     deviceNotificationId: Joi.string().optional(),
                     loginType: Joi.string().optional()
                 }

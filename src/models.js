@@ -11,6 +11,7 @@ Mongoose.plugin(function(schema) {
     schema.statics.findOneOrCreate = function findOneOrCreate(condition, doc) {
         var wrapper = Co.wrap(function* (self, condition, doc) {
             var foundDoc = yield self.findOne(condition).exec();
+
             if (foundDoc) {
                 return foundDoc
             } else {
@@ -28,7 +29,6 @@ var userSchema = new Schema(
         name: String,
         email: {type: String, index: true, unique: true},
         profilePicture: String,
-        advertisingId: { type: String, unique: true },
         loginType: String,
         devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
     }
