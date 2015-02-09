@@ -30,6 +30,7 @@ var userSchema = new Schema(
         profilePicture: String,
         advertisingId: { type: String, unique: true },
         loginType: String,
+        locale: String,
         devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
     }
 )

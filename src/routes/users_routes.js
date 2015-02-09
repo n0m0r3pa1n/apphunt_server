@@ -30,7 +30,8 @@ var routes = [
                     profilePicture: Joi.string().optional(),
                     advertisingId: Joi.string().optional(),
                     deviceNotificationId: Joi.string().optional(),
-                    loginType: Joi.string().optional()
+                    loginType: Joi.string().optional(),
+                    locale: Joi.string().optional()
                 }
             },
             description: 'Create a user registration',
