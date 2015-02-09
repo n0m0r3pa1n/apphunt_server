@@ -40,6 +40,23 @@ function createUser() {
     return createUserWithParams(email)
 }
 
+function createUser(locale) {
+    var name = "dummy"
+
+    var opts = {
+        method: 'POST',
+        url: '/v1/users',
+        payload: {
+            name: name,
+            email: email,
+            profilePicture: "http://pic-bg.net",
+            locale: locale
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 function createUserWithParams(email) {
     var name = "dummy"
 

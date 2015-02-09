@@ -10,6 +10,12 @@ describe("Users", function() {
         response.statusCode.should.equal(STATUS_CODES.OK)
     });
 
+    it("should create user with locale", function*() {
+        var response = yield dbHelper.createUser("USA-en")
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.locale.should.equals("USA-en")
+    });
+
     it("should not create user", function*() {
         var response = yield dbHelper.createUser()
         response.statusCode.should.equal(STATUS_CODES.OK)
