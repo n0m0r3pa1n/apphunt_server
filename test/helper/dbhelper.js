@@ -37,6 +37,10 @@ function createAppWithParams(userId, appPackage, platform) {
 }
 
 function createUser() {
+    return createUserWithParams(email)
+}
+
+function createUserWithParams(email) {
     var name = "dummy"
 
     var opts = {
@@ -80,6 +84,7 @@ module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
 module.exports.createAppWithParams = createAppWithParams
 module.exports.createUser = createUser
+module.exports.createUserWithParams = createUserWithParams
 module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.EMAIL = email

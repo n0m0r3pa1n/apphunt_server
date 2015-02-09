@@ -21,7 +21,7 @@ var routes = [
                     shortUrl: Joi.string().optional(),
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
-                    description: Joi.string().optional(),
+                    description: Joi.string().required(),
                     platform: Joi.array().includes(Joi.string()).valid(platforms).required()
                 }
             },

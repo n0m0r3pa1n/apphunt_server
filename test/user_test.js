@@ -19,4 +19,27 @@ describe("Users", function() {
         var users = usersResponse.result
         users.length.should.equal(1)
     })
+
+    it("should get all users", function*() {
+        var response = yield dbHelper.createUserWithParams("poli@abv.bg")
+        var response2 = yield dbHelper.createUserWithParams("lqwqwqoli@abv.bg")
+        var usersResponse = yield dbHelper.getUsers()
+        var users = usersResponse.result
+        users.length.should.equal(2)
+    })
+
+    it("should get 1 user", function*() {
+        var response = yield dbHelper.createUserWithParams("poli@abv.bg")
+        var response2 = yield dbHelper.createUserWithParams("loli@abv.bg")
+
+        var opts = {
+            method: 'GET',
+            url: '/users?email=poli@abv.bg'
+        }
+
+        var usersResponse =  yield Server.injectThen(opts);
+        var users = usersResponse.result
+        users.length.should.equal(1)
+        users[0].email.should.equal("poli@abv.bg")
+    })
 })
