@@ -186,7 +186,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
         page: page
     }
     if(page != 0 && pageSize != 0) {
-        response.totalPages = Math.round(allAppsCount / pageSize)
+        response.totalPages = Math.ceil(allAppsCount % pageSize)
     }
     return response
 }
