@@ -4,6 +4,7 @@ var Co = require('co')
 Timestamps = require('mongoose-timestamp')
 var platforms = require('./config').platforms
 var appStatuses = require('./config').appStatuses
+var loginTypes = require('./config').loginTypes
 var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {
@@ -27,10 +28,11 @@ Mongoose.plugin(function(schema) {
 var userSchema = new Schema(
     {
         name: String,
-        email: {type: String, index: true, unique: true},
+        email: {type: String, index:true, unique: true},
         profilePicture: String,
-        loginType: String,
+        loginType: {type: String, enum: _.values(loginTypes), default: loginTypes.Facebook},
         locale: String,
+        appVersion: String,
         devices: [{type: Schema.Types.ObjectId, ref: 'Device'}]
     }
 )
@@ -41,8 +43,6 @@ var appCategorySchema = new Schema(
         name: {type: String, unique: true}
     }
 )
-
-
 
 var appSchema = new Schema(
     {

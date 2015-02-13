@@ -1,11 +1,13 @@
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs"
 var API_VERSION = 1.0;
+
 var Android = "Android"
 var iOS = "iOS"
 var platforms = {
     Android: "Android",
     iOS: "iOS"
 }
+
 var appStatuses = {
     WAITING: "waiting",
     APPROVED: "approved"
@@ -15,6 +17,13 @@ var appStatusesFilter = {
     WAITING: "waiting",
     APPROVED: "approved",
     ALL: "all"
+}
+
+var loginTypes = {
+    Facebook: "facebook",
+    GooglePlus: "google-plus",
+    Twitter: "twitter",
+    Custom: "custom"
 }
 
 var STATUS_CODES = {
@@ -90,4 +99,5 @@ module.exports.iOS = iOS
 module.exports.platforms = platforms
 module.exports.appStatuses = appStatuses
 module.exports.appStatusesFilter = appStatusesFilter
+module.exports.loginTypes = loginTypes
 module.exports.bitly = bitly

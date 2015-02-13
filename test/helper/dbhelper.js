@@ -1,3 +1,4 @@
+var loginTypes = require("../../src/config").loginTypes
 
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
@@ -50,7 +51,8 @@ function createUser(locale) {
             name: name,
             email: email,
             profilePicture: "http://pic-bg.net",
-            locale: locale
+            locale: locale,
+            loginType: loginTypes.Facebook
         }
     }
 
@@ -66,7 +68,8 @@ function createUserWithParams(email) {
         payload: {
             name: name,
             email: email,
-            profilePicture: "http://pic-bg.net"
+            profilePicture: "http://pic-bg.net",
+            loginType: loginTypes.Facebook
         }
     }
 

@@ -1,5 +1,7 @@
 var UsersHandler = require('../handlers/users_handler')
 var User = require('../models').User
+var loginTypes = require('../config').loginTypes
+var _ = require("underscore")
 var Joi = require('joi')
 
 var routes = [
@@ -30,12 +32,13 @@ var routes = [
         config: {
             validate: {
                 payload: {
-                    name: Joi.string().required(),
+                    name: Joi.string().optional(),
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
                     deviceNotificationId: Joi.string().optional(),
-                    loginType: Joi.string().optional(),
-                    locale: Joi.string().optional()
+                    loginType: Joi.array().includes(Joi.string()).valid( _.values(loginTypes)).required(),
+                    locale: Joi.string().optional(),
+                    appVersion: Joi.string().optional()
                 }
             },
             description: 'Create a user registration',

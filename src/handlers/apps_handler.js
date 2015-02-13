@@ -29,7 +29,6 @@ function* create(app, userId) {
             parsedApp = yield Badboy.getiOSApp(app.package)
         }
     } catch (e) {
-        console.log("EXCEPTION")
         parsedApp = null
     }
 
