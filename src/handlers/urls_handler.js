@@ -2,7 +2,8 @@ var HuntMe = require('huntme-node')
 
 function* getShortLink(link) {
     var huntMe = new HuntMe("")
-    return yield huntMe.createLink(link, "Android")
+    var response = yield huntMe.createLink(link, "Android")
+    return response.link
 }
 
 module.exports.getShortLink = getShortLink
