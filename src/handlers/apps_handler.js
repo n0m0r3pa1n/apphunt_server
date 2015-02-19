@@ -11,7 +11,6 @@ var STATUS_CODES = require('../config').STATUS_CODES
 var platforms = require('../config').platforms
 var _ = require("underscore")
 
-
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 function* create(app, userId) {
