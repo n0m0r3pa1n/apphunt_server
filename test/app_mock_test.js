@@ -1,12 +1,13 @@
 var Mongoose = require("mongoose")
 var should = require('chai').should()
+var assert = require('chai').assert
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var STATUS_CODES = require('../src/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
-describe("Apps", function() {
+describe("Apps", function () {
 
     it("should create Android app", function*() {
         var userResponse = yield dbHelper.createUser()
@@ -57,7 +58,7 @@ describe("Apps", function() {
             }
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.status.should.equal("approved")
         response.result.createdAt.getDate().should.equal(14)
@@ -73,7 +74,7 @@ describe("Apps", function() {
             url: '/apps?package=' + appResponse.result.package
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
 
         opts = {
@@ -81,7 +82,7 @@ describe("Apps", function() {
             url: '/apps?platform=Android&status=all'
         }
 
-        var getAppsResponse =  yield Server.injectThen(opts);
+        var getAppsResponse = yield Server.injectThen(opts);
         getAppsResponse.statusCode.should.equal(STATUS_CODES.OK)
         getAppsResponse.result.apps.length.should.equal(0)
     });
@@ -94,7 +95,7 @@ describe("Apps", function() {
             url: '/apps?platform=Android&status=all'
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
     });
@@ -109,10 +110,10 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&page=1&pageSize=2&platform=Android&status=all'
+            url: '/apps?date=' + todayStr + '&page=1&pageSize=2&platform=Android&status=all'
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
         expect(response.result.totalCount).to.exist()
@@ -133,10 +134,10 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android&status=all&date='+todayStr
+            url: '/apps?platform=Android&status=all&date=' + todayStr
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
         expect(response.result.totalCount).to.exist()
@@ -150,14 +151,14 @@ describe("Apps", function() {
         yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
         var today = new Date();
-        var dateString = new Date(today.getTime() + DAY_MILLISECONDS*6).toString("yyyy-MMM-dd")
+        var dateString = new Date(today.getTime() + DAY_MILLISECONDS * 6).toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/apps?platform=Android&status=all&date='+dateString
+            url: '/apps?platform=Android&status=all&date=' + dateString
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(0)
     });
@@ -172,10 +173,10 @@ describe("Apps", function() {
 
         var opts = {
             method: 'GET',
-            url: '/apps?date='+todayStr+'&status=all&page=0&platform=Android'
+            url: '/apps?date=' + todayStr + '&status=all&page=0&platform=Android'
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
 
     });
@@ -190,7 +191,7 @@ describe("Apps", function() {
             url: '/apps?platform=Android&status=all'
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
         response.result.totalCount.should.equal(1)
@@ -206,7 +207,7 @@ describe("Apps", function() {
             url: '/apps?platform=invalidPlatform&status=all'
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.BAD_REQUEST)
     });
 
@@ -227,8 +228,47 @@ describe("Apps", function() {
             }
         }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield Server.injectThen(opts);
         response.result.availablePackages.length.should.equal(1)
         response.result.existingPackages.length.should.equal(2)
+    });
+
+    it("should get apps order by votes count", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
+        var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
+
+        var opts = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app1Response.result.id + "&userId=" + userResponse.result.id
+        }
+
+        var opts2 = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app2Response.result.id + "&userId=" + userResponse.result.id
+        }
+
+        var opts3 = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app2Response.result.id + "&userId=" + user2Response.result.id
+        }
+
+        var vote1Response = yield Server.injectThen(opts);
+        var vote2Response = yield Server.injectThen(opts2);
+        var vote3Response = yield Server.injectThen(opts3);
+
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?date=' + todayStr + '&status=all&page=1&platform=Android&pageSize=12'
+        }
+
+        var response = yield Server.injectThen(opts);
+        var apps = response.result.apps
+        assert(apps[0].votesCount > apps[1].votesCount)
     });
 })

@@ -169,6 +169,12 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var apps = yield query.exec()
     var resultApps = addVotesCount(apps)
 
+    resultApps.sort(function (app1, app2) {
+        if (app1.votesCount < app2.votesCount) return 1;
+        if (app1.votesCount > app2.votesCount) return -1;
+        return 0;
+    });
+
     if(userId !== undefined) {
         setHasVoted(resultApps, userId)
     }
