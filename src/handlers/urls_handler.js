@@ -1,4 +1,4 @@
-var HuntMe = require('huntme-node')
+var HuntMe = require('huntme')
 
 function* getShortLink(link) {
     var huntMe = new HuntMe("")
