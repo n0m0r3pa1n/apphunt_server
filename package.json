@@ -12,7 +12,7 @@
     "deck": "0.0.4",
     "hapi": "^8.1.0",
     "hapi-swagger": "^0.6.1",
-    "huntme-node": "0.0.1",
+    "huntme": "latest",
     "joi": "latest",
     "mongoose": "4.0.0-rc1",
     "mongoose-timestamp": "~0.2.0",
