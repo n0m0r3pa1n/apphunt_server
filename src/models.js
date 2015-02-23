@@ -67,6 +67,20 @@ var voteSchema = new Schema(
     }
 )
 
+
+var commentSchema = new Schema(
+    {
+        text: String,
+        app: {type: Schema.Types.ObjectId, ref: 'App'},
+        createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
+        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
+        parent: {type: Schema.Types.ObjectId, ref: 'Comment'},
+        children: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
+    }
+)
+
+
+
 appSchema.methods.getVotesCount = function () {
     return this.votes.count();
 }
@@ -88,12 +102,14 @@ var deviceSchema = new Schema({
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)
 voteSchema.plugin(Timestamps)
+commentSchema.plugin(Timestamps)
 notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)
 module.exports.Vote = Mongoose.model('Vote', voteSchema)
+module.exports.Comment = Mongoose.model('Comment', commentSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)

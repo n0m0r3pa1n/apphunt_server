@@ -99,6 +99,25 @@ function getUsers() {
     return Server.injectThen(opts)
 }
 
+
+function createComment(appId, userId, parentId) {
+    var text = "comment text"
+
+    var opts = {
+        method: 'POST',
+        url: '/v1/comments',
+        payload: {
+            text: text,
+            userId: userId,
+            appId: appId
+        }
+    }
+    if(parentId !== undefined) {
+        opts.payload.parentId = parentId
+    }
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -107,6 +126,7 @@ module.exports.createUser = createUser
 module.exports.createUserWithParams = createUserWithParams
 module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
+module.exports.createComment = createComment
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2
