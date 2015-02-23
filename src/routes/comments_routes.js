@@ -37,7 +37,24 @@ var routes = [
                     userId: Joi.string().required()
                 }
             },
-            description: 'Create comment for app',
+            description: 'Get comments for app',
+            tags: ['api']
+        }
+    },
+    {
+        method: "POST",
+        path: "/comments/votes",
+        handler: function(req,reply) {
+            reply.co(CommentsHandler.createVote(req.payload.commentId, req.payload.userId))
+        },
+        config: {
+            validate: {
+                payload: {
+                    userId: Joi.string().required(),
+                    commentId: Joi.string().required()
+                }
+            },
+            description: 'Vote for a comment',
             tags: ['api']
         }
     }

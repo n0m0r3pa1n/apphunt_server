@@ -27,16 +27,44 @@ describe("Comments", function() {
 
     it("should get sorted comments", function*() {
         var user1Id = (yield dbHelper.createUser()).result.id
-        //var userResponse = yield dbHelper.createUser()
+        var user2Id = (yield dbHelper.createUser()).result.id
+
         var appId = (yield dbHelper.createApp(user1Id)).result.id
 
-        var commentResponse = yield dbHelper.createComment(appId, user1Id)
-        commentResponse.statusCode.should.equal(STATUS_CODES.OK)
+        var comment1Id = (yield dbHelper.createComment(appId, user1Id)).result.id
+        var comment2Id = (yield dbHelper.createComment(appId, user2Id)).result.id
+
+        yield dbHelper.voteComment(user1Id, comment1Id)
+        yield dbHelper.voteComment(user2Id, comment1Id)
+
+        //yield dbHelper.voteComment(user1Id, comment2Id)
 
         var opts = {
             method: 'GET',
-            url: '/v1/comments/' + appId + "?page=1&pageSize=1&userId=" + user1Id
+            url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + user1Id
         }
+
         var response = yield Server.injectThen(opts)
+        response.result.comments[0].votesCount.should.equal(2)
+        response.result.comments[1].votesCount.should.equal(0)
     });
+
+    it("should vote for comments", function*(){
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+
+        var opts = {
+            method: 'POST',
+            url: '/v1/comments/votes',
+            payload: {
+                userId: userId,
+                commentId: commentId
+            }
+        }
+
+        var voteResponse = yield Server.injectThen(opts);
+        voteResponse.result.votes.length.should.equal(1)
+    })
 })
+

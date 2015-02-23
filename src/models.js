@@ -75,7 +75,8 @@ var commentSchema = new Schema(
         createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         parent: {type: Schema.Types.ObjectId, ref: 'Comment'},
-        children: [{type: Schema.Types.ObjectId, ref: 'Comment'}]
+        children: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
+        votesCount: {type: Number, default: 0}
     }
 )
 

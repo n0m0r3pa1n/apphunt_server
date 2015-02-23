@@ -37,38 +37,53 @@ function* create(comment, appId, userId, parentId) {
 }
 
 function* get(appId, userId, page,  pageSize) {
+    var where = {app: appId, parent: null}
+    var query = Comment.find(where).populate("children")
+    query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
-    var resultComments = yield Comment.aggregate([
-        {$match: { $and: [
-            { app: new Mongoose.Types.ObjectId(appId)},
-            { parent: null}
-        ]}},
-        { $group: { _id: '$_id', votes: {$push:"$votes"}, votesCount: {"$sum": 1}} },
-        { $sort: {votesCount: -1, createdAt: -1} },
-        { $limit : pageSize },
-        { $skip : (page - 1) * pageSize }
-    ]).exec()
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
 
+    var resultComments = yield query.exec()
 
-    //if(userId !== undefined) {
-    //    setHasVoted(resultComments, userId)
-    //}
+    if(userId !== undefined) {
+        setHasVoted(resultComments, userId)
+    }
 
-    //var allCommentsCount = yield App.count(where).exec()
-    //
-    //removeVotesField(resultComments)
-    //
-    //var response = {
-    //    comments: resultComments,
-    //    totalCount: allCommentsCount,
-    //    page: page
-    //}
-    //if(page != 0 && pageSize != 0) {
-    //    response.totalPages = Math.ceil(allCommentsCount / pageSize)
-    //}
-    return resultComments
+    var allCommentsCount = yield Comment.count(where).exec()
+
+    removeVotesField(resultComments)
+
+    var response = {
+        comments: resultComments,
+        totalCount: allCommentsCount,
+        page: page
+    }
+    if(page != 0 && pageSize != 0) {
+        response.totalPages = Math.ceil(allCommentsCount / pageSize)
+    }
+    return response
 }
 
+function* createVote(commentId, userId) {
+    var comment = yield Comment.findById(commentId).exec()
+    if(!comment) {
+        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+    }
+
+    var user = yield User.findById(userId).exec()
+    var vote = new Vote()
+    vote.user = user
+
+    vote = yield vote.save()
+    comment.votes.push(vote)
+    comment.votesCount = comment.votes.length
+
+    yield comment.save()
+
+    return comment
+}
 
 function addVotesCount(apps) {
     var resultApps = []
@@ -107,3 +122,4 @@ function removeVotesField(comments) {
 
 module.exports.create = create
 module.exports.get = get
+module.exports.createVote = createVote
