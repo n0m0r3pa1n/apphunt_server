@@ -18,6 +18,18 @@ describe("Apps", function () {
         response.result.description.should.exist();
     });
 
+    it("should create and vote for Android app", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var response = yield dbHelper.createApp(userResponse.result.id)
+        var opts = {
+            method: "GET",
+            url: '/v1/apps/' + response .result.id + "?userId=" + userResponse.result.id
+        }
+
+        var appResponse = yield Server.injectThen(opts)
+        appResponse.result.app.votes.length.should.equal(1)
+    });
+
 
     it("should create iOS app", function*() {
         var userResponse = yield dbHelper.createUser()

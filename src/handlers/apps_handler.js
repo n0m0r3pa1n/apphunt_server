@@ -64,8 +64,7 @@ function* create(app, userId) {
     }
 
     var createdApp = yield App.create(app)
-
-    var voteResponse = createVote(userId, createdApp.id)
+    var voteResponse = yield createVote(userId, createdApp.id)
 
     return createdApp
 }
@@ -114,6 +113,7 @@ function* createVote(userId, appId) {
     app.votes.push(vote)
 
     yield app.save()
+
     return {
         statusCode:  STATUS_CODES.OK,
         votesCount: app.votes.length
@@ -206,8 +206,8 @@ function* filterApps(packages, platform) {
     return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
 }
 
-function*  getApp(appId, userId, commentsCount) {
-    var app = yield App.findById(appId).deepPopulate('votes.user').exec()
+function* getApp(appId, userId, commentsCount) {
+    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
     if(!app) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
@@ -218,8 +218,10 @@ function*  getApp(appId, userId, commentsCount) {
 
     var commentsResponse = yield CommentsHandler.get(appId, userId, 1, commentsCount)
     app = addVoteCount(app.toObject())
+    if(userId !== undefined) {
+        app.hasVoted = hasVoted(app, userId)
+    }
 
-    app.hasVoted = hasVoted(app, userId)
     return {
         app: app,
         commentsData: commentsResponse

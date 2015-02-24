@@ -10,13 +10,10 @@ describe("Votes", function() {
 
     it("should vote app", function*() {
         var userResponse = yield dbHelper.createUser()
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
         var response = yield dbHelper.createApp(userResponse.result.id)
-        var opts = {
-            method: 'POST',
-            url: '/apps/votes?appId=' + response.result.id + "&userId=" + userResponse.result.id
-        }
 
-        var response1 =  yield Server.injectThen(opts);
+        var response1 =  yield dbHelper.voteApp(response.result.id, user2Id);
         response1.statusCode.should.equal(STATUS_CODES.OK)
         expect(response1.result.votesCount).to.exist()
     });
@@ -40,24 +37,20 @@ describe("Votes", function() {
 
     it("should remove app vote", function*() {
         var userResponse = yield dbHelper.createUser()
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
         var appCreatedResponse = yield dbHelper.createApp(userResponse.result.id)
 
-        var opts = {
-            method: 'POST',
-            url: '/apps/votes?appId=' + appCreatedResponse.result.id + "&userId=" + userResponse.result.id
-        }
-
-        var userVotedResponse =  yield Server.injectThen(opts);
+        var userVotedResponse =  yield dbHelper.voteApp(appCreatedResponse.result.id, user2Id)
         userVotedResponse.statusCode.should.equal(STATUS_CODES.OK)
 
         opts = {
             method: 'DELETE',
-            url: '/apps/votes?appId=' + appCreatedResponse.result.id + "&userId=" + userResponse.result.id
+            url: '/apps/votes?appId=' + appCreatedResponse.result.id + "&userId=" + user2Id
         }
 
         var voteDeletedResponse = yield Server.injectThen(opts)
         voteDeletedResponse.statusCode.should.equal(STATUS_CODES.OK)
-        voteDeletedResponse.result.votesCount.should.equal(0)
+        voteDeletedResponse.result.votesCount.should.equal(1)
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
@@ -68,7 +61,7 @@ describe("Votes", function() {
         }
 
         var allAppsResponse =  yield Server.injectThen(opts);
-        allAppsResponse.result.apps[0].votesCount.should.equal(0)
+        allAppsResponse.result.apps[0].votesCount.should.equal(1)
     });
 
     it("should get apps by date with votes info", function*() {

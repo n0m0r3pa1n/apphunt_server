@@ -105,7 +105,7 @@ var routes = [
                     appId: Joi.string().required()
                 },
                 query: {
-                    userId: Joi.string().required(),
+                    userId: Joi.string().optional(),
                     commentsCount: Joi.number().min(1).optional()
                 }
             },

@@ -32,6 +32,7 @@ describe("App details", function () {
         commentsData.comments.length.should.equal(2)
         expect(commentsData.comments[0].hasVoted).to.exist()
         expect(app.votes[0].user.profilePicture).to.exist()
+        expect(app.createdBy.profilePicture).to.exist()
     });
 })
 

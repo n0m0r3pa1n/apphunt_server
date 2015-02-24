@@ -34,7 +34,7 @@ var routes = [
                 query: {
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
-                    userId: Joi.string().required()
+                    userId: Joi.string().optional()
                 }
             },
             description: 'Get comments for app',
