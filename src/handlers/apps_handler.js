@@ -181,7 +181,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
 
     var allAppsCount = yield App.count(where).exec()
 
-    removeVotesField(resultApps)
+    removeUnusedFields(resultApps)
 
     var response = {
         apps: resultApps,
@@ -266,9 +266,10 @@ function hasVoted(app, userId) {
     return hasVoted
 }
 
-function removeVotesField(apps) {
+function removeUnusedFields(apps) {
     for(var i=0; i<apps.length; i++) {
         delete apps[i].votes
+        delete apps[i].createdBy
     }
 }
 
