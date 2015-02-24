@@ -160,7 +160,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
         where.status = appStatus
     }
 
-    var query = App.find(where).deepPopulate("votes.user").populate("categories")
+    var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
