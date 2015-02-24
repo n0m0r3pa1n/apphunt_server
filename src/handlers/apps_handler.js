@@ -64,6 +64,9 @@ function* create(app, userId) {
     }
 
     var createdApp = yield App.create(app)
+
+    var voteResponse = createVote(userId, createdApp.id)
+
     return createdApp
 }
 

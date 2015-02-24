@@ -18,7 +18,8 @@
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
     "request-promise": "^0.3.3",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "mongoose-deep-populate": "latest"
   },
   "devDependencies": {
     "casual": "^1.4.6",
