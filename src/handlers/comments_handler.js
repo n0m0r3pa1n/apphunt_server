@@ -38,7 +38,7 @@ function* create(comment, appId, userId, parentId) {
 
 function* get(appId, userId, page,  pageSize) {
     var where = {app: appId, parent: null}
-    var query = Comment.find(where).populate("children")
+    var query = Comment.find(where).populate("children").populate('votes')
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
@@ -46,9 +46,8 @@ function* get(appId, userId, page,  pageSize) {
     }
 
     var resultComments = yield query.exec()
-
     if(userId !== undefined) {
-        setHasVoted(resultComments, userId)
+        resultComments = setHasVoted(resultComments, userId)
     }
 
     var allCommentsCount = yield Comment.count(where).exec()
@@ -85,22 +84,38 @@ function* createVote(commentId, userId) {
     return comment
 }
 
-function addVotesCount(apps) {
-    var resultApps = []
+function* deleteVote(userId, commentId) {
+    var user = yield User.findById(userId).exec()
 
-    for (var i = 0; i < apps.length; i++) {
-        var app = apps[i].toObject()
-        app.votesCount = app.votes.length
-        resultApps.push(app)
+    var query = Comment.findById(commentId)
+    var comment = yield query.populate("votes").exec()
+    if(!comment) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
     }
-    return resultApps
+
+    for(var i=0; i< comment.votes.length; i++) {
+        var currUserId = comment.votes[i].user
+        if(currUserId == userId) {
+            comment.votes.splice(i, 1);
+        }
+    }
+
+    yield comment.save()
+    var commentVotes = comment.votes !== undefined && comment.votes !== null ? comment.votes.length : 0;
+    return {
+        votesCount: commentVotes
+    }
 }
 
 function setHasVoted(comments, userId) {
+    var resultComments = []
     for (var i = 0; i < comments.length; i++) {
-        var comment = comments[i]
+        var comment = comments[i].toObject()
         comment.hasVoted = hasVoted(comment, userId)
+        resultComments.push(comment)
     }
+
+    return resultComments
 }
 
 function hasVoted(comment, userId) {
@@ -122,4 +137,5 @@ function removeVotesField(comments) {
 
 module.exports.create = create
 module.exports.get = get
+module.exports.deleteVote = deleteVote
 module.exports.createVote = createVote

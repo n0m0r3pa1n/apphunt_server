@@ -118,14 +118,19 @@ function createComment(appId, userId, parentId) {
     return Server.injectThen(opts)
 }
 
-function voteComment(userId, commentId) {
+function voteComment(commentId, userId) {
     var opts = {
         method: 'POST',
-        url: '/v1/comments/votes',
-        payload: {
-            userId: userId,
-            commentId: commentId
-        }
+        url: '/v1/comments/votes?userId=' + userId + "&commentId=" + commentId
+    }
+
+    return Server.injectThen(opts);
+}
+
+function voteApp(appId, userId) {
+    var opts = {
+        method: 'POST',
+        url: '/apps/votes?appId=' + appId + "&userId=" + userId
     }
 
     return Server.injectThen(opts);
@@ -141,6 +146,7 @@ module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.createComment = createComment
 module.exports.voteComment = voteComment
+module.exports.voteApp = voteApp
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

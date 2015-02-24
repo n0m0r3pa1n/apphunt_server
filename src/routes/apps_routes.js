@@ -6,6 +6,7 @@ var appStatusesFilterEnum = require('../config').appStatusesFilter
 var platforms = [platformsEnum.Android, platformsEnum.iOS]
 var appStatuses = [appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED, appStatusesFilterEnum.ALL]
 
+
 var routes = [
     {
         method: "GET",
@@ -89,6 +90,26 @@ var routes = [
                 }
             },
             description: 'Delete app',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path:"/apps/{appId}",
+        handler: function(req, reply) {
+            reply.co(AppsHandler.getApp(req.params.appId, req.query.userId, req.query.commentsCount))
+        },
+        config: {
+            validate: {
+                params: {
+                    appId: Joi.string().required()
+                },
+                query: {
+                    userId: Joi.string().required(),
+                    commentsCount: Joi.number().min(1).optional()
+                }
+            },
+            description: 'Get apps submissions for user',
             tags: ['api']
         }
     },

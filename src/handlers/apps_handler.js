@@ -2,6 +2,7 @@ var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Vote = require('../models').Vote
+var CommentsHandler = require('./comments_handler')
 var Badboy = require('badboy')
 var AppCategory = require('../models').AppCategory
 var appStatuses = require('../config').appStatuses
@@ -86,10 +87,6 @@ function* deleteApp(package) {
     return {
         statusCode: STATUS_CODES.OK
     }
-}
-
-function* getAll() {
-    return yield App.find({}).exec();
 }
 
 function* createVote(userId, appId) {
@@ -203,21 +200,28 @@ function* filterApps(packages, platform) {
     }
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages)
-    //var nonExistingApps = []
-    //for(var i = 0; i < appsToBeAdded.length; i++) {
-    //    try {
-    //        if (platform == platforms.Android) {
-    //            var app = yield Badboy.getAndroidApp(appsToBeAdded[i])
-    //        } else {
-    //            var app = yield Badboy.getiOSApp(appsToBeAdded[i])
-    //        }
-    //    } catch (e) {
-    //        nonExistingApps.push(appsToBeAdded[i])
-    //    }
-    //}
-    //var availablePackages = _.difference(appsToBeAdded, nonExistingApps)
-    var existing = _.intersection(packages. existingAppsPackages)
     return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
+}
+
+function*  getApp(appId, userId, commentsCount) {
+    var app = yield App.findById(appId).deepPopulate('votes.user').exec()
+    if(!app) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
+    }
+
+    if(!commentsCount) {
+        commentsCount = 5
+    }
+
+    var commentsResponse = yield CommentsHandler.get(appId, userId, 1, commentsCount)
+    app = addVoteCount(app.toObject())
+
+    app.hasVoted = hasVoted(app, userId)
+    return {
+        app: app,
+        commentsData: commentsResponse
+    }
+
 }
 
 
@@ -228,11 +232,15 @@ function addVotesCount(apps) {
     var resultApps = []
 
     for (var i = 0; i < apps.length; i++) {
-        var app = apps[i].toObject()
-        app.votesCount = app.votes.length
-        resultApps.push(app)
+        resultApps.push(addVoteCount(apps[i].toObject()))
     }
+
     return resultApps
+}
+
+function addVoteCount(app) {
+    app.votesCount = app.votes.length
+    return app
 }
 
 function setHasVoted(apps, userId) {
@@ -261,10 +269,9 @@ function removeVotesField(apps) {
 
 module.exports.create = create
 module.exports.getApps = getApps
-module.exports.getAll = getAll
 module.exports.update = update
 module.exports.deleteApp = deleteApp
 module.exports.filterApps = filterApps
 module.exports.createVote = createVote
 module.exports.deleteVote = deleteVote
-
+module.exports.getApp = getApp

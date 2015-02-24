@@ -1,4 +1,5 @@
 var Mongoose = require('mongoose')
+var DeepPopulate = require('mongoose-deep-populate');
 var Schema = Mongoose.Schema
 var Co = require('co')
 Timestamps = require('mongoose-timestamp')
@@ -106,6 +107,8 @@ voteSchema.plugin(Timestamps)
 commentSchema.plugin(Timestamps)
 notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
+
+appSchema.plugin(DeepPopulate);
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)

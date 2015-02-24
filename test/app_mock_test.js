@@ -272,3 +272,5 @@ describe("Apps", function () {
         assert(apps[0].votesCount > apps[1].votesCount)
     });
 })
+
+
