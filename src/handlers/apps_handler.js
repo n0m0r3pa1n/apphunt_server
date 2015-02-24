@@ -268,7 +268,6 @@ function hasVoted(app, userId) {
 function removeUnusedFields(apps) {
     for(var i=0; i<apps.length; i++) {
         delete apps[i].votes
-        delete apps[i].createdBy
     }
 }
 
