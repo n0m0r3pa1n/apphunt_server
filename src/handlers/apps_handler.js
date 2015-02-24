@@ -160,7 +160,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
         where.status = appStatus
     }
 
-    var query = App.find(where).populate("votes").populate("categories")
+    var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
@@ -226,7 +226,6 @@ function* getApp(appId, userId, commentsCount) {
         app: app,
         commentsData: commentsResponse
     }
-
 }
 
 
@@ -258,7 +257,7 @@ function setHasVoted(apps, userId) {
 function hasVoted(app, userId) {
     var hasVoted = false
     for (var j = 0; j < app.votes.length; j++) {
-        if (userId == app.votes[j].user) {
+        if (userId == app.votes[j].user._id) {
             hasVoted = true;
             break;
         }
@@ -269,7 +268,6 @@ function hasVoted(app, userId) {
 function removeUnusedFields(apps) {
     for(var i=0; i<apps.length; i++) {
         delete apps[i].votes
-        delete apps[i].createdBy
     }
 }
 

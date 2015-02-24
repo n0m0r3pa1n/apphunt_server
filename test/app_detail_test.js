@@ -12,7 +12,7 @@ describe("App details", function () {
     it("should get app with comments", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-        var appVoteId = yield dbHelper.voteApp(appId, userId)
+        //var appVoteId = yield dbHelper.voteApp(appId, userId)
 
         var comment1Id = (yield dbHelper.createComment(appId, userId)).result.id
         var comment2Id = (yield dbHelper.createComment(appId, userId)).result.id
