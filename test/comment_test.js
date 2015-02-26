@@ -1,6 +1,7 @@
 var should = require('chai').should()
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
+var expect = require('chai').expect
 var STATUS_CODES = require('../src/config').STATUS_CODES
 
 describe("Comments", function() {
@@ -47,6 +48,7 @@ describe("Comments", function() {
         var response = yield Server.injectThen(opts)
         response.result.comments[0].votesCount.should.equal(2)
         response.result.comments[1].votesCount.should.equal(0)
+        expect(response.result.comments[0].createdBy.email).to.exist()
     });
 
     it("should vote for comments", function*(){
