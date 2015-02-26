@@ -156,7 +156,6 @@ function* deleteVote(userId, appId) {
     }
 }
 
-
 function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var where = {};
     var responseDate = ""
