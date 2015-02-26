@@ -109,6 +109,7 @@ notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate);
+commentSchema.plugin(DeepPopulate)
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)

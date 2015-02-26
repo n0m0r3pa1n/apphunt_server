@@ -38,7 +38,7 @@ function* create(comment, appId, userId, parentId) {
 
 function* get(appId, userId, page,  pageSize) {
     var where = {app: appId, parent: null}
-    var query = Comment.find(where).populate("children").populate('votes').populate("createdBy")
+    var query = Comment.find(where).deepPopulate("children.createdBy").populate('votes').populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
