@@ -26,6 +26,22 @@ describe("Comments", function() {
         commentResponse.statusCode.should.equal(STATUS_CODES.NOT_FOUND)
     });
 
+    it("should create child comment", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+        var childCommentResponse = yield dbHelper.createComment(appId, userId, commentId)
+        childCommentResponse.result.parent.id.should.equal(commentId)
+
+        var opts = {
+            method: 'GET',
+            url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.comments[0].children.length.should.equal(1)
+    });
+
     it("should get sorted comments", function*() {
         var user1Id = (yield dbHelper.createUser()).result.id
         var user2Id = (yield dbHelper.createUser()).result.id
