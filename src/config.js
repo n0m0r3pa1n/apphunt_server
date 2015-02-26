@@ -91,6 +91,8 @@ var bitly =  {
         apiKey: "c068748d49c9fa346083e6fcaf343b67b7f8492c"
 }
 
+var boltAppId = "54ef44e5fa12501100634591"
+
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES
@@ -101,3 +103,4 @@ module.exports.appStatuses = appStatuses
 module.exports.appStatusesFilter = appStatusesFilter
 module.exports.loginTypes = loginTypes
 module.exports.bitly = bitly
+module.exports.boltAppId = boltAppId

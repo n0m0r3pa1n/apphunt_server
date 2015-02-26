@@ -10,7 +10,9 @@ var appStatusesFilter = require('../config').appStatusesFilter
 var UrlsHandler = require('./urls_handler')
 var STATUS_CODES = require('../config').STATUS_CODES
 var platforms = require('../config').platforms
+var boltAppId = require('../config').boltAppId
 var _ = require("underscore")
+var Bolt = require("bolt-js")
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -79,8 +81,19 @@ function* update(app) {
     existingApp.description = app.description
     existingApp.status = app.status
 
-    return yield existingApp.save()
+    var savedApp = yield existingApp.save()
 
+    yield postTweetIfApproved(savedApp);
+    return savedApp
+
+}
+
+function* postTweetIfApproved(app) {
+    if (app.status == appStatuses.APPROVED) {
+        var bolt = new Bolt(boltAppId)
+        var message = app.description + " " + app.shortUrl + " #Android #new #app"
+        yield bolt.postTweet(message)
+    }
 }
 
 function* deleteApp(package) {
