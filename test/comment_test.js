@@ -73,7 +73,7 @@ describe("Comments", function() {
         var commentId = (yield dbHelper.createComment(appId, userId)).result.id
 
         var voteResponse = yield dbHelper.voteComment(commentId, userId)
-        voteResponse.result.votes.length.should.equal(1)
+        voteResponse.result.votesCount.should.equal(1)
     })
 
     it("should delete vote for comments", function*(){

@@ -81,7 +81,9 @@ function* createVote(commentId, userId) {
 
     yield comment.save()
 
-    return comment
+    return {
+        votesCount: comment.votes.length
+    }
 }
 
 function* deleteVote(userId, commentId) {

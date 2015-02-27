@@ -128,7 +128,6 @@ function* createVote(userId, appId) {
     yield app.save()
 
     return {
-        statusCode:  STATUS_CODES.OK,
         votesCount: app.votes.length
     }
 }
