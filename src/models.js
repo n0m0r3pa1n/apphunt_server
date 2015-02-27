@@ -45,6 +45,14 @@ var appCategorySchema = new Schema(
     }
 )
 
+var developerSchema = new Schema(
+    {
+        name: String,
+        email: {type: String, required: true},
+        website: String
+    }
+)
+
 var appSchema = new Schema(
     {
         name: String,
@@ -58,7 +66,8 @@ var appSchema = new Schema(
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
         isFree: {type: Boolean, default: true},
-        platform: {type: String, enum: _.values(platforms), default: platforms.Android}
+        platform: {type: String, enum: _.values(platforms), default: platforms.Android},
+        developer: {type: Schema.Types.ObjectId, ref: 'Developer'}
     }
 )
 
@@ -107,6 +116,7 @@ voteSchema.plugin(Timestamps)
 commentSchema.plugin(Timestamps)
 notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
+developerSchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate);
 commentSchema.plugin(DeepPopulate)
@@ -118,4 +128,5 @@ module.exports.Comment = Mongoose.model('Comment', commentSchema)
 module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
+module.exports.Developer = Mongoose.model('Developer', developerSchema)
 
