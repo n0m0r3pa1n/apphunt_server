@@ -91,7 +91,7 @@ function* update(app) {
 function* postTweetIfApproved(app) {
     if (app.status == appStatuses.APPROVED) {
         var bolt = new Bolt(boltAppId)
-        var message = app.description + " " + app.shortUrl + " #Android #new #app"
+        var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
         yield bolt.postTweet(message)
     }
 }
