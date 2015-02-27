@@ -143,7 +143,7 @@ function* sendEmailToDeveloperIfApproved(app) {
             },
             tags: ['developer', 'apphunt', 'new-app']
         }
-        bolt.sendEmail(emailParameters)
+        yield bolt.sendEmail(emailParameters)
     }
 }
 
