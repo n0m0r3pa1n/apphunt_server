@@ -90,21 +90,21 @@ function* update(app) {
 
     var savedApp = yield existingApp.save()
 
-    yield postTweetIfApproved(savedApp)
-    yield sendEmailToDeveloperIfApproved(savedApp)
+    postTweetIfApproved(savedApp)
+    sendEmailToDeveloperIfApproved(savedApp)
     return savedApp
 
 }
 
-function* postTweetIfApproved(app) {
+function postTweetIfApproved(app) {
     if (app.status == appStatuses.APPROVED) {
         var bolt = new Bolt(boltAppId)
         var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
-        yield bolt.postTweet(message)
+        bolt.postTweet(message)
     }
 }
 
-function* sendEmailToDeveloperIfApproved(app) {
+function sendEmailToDeveloperIfApproved(app) {
     if (app.status == appStatuses.APPROVED && app.developer !== undefined) {
         var templateFile = Fs.readFileSync(EMAIL_TEMPLATES_PATH + "developer_app_added.hbs")
         var bolt = new Bolt(boltAppId)
@@ -143,7 +143,7 @@ function* sendEmailToDeveloperIfApproved(app) {
             },
             tags: ['developer', 'apphunt', 'new-app']
         }
-        yield bolt.sendEmail(emailParameters)
+        bolt.sendEmail(emailParameters)
     }
 }
 
