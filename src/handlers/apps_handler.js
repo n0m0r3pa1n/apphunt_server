@@ -117,7 +117,7 @@ function sendEmailToDeveloperIfApproved(app) {
                 email: APP_HUNT_EMAIL
             }, to: {
                 name: developer.name,
-                email: "venelinxmen@yahoo.com"
+                email: developer.email
             }, 
             subject: app.name + " is added on AppHunt! Find out what your users think about it!",
             message: {
