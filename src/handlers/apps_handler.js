@@ -119,7 +119,7 @@ function* sendEmailToDeveloperIfApproved(app) {
                 name: developer.name,
                 email: "venelinxmen@yahoo.com"
             }, 
-            subject: app.name + " is added on AppHunt! What users think about your app?",
+            subject: app.name + " is added on AppHunt! Find out what your users think about it!,
             message: {
                 text: templateFile.toString(),
                 variables: [{
@@ -143,7 +143,7 @@ function* sendEmailToDeveloperIfApproved(app) {
             },
             tags: ['developer', 'apphunt', 'new-app']
         }
-        yield bolt.sendEmail(emailParameters)
+        bolt.sendEmail(emailParameters)
     }
 }
 
