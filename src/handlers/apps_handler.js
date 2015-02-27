@@ -1,5 +1,6 @@
 var Mongoose = require('mongoose')
 var App = require('../models').App
+var Developer = require('../models').Developer
 var User = require('../models').User
 var Vote = require('../models').Vote
 var CommentsHandler = require('./comments_handler')
@@ -13,6 +14,9 @@ var platforms = require('../config').platforms
 var boltAppId = require('../config').boltAppId
 var _ = require("underscore")
 var Bolt = require("bolt-js")
+var Fs = require('fs')
+var EMAIL_TEMPLATES_PATH = require('../config').EMAIL_TEMPLATES_PATH
+var APP_HUNT_EMAIL = require('../config').APP_HUNT_EMAIL
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -27,6 +31,9 @@ function* create(app, userId) {
     try {
         if(app.platform == platforms.Android) {
             parsedApp = yield Badboy.getAndroidApp(app.package)
+            var d = parsedApp.developer
+            var developer = yield Developer.findOneOrCreate({email: d.email},{name: d.name, email: d.email})
+            app.developer = developer
         } else {
             parsedApp = yield Badboy.getiOSApp(app.package)
         }
@@ -72,7 +79,7 @@ function* create(app, userId) {
 }
 
 function* update(app) {
-    var existingApp = yield App.findOne({package: app.package }).exec()
+    var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
     if(!existingApp) {
         return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
     }
@@ -83,7 +90,8 @@ function* update(app) {
 
     var savedApp = yield existingApp.save()
 
-    yield postTweetIfApproved(savedApp);
+    yield postTweetIfApproved(savedApp)
+    yield sendEmailToDeveloperIfApproved(savedApp)
     return savedApp
 
 }
@@ -93,6 +101,49 @@ function* postTweetIfApproved(app) {
         var bolt = new Bolt(boltAppId)
         var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
         yield bolt.postTweet(message)
+    }
+}
+
+function* sendEmailToDeveloperIfApproved(app) {
+    if (app.status == appStatuses.APPROVED && app.developer !== undefined) {
+        var templateFile = Fs.readFileSync(EMAIL_TEMPLATES_PATH + "developer_app_added.hbs")
+        var bolt = new Bolt(boltAppId)
+        var user = app.createdBy
+        var developer = app.developer
+       
+        var emailParameters = {
+            from: {
+                name: "AppHunt",
+                email: APP_HUNT_EMAIL
+            }, to: {
+                name: developer.name,
+                email: "venelinxmen@yahoo.com"
+            }, 
+            subject: app.name + " is added on AppHunt! What users think about your app?",
+            message: {
+                text: templateFile.toString(),
+                variables: [{
+                    name: "app",
+                    content: {
+                        name: app.name,
+                        icon: app.icon,
+                        description: app.description,
+                        developer: {
+                            name: developer.name
+                        }
+                    }
+                },
+                {
+                    name: "user",
+                    content: {
+                        name: user.name,
+                        picture: user.profilePicture
+                    }
+                }]
+            },
+            tags: ['developer', 'apphunt', 'new-app']
+        }
+        yield bolt.sendEmail(emailParameters)
     }
 }
 

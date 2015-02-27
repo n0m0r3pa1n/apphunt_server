@@ -93,6 +93,9 @@ var bitly =  {
 
 var boltAppId = "54ef44e5fa12501100634591"
 
+var EMAIL_TEMPLATES_PATH = "assets/templates/email/"
+var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co"
+
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES
@@ -104,3 +107,5 @@ module.exports.appStatusesFilter = appStatusesFilter
 module.exports.loginTypes = loginTypes
 module.exports.bitly = bitly
 module.exports.boltAppId = boltAppId
+module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH
+module.exports.APP_HUNT_EMAIL = APP_HUNT_EMAIL

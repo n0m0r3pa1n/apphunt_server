@@ -10,6 +10,7 @@ var initMock = function() {
     mockBadBoy.mockGetIosApp()
     mockBitly.mockUrlsHandler()
     mockBolt.mockPostTweet()
+    mockBolt.mockSendEmail()
 }
 
 initMock()

@@ -10,7 +10,12 @@ var mockGetAndroidApp = function() {
             isFree: true,
             package: 'com.example.test',
             description: 'Test',
-            url: 'https://play.google.com/store/apps/details?id=com.koli' }
+            url: 'https://play.google.com/store/apps/details?id=com.koli',
+            developer: {
+                name: "test",
+                email: "test@test.com"
+            } 
+        }
     })
 }
 

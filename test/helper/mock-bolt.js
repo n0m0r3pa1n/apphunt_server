@@ -7,5 +7,12 @@ var mockPostTweet = function() {
     })
 }
 
+var mockSendEmail = function() {
+    simple.mock(Bolt.prototype, "sendEmail", function() {
+        return {}
+    })
+}
+
 module.exports.mockPostTweet = mockPostTweet
+module.exports.mockSendEmail = mockSendEmail
 
