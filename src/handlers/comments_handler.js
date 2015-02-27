@@ -47,7 +47,7 @@ function* get(appId, userId, page,  pageSize) {
 
     var resultComments = yield query.exec()
     if(userId !== undefined) {
-        resultComments = setHasVoted(resultComments, userId)
+        resultComments = yield setHasVoted(resultComments, userId)
     }
 
     var allCommentsCount = yield Comment.count(where).exec()
@@ -109,26 +109,30 @@ function* deleteVote(userId, commentId) {
     }
 }
 
-function setHasVoted(comments, userId) {
+function* setHasVoted(comments, userId) {
     var resultComments = []
-    comments.forEach(function(c) {
-        var comment = c.toObject()
+    for(var i =0; i< comments.length; i++) {
+        var comment = comments[i]
+        if(comment instanceof Comment) {
+            comment = comment.toObject()
+        }
         comment.hasVoted = hasVoted(comment, userId)
-        //comment.children = setHasVoted(comment.children, userId)
+        if (comment.children.length > 0) {
+            comment.children = yield setHasVoted(comment.children, userId)
+        }
+
         resultComments.push(comment)
-    })
+    }
     return resultComments
 }
 
 function hasVoted(comment, userId) {
-    var hasVoted = false
     for (var j = 0; j < comment.votes.length; j++) {
         if (userId == comment.votes[j].user) {
-            hasVoted = true;
-            break;
+            return true
         }
     }
-    return hasVoted
+    return false
 }
 
 function removeVotesField(comments) {

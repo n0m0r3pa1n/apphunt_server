@@ -1,7 +1,7 @@
 var should = require('chai').should()
+var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var expect = require('chai').expect
 var STATUS_CODES = require('../src/config').STATUS_CODES
 
 describe("Comments", function() {
@@ -40,6 +40,8 @@ describe("Comments", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.comments[0].children.length.should.equal(1)
+        expect(response.result.comments[0].children[0].hasVoted).to.exist()
+        response.result.comments[0].children[0].hasVoted.should.equal(false)
     });
 
     it("should get sorted comments", function*() {
