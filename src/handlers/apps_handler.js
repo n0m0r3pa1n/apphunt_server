@@ -119,7 +119,7 @@ function* sendEmailToDeveloperIfApproved(app) {
                 name: developer.name,
                 email: "venelinxmen@yahoo.com"
             }, 
-            subject: app.name + " is added on AppHunt! Find out what your users think about it!,
+            subject: app.name + " is added on AppHunt! Find out what your users think about it!",
             message: {
                 text: templateFile.toString(),
                 variables: [{
