@@ -82,7 +82,7 @@ function* createVote(commentId, userId) {
     yield comment.save()
 
     return {
-        votesCount: comment.votes.length
+        votesCount: comment.votesCount
     }
 }
 
@@ -99,24 +99,24 @@ function* deleteVote(userId, commentId) {
         var currUserId = comment.votes[i].user
         if(currUserId == userId) {
             comment.votes.splice(i, 1);
+            comment.votesCount = comment.votes.length
         }
     }
 
     yield comment.save()
-    var commentVotes = comment.votes !== undefined && comment.votes !== null ? comment.votes.length : 0;
     return {
-        votesCount: commentVotes
+        votesCount: comment.votesCount
     }
 }
 
 function setHasVoted(comments, userId) {
     var resultComments = []
-    for (var i = 0; i < comments.length; i++) {
-        var comment = comments[i].toObject()
+    comments.forEach(function(c) {
+        var comment = c.toObject()
         comment.hasVoted = hasVoted(comment, userId)
+        //comment.children = setHasVoted(comment.children, userId)
         resultComments.push(comment)
-    }
-
+    })
     return resultComments
 }
 
