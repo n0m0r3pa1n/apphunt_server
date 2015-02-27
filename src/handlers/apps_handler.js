@@ -90,7 +90,7 @@ function* update(app) {
 
     var savedApp = yield existingApp.save()
 
-    yield postTweetIfApproved(savedApp)
+    //yield postTweetIfApproved(savedApp)
     yield sendEmailToDeveloperIfApproved(savedApp)
     return savedApp
 
