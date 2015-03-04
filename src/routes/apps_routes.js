@@ -31,7 +31,7 @@ var routes = [
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
                     status: Joi.string().valid(appStatuses).optional(),
-                    platform: Joi.array().includes(Joi.string()).valid(platforms).required()
+                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
                 }
             },
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
@@ -53,7 +53,7 @@ var routes = [
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
                     description: Joi.string().required(),
-                    platform: Joi.array().includes(Joi.string()).valid(platforms).required()
+                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
                 }
             },
             description: 'Create new app',
@@ -173,7 +173,7 @@ var routes = [
             validate: {
                 payload: {
                     platform: Joi.string().valid(platforms).required(),
-                    packages: Joi.array().includes(Joi.string()).required()
+                    packages: Joi.array().items(Joi.string()).required()
                 }
             }
         }

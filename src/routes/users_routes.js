@@ -36,7 +36,7 @@ var routes = [
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
                     deviceNotificationId: Joi.string().optional(),
-                    loginType: Joi.array().includes(Joi.string()).valid(_.values(loginTypes)).required(),
+                    loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
                     locale: Joi.string().optional(),
                     appVersion: Joi.string().optional()
                 }

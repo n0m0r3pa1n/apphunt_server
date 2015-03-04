@@ -13,7 +13,7 @@
     "hapi": "^8.1.0",
     "hapi-swagger": "^0.6.1",
     "huntme": "latest",
-    "joi": "latest",
+    "joi": "^6.0.0",
     "mongoose": "4.0.0-rc1",
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
