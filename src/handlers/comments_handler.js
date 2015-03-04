@@ -138,6 +138,11 @@ function hasVoted(comment, userId) {
 function removeVotesField(comments) {
     for(var i=0; i<comments.length; i++) {
         delete comments[i].votes
+        if(comments[i].children.length > 0) {
+            for(var index in comments[i].children) {
+                delete comments[i].children[index].votes
+            }
+        }
     }
 }
 
