@@ -274,6 +274,7 @@ function* getApp(appId, userId, commentsCount) {
 
     var commentsResponse = yield CommentsHandler.get(appId, userId, 1, commentsCount)
     if(userId !== undefined) {
+        app = app.toObject()
         app.hasVoted = hasVoted(app, userId)
     }
 
