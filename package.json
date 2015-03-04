@@ -19,7 +19,7 @@
     "randomstring": "^1.0.3",
     "request-promise": "^0.3.3",
     "underscore": "~1.6.0",
-    "mongoose-deep-populate": "latest",
+    "mongoose-deep-populate": "^1.0.0",
     "bolt-js": "latest"
   },
   "devDependencies": {
