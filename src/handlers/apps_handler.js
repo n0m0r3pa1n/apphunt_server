@@ -175,11 +175,11 @@ function* createVote(userId, appId) {
 
     vote = yield vote.save()
     app.votes.push(vote)
-
+    app.votesCount = app.votes.length
     yield app.save()
 
     return {
-        votesCount: app.votes.length
+        votesCount: app.votesCount
     }
 }
 
@@ -198,11 +198,10 @@ function* deleteVote(userId, appId) {
             app.votes.splice(i, 1);
         }
     }
-
+    app.votesCount = app.votes.length
     yield app.save()
-    var appVotes = app.votes !== undefined && app.votes !== null ? app.votes.length : 0;
     return {
-        votesCount: appVotes
+        votesCount: app.votesCount
     }
 }
 
@@ -223,22 +222,17 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     }
 
     var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
+    query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
     }
 
     var apps = yield query.exec()
-    var resultApps = addVotesCount(apps)
-
-    resultApps.sort(function (app1, app2) {
-        if (app1.votesCount < app2.votesCount) return 1;
-        if (app1.votesCount > app2.votesCount) return -1;
-        return 0;
-    });
+    var resultApps = apps
 
     if(userId !== undefined) {
-        setHasVoted(resultApps, userId)
+        resultApps = setHasVoted(resultApps, userId)
     }
 
     var allAppsCount = yield App.count(where).exec()
@@ -279,7 +273,6 @@ function* getApp(appId, userId, commentsCount) {
     }
 
     var commentsResponse = yield CommentsHandler.get(appId, userId, 1, commentsCount)
-    app = addVoteCount(app.toObject())
     if(userId !== undefined) {
         app.hasVoted = hasVoted(app, userId)
     }
@@ -294,37 +287,23 @@ function* getApp(appId, userId, commentsCount) {
 //==========================================================
 // Helper functions
 //==========================================================
-function addVotesCount(apps) {
+function setHasVoted(apps, userId) {
     var resultApps = []
-
     for (var i = 0; i < apps.length; i++) {
-        resultApps.push(addVoteCount(apps[i].toObject()))
+        var app = apps[i].toObject()
+        app.hasVoted = hasVoted(app, userId)
+        resultApps.push(app)
     }
-
     return resultApps
 }
 
-function addVoteCount(app) {
-    app.votesCount = app.votes.length
-    return app
-}
-
-function setHasVoted(apps, userId) {
-    for (var i = 0; i < apps.length; i++) {
-        var app = apps[i]
-        app.hasVoted = hasVoted(app, userId)
-    }
-}
-
 function hasVoted(app, userId) {
-    var hasVoted = false
     for (var j = 0; j < app.votes.length; j++) {
         if (userId == app.votes[j].user._id) {
-            hasVoted = true;
-            break;
+            return true;
         }
     }
-    return hasVoted
+    return false
 }
 
 function removeUnusedFields(apps) {

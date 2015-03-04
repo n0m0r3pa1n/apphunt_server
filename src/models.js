@@ -67,7 +67,8 @@ var appSchema = new Schema(
         categories: [{type: Schema.Types.ObjectId, ref: 'AppCategory'}],
         isFree: {type: Boolean, default: true},
         platform: {type: String, enum: _.values(platforms), default: platforms.Android},
-        developer: {type: Schema.Types.ObjectId, ref: 'Developer'}
+        developer: {type: Schema.Types.ObjectId, ref: 'Developer'},
+        votesCount: {type: Number, default: 0}
     }
 )
 
