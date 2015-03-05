@@ -66,9 +66,16 @@ function* get(appId, userId, page,  pageSize) {
 }
 
 function* createVote(commentId, userId) {
-    var comment = yield Comment.findById(commentId).exec()
+    var comment = yield Comment.findById(commentId).populate('votes').exec()
     if(!comment) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+    }
+
+    for(var i=0; i< comment.votes.length; i++) {
+        var currUserId = comment.votes[i].user
+        if(currUserId == userId) {
+            return {statusCode: STATUS_CODES.CONFLICT}
+        }
     }
 
     var user = yield User.findById(userId).exec()

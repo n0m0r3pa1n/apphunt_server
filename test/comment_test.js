@@ -46,12 +46,13 @@ describe("Comments", function() {
 
     it("should get sorted comments", function*() {
         var user1Id = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("omnom@yahoo.co")).result.id
 
         var appId = (yield dbHelper.createApp(user1Id)).result.id
 
         var comment1Id = (yield dbHelper.createComment(appId, user1Id)).result.id
         var comment2Id = (yield dbHelper.createComment(appId, user2Id)).result.id
+
 
         yield dbHelper.voteComment(comment1Id, user1Id)
         yield dbHelper.voteComment(comment1Id, user2Id)
@@ -76,6 +77,18 @@ describe("Comments", function() {
 
         var voteResponse = yield dbHelper.voteComment(commentId, userId)
         voteResponse.result.votesCount.should.equal(1)
+    })
+
+    it("should vote once for comment", function*(){
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+
+        var voteResponse = yield dbHelper.voteComment(commentId, userId)
+        voteResponse.result.votesCount.should.equal(1)
+
+        var voteResponse2 = yield dbHelper.voteComment(commentId, userId)
+        voteResponse2.statusCode.should.equal(STATUS_CODES.CONFLICT)
     })
 
     it("should delete vote for comments", function*(){

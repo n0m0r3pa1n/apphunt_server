@@ -167,7 +167,7 @@ function* createVote(userId, appId) {
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.NOT_FOUND}
+            return {statusCode: STATUS_CODES.CONFLICT}
         }
     }
     var vote = new Vote()

@@ -32,7 +32,7 @@ describe("Votes", function() {
             url: '/apps/votes?appId=' + appResponse.result.id + "&userId=" + userResponse.result.id
         }
         var vote2Response =  yield Server.injectThen(opts2);
-        vote2Response.statusCode.should.equal(STATUS_CODES.NOT_FOUND)
+        vote2Response.statusCode.should.equal(STATUS_CODES.CONFLICT)
     });
 
     it("should remove app vote", function*() {
