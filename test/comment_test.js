@@ -33,6 +33,8 @@ describe("Comments", function() {
         var childCommentResponse = yield dbHelper.createComment(appId, userId, commentId)
         childCommentResponse.result.parent.id.should.equal(commentId)
 
+        yield dbHelper.voteComment(childCommentResponse.result.id, userId)
+
         var opts = {
             method: 'GET',
             url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + userId
@@ -41,23 +43,20 @@ describe("Comments", function() {
         var response = yield Server.injectThen(opts)
         response.result.comments[0].children.length.should.equal(1)
         expect(response.result.comments[0].children[0].hasVoted).to.exist()
-        response.result.comments[0].children[0].hasVoted.should.equal(false)
+        response.result.comments[0].children[0].hasVoted.should.equal(true)
     });
 
     it("should get sorted comments", function*() {
         var user1Id = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("omnom@yahoo.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
 
         var appId = (yield dbHelper.createApp(user1Id)).result.id
 
         var comment1Id = (yield dbHelper.createComment(appId, user1Id)).result.id
         var comment2Id = (yield dbHelper.createComment(appId, user2Id)).result.id
 
-
         yield dbHelper.voteComment(comment1Id, user1Id)
         yield dbHelper.voteComment(comment1Id, user2Id)
-
-        //yield dbHelper.voteComment(user1Id, comment2Id)
 
         var opts = {
             method: 'GET',
@@ -77,18 +76,6 @@ describe("Comments", function() {
 
         var voteResponse = yield dbHelper.voteComment(commentId, userId)
         voteResponse.result.votesCount.should.equal(1)
-    })
-
-    it("should vote once for comment", function*(){
-        var userId = (yield dbHelper.createUser()).result.id
-        var appId = (yield dbHelper.createApp(userId)).result.id
-        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
-
-        var voteResponse = yield dbHelper.voteComment(commentId, userId)
-        voteResponse.result.votesCount.should.equal(1)
-
-        var voteResponse2 = yield dbHelper.voteComment(commentId, userId)
-        voteResponse2.statusCode.should.equal(STATUS_CODES.CONFLICT)
     })
 
     it("should delete vote for comments", function*(){
