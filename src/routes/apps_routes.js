@@ -114,56 +114,6 @@ var routes = [
         }
     },
     {
-        method: "GET",
-        path:"/apps/submission",
-        handler: function(req, reply) {
-            //reply.co(AppsHandler.deleteApp(req.query.package))
-        },
-        config: {
-            validate: {
-                query: {
-                    userId: Joi.string().required()
-                }
-            },
-            description: 'Get apps submissions for user',
-            tags: ['api']
-        }
-    },
-    {
-        method: "POST",
-        path: "/apps/votes",
-        handler: function(req,reply) {
-            reply.co(AppsHandler.createVote(req.query.userId, req.query.appId))
-        },
-        config: {
-            validate: {
-                query: {
-                    userId: Joi.string().required(),
-                    appId: Joi.string().required()
-                }
-            },
-            description: 'Vote for an app',
-            tags: ['api']
-        }
-    },
-    {
-        method: "DELETE",
-        path: "/apps/votes",
-        handler: function(req,reply) {
-            reply.co(AppsHandler.deleteVote(req.query.userId, req.query.appId))
-        },
-        config: {
-            validate: {
-                query: {
-                    userId: Joi.string().required(),
-                    appId: Joi.string().required()
-                }
-            },
-            description: 'Downvote for an app',
-            tags: ['api']
-        }
-    },
-    {
         method: "POST",
         path: "/apps/actions/filter",
         handler: function(req, reply) {

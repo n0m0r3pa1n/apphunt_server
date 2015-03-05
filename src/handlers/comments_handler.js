@@ -1,11 +1,12 @@
+var _ = require("underscore")
+
+var STATUS_CODES = require('../config').STATUS_CODES
+
 var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Comment = require('../models').Comment
 var Vote = require('../models').Vote
-var _ = require("underscore")
-var STATUS_CODES = require('../config').STATUS_CODES
-
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).exec()
@@ -65,57 +66,6 @@ function* get(appId, userId, page,  pageSize) {
     return response
 }
 
-function* createVote(commentId, userId) {
-    var comment = yield Comment.findById(commentId).populate('votes').exec()
-    if(!comment) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
-    }
-
-    for(var i=0; i< comment.votes.length; i++) {
-        var currUserId = comment.votes[i].user
-        if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
-        }
-    }
-
-    var user = yield User.findById(userId).exec()
-    var vote = new Vote()
-    vote.user = user
-
-    vote = yield vote.save()
-    comment.votes.push(vote)
-    comment.votesCount = comment.votes.length
-
-    yield comment.save()
-
-    return {
-        votesCount: comment.votesCount
-    }
-}
-
-function* deleteVote(userId, commentId) {
-    var user = yield User.findById(userId).exec()
-
-    var query = Comment.findById(commentId)
-    var comment = yield query.populate("votes").exec()
-    if(!comment) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
-    }
-
-    for(var i=0; i< comment.votes.length; i++) {
-        var currUserId = comment.votes[i].user
-        if(currUserId == userId) {
-            comment.votes.splice(i, 1);
-            comment.votesCount = comment.votes.length
-        }
-    }
-
-    yield comment.save()
-    return {
-        votesCount: comment.votesCount
-    }
-}
-
 function* setHasVoted(comments, userId) {
     var resultComments = []
     for(var i =0; i< comments.length; i++) {
@@ -155,5 +105,3 @@ function removeVotesField(comments) {
 
 module.exports.create = create
 module.exports.get = get
-module.exports.deleteVote = deleteVote
-module.exports.createVote = createVote

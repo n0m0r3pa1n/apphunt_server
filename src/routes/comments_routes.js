@@ -40,40 +40,6 @@ var routes = [
             description: 'Get comments for app',
             tags: ['api']
         }
-    },
-    {
-        method: "POST",
-        path: "/comments/votes",
-        handler: function(req,reply) {
-            reply.co(CommentsHandler.createVote(req.query.commentId, req.query.userId))
-        },
-        config: {
-            validate: {
-                query: {
-                    userId: Joi.string().required(),
-                    commentId: Joi.string().required()
-                }
-            },
-            description: 'Vote for a comment',
-            tags: ['api']
-        }
-    },
-    {
-        method: "DELETE",
-        path: "/comments/votes",
-        handler: function(req,reply) {
-            reply.co(CommentsHandler.deleteVote(req.query.userId, req.query.commentId))
-        },
-        config: {
-            validate: {
-                query: {
-                    userId: Joi.string().required(),
-                    commentId: Joi.string().required()
-                }
-            },
-            description: 'Downvote for a comment',
-            tags: ['api']
-        }
     }
 ]
 

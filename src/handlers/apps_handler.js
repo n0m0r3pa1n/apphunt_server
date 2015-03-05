@@ -1,24 +1,29 @@
-var Mongoose = require('mongoose')
+var Badboy = require('badboy')
+var _ = require("underscore")
+var Bolt = require("bolt-js")
+var Fs = require('fs')
+
+var EMAIL_TEMPLATES_PATH = require('../config').EMAIL_TEMPLATES_PATH
+var APP_HUNT_EMAIL = require('../config').APP_HUNT_EMAIL
+var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+var STATUS_CODES = require('../config').STATUS_CODES
+
+var platforms = require('../config').platforms
+var boltAppId = require('../config').boltAppId
+
+var appStatuses = require('../config').appStatuses
+var appStatusesFilter = require('../config').appStatusesFilter
+
+var VotesHandler = require('./votes_handler')
+var CommentsHandler = require('./comments_handler')
+var UrlsHandler = require('./urls_handler')
+
 var App = require('../models').App
 var Developer = require('../models').Developer
 var User = require('../models').User
 var Vote = require('../models').Vote
-var CommentsHandler = require('./comments_handler')
-var Badboy = require('badboy')
 var AppCategory = require('../models').AppCategory
-var appStatuses = require('../config').appStatuses
-var appStatusesFilter = require('../config').appStatusesFilter
-var UrlsHandler = require('./urls_handler')
-var STATUS_CODES = require('../config').STATUS_CODES
-var platforms = require('../config').platforms
-var boltAppId = require('../config').boltAppId
-var _ = require("underscore")
-var Bolt = require("bolt-js")
-var Fs = require('fs')
-var EMAIL_TEMPLATES_PATH = require('../config').EMAIL_TEMPLATES_PATH
-var APP_HUNT_EMAIL = require('../config').APP_HUNT_EMAIL
 
-var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 function* create(app, userId) {
 
@@ -73,7 +78,7 @@ function* create(app, userId) {
     }
 
     var createdApp = yield App.create(app)
-    var voteResponse = yield createVote(userId, createdApp.id)
+    var voteResponse = yield VotesHandler.createAppVote(userId, createdApp.id)
 
     return createdApp
 }
@@ -152,56 +157,6 @@ function* deleteApp(package) {
 
     return {
         statusCode: STATUS_CODES.OK
-    }
-}
-
-function* createVote(userId, appId) {
-    var user = yield User.findById(userId).exec()
-
-    var query = App.findById(appId)
-    var app = yield query.populate("votes").exec()
-    if(!app) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
-    }
-
-    for(var i=0; i< app.votes.length; i++) {
-        var currUserId = app.votes[i].user
-        if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
-        }
-    }
-    var vote = new Vote()
-    vote.user = user
-
-    vote = yield vote.save()
-    app.votes.push(vote)
-    app.votesCount = app.votes.length
-    yield app.save()
-
-    return {
-        votesCount: app.votesCount
-    }
-}
-
-function* deleteVote(userId, appId) {
-    var user = yield User.findById(userId).exec()
-
-    var query = App.findById(appId)
-    var app = yield query.populate("votes").exec()
-    if(!app) {
-
-        return {statusCode: STATUS_CODES.NOT_FOUND}
-    }
-    for(var i=0; i< app.votes.length; i++) {
-        var currUserId = app.votes[i].user
-        if(currUserId == userId) {
-            app.votes.splice(i, 1);
-        }
-    }
-    app.votesCount = app.votes.length
-    yield app.save()
-    return {
-        votesCount: app.votesCount
     }
 }
 
@@ -318,6 +273,4 @@ module.exports.getApps = getApps
 module.exports.update = update
 module.exports.deleteApp = deleteApp
 module.exports.filterApps = filterApps
-module.exports.createVote = createVote
-module.exports.deleteVote = deleteVote
 module.exports.getApp = getApp

@@ -44,6 +44,7 @@ describe("Comments", function() {
         response.result.comments[0].children.length.should.equal(1)
         expect(response.result.comments[0].children[0].hasVoted).to.exist()
         response.result.comments[0].children[0].hasVoted.should.equal(true)
+
     });
 
     it("should get sorted comments", function*() {
