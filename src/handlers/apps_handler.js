@@ -217,26 +217,18 @@ function* filterApps(packages, platform) {
     return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
 }
 
-function* getApp(appId, userId, commentsCount) {
+function* getApp(appId, userId) {
     var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
     if(!app) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
 
-    if(!commentsCount) {
-        commentsCount = 5
-    }
-
-    var commentsResponse = yield CommentsHandler.get(appId, userId, 1, commentsCount)
     if(userId !== undefined) {
         app = app.toObject()
         app.hasVoted = hasVoted(app, userId)
     }
 
-    return {
-        app: app,
-        commentsData: commentsResponse
-    }
+    return app
 }
 
 

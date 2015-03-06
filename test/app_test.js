@@ -27,7 +27,7 @@ describe("Apps", function () {
         }
 
         var appResponse = yield Server.injectThen(opts)
-        appResponse.result.app.votes.length.should.equal(1)
+        appResponse.result.votes.length.should.equal(1)
     });
 
 

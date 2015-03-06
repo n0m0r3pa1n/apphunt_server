@@ -97,7 +97,7 @@ var routes = [
         method: "GET",
         path:"/apps/{appId}",
         handler: function(req, reply) {
-            reply.co(AppsHandler.getApp(req.params.appId, req.query.userId, req.query.commentsCount))
+            reply.co(AppsHandler.getApp(req.params.appId, req.query.userId))
         },
         config: {
             validate: {
@@ -105,8 +105,7 @@ var routes = [
                     appId: Joi.string().required()
                 },
                 query: {
-                    userId: Joi.string().optional(),
-                    commentsCount: Joi.number().min(1).optional()
+                    userId: Joi.string().optional()
                 }
             },
             description: 'Get apps submissions for user',
