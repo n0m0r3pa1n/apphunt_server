@@ -39,7 +39,8 @@ var routes = [
                     deviceNotificationId: Joi.string().optional(),
                     loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
                     locale: Joi.string().optional(),
-                    appVersion: Joi.string().optional()
+                    appVersion: Joi.string().optional(),
+                    following: Joi.array().items(Joi.string()).optional()
                 }
             },
             description: 'Create a user registration',
