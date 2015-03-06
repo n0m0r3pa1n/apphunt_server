@@ -33,6 +33,7 @@ var routes = [
             validate: {
                 payload: {
                     name: Joi.string().optional(),
+                    username: Joi.string().optional(),
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
                     deviceNotificationId: Joi.string().optional(),

@@ -29,6 +29,7 @@ Mongoose.plugin(function(schema) {
 var userSchema = new Schema(
     {
         name: String,
+        username: String,
         email: {type: String, index:true, unique: true},
         profilePicture: String,
         loginType: {type: String, enum: _.values(loginTypes), default: loginTypes.Facebook},
