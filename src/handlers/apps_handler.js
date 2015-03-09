@@ -15,7 +15,6 @@ var appStatuses = require('../config').appStatuses
 var appStatusesFilter = require('../config').appStatusesFilter
 
 var VotesHandler = require('./votes_handler')
-var CommentsHandler = require('./comments_handler')
 var UrlsHandler = require('./urls_handler')
 
 var App = require('../models').App
@@ -187,8 +186,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var resultApps = apps
 
     if(userId !== undefined && resultApps !== undefined) {
-        console.log(resultApps)
-        resultApps = setHasVoted(resultApps, userId)
+        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
     }
 
     var allAppsCount = yield App.count(where).exec()
@@ -226,7 +224,7 @@ function* getApp(appId, userId) {
 
     if(userId !== undefined) {
         app = app.toObject()
-        app.hasVoted = hasVoted(app, userId)
+        app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId)
     }
 
     return app
@@ -236,27 +234,6 @@ function* getApp(appId, userId) {
 //==========================================================
 // Helper functions
 //==========================================================
-function setHasVoted(apps, userId) {
-    var resultApps = []
-    console.log(apps.length)
-    for (var i = 0; i < apps.length; i++) {
-        var app = apps[i].toObject()
-        app.hasVoted = hasVoted(app, userId)
-        resultApps.push(app)
-    }
-    return resultApps
-}
-
-function hasVoted(app, userId) {
-    for (var j = 0; j < app.votes.length; j++) {
-        var appUser = app.votes[j].user;
-        if (appUser !== null && userId == appUser._id) {
-            return true;
-        }
-    }
-    return false
-}
-
 function removeUnusedFields(apps) {
     if (apps !== undefined) {
         for (var i = 0; i < apps.length; i++) {

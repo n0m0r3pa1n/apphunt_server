@@ -111,7 +111,62 @@ function* deleteCommentVote(userId, commentId) {
 }
 // </editor-fold>
 
+// <editor-fold desc="Votes checks">
+function hasUserVotedForComment (comment, userId) {
+    for (var j = 0; j < comment.votes.length; j++) {
+        if (userId == comment.votes[j].user) {
+            return true
+        }
+    }
+    return false
+}
+
+function* setHasUserVotedForCommentField(comments, userId) {
+    var resultComments = []
+    for(var i =0; i< comments.length; i++) {
+        var comment = comments[i]
+        if(comment instanceof Comment) {
+            comment = comment.toObject()
+        }
+        comment.hasVoted = hasUserVotedForComment(comment, userId)
+        if (comment.children.length > 0) {
+            comment.children = yield setHasUserVotedForCommentField(comment.children, userId)
+        }
+
+        resultComments.push(comment)
+    }
+    return resultComments
+}
+
+function hasUserVotedForApp(app, userId) {
+    for (var j = 0; j < app.votes.length; j++) {
+        var appUser = app.votes[j].user;
+        if (appUser !== null && userId == appUser._id) {
+            return true;
+        }
+    }
+    return false
+}
+
+function setHasUserVotedForAppField(apps, userId) {
+    var resultApps = []
+    for (var i = 0; i < apps.length; i++) {
+        var app = apps[i].toObject()
+        app.hasVoted = hasUserVotedForApp(app, userId)
+        resultApps.push(app)
+    }
+    return resultApps
+}
+
+// </editor-fold>
+
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
+module.exports.hasUserVotedForApp = hasUserVotedForApp
+module.exports.setHasUserVotedForAppField = setHasUserVotedForAppField
+
+module.exports.hasUserVotedForComment = hasUserVotedForComment
 module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
+module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField

@@ -2,11 +2,12 @@ var _ = require("underscore")
 
 var STATUS_CODES = require('../config').STATUS_CODES
 
-var Mongoose = require('mongoose')
 var App = require('../models').App
 var User = require('../models').User
 var Comment = require('../models').Comment
 var Vote = require('../models').Vote
+
+var VotesHandler = require('./votes_handler')
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).exec()
@@ -48,7 +49,7 @@ function* get(appId, userId, page,  pageSize) {
 
     var resultComments = yield query.exec()
     if(userId !== undefined) {
-        resultComments = yield setHasVoted(resultComments, userId)
+        resultComments = yield VotesHandler.setHasUserVotedForCommentField(resultComments, userId)
     }
 
     var allCommentsCount = yield Comment.count(where).exec()
@@ -64,32 +65,6 @@ function* get(appId, userId, page,  pageSize) {
         response.totalPages = Math.ceil(allCommentsCount / pageSize)
     }
     return response
-}
-
-function* setHasVoted(comments, userId) {
-    var resultComments = []
-    for(var i =0; i< comments.length; i++) {
-        var comment = comments[i]
-        if(comment instanceof Comment) {
-            comment = comment.toObject()
-        }
-        comment.hasVoted = hasVoted(comment, userId)
-        if (comment.children.length > 0) {
-            comment.children = yield setHasVoted(comment.children, userId)
-        }
-
-        resultComments.push(comment)
-    }
-    return resultComments
-}
-
-function hasVoted(comment, userId) {
-    for (var j = 0; j < comment.votes.length; j++) {
-        if (userId == comment.votes[j].user) {
-            return true
-        }
-    }
-    return false
 }
 
 function removeVotesField(comments) {
