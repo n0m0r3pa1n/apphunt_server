@@ -187,6 +187,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var resultApps = apps
 
     if(userId !== undefined && resultApps !== undefined) {
+        console.log(resultApps)
         resultApps = setHasVoted(resultApps, userId)
     }
 
@@ -237,6 +238,7 @@ function* getApp(appId, userId) {
 //==========================================================
 function setHasVoted(apps, userId) {
     var resultApps = []
+    console.log(apps.length)
     for (var i = 0; i < apps.length; i++) {
         var app = apps[i].toObject()
         app.hasVoted = hasVoted(app, userId)
@@ -247,7 +249,8 @@ function setHasVoted(apps, userId) {
 
 function hasVoted(app, userId) {
     for (var j = 0; j < app.votes.length; j++) {
-        if (userId == app.votes[j].user._id) {
+        var appUser = app.votes[j].user;
+        if (appUser !== null && userId == appUser._id) {
             return true;
         }
     }
