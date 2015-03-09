@@ -73,8 +73,8 @@ function* create(app, userId) {
     if(parsedDescription == '' || parsedDescription === undefined) {
         parsedDescription = parsedApp.description
         app.description = parsedDescription.length > 100 ?
-                            parsedDescription.substring(0,10) :
-                            parsedDescription;
+            parsedDescription.substring(0,10) :
+            parsedDescription;
     }
 
     var createdApp = yield App.create(app)
@@ -115,7 +115,7 @@ function sendEmailToDeveloperIfApproved(app) {
         var bolt = new Bolt(boltAppId)
         var user = app.createdBy
         var developer = app.developer
-       
+
         var emailParameters = {
             from: {
                 name: "AppHunt",
@@ -123,7 +123,7 @@ function sendEmailToDeveloperIfApproved(app) {
             }, to: {
                 name: developer.name,
                 email: developer.email
-            }, 
+            },
             subject: app.name + " is added on AppHunt! Find out what your users think about it!",
             message: {
                 text: templateFile.toString(),
@@ -138,13 +138,13 @@ function sendEmailToDeveloperIfApproved(app) {
                         }
                     }
                 },
-                {
-                    name: "user",
-                    content: {
-                        name: user.name,
-                        picture: user.profilePicture
-                    }
-                }]
+                    {
+                        name: "user",
+                        content: {
+                            name: user.name,
+                            picture: user.profilePicture
+                        }
+                    }]
             },
             tags: ['developer', 'apphunt', 'new-app']
         }
@@ -186,7 +186,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     var apps = yield query.exec()
     var resultApps = apps
 
-    if(userId !== undefined) {
+    if(userId !== undefined && resultApps !== undefined) {
         resultApps = setHasVoted(resultApps, userId)
     }
 
@@ -200,7 +200,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
         totalCount: allAppsCount,
         page: page
     }
-    if(page != 0 && pageSize != 0) {
+    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
         response.totalPages = Math.ceil(allAppsCount / pageSize)
     }
     return response
@@ -255,8 +255,10 @@ function hasVoted(app, userId) {
 }
 
 function removeUnusedFields(apps) {
-    for(var i=0; i<apps.length; i++) {
-        delete apps[i].votes
+    if (apps !== undefined) {
+        for (var i = 0; i < apps.length; i++) {
+            delete apps[i].votes
+        }
     }
 }
 

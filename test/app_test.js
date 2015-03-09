@@ -135,6 +135,22 @@ describe("Apps", function () {
         response.result.page.should.equal(0)
     });
 
+    it("should return empty apps array", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createApp(userResponse.result.id)
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?date=2015-02-01&page=1&pageSize=10&platform=Android'
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.apps.length.should.equal(0)
+
+    });
+
     it("should  not get all apps with future date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
