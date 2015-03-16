@@ -26,8 +26,8 @@ var routes = [
         path: "/users",
         handler: function(req,reply) {
             var user = new User(req.payload);
-            var deviceNotificationId = req.payload.deviceNotificationId
-            reply.co(UsersHandler.create(user, deviceNotificationId))
+            var notificationId = req.payload.notificationId
+            reply.co(UsersHandler.create(user, notificationId))
         },
         config: {
             validate: {
@@ -36,7 +36,7 @@ var routes = [
                     username: Joi.string().optional(),
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
-                    deviceNotificationId: Joi.string().optional(),
+                    notificationId: Joi.string().optional(),
                     loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
                     locale: Joi.string().optional(),
                     appVersion: Joi.string().optional(),

@@ -1,9 +1,9 @@
 var User = require('../models').User
 var Device = require('../models').Device
 
-function* create(user, deviceNotificationId) {
-    if(deviceNotificationId) {
-        var device = yield Device.create({ deviceNotificationId: deviceNotificationId, notificationsEnabled: true});
+function* create(user, notificationId) {
+    if(notificationId) {
+        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
         user.devices.push(device)
     }
     return yield User.findOneOrCreate({email: user.email}, user);

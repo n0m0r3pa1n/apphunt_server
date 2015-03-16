@@ -79,7 +79,6 @@ var voteSchema = new Schema(
     }
 )
 
-
 var commentSchema = new Schema(
     {
         text: String,
@@ -91,8 +90,6 @@ var commentSchema = new Schema(
         votesCount: {type: Number, default: 0}
     }
 )
-
-
 
 appSchema.methods.getVotesCount = function () {
     return this.votes.count();

@@ -48,4 +48,21 @@ describe("Users", function() {
         users.length.should.equal(1)
         users[0].email.should.equal("poli@abv.bg")
     })
+
+    it("should create user with device", function*() {
+        var opts = {
+            method: 'POST',
+            url: '/v1/users',
+            payload: {
+                name: "dummy",
+                email: "bla@sa.sds",
+                profilePicture: "http://pic-bg.net",
+                loginType: "twitter",
+                notificationId: "12345667"
+            }
+        }
+        var response = yield Server.injectThen(opts)
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.devices.length.should.equal(1)
+    });
 })
