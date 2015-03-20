@@ -76,6 +76,23 @@ function createUserWithParams(email) {
     return Server.injectThen(opts)
 }
 
+function createUserWithLoginType(email, loginType) {
+	var name = "dummy"
+
+	var opts = {
+		method: 'POST',
+		url: '/v1/users',
+		payload: {
+			name: name,
+			email: email,
+			profilePicture: "http://pic-bg.net",
+			loginType: loginType
+		}
+	}
+
+	return Server.injectThen(opts)
+}
+
 function createNotification() {
     var opts = {
         method: 'POST',
@@ -142,6 +159,7 @@ module.exports.createAppWithPlatform = createAppWithPlatform
 module.exports.createAppWithParams = createAppWithParams
 module.exports.createUser = createUser
 module.exports.createUserWithParams = createUserWithParams
+module.exports.createUserWithLoginType = createUserWithLoginType
 module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.createComment = createComment
