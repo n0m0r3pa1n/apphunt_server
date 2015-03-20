@@ -23,7 +23,8 @@ var loginTypes = {
     Facebook: "facebook",
     GooglePlus: "google-plus",
     Twitter: "twitter",
-    Custom: "custom"
+    Custom: "custom",
+		Fake: "fake"
 }
 
 var STATUS_CODES = {
