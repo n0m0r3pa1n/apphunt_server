@@ -151,7 +151,7 @@ function hasUserVotedForApp(app, userId) {
 function setHasUserVotedForAppField(apps, userId) {
     var resultApps = []
     for (var i = 0; i < apps.length; i++) {
-        var app = apps[i].toObject()
+        var app = apps[i]
         app.hasVoted = hasUserVotedForApp(app, userId)
         resultApps.push(app)
     }

@@ -67,6 +67,13 @@ function* get(appId, userId, page,  pageSize) {
     return response
 }
 
+function* getCount(appId) {
+	var where = {app: appId}
+	var result = yield Comment.count(where).exec()
+
+	return result
+}
+
 function removeVotesField(comments) {
     for(var i=0; i<comments.length; i++) {
         delete comments[i].votes
@@ -80,3 +87,4 @@ function removeVotesField(comments) {
 
 module.exports.create = create
 module.exports.get = get
+module.exports.getCount = getCount

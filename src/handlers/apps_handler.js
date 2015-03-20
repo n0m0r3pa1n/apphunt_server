@@ -16,6 +16,7 @@ var appStatusesFilter = require('../config').appStatusesFilter
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
+var CommentsHandler = require('./comments_handler')
 
 var App = require('../models').App
 var Developer = require('../models').Developer
@@ -183,11 +184,15 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
     }
 
     var apps = yield query.exec()
-    var resultApps = apps
+    var resultApps = convertToArray(apps)
 
     if(userId !== undefined && resultApps !== undefined) {
         resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
     }
+
+	for(var i=0; i < resultApps.length; i++) {
+		resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
+	}
 
     var allAppsCount = yield App.count(where).exec()
 
@@ -240,6 +245,20 @@ function removeUnusedFields(apps) {
             delete apps[i].votes
         }
     }
+}
+
+function* setCommentsCount(appId) {
+	return yield CommentsHandler.getCount(appId)
+}
+
+function convertToArray(apps) {
+	var resultApps = []
+	for (var i = 0; i < apps.length; i++) {
+		var app = apps[i].toObject()
+		resultApps.push(app)
+	}
+
+	return resultApps;
 }
 
 module.exports.create = create

@@ -277,6 +277,28 @@ describe("Apps", function () {
         var apps = response.result.apps
         assert(apps[0].votesCount > apps[1].votesCount)
     });
+
+	it("should get app with comments count", function*() {
+		var user1Id = (yield dbHelper.createUser()).result.id
+		var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+
+		var appId = (yield dbHelper.createApp(user1Id)).result.id
+
+		var comment1Id = (yield dbHelper.createComment(appId, user1Id)).result.id
+		var comment2Id = (yield dbHelper.createComment(appId, user2Id, comment1Id)).result.id
+
+		var userResponse = yield dbHelper.createUser()
+		yield dbHelper.createApp(userResponse.result.id)
+		var opts = {
+			method: 'GET',
+			url: '/apps?platform=Android&status=all'
+		}
+
+		var response = yield Server.injectThen(opts);
+		response.statusCode.should.equal(STATUS_CODES.OK)
+		response.result.apps[0].commentsCount.should.equal(2)
+	});
+
 })
 
 
