@@ -56,8 +56,17 @@ describe("Apps", function () {
     });
 
     it("should delete app", function*() {
-        var userResponse = yield dbHelper.createUser()
-        var appResponse = yield dbHelper.createApp(userResponse.result.id)
+        var userId = (yield dbHelper.createUser()).result.id
+        var appResponse = yield dbHelper.createApp(userId)
+        var appId = appResponse.result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+        var childCommentId = (yield dbHelper.createComment(appId, userId, commentId)).result.id
+
+        yield dbHelper.voteComment(commentId, userId)
+
+        var user2Id = (yield dbHelper.createUserWithParams("asdsdsadas")).result.id
+        yield  dbHelper.voteComment(commentId, user2Id)
+        yield dbHelper.voteComment(childCommentId, user2Id)
 
         var opts = {
             method: 'DELETE',

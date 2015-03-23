@@ -85,6 +85,24 @@ function removeVotesField(comments) {
     }
 }
 
+function* deleteComment(commentId) {
+    var comment = yield Comment.findById(commentId).exec()
+    if(comment.children.length > 0) {
+        var childrenIds = comment.children
+        for(var i=0; i<childrenIds.length; i++) {
+            yield deleteComment(childrenIds[i])
+        }
+    }
+
+    var votesIds = comment.votes
+    for(var i=0; i<votesIds.length; i++) {
+        yield Vote.remove({_id: votesIds[i]}).exec()
+    }
+
+    yield Comment.remove({_id: commentId}).exec()
+}
+
 module.exports.create = create
 module.exports.get = get
 module.exports.getCount = getCount
+module.exports.deleteComment = deleteComment

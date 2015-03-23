@@ -22,6 +22,7 @@ var App = require('../models').App
 var Developer = require('../models').Developer
 var User = require('../models').User
 var Vote = require('../models').Vote
+var Comment = require('../models').Comment
 var AppCategory = require('../models').AppCategory
 
 
@@ -153,6 +154,18 @@ function sendEmailToDeveloperIfApproved(app) {
 }
 
 function* deleteApp(package) {
+    var app = yield App.findOne({package: package}).exec()
+    for(var i =0; i<app.votes.length; i++) {
+        var voteId = app.votes[i]
+        yield Vote.remove({_id: voteId}).exec()
+    }
+    var comments = yield Comment.find({app: app._id, parent: null}).exec()
+
+    for(var i=0; i<comments.length; i++) {
+        var comment = comments[i]
+        yield CommentsHandler.deleteComment(comment._id)
+    }
+
     yield App.remove({package: package}).exec()
 
     return {
