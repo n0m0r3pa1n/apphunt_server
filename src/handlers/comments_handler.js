@@ -35,7 +35,7 @@ function* create(comment, appId, userId, parentId) {
 	createdCommentObject.hasVoted = false;
 
     if(parentComment != null) {
-        parentComment.children.push(createdCommentObject)
+        parentComment.children.push(createdComment)
         parentComment.save()
 
 		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
