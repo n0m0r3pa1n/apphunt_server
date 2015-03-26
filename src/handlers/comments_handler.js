@@ -58,7 +58,7 @@ function* get(appId, userId, page,  pageSize) {
         resultComments = yield VotesHandler.setHasUserVotedForCommentField(resultComments, userId)
     }
 
-    var allCommentsCount = yield Comment.count({appId: appId}).exec()
+    var allCommentsCount = yield Comment.count({app: appId}).exec()
 
     removeVotesField(resultComments)
 
