@@ -30,12 +30,18 @@ function* create(comment, appId, userId, parentId) {
     comment.parent = parentComment
 
     var createdComment = yield Comment.create(comment)
+	var createdCommentObject = createdComment.toObject();
+	createdCommentObject.id = String(createdCommentObject._id);
+	createdCommentObject.hasVoted = false;
+
     if(parentComment != null) {
-        parentComment.children.push(createdComment)
+        parentComment.children.push(createdCommentObject)
         parentComment.save()
+
+		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
-    return createdComment
+    return createdCommentObject
 }
 
 function* get(appId, userId, page,  pageSize) {

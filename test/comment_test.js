@@ -31,7 +31,9 @@ describe("Comments", function() {
         var appId = (yield dbHelper.createApp(userId)).result.id
         var commentId = (yield dbHelper.createComment(appId, userId)).result.id
         var childCommentResponse = yield dbHelper.createComment(appId, userId, commentId)
-        childCommentResponse.result.parent.id.should.equal(commentId)
+
+		childCommentResponse.result.parent.id.should.equal(commentId)
+
 
         yield dbHelper.voteComment(childCommentResponse.result.id, userId)
 
@@ -44,7 +46,6 @@ describe("Comments", function() {
         response.result.comments[0].children.length.should.equal(1)
         expect(response.result.comments[0].children[0].hasVoted).to.exist()
         response.result.comments[0].children[0].hasVoted.should.equal(true)
-
     });
 
     it("should get sorted comments", function*() {
