@@ -4,7 +4,7 @@ var simple = require('simple-mock');
 var mockGetAndroidApp = function() {
     simple.mock(Badboy, "getAndroidApp", function() {
         return {
-            name: 'Test',
+            name: 'Test App',
             categories: [ 'Entertainment' ],
             icon: 'https://lh5.ggpht.com/vrsl2YRVDaz1Icm6dmd4zrdDisvmNfjYD6fF7-sUVus_W7RsKWVPyuRqxKRezEY5hGfF=w300',
             isFree: true,

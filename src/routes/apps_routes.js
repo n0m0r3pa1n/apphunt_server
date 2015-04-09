@@ -39,6 +39,32 @@ var routes = [
         }
     },
     {
+        method: "GET",
+        path: "/apps/search",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            var userId = req.query.userId
+            var platform = req.query.platform
+            var q = req.query.q;
+
+            reply.co(AppsHandler.searchApps(q, platform, page, pageSize, userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    q: Joi.string().required(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional(),
+                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
+                }
+            },
+            description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
+            tags: ['api']
+        }
+    },
+    {
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {

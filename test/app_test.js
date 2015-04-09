@@ -308,6 +308,41 @@ describe("Apps", function () {
 		response.result.apps[0].commentsCount.should.equal(2)
 	});
 
+    it("should search app by name", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
+        var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
+
+        var opts = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app1Response.result.id + "&userId=" + userResponse.result.id
+        }
+
+        var opts2 = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app2Response.result.id + "&userId=" + userResponse.result.id
+        }
+
+        var opts3 = {
+            method: 'POST',
+            url: '/apps/votes?appId=' + app2Response.result.id + "&userId=" + user2Response.result.id
+        }
+
+        var vote1Response = yield Server.injectThen(opts);
+        var vote2Response = yield Server.injectThen(opts2);
+        var vote3Response = yield Server.injectThen(opts3);
+
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/search?q=Test&page=1&platform=Android&pageSize=2&userId=' + userResponse.result.id
+        }
+
+        var response = yield Server.injectThen(opts);
+        var apps = response.result.apps
+        apps.length.should.equal(2)
+    });
 })
 
 

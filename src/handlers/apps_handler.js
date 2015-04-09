@@ -248,6 +248,45 @@ function* getApp(appId, userId) {
     return app
 }
 
+function* searchApps(q, platform, page, pageSize, userId) {
+
+    var where = {name: {$regex: q}};
+    where.platform = platform;
+    where.status = appStatuses.WAITING;
+
+    var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
+    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
+
+    var apps = yield query.exec()
+    var resultApps = convertToArray(apps)
+
+    if(userId !== undefined && resultApps !== undefined) {
+        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
+    }
+
+    for(var i=0; i < resultApps.length; i++) {
+        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
+    }
+
+    var allAppsCount = yield App.count(where).exec()
+    removeUnusedFields(resultApps)
+
+    var response = {
+        apps: resultApps,
+        totalCount: allAppsCount,
+        page: page
+    }
+
+    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
+        response.totalPages = Math.ceil(allAppsCount / pageSize)
+    }
+    return response
+}
+
 
 //==========================================================
 // Helper functions
@@ -280,3 +319,4 @@ module.exports.update = update
 module.exports.deleteApp = deleteApp
 module.exports.filterApps = filterApps
 module.exports.getApp = getApp
+module.exports.searchApps = searchApps

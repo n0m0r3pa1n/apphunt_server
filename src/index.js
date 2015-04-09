@@ -41,7 +41,6 @@ server.decorate('reply', 'co', function (handler) {
 })
 
 server.ext('onRequest', function (request, reply) {
-    console.log("NEW REQUEST");
     var path = request.path
     var query = request.query
     path = path.replace('/v1','')
