@@ -252,7 +252,7 @@ function* searchApps(q, platform, page, pageSize, userId) {
 
     var where = {name: {$regex: q}};
     where.platform = platform;
-    where.status = appStatuses.WAITING;
+    where.status = appStatuses.APPROVED;
 
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
