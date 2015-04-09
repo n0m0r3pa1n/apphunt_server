@@ -336,7 +336,7 @@ describe("Apps", function () {
 
         var opts = {
             method: 'GET',
-            url: '/apps/search?q=Test&page=1&platform=Android&pageSize=2&userId=' + userResponse.result.id
+            url: '/apps/search?q=test&page=1&platform=Android&pageSize=2'
         }
 
         var response = yield Server.injectThen(opts);

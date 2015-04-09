@@ -249,8 +249,7 @@ function* getApp(appId, userId) {
 }
 
 function* searchApps(q, platform, page, pageSize, userId) {
-
-    var where = {name: {$regex: q}};
+    var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
     where.status = appStatuses.APPROVED;
 
