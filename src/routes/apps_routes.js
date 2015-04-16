@@ -162,7 +162,8 @@ var routes = [
         config: {
             validate: {
                 payload: {
-                    status: Joi.string().valid([appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED]).required()
+                    status: Joi.string().valid([appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED, appStatusesFilterEnum.REJECTED])
+                        .required()
                 },
                 params: {
                     appPackage: Joi.string().required()

@@ -9,11 +9,13 @@ var platforms = {
 }
 
 var appStatuses = {
+    REJECTED: "rejected",
     WAITING: "waiting",
     APPROVED: "approved"
 }
 
 var appStatusesFilter = {
+    REJECTED: "rejected",
     WAITING: "waiting",
     APPROVED: "approved",
     ALL: "all"

@@ -167,8 +167,12 @@ function* deleteApp(package) {
 
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
-    app.status = status;
-    yield app.save()
+    if(app.status == 'reject') {
+        yield deleteApp(appPackage)
+    } else {
+        app.status = status;
+        yield app.save()
+    }
 
     return {statusCode: STATUS_CODES.OK}
 }

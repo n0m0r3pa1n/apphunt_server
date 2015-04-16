@@ -363,15 +363,22 @@ describe("Apps", function () {
         var response2 = yield Server.injectThen(opts);
         response2.result.statusCode.should.equal(200)
 
-        var opts = {
+        var opts2 = {
             method: 'GET',
             url: '/apps?platform=Android&status=approved'
         }
 
-        var response3 = yield Server.injectThen(opts);
+        var response3 = yield Server.injectThen(opts2);
         response3.statusCode.should.equal(STATUS_CODES.OK)
         response3.result.apps.length.should.equal(1)
         response3.result.apps[0].status.should.equal('approved')
+
+        opts.payload.status = 'rejected'
+        var response2 = yield Server.injectThen(opts);
+        response2.result.statusCode.should.equal(200)
+
+        var response4 = yield Server.injectThen(opts2);
+        response4.result.apps.length.should.equal(0)
     });
 })
 
