@@ -108,7 +108,16 @@ function* deleteComment(commentId) {
     yield Comment.remove({_id: commentId}).exec()
 }
 
+function* clearAppComments(appId) {
+    var comments = yield Comment.find({app: appId, parent: null}).exec()
+    for(var i=0; i<comments.length; i++) {
+        var comment = comments[i]
+        yield deleteComment(comment._id)
+    }
+}
+
 module.exports.create = create
 module.exports.get = get
 module.exports.getCount = getCount
 module.exports.deleteComment = deleteComment
+module.exports.clearAppComments = clearAppComments

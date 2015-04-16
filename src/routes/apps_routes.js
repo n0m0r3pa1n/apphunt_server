@@ -152,6 +152,23 @@ var routes = [
                 }
             }
         }
+    },
+    {
+        method: "POST",
+        path: "/apps/{appPackage}/status",
+        handler: function(req, reply) {
+            reply.co(AppsHandler.changeAppStatus(req.params.appPackage, req.payload.status))
+        } ,
+        config: {
+            validate: {
+                payload: {
+                    status: Joi.string().valid([appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED]).required()
+                },
+                params: {
+                    appPackage: Joi.string().required()
+                }
+            }
+        }
     }
 
 

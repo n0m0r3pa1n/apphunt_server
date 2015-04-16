@@ -341,7 +341,37 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         var apps = response.result.apps
-        apps.length.should.equal(2)
+        apps.length.should.equal(0)
+    });
+
+    it("should change Android app status", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var response = yield dbHelper.createApp(userResponse.result.id)
+
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.categories.length.should.equal(1)
+        response.result.description.should.exist();
+
+        var opts = {
+            method: 'POST',
+            url: '/apps/com.dasfqwersdcxxdfgh/status',
+            payload: {
+                status: "approved"
+            }
+        }
+
+        var response2 = yield Server.injectThen(opts);
+        response2.result.statusCode.should.equal(200)
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=approved'
+        }
+
+        var response3 = yield Server.injectThen(opts);
+        response3.statusCode.should.equal(STATUS_CODES.OK)
+        response3.result.apps.length.should.equal(1)
+        response3.result.apps[0].status.should.equal('approved')
     });
 })
 

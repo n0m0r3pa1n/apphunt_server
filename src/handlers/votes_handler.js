@@ -161,6 +161,13 @@ function setHasUserVotedForAppField(apps, userId) {
 // </editor-fold>
 
 
+function* clearAppVotes(voteIds) {
+    for(var i =0; i< voteIds; i++) {
+        var voteId = voteIds[i]
+        yield Vote.remove({_id: voteId}).exec()
+    }
+}
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
 module.exports.hasUserVotedForApp = hasUserVotedForApp
@@ -170,3 +177,4 @@ module.exports.hasUserVotedForComment = hasUserVotedForComment
 module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
+module.exports.clearAppVotes = clearAppVotes

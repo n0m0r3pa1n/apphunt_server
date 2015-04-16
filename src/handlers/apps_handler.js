@@ -155,22 +155,22 @@ function sendEmailToDeveloperIfApproved(app) {
 
 function* deleteApp(package) {
     var app = yield App.findOne({package: package}).exec()
-    for(var i =0; i<app.votes.length; i++) {
-        var voteId = app.votes[i]
-        yield Vote.remove({_id: voteId}).exec()
-    }
-    var comments = yield Comment.find({app: app._id, parent: null}).exec()
-
-    for(var i=0; i<comments.length; i++) {
-        var comment = comments[i]
-        yield CommentsHandler.deleteComment(comment._id)
-    }
+    yield VotesHandler.clearAppVotes(app.votes)
+    yield CommentsHandler.clearAppComments(app._id)
 
     yield App.remove({package: package}).exec()
 
     return {
         statusCode: STATUS_CODES.OK
     }
+}
+
+function* changeAppStatus(appPackage, status) {
+    var app = yield App.findOne({package: appPackage}).exec()
+    app.status = status;
+    yield app.save()
+
+    return {statusCode: STATUS_CODES.OK}
 }
 
 function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
@@ -319,3 +319,4 @@ module.exports.deleteApp = deleteApp
 module.exports.filterApps = filterApps
 module.exports.getApp = getApp
 module.exports.searchApps = searchApps
+module.exports.changeAppStatus = changeAppStatus
