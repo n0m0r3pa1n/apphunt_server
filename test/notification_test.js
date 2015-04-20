@@ -37,5 +37,6 @@ describe("Notifications", function() {
         }
 
         var approvedResponse = yield Server.injectThen(opts);
+        approvedResponse.result.statusCode.should.equal(200)
     });
 })

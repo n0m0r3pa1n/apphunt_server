@@ -129,10 +129,19 @@ function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(status === appStatuses.REJECTED) {
         yield deleteApp(appPackage)
-    } else {
-        app.status = status;
-        yield app.save()
+    } else if(app.status == appStatuses.APPROVED){
+        var isAppApproved = app.status == appStatuses.WAITING && status == appStatuses.APPROVED;
+        if(isAppApproved) {
+            postTweet(app)
+            EmailsHandler.sendEmailToDeveloper(app)
+
+            var createdBy = yield User.findOne(createdBy).populate('devices').exec()
+            NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+        }
     }
+
+    app.status = status;
+    yield app.save()
 
     return {statusCode: STATUS_CODES.OK}
 }
