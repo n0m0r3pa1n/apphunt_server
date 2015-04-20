@@ -129,7 +129,7 @@ function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(status === appStatuses.REJECTED) {
         yield deleteApp(appPackage)
-    } else if(app.status == appStatuses.APPROVED){
+    } else if(status == appStatuses.APPROVED){
         var isAppApproved = app.status == appStatuses.WAITING && status == appStatuses.APPROVED;
         if(isAppApproved) {
             postTweet(app)
