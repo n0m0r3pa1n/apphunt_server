@@ -46,8 +46,10 @@ function* update(userId, notificationId) {
     } else {
         return { statusCode: STATUS_CODES.CONFLICT }
     }
-
-    user.save()
+    user.loginType = user.loginType.toLowerCase()
+    user.save(function(err) {
+        console.log(err)
+    })
     return {statusCode: STATUS_CODES.OK}
 }
 
