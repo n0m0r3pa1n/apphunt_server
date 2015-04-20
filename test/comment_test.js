@@ -89,12 +89,37 @@ describe("Comments", function() {
 
         var opts = {
             method: 'DELETE',
-            url: '/v1/comments/votes?userId=' + userId + "&commentId=" + commentId,
+            url: '/v1/comments/votes?userId=' + userId + "&commentId=" + commentId
         }
 
         var unvoteResponse = yield Server.injectThen(opts)
         unvoteResponse.statusCode.should.equal(STATUS_CODES.OK)
         unvoteResponse.result.votesCount.should.equal(0)
+    })
+
+    it("should delete comment", function*(){
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+
+        yield dbHelper.voteComment(commentId, userId)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/v1/comments?commentId=' + commentId
+        }
+
+        var deleteResponse = yield Server.injectThen(opts)
+        deleteResponse.statusCode.should.equal(STATUS_CODES.OK)
+
+        opts = {
+            method: 'GET',
+            url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.comments.length.should.equal(0)
+
     })
 })
 

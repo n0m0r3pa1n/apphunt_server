@@ -40,6 +40,22 @@ var routes = [
             description: 'Get comments for app',
             tags: ['api']
         }
+    },
+    {
+        method: "DELETE",
+        path:"/comments",
+        handler: function(req, reply) {
+            reply.co(CommentsHandler.deleteComment(req.query.commentId))
+        },
+        config: {
+            validate: {
+                query: {
+                    commentId: Joi.string().required()
+                }
+            },
+            description: 'Delete comment',
+            tags: ['api']
+        }
     }
 ]
 

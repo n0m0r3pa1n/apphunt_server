@@ -106,6 +106,10 @@ function* deleteComment(commentId) {
     }
 
     yield Comment.remove({_id: commentId}).exec()
+
+    return {
+        statusCode: STATUS_CODES.OK
+    }
 }
 
 function* clearAppComments(appId) {
