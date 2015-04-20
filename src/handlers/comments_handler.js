@@ -99,6 +99,16 @@ function* deleteComment(commentId) {
             yield deleteComment(childrenIds[i])
         }
     }
+    if(comment.parent != null) {
+        var parent = yield Comment.findById(comment.parent).exec()
+        for(var i=0; i<parent.children.length; i++) {
+            var childId = parent.children[i]
+            if(childId == commentId) {
+                parent.children.splice(i, 1);
+            }
+        }
+        yield parent.save()
+    }
 
     var votesIds = comment.votes
     for(var i=0; i<votesIds.length; i++) {

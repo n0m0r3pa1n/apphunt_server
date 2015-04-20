@@ -121,5 +121,40 @@ describe("Comments", function() {
         response.result.comments.length.should.equal(0)
 
     })
+
+    it("should delete child comment", function*(){
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+        var childCommentId = (yield dbHelper.createComment(appId, userId, commentId)).result.id
+        var childComment2Id = (yield dbHelper.createComment(appId, userId, commentId)).result.id
+
+        var opts = {
+            method: 'DELETE',
+            url: '/v1/comments?commentId=' + childCommentId
+        }
+
+        var deleteChildResponse = yield Server.injectThen(opts)
+        deleteChildResponse.statusCode.should.equal(STATUS_CODES.OK)
+
+        opts = {
+            method: 'DELETE',
+            url: '/v1/comments?commentId=' + commentId
+        }
+
+        var deleteResponse = yield Server.injectThen(opts)
+        deleteResponse.statusCode.should.equal(STATUS_CODES.OK)
+
+        opts = {
+            method: 'GET',
+            url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.comments.length.should.equal(0)
+
+    })
+
+
 })
 
