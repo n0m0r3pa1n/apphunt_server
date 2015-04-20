@@ -16,12 +16,10 @@ function* get(email, loginType) {
 }
 
 function* create(user, notificationId) {
-
     var user = yield User.findOneOrCreate({email: user.email}, user);
     user = yield User.findOne(user).populate('devices').exec()
 
 	if(notificationId) {
-
 		if (user.devices == undefined || user.devices == null) {
 			user.devices = []
 		}
@@ -30,10 +28,8 @@ function* create(user, notificationId) {
             var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
 			user.devices.push(device)
 		}
-
-		yield user.save()
+        user.save()
 	}
-
 
 	return user;
 }
@@ -45,13 +41,13 @@ function* update(userId, notificationId) {
     }
 
     if(isUserDeviceExisting(user.devices, notificationId) == false) {
-        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
+        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true})
         user.devices.push(device)
     } else {
         return { statusCode: STATUS_CODES.CONFLICT }
     }
 
-    yield user.save()
+    user.save()
     return {statusCode: STATUS_CODES.OK}
 }
 

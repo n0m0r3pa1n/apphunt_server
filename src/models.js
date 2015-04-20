@@ -13,11 +13,14 @@ Mongoose.plugin(function(schema) {
     schema.statics.findOneOrCreate = function findOneOrCreate(condition, doc) {
         var wrapper = Co.wrap(function* (self, condition, doc) {
             var foundDoc = yield self.findOne(condition).exec();
-
-            if (foundDoc) {
-                return foundDoc
-            } else {
-                return yield self.create(doc)
+            try {
+                if (foundDoc) {
+                    return foundDoc
+                } else {
+                    return yield self.create(doc)
+                }
+            } catch(e) {
+                console.log(e)
             }
         })
 
@@ -41,7 +44,7 @@ var userSchema = new Schema(
 
 var deviceSchema = new Schema({
     notificationsEnabled: { type:Boolean, default: true},
-    notificationId: {type: String, unique: true}
+    notificationId: String
 })
 
 
