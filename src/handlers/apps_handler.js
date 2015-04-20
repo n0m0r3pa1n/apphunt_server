@@ -95,6 +95,7 @@ function* update(app) {
     existingApp.status = app.status
 
     var savedApp = yield existingApp.save()
+    console.log("App is approved " + isAppApproved)
     if(isAppApproved) {
         postTweet(savedApp)
         EmailsHandler.sendEmailToDeveloper(savedApp)
