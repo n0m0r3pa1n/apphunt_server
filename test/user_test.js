@@ -81,4 +81,19 @@ describe("Users", function() {
 		response.statusCode.should.equal(STATUS_CODES.OK)
 		response.result.devices.length.should.equal(1)
 	});
+
+	it("should update user device id", function*() {
+		var userResponse = yield dbHelper.createUserWithParams("loli@abv.bg", loginTypes.Twitter)
+
+		var opts = {
+			method: 'PUT',
+			url: '/v1/users/' + userResponse.result.id,
+			payload: {
+				notificationId: "Test1111"
+			}
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.statusCode.should.equal(STATUS_CODES.OK)
+	});
 })

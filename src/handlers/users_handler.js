@@ -39,7 +39,7 @@ function* create(user, notificationId) {
 }
 
 function* update(userId, notificationId) {
-    var user = yield User.findOne({id: userId}).populate('devices').exec();
+    var user = yield User.findById(userId).populate('devices').exec();
     if(user == null) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
