@@ -47,6 +47,28 @@ var routes = [
 			description: 'Create a user registration',
 			tags: ['api']
 		}
+	},
+	{
+		method: "PUT",
+		path: "/users/{userId}",
+		handler: function(req,reply) {
+			var userId = req.params.userId;
+			var notificationId = req.payload.notificationId
+			reply.co(UsersHandler.update(userId, notificationId))
+		},
+		config: {
+			validate: {
+				payload: {
+					notificationId: Joi.string().required()
+				},
+				params: {
+					userId: Joi.string().required()
+				}
+
+			},
+			description: 'Update user notification id',
+			tags: ['api']
+		}
 	}
 ]
 

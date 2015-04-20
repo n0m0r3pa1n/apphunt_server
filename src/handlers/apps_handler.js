@@ -1,10 +1,7 @@
 var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
-var Fs = require('fs')
 
-var EMAIL_TEMPLATES_PATH = require('../config').EMAIL_TEMPLATES_PATH
-var APP_HUNT_EMAIL = require('../config').APP_HUNT_EMAIL
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 var STATUS_CODES = require('../config').STATUS_CODES
 
@@ -17,6 +14,8 @@ var appStatusesFilter = require('../config').appStatusesFilter
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
 var CommentsHandler = require('./comments_handler')
+var NotificationsHandler = require('./notifications_handler')
+var EmailsHandler = require('./emails_handler')
 
 var App = require('../models').App
 var Developer = require('../models').Developer
@@ -89,69 +88,30 @@ function* update(app) {
     if(!existingApp) {
         return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
     }
+    var isAppApproved = existingApp.status == appStatuses.WAITING && app.status == appStatuses.APPROVED;
 
     existingApp.createdAt = app.createdAt
     existingApp.description = app.description
     existingApp.status = app.status
 
     var savedApp = yield existingApp.save()
+    if(isAppApproved) {
+        postTweet(savedApp)
+        EmailsHandler.sendEmailToDeveloper(savedApp)
 
-    postTweetIfApproved(savedApp)
-    sendEmailToDeveloperIfApproved(savedApp)
+        var createdBy = yield User.findOne(createdBy).populate('devices').exec()
+        NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+    }
     return savedApp
 
 }
 
-function postTweetIfApproved(app) {
-    if (app.status == appStatuses.APPROVED) {
-        var bolt = new Bolt(boltAppId)
-        var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
-        bolt.postTweet(message)
-    }
+function postTweet(app) {
+    var bolt = new Bolt(boltAppId)
+    var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
+    bolt.postTweet(message)
 }
 
-function sendEmailToDeveloperIfApproved(app) {
-    if (app.status == appStatuses.APPROVED && app.developer !== undefined) {
-        var templateFile = Fs.readFileSync(EMAIL_TEMPLATES_PATH + "developer_app_added.hbs")
-        var bolt = new Bolt(boltAppId)
-        var user = app.createdBy
-        var developer = app.developer
-
-        var emailParameters = {
-            from: {
-                name: "AppHunt",
-                email: APP_HUNT_EMAIL
-            }, to: {
-                name: developer.name,
-                email: developer.email
-            },
-            subject: app.name + " is added on AppHunt! Find out what your users think about it!",
-            message: {
-                text: templateFile.toString(),
-                variables: [{
-                    name: "app",
-                    content: {
-                        name: app.name,
-                        icon: app.icon,
-                        description: app.description,
-                        developer: {
-                            name: developer.name
-                        }
-                    }
-                },
-                    {
-                        name: "user",
-                        content: {
-                            name: user.name,
-                            picture: user.profilePicture
-                        }
-                    }]
-            },
-            tags: ['developer', 'apphunt', 'new-app']
-        }
-        bolt.sendEmail(emailParameters)
-    }
-}
 
 function* deleteApp(package) {
     var app = yield App.findOne({package: package}).exec()

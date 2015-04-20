@@ -68,6 +68,7 @@ var routes = [
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {
+
             var app = new App(req.payload);
 
             reply.co(AppsHandler.create(app, req.payload.userId))

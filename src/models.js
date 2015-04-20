@@ -39,6 +39,11 @@ var userSchema = new Schema(
     }
 )
 
+var deviceSchema = new Schema({
+    notificationsEnabled: { type:Boolean, default: true},
+    notificationId: {type: String, unique: true}
+})
+
 
 var appCategorySchema = new Schema(
     {
@@ -104,10 +109,7 @@ var notificationSchema = new Schema(
     }
 )
 
-var deviceSchema = new Schema({
-    notificationsEnabled: { type:Boolean, default: true},
-    deviceId: {type: String, unique: true}
-})
+
 
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)

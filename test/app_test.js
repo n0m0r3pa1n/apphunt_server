@@ -287,7 +287,7 @@ describe("Apps", function () {
         assert(apps[0].votesCount > apps[1].votesCount)
     });
 
-	it("should get app with comments count", function*() {
+    it("should get app with comments count", function*() {
 		var user1Id = (yield dbHelper.createUser()).result.id
 		var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
 
@@ -306,7 +306,7 @@ describe("Apps", function () {
 		var response = yield Server.injectThen(opts);
 		response.statusCode.should.equal(STATUS_CODES.OK)
 		response.result.apps[0].commentsCount.should.equal(2)
-	});
+    });
 
     it("should search app by name", function*() {
         var userResponse = yield dbHelper.createUser()

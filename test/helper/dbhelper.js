@@ -52,6 +52,7 @@ function createUser(locale) {
             email: email,
             profilePicture: "http://pic-bg.net",
             locale: locale,
+            notificationId: "Test123",
             loginType: loginTypes.Facebook
         }
     }

@@ -25,4 +25,17 @@ describe("Notifications", function() {
         response2.result.title.should.equal(response.result.title)
     });
 
+    it("should send notification when app is approved", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var appResponse = yield dbHelper.createApp(userResponse.result.id)
+        var opts = {
+            method: 'POST',
+            url: '/apps/com.dasfqwersdcxxdfgh/status',
+            payload: {
+                status: "approved"
+            }
+        }
+
+        var approvedResponse = yield Server.injectThen(opts);
+    });
 })
