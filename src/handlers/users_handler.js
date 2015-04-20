@@ -47,6 +47,8 @@ function* update(userId, notificationId) {
     if(isUserDeviceExisting(user.devices, notificationId) == false) {
         var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
         user.devices.push(device)
+    } else {
+        return { statusCode: STATUS_CODES.CONFLICT }
     }
 
     yield user.save()
