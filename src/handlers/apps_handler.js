@@ -5,11 +5,11 @@ var Bolt = require("bolt-js")
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 var STATUS_CODES = require('../config').STATUS_CODES
 
-var platforms = require('../config').platforms
-var boltAppId = require('../config').boltAppId
+var PLATFORMS = require('../config').PLATFORMS
+var BOLT_APP_ID = require('../config').BOLT_APP_ID
 
-var appStatuses = require('../config').appStatuses
-var appStatusesFilter = require('../config').appStatusesFilter
+var APP_STATUSES = require('../config').APP_STATUSES
+var APP_STATUS_FILTER = require('../config').APP_STATUSES_FILTER
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
@@ -34,7 +34,7 @@ function* create(app, userId) {
 
     var parsedApp = {}
     try {
-        if(app.platform == platforms.Android) {
+        if(app.platform == PLATFORMS.Android) {
             parsedApp = yield Badboy.getAndroidApp(app.package)
             var d = parsedApp.developer
             var developer = yield Developer.findOneOrCreate({email: d.email},{name: d.name, email: d.email})
@@ -59,7 +59,7 @@ function* create(app, userId) {
     var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
     var user = yield User.findOne({_id: userId}).exec()
 
-    app.status = appStatuses.WAITING
+    app.status = APP_STATUSES.WAITING
     app.createdBy = user
     app.categories = appCategories
     app.isFree = parsedApp.isFree
@@ -88,26 +88,27 @@ function* update(app) {
     if(!existingApp) {
         return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
     }
-    var isAppApproved = existingApp.status == appStatuses.WAITING && app.status == appStatuses.APPROVED;
+    var isAppApproved = existingApp.status == APP_STATUSES.WAITING && app.status == APP_STATUSES.APPROVED;
 
     existingApp.createdAt = app.createdAt
     existingApp.description = app.description
     existingApp.status = app.status
 
     var savedApp = yield existingApp.save()
+
     if(isAppApproved) {
         postTweet(savedApp)
         EmailsHandler.sendEmailToDeveloper(savedApp)
 
         var createdBy = yield User.findOne(createdBy).populate('devices').exec()
-        NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+        //NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
     }
     return savedApp
 
 }
 
 function postTweet(app) {
-    var bolt = new Bolt(boltAppId)
+    var bolt = new Bolt(BOLT_APP_ID)
     var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
     bolt.postTweet(message)
 }
@@ -127,7 +128,7 @@ function* deleteApp(package) {
 
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
-    if(status === appStatuses.REJECTED) {
+    if(status === APP_STATUSES.REJECTED) {
         yield deleteApp(appPackage)
     } else {
         app.status = status;
@@ -149,7 +150,7 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
 
     where.platform = platform
 
-    if(appStatus !== appStatusesFilter.ALL) {
+    if(appStatus !== APP_STATUS_FILTER.ALL) {
         where.status = appStatus
     }
 
@@ -215,7 +216,7 @@ function* getApp(appId, userId) {
 function* searchApps(q, platform, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
-    where.status = appStatuses.APPROVED;
+    where.status = APP_STATUSES.APPROVED;
 
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
