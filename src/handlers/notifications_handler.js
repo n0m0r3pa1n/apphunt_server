@@ -2,7 +2,7 @@ var Mongoose = require('mongoose')
 var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
-var boltAppId = require('../config').boltAppId
+var boltAppId = require('../config').BOLT_APP_ID
 
 function* create(notification) {
     return yield Notification.create(notification);

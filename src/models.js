@@ -3,9 +3,9 @@ var DeepPopulate = require('mongoose-deep-populate');
 var Schema = Mongoose.Schema
 var Co = require('co')
 Timestamps = require('mongoose-timestamp')
-var platforms = require('./config').platforms
-var appStatuses = require('./config').appStatuses
-var loginTypes = require('./config').loginTypes
+var platforms = require('./config').PLATFORMS
+var appStatuses = require('./config').APP_STATUSES
+var loginTypes = require('./config').LOGIN_TYPES
 var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {

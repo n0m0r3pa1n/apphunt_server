@@ -1,10 +1,10 @@
 var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
 var Joi = require('joi')
-var platformsEnum = require('../config').platforms
-var appStatusesFilterEnum = require('../config').appStatusesFilter
-var platforms = [platformsEnum.Android, platformsEnum.iOS]
-var appStatuses = [appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED, appStatusesFilterEnum.ALL]
+var PLATFORMS_ENUM = require('../config').PLATFORMS
+var APP_STATUSES_FILTER_ENUM = require('../config').APP_STATUSES_FILTER
+var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS]
+var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL]
 
 
 var routes = [
@@ -14,7 +14,7 @@ var routes = [
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            var appStatus = appStatusesFilterEnum.APPROVED
+            var appStatus = APP_STATUSES_FILTER_ENUM.APPROVED
             if(typeof req.query.status !== 'undefined') {
                 appStatus = req.query.status
             }
@@ -30,8 +30,8 @@ var routes = [
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
-                    status: Joi.string().valid(appStatuses).optional(),
-                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
+                    status: Joi.string().valid(APP_STATUSES).optional(),
+                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
                 }
             },
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
@@ -57,7 +57,7 @@ var routes = [
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
-                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
+                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
                 }
             },
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
@@ -80,7 +80,7 @@ var routes = [
                     package: Joi.string().required(),
                     userId: Joi.string().required(),
                     description: Joi.string().required(),
-                    platform: Joi.array().items(Joi.string()).valid(platforms).required()
+                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
                 }
             },
             description: 'Create new app',
@@ -148,7 +148,7 @@ var routes = [
         config: {
             validate: {
                 payload: {
-                    platform: Joi.string().valid(platforms).required(),
+                    platform: Joi.string().valid(PLATFORMS).required(),
                     packages: Joi.array().items(Joi.string()).required()
                 }
             }
@@ -163,7 +163,7 @@ var routes = [
         config: {
             validate: {
                 payload: {
-                    status: Joi.string().valid([appStatusesFilterEnum.WAITING, appStatusesFilterEnum.APPROVED, appStatusesFilterEnum.REJECTED])
+                    status: Joi.string().valid([APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.REJECTED])
                         .required()
                 },
                 params: {

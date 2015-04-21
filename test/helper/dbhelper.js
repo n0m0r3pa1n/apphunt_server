@@ -1,4 +1,4 @@
-var loginTypes = require("../../src/config").loginTypes
+var loginTypes = require("../../src/config").LOGIN_TYPES
 
 var email = "dummy@dummy.com"
 var category1 = "TEST1"

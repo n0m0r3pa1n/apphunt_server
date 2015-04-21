@@ -29,6 +29,12 @@ var loginTypes = {
 		Fake: "fake"
 }
 
+var notificationTypes = {
+    APP_APPROVED: "app_approved",
+    USER_COMMENT: "user_comment",
+    USER_MENTIONED: "user_mentioned"
+}
+
 var STATUS_CODES = {
     CONTINUE: 100,
     SWITCHING_PROTOCOLS: 101,
@@ -89,7 +95,7 @@ var STATUS_CODES = {
 }
 
 var bitly =  {
-        url: "https://api-ssl.bitly.com/v3/user/link_save?",
+        url: "https://api-ssl.BITLY.com/v3/user/link_save?",
         user: "naughtyspirit",
         apiKey: "c068748d49c9fa346083e6fcaf343b67b7f8492c"
 }
@@ -104,11 +110,12 @@ module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES
 module.exports.Android = Android
 module.exports.iOS = iOS
-module.exports.platforms = platforms
-module.exports.appStatuses = appStatuses
-module.exports.appStatusesFilter = appStatusesFilter
-module.exports.loginTypes = loginTypes
-module.exports.bitly = bitly
-module.exports.boltAppId = boltAppId
+module.exports.PLATFORMS = platforms
+module.exports.APP_STATUSES = appStatuses
+module.exports.APP_STATUSES_FILTER = appStatusesFilter
+module.exports.NOTIFICATION_TYPES = notificationTypes
+module.exports.LOGIN_TYPES = loginTypes
+module.exports.BITLY = bitly
+module.exports.BOLT_APP_ID = boltAppId
 module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH
 module.exports.APP_HUNT_EMAIL = APP_HUNT_EMAIL
