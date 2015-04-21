@@ -153,8 +153,8 @@ function* changeAppStatus(appPackage, status) {
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
-            //postTweet(app, createdBy)
-            //EmailsHandler.sendEmailToDeveloper(app)
+            postTweet(app, createdBy)
+            EmailsHandler.sendEmailToDeveloper(app)
 
             var title = String.format(CONFIG.APP_APPROVED_TITLE, app.name)
             var message = String.format(CONFIG.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
