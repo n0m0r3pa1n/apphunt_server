@@ -1,6 +1,9 @@
 var _ = require("underscore")
 
-var STATUS_CODES = require('../config').STATUS_CODES
+var CONFIG  = require('../config')
+var STATUS_CODES = CONFIG.STATUS_CODES
+var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
+
 
 var App = require('../models').App
 var User = require('../models').User
@@ -8,9 +11,11 @@ var Comment = require('../models').Comment
 var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
+var NotificationsHandler = require('./notifications_handler')
 
 function* create(comment, appId, userId, parentId) {
-    var app = yield App.findById(appId).exec()
+    var isParentComment = true;
+    var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
@@ -19,6 +24,7 @@ function* create(comment, appId, userId, parentId) {
 
     var parentComment = null;
     if(parentId !== undefined) {
+        isParentComment = false;
         parentComment = yield Comment.findById(parentId).exec()
         if(!parentComment) {
             return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
@@ -39,6 +45,10 @@ function* create(comment, appId, userId, parentId) {
         parentComment.save()
 
 		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
+    }
+
+    if(isParentComment) {
+        yield NotificationsHandler.sendNotificationToUser(app.createdBy, "Test title", "Test message", NOTIFICATION_TYPES.USER_COMMENT)
     }
 
     return createdCommentObject
