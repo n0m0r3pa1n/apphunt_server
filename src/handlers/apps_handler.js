@@ -145,7 +145,7 @@ function* changeAppStatus(appPackage, status) {
             EmailsHandler.sendEmailToDeveloper(app)
 
             var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
-            NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+            yield NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
         }
     }
 

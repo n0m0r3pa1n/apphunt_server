@@ -50,6 +50,7 @@ function createUser(locale) {
         payload: {
             name: name,
             email: email,
+            username: "dummy",
             profilePicture: "http://pic-bg.net",
             locale: locale,
             notificationId: "Test123",
@@ -69,6 +70,7 @@ function createUserWithParams(email) {
         payload: {
             name: name,
             email: email,
+            username: "dummy",
             profilePicture: "http://pic-bg.net",
             loginType: loginTypes.Facebook
         }
@@ -136,6 +138,22 @@ function createComment(appId, userId, parentId) {
     return Server.injectThen(opts)
 }
 
+function createCommentWithText(appId, userId, parentId, commentText) {
+    var opts = {
+        method: 'POST',
+        url: '/v1/comments',
+        payload: {
+            text: commentText,
+            userId: userId,
+            appId: appId
+        }
+    }
+    if(parentId !== undefined) {
+        opts.payload.parentId = parentId
+    }
+    return Server.injectThen(opts)
+}
+
 function voteComment(commentId, userId) {
     var opts = {
         method: 'POST',
@@ -164,6 +182,7 @@ module.exports.createUserWithLoginType = createUserWithLoginType
 module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.createComment = createComment
+module.exports.createCommentWithText = createCommentWithText
 module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
 module.exports.EMAIL = email

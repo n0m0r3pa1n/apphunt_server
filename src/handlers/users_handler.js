@@ -48,7 +48,9 @@ function* update(userId, notificationId) {
     }
     user.loginType = user.loginType.toLowerCase()
     user.save(function(err) {
-        console.log(err)
+        if(err) {
+            console.log(err)
+        }
     })
     return {statusCode: STATUS_CODES.OK}
 }

@@ -1,6 +1,9 @@
 var _ = require("underscore")
 
-var STATUS_CODES = require('../config').STATUS_CODES
+var CONFIG  = require('../config')
+var STATUS_CODES = CONFIG.STATUS_CODES
+var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
+var CONVERSATION_SYMBOL = '@'
 
 var App = require('../models').App
 var User = require('../models').User
@@ -8,9 +11,11 @@ var Comment = require('../models').Comment
 var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
+var NotificationsHandler = require('./notifications_handler')
 
 function* create(comment, appId, userId, parentId) {
-    var app = yield App.findById(appId).exec()
+    var isParentComment = true;
+    var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
@@ -19,6 +24,7 @@ function* create(comment, appId, userId, parentId) {
 
     var parentComment = null;
     if(parentId !== undefined) {
+        isParentComment = false;
         parentComment = yield Comment.findById(parentId).exec()
         if(!parentComment) {
             return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
@@ -41,7 +47,39 @@ function* create(comment, appId, userId, parentId) {
 		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
+    if(isParentComment) {
+        yield NotificationsHandler.sendNotificationToUser(app.createdBy, "Test title", "Test message", NOTIFICATION_TYPES.USER_COMMENT)
+    }
+
+    if(isConversationComment(comment.text)) {
+        var userName = getCommentedUserName(comment.text)
+        if(userName !== '') {
+            var user = yield User.findOne({username: userName}).exec()
+            if(user !== null) {
+                yield NotificationsHandler.sendNotificationToUser(user, "Test title", "Test message",
+                    NOTIFICATION_TYPES.USER_MENTIONED)
+            }
+        }
+    }
+
     return createdCommentObject
+}
+
+function isConversationComment(commentText) {
+    return !(commentText.search(CONVERSATION_SYMBOL) == -1)
+}
+
+function getCommentedUserName(commentText) {
+    var userName = "";
+    var conversationSymbolPosition = commentText.search(CONVERSATION_SYMBOL);
+    var usernameMatches = commentText.match("\@[a-zA-Z]+")
+    if(usernameMatches.length === 0) {
+        return userName;
+    }
+    userName = usernameMatches[0]
+    userName = userName.slice(1, userName.length)
+
+    return userName;
 }
 
 function* get(appId, userId, page,  pageSize) {

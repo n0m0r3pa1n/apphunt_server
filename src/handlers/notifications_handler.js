@@ -2,6 +2,7 @@ var Mongoose = require('mongoose')
 var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
+var User = require('../models').User
 var boltAppId = require('../config').BOLT_APP_ID
 
 function* create(notification) {
@@ -16,12 +17,22 @@ function* getAll() {
     return yield Notification.find({}).exec();
 }
 
-function sendNotificationToUser(user, title, message, type) {
+function* sendNotificationToUser(user, title, message, type) {
     if(user.populated('devices') == undefined) {
-        console.log('Devices for users are not populated!');
-        return;
-    }
+        try {
+            user = yield User.findOne(user).populate('devices').exec();
+            if(user.populated('devices') == undefined) {
+                console.log('Could not populate user devices!');
+                return;
+            }
+        }
+        catch (e) {
+            console.log(e)
+            console.log('Devices for users are not populated!');
+            return;
+        }
 
+    }
     var deviceIds = []
     for(var i=0; i<user.devices.length; i++) {
         var device = user.devices[i];
@@ -44,8 +55,7 @@ function sendNotification(deviceIds, title, message, type) {
     }
 
     if(deviceIds.length > 0 && deviceIds !== null) {
-        console.log('Sending notification to ')
-        console.log(deviceIds)
+        console.log('Sending ' + type + ' notification')
         bolt.sendNotification(notification)
     }
 }
