@@ -104,6 +104,7 @@ var boltAppId = "54ef44e5fa12501100634591"
 
 var EMAIL_TEMPLATES_PATH = "assets/templates/email/"
 var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co"
+var APP_HUNT_TWITTER_HANDLE = "TheAppHunt"
 
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
@@ -119,3 +120,4 @@ module.exports.BITLY = bitly
 module.exports.BOLT_APP_ID = boltAppId
 module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH
 module.exports.APP_HUNT_EMAIL = APP_HUNT_EMAIL
+module.exports.APP_HUNT_TWITTER_HANDLE = APP_HUNT_TWITTER_HANDLE

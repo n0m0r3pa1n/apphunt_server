@@ -10,6 +10,7 @@ var BOLT_APP_ID = require('../config').BOLT_APP_ID
 
 var APP_STATUSES = require('../config').APP_STATUSES
 var APP_STATUS_FILTER = require('../config').APP_STATUSES_FILTER
+var APP_HUNT_TWITTER_HANDLE = require('../config').APP_HUNT_TWITTER_HANDLE
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
@@ -97,7 +98,7 @@ function* update(app) {
     var savedApp = yield existingApp.save()
 
     if(isAppApproved) {
-        postTweet(savedApp, existingApp.createdBy)
+        postTweet(savedApp)
         EmailsHandler.sendEmailToDeveloper(savedApp)
 
         var createdBy = yield User.findOne(createdBy).populate('devices').exec()
@@ -109,15 +110,18 @@ function* update(app) {
 
 function postTweet(app, user) {
     var bolt = new Bolt(BOLT_APP_ID)
-    // fake user
-    //if(user.email.indexOf('example.com') > -1) {
-        //console.log('here')
-    //} else {
-        //console.log('there')
-        ////user.username
-    //}
-    var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
-    bolt.postTweet(message)
+    var tweetComposer = new TweetComposer(APP_HUNT_TWITTER_HANDLE)
+    var tweetOptions = {
+        name: app.name,
+        description: app.description,
+        url: app.shortUrl,
+        hashTag: "app"
+    }
+    // real user
+    if(user.email.indexOf('example.com') == -1) {
+        tweetOptions.user = user.username
+    }
+    bolt.postTweet(tweetComposer.compose(tweetOptions))
 }
 
 
@@ -141,11 +145,11 @@ function* changeAppStatus(appPackage, status) {
 
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
-            postTweet(app)
+            var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
+            postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
 
-            var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
-            yield NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+            NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
         }
     }
 
