@@ -139,6 +139,10 @@ function* deleteApp(package) {
 
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
+    if(app == null) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
+    }
+    var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     if(status === APP_STATUSES.REJECTED) {
         var title = String.format(CONFIG.APP_REJECTED_TITLE, app.name)
         var message = CONFIG.APP_REJECTED_MESSAGE
@@ -147,12 +151,10 @@ function* changeAppStatus(appPackage, status) {
 
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){
-
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
-            var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
-            postTweet(app, createdBy)
-            EmailsHandler.sendEmailToDeveloper(app)
+            //postTweet(app, createdBy)
+            //EmailsHandler.sendEmailToDeveloper(app)
 
             var title = String.format(CONFIG.APP_APPROVED_TITLE, app.name)
             var message = String.format(CONFIG.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
