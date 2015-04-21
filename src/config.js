@@ -26,7 +26,7 @@ var loginTypes = {
     GooglePlus: "google-plus",
     Twitter: "twitter",
     Custom: "custom",
-		Fake: "fake"
+    Fake: "fake"
 }
 
 var notificationTypes = {

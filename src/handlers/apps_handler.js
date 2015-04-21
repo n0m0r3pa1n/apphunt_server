@@ -112,8 +112,7 @@ function postTweet(app, user) {
         url: app.shortUrl,
         hashTag: "app"
     }
-    // real user
-    if(user.email.indexOf('example.com') == -1) {
+    if(user.loginType !== LOGIN_TYPES.Fake) {
         tweetOptions.user = user.username
     }
     bolt.postTweet(tweetComposer.compose(tweetOptions))
