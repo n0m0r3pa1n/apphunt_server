@@ -1,6 +1,7 @@
 var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
+var TweetComposer = require('../utils/tweet_composer')
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 var STATUS_CODES = require('../config').STATUS_CODES
@@ -11,6 +12,8 @@ var BOLT_APP_ID = require('../config').BOLT_APP_ID
 var APP_STATUSES = require('../config').APP_STATUSES
 var APP_STATUS_FILTER = require('../config').APP_STATUSES_FILTER
 var APP_HUNT_TWITTER_HANDLE = require('../config').APP_HUNT_TWITTER_HANDLE
+
+var LOGIN_TYPES = require('../config').LOGIN_TYPES
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
@@ -96,14 +99,6 @@ function* update(app) {
     existingApp.status = app.status
 
     var savedApp = yield existingApp.save()
-
-    if(isAppApproved) {
-        postTweet(savedApp)
-        EmailsHandler.sendEmailToDeveloper(savedApp)
-
-        var createdBy = yield User.findOne(createdBy).populate('devices').exec()
-        //NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
-    }
     return savedApp
 
 }
