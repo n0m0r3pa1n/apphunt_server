@@ -39,6 +39,7 @@ describe("Notifications", function() {
         //}
         //
         //var approvedResponse = yield Server.injectThen(opts);
+        //approvedResponse.result.statusCode.should.equal(200)
         var bolt = new Bolt(boltAppId)
         var notification = {
             deviceIds: ["APA91bGGwfX6niCbRUUEKxL0an6osaoZ1BuMRVGAEJiFYvJ3vQxwrhr6CCMDVkSq7Rgu_Z-pdbWN5AXyHKMyA-HtWZwQj7RwNfGXTTRd2MqkDsxTUR2bMEUSrBq1ztiMhTlQJzpd1tRm"],
