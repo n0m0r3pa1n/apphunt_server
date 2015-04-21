@@ -1,10 +1,10 @@
 var Fs = require('fs')
 var Bolt = require("bolt-js")
 
-var APP_HUNT_EMAIL = require('../config').APP_HUNT_EMAIL
-var EMAIL_TEMPLATES_PATH = require('../config').EMAIL_TEMPLATES_PATH
+var APP_HUNT_EMAIL = require('../config/config').APP_HUNT_EMAIL
+var EMAIL_TEMPLATES_PATH = require('../config/config').EMAIL_TEMPLATES_PATH
 
-var boltAppId = require('../config').BOLT_APP_ID
+var boltAppId = require('../config/config').BOLT_APP_ID
 
 function sendEmailToDeveloper(app) {
     if (app.developer !== undefined) {

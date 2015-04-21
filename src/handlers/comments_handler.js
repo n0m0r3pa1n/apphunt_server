@@ -1,6 +1,6 @@
 var _ = require("underscore")
 
-var CONFIG  = require('../config')
+var CONFIG  = require('../config/config')
 var STATUS_CODES = CONFIG.STATUS_CODES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var CONVERSATION_SYMBOL = '@'
@@ -14,7 +14,6 @@ var VotesHandler = require('./votes_handler')
 var NotificationsHandler = require('./notifications_handler')
 
 function* create(comment, appId, userId, parentId) {
-    var isParentComment = true;
     var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
@@ -24,7 +23,6 @@ function* create(comment, appId, userId, parentId) {
 
     var parentComment = null;
     if(parentId !== undefined) {
-        isParentComment = false;
         parentComment = yield Comment.findById(parentId).exec()
         if(!parentComment) {
             return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
@@ -47,19 +45,22 @@ function* create(comment, appId, userId, parentId) {
 		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
-    if(isParentComment) {
-        yield NotificationsHandler.sendNotificationToUser(app.createdBy, "Test title", "Test message", NOTIFICATION_TYPES.USER_COMMENT)
-    }
-
     if(isConversationComment(comment.text)) {
         var userName = getCommentedUserName(comment.text)
         if(userName !== '') {
-            var user = yield User.findOne({username: userName}).exec()
-            if(user !== null) {
-                yield NotificationsHandler.sendNotificationToUser(user, "Test title", "Test message",
+            var mentionedUser = yield User.findOne({username: userName}).exec()
+            if(mentionedUser !== null) {
+                var title = String.format(CONFIG.USER_MENTIONED_TITLE, user.username)
+                var message = comment.text
+                yield NotificationsHandler.sendNotificationToUser(mentionedUser, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED)
             }
         }
+    } else {
+            var title = String.format(CONFIG.USER_COMMENTED_TITLE, user.username, app.name)
+            var message = comment.text
+            yield NotificationsHandler.sendNotificationToUser(app.createdBy, title, message, user.profilePicture,
+                NOTIFICATION_TYPES.USER_COMMENT)
     }
 
     return createdCommentObject

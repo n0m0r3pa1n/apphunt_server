@@ -2,24 +2,30 @@ var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
 var TweetComposer = require('../utils/tweet_composer')
+var CONFIG = require('../config/config')
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
-var STATUS_CODES = require('../config').STATUS_CODES
 
-var PLATFORMS = require('../config').PLATFORMS
-var BOLT_APP_ID = require('../config').BOLT_APP_ID
+var STATUS_CODES = CONFIG.STATUS_CODES
 
-var APP_STATUSES = require('../config').APP_STATUSES
-var APP_STATUS_FILTER = require('../config').APP_STATUSES_FILTER
-var APP_HUNT_TWITTER_HANDLE = require('../config').APP_HUNT_TWITTER_HANDLE
+var PLATFORMS = CONFIG.PLATFORMS
+var BOLT_APP_ID = CONFIG.BOLT_APP_ID
 
-var LOGIN_TYPES = require('../config').LOGIN_TYPES
+
+var APP_STATUSES = CONFIG.APP_STATUSES
+var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER
+var APP_HUNT_TWITTER_HANDLE = CONFIG.APP_HUNT_TWITTER_HANDLE
+var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
+
+var LOGIN_TYPES = CONFIG.LOGIN_TYPES
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./urls_handler')
 var CommentsHandler = require('./comments_handler')
 var NotificationsHandler = require('./notifications_handler')
 var EmailsHandler = require('./emails_handler')
+
+var DateUtils = require('../utils/date_utils')
 
 var App = require('../models').App
 var Developer = require('../models').Developer
@@ -134,6 +140,11 @@ function* deleteApp(package) {
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(status === APP_STATUSES.REJECTED) {
+        var title = String.format(CONFIG.APP_REJECTED_TITLE, app.name)
+        var message = CONFIG.APP_REJECTED_MESSAGE
+        NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon,
+            NOTIFICATION_TYPES.APP_REJECTED)
+
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){
 
@@ -143,7 +154,10 @@ function* changeAppStatus(appPackage, status) {
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
 
-            NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
+            var title = String.format(CONFIG.APP_APPROVED_TITLE, app.name)
+            var message = String.format(CONFIG.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
+            NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon,
+                NOTIFICATION_TYPES.APP_APPROVED)
         }
     }
 

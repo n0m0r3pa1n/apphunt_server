@@ -2,7 +2,7 @@ var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var STATUS_CODES = require('../src/config').STATUS_CODES
+var STATUS_CODES = require('../src/config/config').STATUS_CODES
 
 describe("Comments", function() {
 

@@ -1,6 +1,6 @@
 var User = require('../models').User
 var Device = require('../models').Device
-var STATUS_CODES = require('../config').STATUS_CODES
+var STATUS_CODES = require('../config/config').STATUS_CODES
 
 function* get(email, loginType) {
     var where = {}

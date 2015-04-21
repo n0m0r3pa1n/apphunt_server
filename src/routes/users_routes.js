@@ -1,6 +1,6 @@
 var UsersHandler = require('../handlers/users_handler')
 var User = require('../models').User
-var loginTypes = require('../config').LOGIN_TYPES
+var loginTypes = require('../config/config').LOGIN_TYPES
 var _ = require("underscore")
 var Joi = require('joi')
 

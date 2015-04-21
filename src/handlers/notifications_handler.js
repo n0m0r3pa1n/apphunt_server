@@ -3,7 +3,7 @@ var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
 var User = require('../models').User
-var boltAppId = require('../config').BOLT_APP_ID
+var boltAppId = require('../config/config').BOLT_APP_ID
 
 function* create(notification) {
     return yield Notification.create(notification);
@@ -17,7 +17,7 @@ function* getAll() {
     return yield Notification.find({}).exec();
 }
 
-function* sendNotificationToUser(user, title, message, type) {
+function* sendNotificationToUser(user, title, message, image, type) {
     if(user.populated('devices') == undefined) {
         try {
             user = yield User.findOne(user).populate('devices').exec();
@@ -39,17 +39,18 @@ function* sendNotificationToUser(user, title, message, type) {
         deviceIds.push(device.notificationId)
     }
     if(deviceIds.length > 0) {
-        sendNotification(deviceIds, title, message, type)
+        sendNotification(deviceIds, title, message, image, type)
     }
 }
 
-function sendNotification(deviceIds, title, message, type) {
+function sendNotification(deviceIds, title, message, image, type) {
     var bolt = new Bolt(boltAppId)
     var notification = {
         deviceIds: deviceIds,
         data: {
             title: title,
             message: message,
+            image: image,
             type: type
         }
     }

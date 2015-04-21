@@ -4,7 +4,7 @@ var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppCategory = require("../src/models").AppCategory
-var STATUS_CODES = require('../src/config').STATUS_CODES
+var STATUS_CODES = require('../src/config/config').STATUS_CODES
 
 describe("Votes", function() {
 

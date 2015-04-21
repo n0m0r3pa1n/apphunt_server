@@ -1,4 +1,4 @@
-var STATUS_CODES = require('../config').STATUS_CODES
+var STATUS_CODES = require('../config/config').STATUS_CODES
 
 var Mongoose = require('mongoose')
 var Vote = require('../models').Vote
