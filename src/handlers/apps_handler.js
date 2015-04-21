@@ -156,8 +156,8 @@ function* changeAppStatus(appPackage, status) {
 
             var title = String.format(CONFIG.APP_APPROVED_TITLE, app.name)
             var message = String.format(CONFIG.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
-            NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon,
-                NOTIFICATION_TYPES.APP_APPROVED)
+
+            yield NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
         }
     }
 
