@@ -1,7 +1,7 @@
 var should = require('chai').should()
 var dbHelper = require('./helper/dbhelper')
 var Bolt = require('bolt-js')
-var boltAppId = require('../../AppHunt/src/config').BOLT_APP_ID
+var boltAppId = require('../src/config').BOLT_APP_ID
 require('./spec_helper')
 var STATUS_CODES = require('../src/config').STATUS_CODES
 
