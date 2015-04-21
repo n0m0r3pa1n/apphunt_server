@@ -96,7 +96,7 @@ function* update(app) {
 
     var savedApp = yield existingApp.save()
     if(isAppApproved) {
-        postTweet(savedApp)
+        postTweet(savedApp, existingApp.createdBy)
         EmailsHandler.sendEmailToDeveloper(savedApp)
 
         var createdBy = yield User.findOne(createdBy).populate('devices').exec()
@@ -106,8 +106,14 @@ function* update(app) {
 
 }
 
-function postTweet(app) {
+function postTweet(app, user) {
     var bolt = new Bolt(boltAppId)
+    // fake user
+    if(user.email.indexOf('@example.com') > 1) {
+        
+    } else {
+        user.username
+    }
     var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
     bolt.postTweet(message)
 }
