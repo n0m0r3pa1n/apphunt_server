@@ -110,11 +110,12 @@ function* update(app) {
 function postTweet(app, user) {
     var bolt = new Bolt(BOLT_APP_ID)
     // fake user
-    if(user.email.indexOf('@example.com') > 1) {
-        
-    } else {
-        user.username
-    }
+    //if(user.email.indexOf('example.com') > -1) {
+        //console.log('here')
+    //} else {
+        //console.log('there')
+        ////user.username
+    //}
     var message = app.description + " " + app.shortUrl + " #" + app.platform + " #new #app"
     bolt.postTweet(message)
 }
