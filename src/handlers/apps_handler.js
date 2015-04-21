@@ -135,8 +135,7 @@ function* changeAppStatus(appPackage, status) {
             postTweet(app)
             EmailsHandler.sendEmailToDeveloper(app)
 
-            var createdBy = yield User.findOne(createdBy).populate('devices').exec()
-            console.log(createdBy.devices)
+            var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
             NotificationsHandler.sendNotificationToUser(createdBy, "Test title", "Test message", "app_approved")
         }
     }
