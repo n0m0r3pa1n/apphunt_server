@@ -3,7 +3,7 @@ var _ = require("underscore")
 var CONFIG  = require('../config')
 var STATUS_CODES = CONFIG.STATUS_CODES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
-
+var CONVERSATION_SYMBOL = '@'
 
 var App = require('../models').App
 var User = require('../models').User
@@ -51,7 +51,35 @@ function* create(comment, appId, userId, parentId) {
         yield NotificationsHandler.sendNotificationToUser(app.createdBy, "Test title", "Test message", NOTIFICATION_TYPES.USER_COMMENT)
     }
 
+    if(isConversationComment(comment.text)) {
+        var userName = getCommentedUserName(comment.text)
+        if(userName !== '') {
+            var user = yield User.findOne({username: userName}).exec()
+            if(user !== null) {
+                yield NotificationsHandler.sendNotificationToUser(user, "Test title", "Test message",
+                    NOTIFICATION_TYPES.USER_MENTIONED)
+            }
+        }
+    }
+
     return createdCommentObject
+}
+
+function isConversationComment(commentText) {
+    return !(commentText.search(CONVERSATION_SYMBOL) == -1)
+}
+
+function getCommentedUserName(commentText) {
+    var userName = "";
+    var conversationSymbolPosition = commentText.search(CONVERSATION_SYMBOL);
+    var usernameMatches = commentText.match("\@[a-zA-Z]+")
+    if(usernameMatches.length === 0) {
+        return userName;
+    }
+    userName = usernameMatches[0]
+    userName = userName.slice(1, userName.length)
+
+    return userName;
 }
 
 function* get(appId, userId, page,  pageSize) {
