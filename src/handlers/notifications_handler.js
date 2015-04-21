@@ -25,7 +25,7 @@ function sendNotificationToUser(user, title, message, type) {
     var deviceIds = []
     for(var i=0; i<user.devices.length; i++) {
         var device = user.devices[i];
-        deviceIds.push(device.deviceId)
+        deviceIds.push(device.notificationId)
     }
     if(deviceIds.length > 0) {
         sendNotification(deviceIds, title, message, type)
@@ -44,7 +44,8 @@ function sendNotification(deviceIds, title, message, type) {
     }
 
     if(deviceIds.length > 0 && deviceIds !== null) {
-        console.log('Sending notification to ' + deviceIds)
+        console.log('Sending notification to ')
+        console.log(deviceIds)
         bolt.sendNotification(notification)
     }
 }
