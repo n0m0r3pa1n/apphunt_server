@@ -1,3 +1,5 @@
+var _ = require('underscore')
+
 var User = require('../models').User
 var Device = require('../models').Device
 var STATUS_CODES = require('../config/config').STATUS_CODES
@@ -57,7 +59,7 @@ function* update(userId, notificationId) {
 
 function isUserDeviceExisting(devices, notificationId) {
     var isDeviceIdExisting = false;
-    for(var i=0; i < devices; i++) {
+    for(var i=0; i < devices.length; i++) {
         var currentDevice = devices[i]
         if(currentDevice.notificationId == notificationId) {
             isDeviceIdExisting = true;

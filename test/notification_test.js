@@ -28,29 +28,18 @@ describe("Notifications", function() {
     });
 
     it("should send notification when app is approved", function*() {
-        //var userResponse = yield dbHelper.createUser()
-        //var appResponse = yield dbHelper.createApp(userResponse.result.id)
-        //var opts = {
-        //    method: 'POST',
-        //    url: '/apps/com.dasfqwersdcxxdfgh/status',
-        //    payload: {
-        //        status: "approved"
-        //    }
-        //}
-        //
-        //var approvedResponse = yield Server.injectThen(opts);
-        //approvedResponse.result.statusCode.should.equal(200)
-        var bolt = new Bolt(boltAppId)
-        var notification = {
-            deviceIds: ["APA91bGGwfX6niCbRUUEKxL0an6osaoZ1BuMRVGAEJiFYvJ3vQxwrhr6CCMDVkSq7Rgu_Z-pdbWN5AXyHKMyA-HtWZwQj7RwNfGXTTRd2MqkDsxTUR2bMEUSrBq1ztiMhTlQJzpd1tRm"],
-            collapseKey: "test",
-            data: {
-                title: "Test123",
-                message: "Message123"
+        var userResponse = yield dbHelper.createUser()
+        var appResponse = yield dbHelper.createApp(userResponse.result.id)
+        var opts = {
+            method: 'POST',
+            url: '/apps/com.dasfqwersdcxxdfgh/status',
+            payload: {
+                status: "approved"
             }
         }
 
-        bolt.sendNotification(notification)
+        var approvedResponse = yield Server.injectThen(opts);
+        approvedResponse.result.statusCode.should.equal(200)
     });
 
 
