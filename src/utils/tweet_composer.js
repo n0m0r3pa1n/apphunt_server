@@ -41,6 +41,19 @@ TweetComposer.prototype.compose = function(options) {
     return tweet
 }
 
+TweetComposer.prototype.composeWelcomeTweet = function(options) {
+    var username = options.username
+    var hashTags = options.hashTags !== undefined ? options.hashTags : []
+
+    var tweet = "@" + username + " "
+    tweet += "Welcome to @" + this.ownerAccount + " :) Would you like to start the hunt by adding and discussing your favourite app? "
+    hashTags.forEach(function(tag) {
+        tweet += "#" + tag + " "
+    })
+
+    return tweet
+}
+
 function truncateText(text, maxChars, appendString) {
 
     text = text.substring(0, maxChars)

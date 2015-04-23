@@ -1,8 +1,13 @@
 var _ = require('underscore')
 
+var Bolt = require("bolt-js")
+var TweetComposer = require('../utils/tweet_composer')
+var CONFIG = require('../config/config')
+
 var User = require('../models').User
 var Device = require('../models').Device
 var STATUS_CODES = require('../config/config').STATUS_CODES
+
 
 function* get(email, loginType) {
     var where = {}
@@ -18,22 +23,36 @@ function* get(email, loginType) {
 }
 
 function* create(user, notificationId) {
-    var user = yield User.findOneOrCreate({email: user.email}, user);
-    user = yield User.findOne(user).populate('devices').exec()
+    var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
+    if (!currUser) {
+        currUser = yield User.create(user)
+        postTweet(currUser)
+    }
 
 	if(notificationId) {
-		if (user.devices == undefined || user.devices == null) {
-			user.devices = []
+		if (currUser.devices == undefined || currUser.devices == null) {
+            currUser.devices = []
 		}
 
-		if(isUserDeviceExisting(user.devices, notificationId) == false) {
+		if(isUserDeviceExisting(currUser.devices, notificationId) == false) {
             var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
-			user.devices.push(device)
+            currUser.devices.push(device)
 		}
-        user.save()
+        currUser.save()
 	}
 
-	return user;
+	return currUser;
+}
+
+function postTweet(user) {
+    var bolt = new Bolt(CONFIG.BOLT_APP_ID)
+    var tweetComposer = new TweetComposer(CONFIG.APP_HUNT_TWITTER_HANDLE)
+    var tweetOptions = {
+        username: user.username,
+        hashTags: ["app"]
+    }
+
+    bolt.postTweet(tweetComposer.composeWelcomeTweet(tweetOptions))
 }
 
 function* update(userId, notificationId) {
