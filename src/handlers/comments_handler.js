@@ -73,7 +73,7 @@ function isConversationComment(commentText) {
 function getCommentedUserName(commentText) {
     var userName = "";
     var conversationSymbolPosition = commentText.search(CONVERSATION_SYMBOL);
-    var usernameMatches = commentText.match("\@[a-zA-Z]+")
+    var usernameMatches = commentText.match("\@[a-zA-Z0-9_]+")
     if(usernameMatches.length === 0) {
         return userName;
     }
