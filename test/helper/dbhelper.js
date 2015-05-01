@@ -1,3 +1,6 @@
+var BadBoy = require('badboy')
+var Co = require('co')
+var AppsHandler = require('../../src/handlers/apps_handler')
 var loginTypes = require("../../src/config/config").LOGIN_TYPES
 
 var email = "dummy@dummy.com"
@@ -80,20 +83,20 @@ function createUserWithParams(email) {
 }
 
 function createUserWithLoginType(email, loginType) {
-	var name = "dummy"
+    var name = "dummy"
 
-	var opts = {
-		method: 'POST',
-		url: '/v1/users',
-		payload: {
-			name: name,
-			email: email,
-			profilePicture: "http://pic-bg.net",
-			loginType: loginType
-		}
-	}
+    var opts = {
+        method: 'POST',
+        url: '/v1/users',
+        payload: {
+            name: name,
+            email: email,
+            profilePicture: "http://pic-bg.net",
+            loginType: loginType
+        }
+    }
 
-	return Server.injectThen(opts)
+    return Server.injectThen(opts)
 }
 
 function createNotification() {

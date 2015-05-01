@@ -12,7 +12,6 @@ describe("Apps", function () {
     it("should create Android app", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)
-
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
         response.result.description.should.exist();
@@ -42,9 +41,31 @@ describe("Apps", function () {
 
     it("should not create app", function*() {
         var userResponse = yield dbHelper.createUser()
-        var response = yield dbHelper.createApp(userResponse.result.id)
+        var opts = {
+            method: 'POST',
+            url: '/v1/apps',
+            payload: {
+                package: "com.test",
+                userId: userResponse.result.id,
+                description: "Test description",
+                platform: "Android"
+            }
+        }
 
-        var response2 = yield dbHelper.createApp(userResponse.result.id)
+        var response = yield Server.injectThen(opts)
+
+        var opts2 = {
+            method: 'POST',
+            url: '/v1/apps',
+            payload: {
+                package: "com.test",
+                userId: userResponse.result.id,
+                description: "Test description",
+                platform: "Android"
+            }
+        }
+
+        var response2 = yield Server.injectThen(opts)
         response2.statusCode.should.equal(STATUS_CODES.CONFLICT)
     });
 

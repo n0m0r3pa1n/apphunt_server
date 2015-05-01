@@ -1,3 +1,4 @@
+var DEVS_HUNTER_URL = 'http://devs-hunter.herokuapp.com'
 var STATUS_CODES = require('./status_codes').STATUS_CODES
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs"
 var API_VERSION = 1.0;
@@ -67,6 +68,7 @@ var EMAIL_TEMPLATES_PATH = "assets/templates/email/"
 var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co"
 var APP_HUNT_TWITTER_HANDLE = "TheAppHunt"
 
+module.exports.DEVS_HUNTER_URL = DEVS_HUNTER_URL
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION
 module.exports.STATUS_CODES = STATUS_CODES

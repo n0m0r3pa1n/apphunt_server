@@ -1,3 +1,4 @@
+var DevsHunter = require('./utils/devs_hunter_handler')
 var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
@@ -20,10 +21,10 @@ var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES
 
 var VotesHandler = require('./votes_handler')
-var UrlsHandler = require('./urls_handler')
+var UrlsHandler = require('./utils/urls_handler')
 var CommentsHandler = require('./comments_handler')
 var NotificationsHandler = require('./notifications_handler')
-var EmailsHandler = require('./emails_handler')
+var EmailsHandler = require('./utils/emails_handler')
 
 var DateUtils = require('../utils/date_utils')
 
@@ -33,7 +34,6 @@ var User = require('../models').User
 var Vote = require('../models').Vote
 var Comment = require('../models').Comment
 var AppCategory = require('../models').AppCategory
-
 
 function* create(app, userId) {
 
@@ -45,7 +45,11 @@ function* create(app, userId) {
     var parsedApp = {}
     try {
         if(app.platform == PLATFORMS.Android) {
-            parsedApp = yield Badboy.getAndroidApp(app.package)
+            parsedApp = yield DevsHunter.getAndroidApp(app.package)
+            if(parsedApp === null) {
+                return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+            }
+
             var d = parsedApp.developer
             var developer = yield Developer.findOneOrCreate({email: d.email},{name: d.name, email: d.email})
             app.developer = developer
@@ -60,18 +64,12 @@ function* create(app, userId) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
 
-    var appCategories = []
-    for (var index in parsedApp.categories) {
-        var category = yield AppCategory.findOneOrCreate({name: parsedApp.categories[index]}, {name: parsedApp.categories[index]})
-        appCategories.push(category)
-    }
-
     var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
     var user = yield User.findOne({_id: userId}).exec()
 
     app.status = APP_STATUSES.WAITING
     app.createdBy = user
-    app.categories = appCategories
+    app.categories = yield getAppCategories(parsedApp)
     app.isFree = parsedApp.isFree
     app.icon = parsedApp.icon
     app.name = parsedApp.name
@@ -91,6 +89,16 @@ function* create(app, userId) {
     var voteResponse = yield VotesHandler.createAppVote(userId, createdApp.id)
 
     return createdApp
+}
+
+function* getAppCategories(parsedApp) {
+    var appCategories = []
+    for (var index in parsedApp.categories) {
+        var category = yield AppCategory.findOneOrCreate({name: parsedApp.categories[index]}, {name: parsedApp.categories[index]})
+        appCategories.push(category)
+    }
+
+    return appCategories
 }
 
 function* update(app) {
@@ -170,6 +178,7 @@ function* changeAppStatus(appPackage, status) {
 }
 
 function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
+
     var where = {};
     var responseDate = ""
     if(dateStr !== undefined) {
@@ -199,9 +208,9 @@ function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
         resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
     }
 
-	for(var i=0; i < resultApps.length; i++) {
-		resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
-	}
+    for(var i=0; i < resultApps.length; i++) {
+        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
+    }
 
     var allAppsCount = yield App.count(where).exec()
 
@@ -244,10 +253,14 @@ function* getApp(appId, userId) {
     return app
 }
 
-function* searchApps(q, platform, page, pageSize, userId) {
+function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
-    where.status = APP_STATUSES.APPROVED;
+    if(status !== undefined) {
+        where.status = status;
+    } else {
+        where.status = APP_STATUSES.APPROVED;
+    }
 
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
@@ -295,17 +308,17 @@ function removeUnusedFields(apps) {
 }
 
 function* setCommentsCount(appId) {
-	return yield CommentsHandler.getCount(appId)
+    return yield CommentsHandler.getCount(appId)
 }
 
 function convertToArray(apps) {
-	var resultApps = []
-	for (var i = 0; i < apps.length; i++) {
-		var app = apps[i].toObject()
-		resultApps.push(app)
-	}
+    var resultApps = []
+    for (var i = 0; i < apps.length; i++) {
+        var app = apps[i].toObject()
+        resultApps.push(app)
+    }
 
-	return resultApps;
+    return resultApps;
 }
 
 module.exports.create = create

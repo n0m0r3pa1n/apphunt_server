@@ -1,4 +1,4 @@
-var UrlsHandler = require('../../src/handlers/urls_handler')
+var UrlsHandler = require('../../src/handlers/utils/urls_handler')
 var simple = require('simple-mock');
 
 var mockUrlsHandler = function() {

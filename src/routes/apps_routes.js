@@ -46,14 +46,16 @@ var routes = [
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
             var userId = req.query.userId
             var platform = req.query.platform
+            var status = req.query.status
             var q = req.query.q;
 
-            reply.co(AppsHandler.searchApps(q, platform, page, pageSize, userId))
+            reply.co(AppsHandler.searchApps(q, platform, status, page, pageSize, userId))
         },
         config: {
             validate: {
                 query: {
                     q: Joi.string().required(),
+                    status: Joi.string().valid(APP_STATUSES).optional(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
@@ -68,9 +70,7 @@ var routes = [
         method: "POST",
         path: "/apps",
         handler: function(req,reply) {
-
             var app = new App(req.payload);
-
             reply.co(AppsHandler.create(app, req.payload.userId))
         },
         config: {
