@@ -1,6 +1,7 @@
 var _ = require("underscore")
 
 var CONFIG  = require('../config/config')
+var MESSAGES  = require('../config/messages')
 var STATUS_CODES = CONFIG.STATUS_CODES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var CONVERSATION_SYMBOL = '@'
@@ -50,14 +51,14 @@ function* create(comment, appId, userId, parentId) {
         if(userName !== '') {
             var mentionedUser = yield User.findOne({username: userName}).exec()
             if(mentionedUser !== null) {
-                var title = String.format(CONFIG.USER_MENTIONED_TITLE, user.username)
+                var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username)
                 var message = comment.text
                 yield NotificationsHandler.sendNotificationToUser(mentionedUser, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED)
             }
         }
     } else {
-            var title = String.format(CONFIG.USER_COMMENTED_TITLE, user.username, app.name)
+            var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name)
             var message = comment.text
             yield NotificationsHandler.sendNotificationToUser(app.createdBy, title, message, user.profilePicture,
                 NOTIFICATION_TYPES.USER_COMMENT)

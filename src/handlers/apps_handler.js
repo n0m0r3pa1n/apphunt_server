@@ -4,6 +4,7 @@ var _ = require("underscore")
 var Bolt = require("bolt-js")
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
+var MESSAGES = require('../config/messages')
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -64,7 +65,6 @@ function* create(app, userId) {
         return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
     }
 
-    var shortUrl = yield UrlsHandler.getShortLink(parsedApp.url)
     var user = yield User.findOne({_id: userId}).exec()
 
     app.status = APP_STATUSES.WAITING
@@ -72,9 +72,9 @@ function* create(app, userId) {
     app.categories = yield getAppCategories(parsedApp)
     app.isFree = parsedApp.isFree
     app.icon = parsedApp.icon
+    app.shortUrl = ''
     app.name = parsedApp.name
     app.url = parsedApp.url
-    app.shortUrl = shortUrl
 
 
     var parsedDescription = app.description;
@@ -152,8 +152,8 @@ function* changeAppStatus(appPackage, status) {
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     if(status === APP_STATUSES.REJECTED) {
-        var title = String.format(CONFIG.APP_REJECTED_TITLE, app.name)
-        var message = CONFIG.APP_REJECTED_MESSAGE
+        var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name)
+        var message = MESSAGES.APP_REJECTED_MESSAGE
         yield NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon,
             NOTIFICATION_TYPES.APP_REJECTED)
 
@@ -161,15 +161,18 @@ function* changeAppStatus(appPackage, status) {
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
+            app.shortUrl = yield UrlsHandler.getShortLink(app.url);
+
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
 
-            var title = String.format(CONFIG.APP_APPROVED_TITLE, app.name)
-            var message = String.format(CONFIG.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
+            var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
+            var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
 
             yield NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
         }
     }
+
 
     app.status = status;
     yield app.save()
