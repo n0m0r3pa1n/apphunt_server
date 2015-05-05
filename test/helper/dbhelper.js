@@ -175,6 +175,38 @@ function voteApp(appId, userId) {
     return Server.injectThen(opts);
 }
 
+function createAppsCollection(userId) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections',
+        payload: {
+            userId: userId,
+            name: "Top hunters",
+            description: "The best app hunters",
+            picture: "http://pic-bg.net",
+            apps: []
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
+function createAppsCollectionWithApps(userId, apps) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections',
+        payload: {
+            userId: userId,
+            name: "Top hunters",
+            description: "The best app hunters",
+            picture: "http://pic-bg.net",
+            apps: apps
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -188,6 +220,8 @@ module.exports.createComment = createComment
 module.exports.createCommentWithText = createCommentWithText
 module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
+module.exports.createAppsCollection = createAppsCollection
+module.exports.createAppsCollectionWithApps = createAppsCollectionWithApps
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

@@ -113,12 +113,7 @@ function* deleteCommentVote(userId, commentId) {
 
 // <editor-fold desc="Votes checks">
 function hasUserVotedForComment (comment, userId) {
-    for (var j = 0; j < comment.votes.length; j++) {
-        if (userId == comment.votes[j].user) {
-            return true
-        }
-    }
-    return false
+    return hasUserVotedForUnpopulatedObj(comment, userId)
 }
 
 function* setHasUserVotedForCommentField(comments, userId) {
@@ -139,13 +134,7 @@ function* setHasUserVotedForCommentField(comments, userId) {
 }
 
 function hasUserVotedForApp(app, userId) {
-    for (var j = 0; j < app.votes.length; j++) {
-        var appUser = app.votes[j].user;
-        if (appUser !== null && userId == appUser._id) {
-            return true;
-        }
-    }
-    return false
+    return hasUserVotedForPopulatedObj(app, userId);
 }
 
 function setHasUserVotedForAppField(apps, userId) {
@@ -156,6 +145,30 @@ function setHasUserVotedForAppField(apps, userId) {
         resultApps.push(app)
     }
     return resultApps
+}
+
+function hasUserVotedForAppsCollection(collection, userId) {
+    return hasUserVotedForUnpopulatedObj(collection, userId)
+}
+
+function hasUserVotedForPopulatedObj(obj, userId) {
+    for (var j = 0; j < obj.votes.length; j++) {
+        var user = obj.votes[j].user;
+        if (user !== null && userId == user._id) {
+            return true;
+        }
+    }
+    return false
+}
+
+function hasUserVotedForUnpopulatedObj(obj, userId) {
+    for (var j = 0; j < obj.votes.length; j++) {
+        var votedUserId = obj.votes[j].user;
+        if (userId == votedUserId) {
+            return true;
+        }
+    }
+    return false
 }
 
 // </editor-fold>
@@ -178,3 +191,5 @@ module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
 module.exports.clearAppVotes = clearAppVotes
+
+module.exports.hasUserVotedForAppsCollection = hasUserVotedForAppsCollection
