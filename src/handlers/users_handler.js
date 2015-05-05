@@ -27,6 +27,7 @@ function* create(user, notificationId) {
     if (!currUser) {
         currUser = yield User.create(user)
         postTweet(currUser)
+        followUser(currUser)
     }
 
 	if(notificationId) {
@@ -53,6 +54,11 @@ function postTweet(user) {
     }
 
     bolt.postTweet(tweetComposer.composeWelcomeTweet(tweetOptions))
+}
+
+function followUser(user) {
+    var bolt = new Bolt(CONFIG.BOLT_APP_ID)
+    bolt.followUsers([user.username])
 }
 
 function* update(userId, notificationId) {

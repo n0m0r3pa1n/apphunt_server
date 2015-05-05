@@ -15,7 +15,7 @@ var collectionsRoutes = [
                     name: Joi.string().optional()
                 }
             },
-            description: '',
+            description: 'Get app collection',
             tags: ['api']
         }
     },
@@ -36,7 +36,7 @@ var collectionsRoutes = [
                     apps: Joi.array().min(0).items(Joi.string()).unique().required()
                 }
             },
-            description: '',
+            description: 'Create new app collection',
             tags: ['api']
         }
     }
