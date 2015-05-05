@@ -112,7 +112,14 @@ var notificationSchema = new Schema(
     }
 )
 
-
+var collectionSchema = new Schema(
+    {
+        name: {type: String, required: true},
+        description: String,
+        apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
+        user: {type: Schema.Types.ObjectId, ref: 'User', required: true}
+    }
+)
 
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)
@@ -121,6 +128,7 @@ commentSchema.plugin(Timestamps)
 notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
 developerSchema.plugin(Timestamps)
+collectionSchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate);
 commentSchema.plugin(DeepPopulate)
@@ -133,4 +141,5 @@ module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 module.exports.Developer = Mongoose.model('Developer', developerSchema)
+module.exports.Collection = Mongoose.model('Collection', collectionSchema)
 
