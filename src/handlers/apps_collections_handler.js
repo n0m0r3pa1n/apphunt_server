@@ -23,7 +23,7 @@ function objToString(obj) {
 }
 
 function* getCollection(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).exec()
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').populate("createdBy").populate("apps").exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
@@ -46,7 +46,6 @@ function* search(q, page, pageSize, userId) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
     }
 
-    console.log(query)
     var collections = yield query.exec()
 
     var allCollectionsCount = yield AppsCollection.count(where).exec()
