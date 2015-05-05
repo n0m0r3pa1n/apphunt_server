@@ -37,6 +37,16 @@ var Comment = require('../models').Comment
 var AppCategory = require('../models').AppCategory
 
 function* create(app, userId) {
+    var appPackage = app.package;
+    if(appPackage.contains('&')) {
+        appPackage = appPackage.split('&')[0]
+    }
+
+    if(appPackage == null || appPackage == undefined || appPackage.contains('=')) {
+        return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
+    }
+
+    app.package = appPackage;
 
     var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
