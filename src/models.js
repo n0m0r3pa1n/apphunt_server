@@ -112,13 +112,26 @@ var notificationSchema = new Schema(
     }
 )
 
-var collectionSchema = new Schema(
+var baseCollection = {
+    name: {type: String, required: true},
+    description: String,
+    createdBy: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    picture: String
+}
+
+var appsCollectionSchema = new Schema(_.extend(baseCollection,
     {
-        name: {type: String, required: true},
-        description: String,
+
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
-        user: {type: Schema.Types.ObjectId, ref: 'User', required: true}
-    }
+        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}]
+    })
+)
+
+var usersCollectionSchema = new Schema(_.extend(baseCollection,
+    {
+        users: [{type: Schema.Types.ObjectId, ref: 'User'}]
+    })
+
 )
 
 userSchema.plugin(Timestamps)
@@ -128,7 +141,8 @@ commentSchema.plugin(Timestamps)
 notificationSchema.plugin(Timestamps)
 appCategorySchema.plugin(Timestamps)
 developerSchema.plugin(Timestamps)
-collectionSchema.plugin(Timestamps)
+appsCollectionSchema.plugin(Timestamps)
+usersCollectionSchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate);
 commentSchema.plugin(DeepPopulate)
@@ -141,5 +155,6 @@ module.exports.Notification = Mongoose.model('Notification', notificationSchema)
 module.exports.Device = Mongoose.model('Device', deviceSchema)
 module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 module.exports.Developer = Mongoose.model('Developer', developerSchema)
-module.exports.Collection = Mongoose.model('Collection', collectionSchema)
+module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema)
+module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema)
 
