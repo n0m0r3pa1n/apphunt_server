@@ -23,6 +23,30 @@ var collectionsRoutes = [
         }
     },
     {
+        method: "GET",
+        path: "/app-collections/search",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            var userId = req.query.userId
+            var q = req.query.q;
+
+            reply.co(AppsCollectionsHandler.search(q, page, pageSize, userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    q: Joi.string().required(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional()
+                }
+            },
+            description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
+            tags: ['api']
+        }
+    },
+    {
         method: "POST",
         path: "/app-collections",
         handler: function(req,reply) {

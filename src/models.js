@@ -123,7 +123,8 @@ var appsCollectionSchema = new Schema(_.extend(baseCollection,
     {
 
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
-        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}]
+        votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
+        votesCount: {type: Number, default: 0}
     })
 )
 
@@ -144,8 +145,9 @@ developerSchema.plugin(Timestamps)
 appsCollectionSchema.plugin(Timestamps)
 usersCollectionSchema.plugin(Timestamps)
 
-appSchema.plugin(DeepPopulate);
+appSchema.plugin(DeepPopulate)
 commentSchema.plugin(DeepPopulate)
+appsCollectionSchema.plugin(DeepPopulate)
 
 module.exports.User = Mongoose.model('User', userSchema)
 module.exports.App = Mongoose.model('App', appSchema)

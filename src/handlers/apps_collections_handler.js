@@ -37,6 +37,34 @@ function* getCollection(collectionId, userId) {
     return collection
 }
 
+function* search(q, page, pageSize, userId) {
+    var where = {name: {$regex: q, $options: 'i'}};
+    var query = AppsCollection.find(where).deepPopulate('votes.user').populate("createdBy").populate("apps")
+    query.sort({createdAt: 'desc' })
+
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
+
+    console.log(query)
+    var collections = yield query.exec()
+
+    var allCollectionsCount = yield AppsCollection.count(where).exec()
+
+    var response = {
+        collections: collections,
+        totalCount: allCollectionsCount,
+        page: page
+    }
+
+    if(page != 0 && pageSize != 0 && allCollectionsCount > 0) {
+        response.totalPages = Math.ceil(allCollectionsCount / pageSize)
+    }
+    return response
+}
+
+
 module.exports.create = create
 module.exports.addApps = addApps
 module.exports.getCollection = getCollection
+module.exports.search = search

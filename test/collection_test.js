@@ -89,4 +89,20 @@ describe("Collections", function() {
         response.result.apps.length.should.equal(1)
     });
 
+    it("should search for collections", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var collection = yield dbHelper.createAppsCollectionWithApps(userId, [appId])
+
+        var name = collection.name
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections/search?q=Top'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(1)
+    });
+
 })
