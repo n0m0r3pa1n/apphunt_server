@@ -181,8 +181,8 @@ function createAppsCollection(userId) {
         url: '/app-collections',
         payload: {
             userId: userId,
-            name: "Top hunters",
-            description: "The best app hunters",
+            name: "Top apps for march",
+            description: "The best apps for march",
             picture: "http://pic-bg.net",
             apps: []
         }
@@ -207,6 +207,38 @@ function createAppsCollectionWithApps(userId, apps) {
     return Server.injectThen(opts)
 }
 
+function createUsersCollection(userId) {
+    var opts = {
+        method: 'POST',
+        url: '/user-collections',
+        payload: {
+            userId: userId,
+            name: "Top hunters",
+            description: "The best app hunters",
+            picture: "http://pic-bg.net",
+            users: []
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
+function createUsersCollectionWithUsers(userId, users) {
+    var opts = {
+        method: 'POST',
+        url: '/user-collections',
+        payload: {
+            userId: userId,
+            name: "Top hunters",
+            description: "The best app hunters",
+            picture: "http://pic-bg.net",
+            users: users
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -222,6 +254,8 @@ module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
 module.exports.createAppsCollection = createAppsCollection
 module.exports.createAppsCollectionWithApps = createAppsCollectionWithApps
+module.exports.createUsersCollection = createUsersCollection
+module.exports.createUsersCollectionWithUsers = createUsersCollectionWithUsers
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

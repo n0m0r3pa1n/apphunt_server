@@ -1,13 +1,15 @@
 var Joi = require('joi')
-var AppsCollectionsHandler = require('../handlers/apps_collections_handler')
 var AppsCollection = require("../models").AppsCollection
+var UsersCollection = require("../models").UsersCollection
+var AppsCollectionsHandler = require('../handlers/apps_collections_handler')
+var UsersCollectionsHandler = require('../handlers/users_collections_handler')
 
 var collectionsRoutes = [
     {
         method: "GET",
         path:"/app-collections/{collectionId}",
         handler: function(req, reply) {
-            reply.co(AppsCollectionsHandler.getCollection(req.params.collectionId, req.query.userId))
+            reply.co(AppsCollectionsHandler.get(req.params.collectionId, req.query.userId))
         },
         config: {
             validate: {
@@ -84,7 +86,68 @@ var collectionsRoutes = [
                     apps: Joi.array().min(1).items(Joi.string()).unique().required()
                 }
             },
-            description: 'Add app to collection',
+            description: 'Add app(s) to collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "POST",
+        path: "/user-collections",
+        handler: function(req,reply) {
+            var usersCollection = UsersCollection(req.payload)
+            reply.co(UsersCollectionsHandler.create(usersCollection, req.payload.userId))
+        },
+        config: {
+            validate: {
+                payload: {
+                    userId: Joi.string().required(),
+                    name: Joi.string().required(),
+                    description: Joi.string().optional(),
+                    picture: Joi.string().optional(),
+                    users: Joi.array().min(0).items(Joi.string()).unique().required()
+                }
+            },
+            description: 'Create new users collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "PUT",
+        path: "/user-collections/{collectionId}",
+        handler: function(req,reply) {
+            var collectionId = req.params.collectionId
+            var users = req.payload.users
+            reply.co(UsersCollectionsHandler.addUsers(collectionId, users))
+        },
+        config: {
+            validate: {
+                params: {
+                    collectionId: Joi.string().required()
+                },
+                payload: {
+                    users: Joi.array().min(1).items(Joi.string()).unique().required()
+                }
+            },
+            description: 'Add user(s) to collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path:"/user-collections/{collectionId}",
+        handler: function(req, reply) {
+            reply.co(UsersCollectionsHandler.get(req.params.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    collectionId: Joi.string().required()
+                },
+                query: {
+                    userId: Joi.string().optional()
+                }
+            },
+            description: 'Get users collection',
             tags: ['api']
         }
     }

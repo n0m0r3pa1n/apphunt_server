@@ -119,7 +119,7 @@ var baseCollection = {
     picture: String
 }
 
-var appsCollectionSchema = new Schema(_.extend(baseCollection,
+var appsCollectionSchema = new Schema(_.extend({}, baseCollection,
     {
 
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
@@ -128,12 +128,13 @@ var appsCollectionSchema = new Schema(_.extend(baseCollection,
     })
 )
 
-var usersCollectionSchema = new Schema(_.extend(baseCollection,
+var usersCollectionSchema = new Schema(_.extend({}, baseCollection,
     {
         users: [{type: Schema.Types.ObjectId, ref: 'User'}]
     })
 
 )
+
 
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)

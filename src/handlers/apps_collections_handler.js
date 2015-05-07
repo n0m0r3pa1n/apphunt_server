@@ -14,6 +14,9 @@ function* create(appsCollection, userId) {
 
 function* addApps(collectionId, apps) {
     var collection = yield AppsCollection.findById(collectionId).exec()
+    if(!collection) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
+    }
     collection.apps = _.union( _.map( collection.apps, objToString), _.map( apps, objToString))
     return  collection.save()
 }
@@ -22,7 +25,7 @@ function objToString(obj) {
     return obj.toString()
 }
 
-function* getCollection(collectionId, userId) {
+function* get(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').populate("createdBy").populate("apps").exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
@@ -65,5 +68,5 @@ function* search(q, page, pageSize, userId) {
 
 module.exports.create = create
 module.exports.addApps = addApps
-module.exports.getCollection = getCollection
+module.exports.get = get
 module.exports.search = search
