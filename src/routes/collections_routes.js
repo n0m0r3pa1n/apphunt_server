@@ -61,8 +61,7 @@ var collectionsRoutes = [
                     userId: Joi.string().required(),
                     name: Joi.string().required(),
                     description: Joi.string().optional(),
-                    picture: Joi.string().optional(),
-                    apps: Joi.array().min(0).items(Joi.string()).unique().required()
+                    picture: Joi.string().optional()
                 }
             },
             description: 'Create new apps collection',
@@ -103,8 +102,7 @@ var collectionsRoutes = [
                     userId: Joi.string().required(),
                     name: Joi.string().required(),
                     description: Joi.string().optional(),
-                    picture: Joi.string().optional(),
-                    users: Joi.array().min(0).items(Joi.string()).unique().required()
+                    picture: Joi.string().optional()
                 }
             },
             description: 'Create new users collection',
