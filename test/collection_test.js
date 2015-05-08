@@ -6,19 +6,11 @@ var STATUS_CODES = require('../src/config/config').STATUS_CODES
 
 describe("Collections", function() {
 
-    it("should create empty apps collection", function*() {
+    it("should create apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var response = yield dbHelper.createAppsCollection(userId)
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(0)
-    });
-
-    it("should create collection with app", function*() {
-        var userId = (yield dbHelper.createUser()).result.id
-        var appId = (yield dbHelper.createApp(userId)).result.id
-        var response = yield dbHelper.createAppsCollectionWithApps(userId, [appId])
-        response.statusCode.should.equal(STATUS_CODES.OK)
-        response.result.apps.length.should.equal(1)
     });
 
     it("should add app in an empty collection", function*() {
@@ -40,8 +32,17 @@ describe("Collections", function() {
 
     it("should add app in not empty collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-        var collectionId = (yield dbHelper.createAppsCollectionWithApps(userId, [appId])).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId]
+            }
+        }
+        yield Server.injectThen(opts)
 
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.omv.bg")).result.id
 
@@ -59,8 +60,18 @@ describe("Collections", function() {
 
     it("should not add app already in collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-        var collectionId = (yield dbHelper.createAppsCollectionWithApps(userId, [appId])).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId]
+            }
+        }
+        yield Server.injectThen(opts)
+
 
         var opts = {
             method: 'PUT',
@@ -76,8 +87,7 @@ describe("Collections", function() {
 
     it("should get apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var appId = (yield dbHelper.createApp(userId)).result.id
-        var collectionId = (yield dbHelper.createAppsCollectionWithApps(userId, [appId])).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
         var opts = {
             method: 'GET',
@@ -86,13 +96,12 @@ describe("Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.id.should.equal(collectionId)
-        response.result.apps.length.should.equal(1)
     });
 
     it("should search for collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-        var collection = yield dbHelper.createAppsCollectionWithApps(userId, [appId])
+        var collection = yield dbHelper.createAppsCollection(userId)
 
         var name = collection.name
 
@@ -105,7 +114,7 @@ describe("Collections", function() {
         response.result.collections.length.should.equal(1)
     });
 
-    it("should create empty apps collection", function*() {
+    it("should create users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var response = yield dbHelper.createUsersCollection(userId)
         response.statusCode.should.equal(STATUS_CODES.OK)
@@ -130,7 +139,17 @@ describe("Collections", function() {
 
     it("should add user in not empty collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var collectionId = (yield dbHelper.createUsersCollectionWithUsers(userId, [userId])).result.id
+        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collectionId,
+            payload: {
+                users: [userId]
+            }
+        }
+
+        yield Server.injectThen(opts)
 
         var user2Id = (yield dbHelper.createUserWithParams("sadasdasd@as.ads")).result.id
 
@@ -148,7 +167,17 @@ describe("Collections", function() {
 
     it("should not add user already in collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var collectionId = (yield dbHelper.createUsersCollectionWithUsers(userId, [userId])).result.id
+        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collectionId,
+            payload: {
+                users: [userId]
+            }
+        }
+
+        yield Server.injectThen(opts)
 
         var opts = {
             method: 'PUT',
@@ -164,7 +193,7 @@ describe("Collections", function() {
 
     it("should get users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var collectionId = (yield dbHelper.createUsersCollectionWithUsers(userId, [userId])).result.id
+        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
 
         var opts = {
             method: 'GET',
@@ -173,7 +202,6 @@ describe("Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.id.should.equal(collectionId)
-        response.result.users.length.should.equal(1)
     });
 
 
