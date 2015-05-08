@@ -1,4 +1,3 @@
-var Mongoose = require('mongoose')
 var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
