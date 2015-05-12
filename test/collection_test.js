@@ -98,6 +98,37 @@ describe("Collections", function() {
         response.result.id.should.equal(collectionId)
     });
 
+    it("should get all apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(userId)
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(2)
+        response.result.totalCount.should.equal(2)
+    });
+
+
+    it("should get paged apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(userId)
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections?page=1&pageSize=1'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(1)
+        response.result.totalCount.should.equal(2)
+    });
+
     it("should search for collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id

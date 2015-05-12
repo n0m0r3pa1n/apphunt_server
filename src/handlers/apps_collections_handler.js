@@ -40,8 +40,19 @@ function* get(collectionId, userId) {
     return collection
 }
 
+function* getCollections(page, pageSize) {
+    return yield findPagedCollections({}, page, pageSize)
+}
+
+
 function* search(q, page, pageSize, userId) {
-    var where = {name: {$regex: q, $options: 'i'}};
+    var where = {name: {$regex: q, $options: 'i'}}
+    var response = yield findPagedCollections(where, page, pageSize)
+    //TODO: add to each collection field "hasUserVoted"
+    return response
+}
+
+function* findPagedCollections(where, page, pageSize) {
     var query = AppsCollection.find(where).deepPopulate('votes.user').populate("createdBy").populate("apps")
     query.sort({createdAt: 'desc' })
 
@@ -68,5 +79,6 @@ function* search(q, page, pageSize, userId) {
 
 module.exports.create = create
 module.exports.addApps = addApps
+module.exports.getCollections = getCollections
 module.exports.get = get
 module.exports.search = search
