@@ -20,18 +20,20 @@ var routes = [
             }
             var userId = req.query.userId
             var date = req.query.date
+            var toDate = req.query.toDate
             var platform = req.query.platform
-            reply.co(AppsHandler.getApps(date, platform, appStatus, page, pageSize, userId))
+            reply.co(AppsHandler.getApps(date, toDate, platform, appStatus, page, pageSize, userId))
         },
         config: {
             validate: {
                 query: {
+                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
                     status: Joi.string().valid(APP_STATUSES).optional(),
-                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
+                    toDate: Joi.date().optional()
                 }
             },
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',

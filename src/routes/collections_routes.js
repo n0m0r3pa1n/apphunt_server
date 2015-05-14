@@ -17,7 +17,7 @@ var collectionsRoutes = [
             validate: {
                 query: {
                     page: Joi.number().integer().min(1).optional(),
-                    pageSize: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional()
                 }
             },
             description: 'Get all apps collections.',

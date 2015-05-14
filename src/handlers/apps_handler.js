@@ -191,14 +191,17 @@ function* changeAppStatus(appPackage, status) {
     return {statusCode: STATUS_CODES.OK}
 }
 
-function* getApps(dateStr, platform, appStatus, page, pageSize, userId) {
+function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId) {
 
     var where = {};
     var responseDate = ""
     if(dateStr !== undefined) {
         var date = new Date(dateStr);
-        var nextDate = new Date(date.getTime() + DAY_MILLISECONDS);
-        where = {createdAt: {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": nextDate.toISOString()}};
+        var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
+        if(toDateStr !== undefined) {
+            toDate = new Date(toDateStr + DAY_MILLISECONDS)
+        }
+        where = {createdAt: {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString()}};
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 

@@ -165,6 +165,31 @@ describe("Apps", function () {
         response.result.page.should.equal(0)
     });
 
+    it("should get apps by date range", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var appId = (yield dbHelper.createApp(userResponse.result.id)).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("AASa@asd.ds")).result.id
+        yield dbHelper.voteApp(appId, user2Id)
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
+        var toDate = new Date();
+        var toDateStr = toDate.toString("yyyy-MMM-dd")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?date=' + todayStr + '&' + 'toDate=' + toDateStr + '&platform=Android&status=all'
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.apps.length.should.equal(2)
+        expect(response.result.totalCount).to.exist()
+        response.result.totalCount.should.equal(2)
+    });
+
     it("should return empty apps array", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
