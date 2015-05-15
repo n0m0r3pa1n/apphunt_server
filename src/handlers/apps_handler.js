@@ -214,7 +214,8 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
         var date = new Date(dateStr);
         var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
         if(toDateStr !== undefined) {
-            toDate = new Date(toDateStr + DAY_MILLISECONDS)
+            var toDateFromString = new Date(toDateStr)
+            toDate = new Date(toDateFromString.getTime() + DAY_MILLISECONDS)
         }
         where.createdAt = {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString()};
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
