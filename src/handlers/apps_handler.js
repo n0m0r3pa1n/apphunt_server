@@ -172,7 +172,17 @@ function* changeAppStatus(appPackage, status) {
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
-            app.shortUrl = yield UrlsHandler.getShortLink(app.url, app.platform);
+            links = [{
+                url: app.url, platform: "default"
+            }]
+
+            if(app.platform == PLATFORMS.Android) {
+                links.push({
+                    url: "market://details?id=" + app.package,
+                    platform: "android"
+                })
+            }
+            app.shortUrl = yield UrlsHandler.getShortLink(links)
 
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
