@@ -390,6 +390,25 @@ describe("Apps", function () {
         apps.length.should.equal(0)
     });
 
+    it("should get apps by name and date range", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
+        var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
+
+        var fromDateStr = new Date().toString("yyyy-MMM-dd")
+        var toDateStr = new Date().toString("yyyy-MMM-dd")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?query=test&status=all&page=1&platform=Android&pageSize=2&date=' + fromDateStr + "&toDate=" + toDateStr
+        }
+
+        var response = yield Server.injectThen(opts);
+        var apps = response.result.apps
+        apps.length.should.equal(2)
+    });
+
     it("should change Android app status", function*() {
         var userResponse = yield dbHelper.createUser()
         var response = yield dbHelper.createApp(userResponse.result.id)

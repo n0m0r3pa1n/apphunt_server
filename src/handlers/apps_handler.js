@@ -201,9 +201,14 @@ function* changeAppStatus(appPackage, status) {
     return {statusCode: STATUS_CODES.OK}
 }
 
-function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId) {
+function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
 
     var where = {};
+
+    if(query !== undefined) {
+        where.name = {$regex: query, $options: 'i'};
+    }
+
     var responseDate = ""
     if(dateStr !== undefined) {
         var date = new Date(dateStr);
@@ -211,7 +216,7 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
         if(toDateStr !== undefined) {
             toDate = new Date(toDateStr + DAY_MILLISECONDS)
         }
-        where = {createdAt: {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString()}};
+        where.createdAt = {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString()};
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
