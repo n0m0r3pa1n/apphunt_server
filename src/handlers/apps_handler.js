@@ -172,7 +172,7 @@ function* changeAppStatus(appPackage, status) {
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
         if(isAppApproved) {
-            app.shortUrl = yield UrlsHandler.getShortLink(app.url);
+            app.shortUrl = yield UrlsHandler.getShortLink(app.url, app.platform);
 
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
