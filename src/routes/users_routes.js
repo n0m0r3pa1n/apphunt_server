@@ -58,9 +58,9 @@ var routes = [
         },
         config: {
             validate: {
-                payload: {
+                payload: Joi.object({
                     notificationId: Joi.string().required()
-                },
+                }).unknown(),
                 params: {
                     userId: Joi.string().required()
                 }
