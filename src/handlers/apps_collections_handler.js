@@ -26,11 +26,15 @@ function objToString(obj) {
 }
 
 function* get(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").sort({'apps.votesCount': 'desc'}).exec()
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
 
+    collection = collection.toObject()
+    collection.apps.sort(function(app1, app2) {
+        return app2.votesCount - app1.votesCount
+    })
     //TODO: uncomment when consider votes
     //if(userId !== undefined) {
     //    collection = collection.toObject()
