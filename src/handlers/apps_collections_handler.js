@@ -80,9 +80,22 @@ function* findPagedCollections(where, page, pageSize) {
     return response
 }
 
+function* removeApp(collectionId, appId) {
+    var collection = yield AppsCollection.findById(collectionId).exec()
+    for(var i=0; i< collection.apps.length; i++) {
+        var currAppId = collection.apps[i]
+        if(currAppId == appId) {
+            collection.apps.splice(i, 1);
+        }
+    }
+
+    yield collection.save()
+    return {statusCode: STATUS_CODES.OK}
+}
 
 module.exports.create = create
 module.exports.addApps = addApps
 module.exports.getCollections = getCollections
 module.exports.get = get
 module.exports.search = search
+module.exports.removeApp = removeApp

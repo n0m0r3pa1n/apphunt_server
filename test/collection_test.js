@@ -187,6 +187,39 @@ describe("Collections", function() {
 
     });
 
+    it("should remove app from apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "tctctc")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId, app2Id]
+            }
+        }
+        yield Server.injectThen(opts)
+
+        opts = {
+            method: 'DELETE',
+            url: '/app-collections/apps?collectionId=' + collectionId + "&appId=" + app2Id
+        }
+
+        var response = yield Server.injectThen(opts)
+
+        opts = {
+            method: 'GET',
+            url: '/app-collections/' + collectionId
+        }
+
+        var response = yield Server.injectThen(opts)
+        var apps = response.result.apps
+        apps.length.should.equal(1)
+        apps[0]._id.toString().should.equal(appId)
+    });
+
     it("should create users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var response = yield dbHelper.createUsersCollection(userId)
