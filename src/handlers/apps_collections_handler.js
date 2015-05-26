@@ -26,7 +26,7 @@ function objToString(obj) {
 }
 
 function* get(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").sort({'apps.votesCount': 'desc'}).exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
