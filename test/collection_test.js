@@ -28,6 +28,7 @@ describe("Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.apps.length.should.equal(1)
+
     });
 
     it("should add app in not empty collection", function*() {
@@ -87,7 +88,17 @@ describe("Collections", function() {
 
     it("should get apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId]
+            }
+        }
+        yield Server.injectThen(opts)
+
 
         var opts = {
             method: 'GET',
@@ -143,6 +154,7 @@ describe("Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.equal(1)
+
     });
 
     it("should create users collection", function*() {

@@ -26,7 +26,7 @@ function objToString(obj) {
 }
 
 function* get(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').populate("createdBy").populate("apps").exec()
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
@@ -53,7 +53,7 @@ function* search(q, page, pageSize, userId) {
 }
 
 function* findPagedCollections(where, page, pageSize) {
-    var query = AppsCollection.find(where).deepPopulate('votes.user').populate("createdBy").populate("apps")
+    var query = AppsCollection.find(where).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps")
     query.sort({createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
