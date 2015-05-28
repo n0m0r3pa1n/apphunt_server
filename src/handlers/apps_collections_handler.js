@@ -52,8 +52,19 @@ function* getCollections(page, pageSize) {
 function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield findPagedCollections(where, page, pageSize)
+    var collections = response.collections
+    for(var i=0; i<collections.length; i++) {
+        orderAppsInCollection(collections[i])
+    }
     //TODO: add to each collection field "hasUserVoted"
     return response
+}
+
+function orderAppsInCollection(collection) {
+    collection = collection.toObject()
+    collection.apps.sort(function(app1, app2) {
+        return app2.votesCount - app1.votesCount
+    })
 }
 
 function* findPagedCollections(where, page, pageSize) {
