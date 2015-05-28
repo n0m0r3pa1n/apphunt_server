@@ -172,10 +172,25 @@ describe("Collections", function() {
 
     it("should search for collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-        var collection = yield dbHelper.createAppsCollection(userId)
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "packpack")).result.id
 
-        var name = collection.name
+        yield dbHelper.voteApp(app2Id, user2Id)
+
+        var collectionResponse = yield dbHelper.createAppsCollection(userId)
+        var collectionId = collectionResponse.result.id
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId, app2Id]
+            }
+        }
+        yield Server.injectThen(opts)
+
+
+        var name = collectionResponse.result.name
 
         var opts = {
             method: 'GET',
@@ -184,6 +199,9 @@ describe("Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.equal(1)
+        var apps = response.result.collections[0].apps
+        apps[0]._id.toString().should.equal(app2Id.toString())
+        apps[1]._id.toString().should.equal(appId.toString())
 
     });
 

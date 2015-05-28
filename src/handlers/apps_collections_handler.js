@@ -31,10 +31,7 @@ function* get(collectionId, userId) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
 
-    collection = collection.toObject()
-    collection.apps.sort(function(app1, app2) {
-        return app2.votesCount - app1.votesCount
-    })
+    collection = orderAppsInCollection(collection)
     //TODO: uncomment when consider votes
     //if(userId !== undefined) {
     //    collection = collection.toObject()
@@ -52,10 +49,11 @@ function* getCollections(page, pageSize) {
 function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield findPagedCollections(where, page, pageSize)
-    var collections = response.collections
-    for(var i=0; i<collections.length; i++) {
-        orderAppsInCollection(collections[i])
+    var collections = []
+    for(var i=0; i<response.collections.length; i++) {
+        collections[i] = orderAppsInCollection(response.collections[i])
     }
+    response.collections = collections
     //TODO: add to each collection field "hasUserVoted"
     return response
 }
@@ -65,6 +63,7 @@ function orderAppsInCollection(collection) {
     collection.apps.sort(function(app1, app2) {
         return app2.votesCount - app1.votesCount
     })
+    return collection
 }
 
 function* findPagedCollections(where, page, pageSize) {
