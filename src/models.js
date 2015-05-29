@@ -130,7 +130,13 @@ var appsCollectionSchema = new Schema(_.extend({}, baseCollection,
 
 var usersCollectionSchema = new Schema(_.extend({}, baseCollection,
     {
-        users: [{type: Schema.Types.ObjectId, ref: 'User'}]
+        usersDetails: [{
+            user: {type: Schema.Types.ObjectId, ref: 'User'},
+            score: {type: Number, default: 0},
+            addedApps: {type: Number, default: 0},
+            comments: {type: Number, default: 0},
+            votes: {type: Number, default: 0}
+        }]
     })
 
 )

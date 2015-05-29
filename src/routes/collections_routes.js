@@ -151,7 +151,7 @@ var collectionsRoutes = [
         handler: function(req,reply) {
             var collectionId = req.params.collectionId
             var users = req.payload.users
-            reply.co(UsersCollectionsHandler.addUsers(collectionId, users))
+            reply.co(UsersCollectionsHandler.addUsers(collectionId, users, req.payload.fromDate, req.payload.toDate))
         },
         config: {
             validate: {
@@ -159,7 +159,9 @@ var collectionsRoutes = [
                     collectionId: Joi.string().required()
                 },
                 payload: {
-                    users: Joi.array().min(1).items(Joi.string()).unique().required()
+                    users: Joi.array().min(1).items(Joi.string()).unique().required(),
+                    fromDate: Joi.date().required(),
+                    toDate: Joi.date().required()
                 }
             },
             description: 'Add user(s) to collection',
