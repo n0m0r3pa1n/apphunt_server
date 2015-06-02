@@ -96,4 +96,55 @@ describe("Users", function() {
 		var response = yield Server.injectThen(opts)
 		response.statusCode.should.equal(STATUS_CODES.OK)
 	});
+
+	it("should get users with score", function*() {
+		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
+		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
+		var appId = (yield dbHelper.createApp(user1Id)).result.id
+		yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")
+		yield dbHelper.createComment(appId, user2Id)
+
+		var today = new Date()
+
+		var opts = {
+			method: 'GET',
+			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result.length.should.equal(2)
+		response.result[0]._id.toString().should.equal(user2Id)
+	});
+
+	it("should get fake users with score", function*() {
+		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
+		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
+
+		var today = new Date()
+
+		var opts = {
+			method: 'GET',
+			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today + "&loginType=fake"
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result.length.should.equal(1)
+		response.result[0]._id.toString().should.equal(user2Id)
+	});
+
+	it("should get real users with score", function*() {
+		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
+		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
+
+		var today = new Date()
+
+		var opts = {
+			method: 'GET',
+			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today + "&loginType=real"
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result.length.should.equal(1)
+		response.result[0]._id.toString().should.equal(user1Id)
+	});
 })

@@ -31,8 +31,6 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
             collection.usersDetails.push(yield UserScoreUtils.getUserDetails(userId, fromDate, toDate))
         }
     }
-
-    //collection.users = _.union( _.map(collection.users, objToString), _.map(users, objToString))
     return  collection.save()
 }
 
@@ -44,10 +42,6 @@ function isUserAlreadyAdded(userDetails, userId) {
         }
     }
     return false;
-}
-
-function objToString(obj) {
-    return obj.toString()
 }
 
 

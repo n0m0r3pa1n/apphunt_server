@@ -7,6 +7,7 @@ var CONFIG = require('../config/config')
 var User = require('../models').User
 var Device = require('../models').Device
 var STATUS_CODES = require('../config/config').STATUS_CODES
+var UserScoreUtils = require('../utils/user_score_utils')
 
 
 function* get(email, loginType) {
@@ -95,6 +96,37 @@ function isUserDeviceExisting(devices, notificationId) {
     return isDeviceIdExisting;
 }
 
+function* getWithScores(fromDate, toDate, query, loginType) {
+    var where = {};
+
+    if(query !== undefined) {
+        where.username = {$regex: query, $options: 'i'};
+    }
+
+    if(loginType !== undefined && loginType == 'real') {
+        where.loginType = { "$ne": 'fake'}
+    } else if(loginType !== undefined) {
+        where.loginType = loginType
+    }
+
+    var result = []
+    var users = yield User.find(where).exec()
+    for(var i=0; i<users.length; i++) {
+        var user = users[i].toObject()
+        var userDetails = yield UserScoreUtils.getUserDetails(user._id, fromDate, toDate)
+        user.score = userDetails.score
+        result.push(user);
+    }
+
+    result.sort(function(user1, user2) {
+        return user2.score - user1.score
+    })
+
+    return result
+
+}
+
 module.exports.create = create
 module.exports.get = get
 module.exports.update = update
+module.exports.getWithScores = getWithScores

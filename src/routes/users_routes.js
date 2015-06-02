@@ -15,7 +15,32 @@ var routes = [
             validate: {
                 query: {
                     email: Joi.string().optional(),
-                    loginType:  Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional()
+                    loginType:  Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional(),
+
+                }
+            },
+            description: 'Get a list of all registered users.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/users/scores",
+        handler: function(req,reply) {
+            var fromDate = req.query.fromDate
+            var toDate = req.query.toDate
+            var q = req.query.q
+            var loginType = req.query.loginType
+            reply.co(UsersHandler.getWithScores(fromDate, toDate, q, loginType))
+        },
+        config: {
+            validate: {
+                query: {
+                    fromDate: Joi.date().required(),
+                    toDate: Joi.date().required(),
+                    q: Joi.string().optional(),
+                    loginType:  Joi.array().items(Joi.string()).valid(["fake", "real"]).optional(),
+
                 }
             },
             description: 'Get a list of all registered users.',
