@@ -43,7 +43,7 @@ var routes = [
 
                 }
             },
-            description: 'Get a list of all registered users.',
+            description: 'Get a list of users with their scores.',
             tags: ['api']
         }
     },

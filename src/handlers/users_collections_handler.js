@@ -31,7 +31,7 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
             collection.usersDetails.push(yield UserScoreUtils.getUserDetails(userId, fromDate, toDate))
         }
     }
-    return  collection.save()
+    return yield collection.save()
 }
 
 function isUserAlreadyAdded(userDetails, userId) {
@@ -53,6 +53,34 @@ function* get(collectionId, userId) {
     return collection
 }
 
+function* getCollections(page, pageSize) {
+    return yield findPagedCollections({}, page, pageSize)
+}
+
+function* findPagedCollections(where, page, pageSize) {
+    var query = UsersCollection.find(where).deepPopulate('usersDetails.user').populate("createdBy").populate("usersDetails")
+
+    query.sort({createdAt: 'desc' })
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
+
+    var collections = yield query.exec()
+    var allCollectionsCount = yield UsersCollection.count(where).exec()
+
+    var response = {
+        collections: collections,
+        totalCount: allCollectionsCount,
+        page: page
+    }
+
+    if(page != 0 && pageSize != 0 && allCollectionsCount > 0) {
+        response.totalPages = Math.ceil(allCollectionsCount / pageSize)
+    }
+    return response
+}
+
 module.exports.create = create
 module.exports.addUsers = addUsers
 module.exports.get = get
+module.exports.getCollections = getCollections

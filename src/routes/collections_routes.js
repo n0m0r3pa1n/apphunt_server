@@ -126,6 +126,25 @@ var collectionsRoutes = [
         }
     },
     {
+        method: "GET",
+        path: "/user-collections",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(UsersCollectionsHandler.getCollections(page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional()
+                }
+            },
+            description: 'Get all users collections.',
+            tags: ['api']
+        }
+    },
+    {
         method: "POST",
         path: "/user-collections",
         handler: function(req,reply) {
