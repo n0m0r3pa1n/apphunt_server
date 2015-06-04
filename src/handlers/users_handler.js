@@ -7,7 +7,7 @@ var CONFIG = require('../config/config')
 var User = require('../models').User
 var Device = require('../models').Device
 var STATUS_CODES = require('../config/config').STATUS_CODES
-var UserScoreUtils = require('../utils/user_score_utils')
+var UserScoreHandler = require('./user_score_handler')
 
 
 function* get(email, loginType) {
@@ -96,53 +96,6 @@ function isUserDeviceExisting(devices, notificationId) {
     return isDeviceIdExisting;
 }
 
-function* getWithScores(fromDate, toDate, query, loginType, page, pageSize) {
-    var where = {};
-
-    if(query !== undefined) {
-        where.username = {$regex: query, $options: 'i'};
-    }
-
-    if(loginType !== undefined && loginType == 'real') {
-        where.loginType = { "$ne": 'fake'}
-    } else if(loginType !== undefined) {
-        where.loginType = loginType
-    }
-
-    var query = User.find(where)
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
-
-    var resultUsers = []
-    var users = yield query.exec()
-    for(var i=0; i<users.length; i++) {
-        var user = users[i].toObject()
-        var userDetails = yield UserScoreUtils.getUserDetails(user._id, fromDate, toDate)
-        user.score = userDetails.score
-        resultUsers.push(user);
-    }
-
-    resultUsers.sort(function(user1, user2) {
-        return user2.score - user1.score
-    })
-
-    var allUsersCount = yield User.count(where).exec()
-
-    var response = {
-        users: resultUsers,
-        totalCount: allUsersCount,
-        page: page
-    }
-    if(page != 0 && pageSize != 0 && allUsersCount > 0) {
-        response.totalPages = Math.ceil(allUsersCount / pageSize)
-    }
-
-    return resultUsers
-
-}
-
 module.exports.create = create
 module.exports.get = get
 module.exports.update = update
-module.exports.getWithScores = getWithScores

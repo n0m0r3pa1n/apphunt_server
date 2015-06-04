@@ -101,50 +101,23 @@ describe("Users", function() {
 		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
 		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
 		var appId = (yield dbHelper.createApp(user1Id)).result.id
-		yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")
-		yield dbHelper.createComment(appId, user2Id)
+		var app2Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")).result.id
+		//yield dbHelper.createComment(appId, user2Id)
+		//yield dbHelper.createComment(appId, user1Id)
+
+		yield dbHelper.voteApp(app2Id, user1Id)
+
+		var fromDate = "2015-05-01"
 
 		var today = new Date()
 
 		var opts = {
 			method: 'GET',
-			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today
+			url: '/v1/users/scores?fromDate=' + fromDate + "&toDate=" + today
 		}
 
 		var response = yield Server.injectThen(opts)
 		response.result.length.should.equal(2)
-		response.result[0]._id.toString().should.equal(user2Id)
-	});
-
-	it("should get fake users with score", function*() {
-		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
-		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
-
-		var today = new Date()
-
-		var opts = {
-			method: 'GET',
-			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today + "&loginType=fake"
-		}
-
-		var response = yield Server.injectThen(opts)
-		response.result.length.should.equal(1)
-		response.result[0]._id.toString().should.equal(user2Id)
-	});
-
-	it("should get real users with score", function*() {
-		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
-		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
-
-		var today = new Date()
-
-		var opts = {
-			method: 'GET',
-			url: '/v1/users/scores?fromDate=' + today + "&toDate=" + today + "&loginType=real"
-		}
-
-		var response = yield Server.injectThen(opts)
-		response.result.length.should.equal(1)
 		response.result[0]._id.toString().should.equal(user1Id)
 	});
 })

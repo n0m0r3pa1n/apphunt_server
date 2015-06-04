@@ -6,7 +6,7 @@ var App = models.App
 var Vote = models.Vote
 var Comment = models.Comment
 
-var UserScoreUtils = require('../utils/user_score_utils')
+var UserScoreHandler = require('./user_score_handler')
 
 var VotesHandler = require('./votes_handler')
 var STATUS_CODES = require('../config/config').STATUS_CODES
@@ -28,7 +28,7 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
     for(var i=0; i<usersIds.length; i++) {
         var userId = usersIds[i];
         if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
-            collection.usersDetails.push(yield UserScoreUtils.getUserDetails(userId, fromDate, toDate))
+            collection.usersDetails.push(yield UserScoreHandler.getUserDetails(userId, fromDate, toDate))
         }
     }
     return yield collection.save()
@@ -80,7 +80,27 @@ function* findPagedCollections(where, page, pageSize) {
     return response
 }
 
+function* search(q, page, pageSize) {
+    var where = {name: {$regex: q, $options: 'i'}}
+    var response = yield findPagedCollections(where, page, pageSize)
+    var collections = []
+    for(var i=0; i<response.collections.length; i++) {
+        collections[i] = orderUsersInCollection(response.collections[i])
+    }
+    response.collections = collections
+    return response
+}
+
+function orderUsersInCollection(collection) {
+    collection = collection.toObject()
+    collection.usersDetails.sort(function(u1, u2) {
+        return u2.score - u1.score
+    })
+    return collection
+}
+
 module.exports.create = create
 module.exports.addUsers = addUsers
 module.exports.get = get
 module.exports.getCollections = getCollections
+module.exports.search = search
