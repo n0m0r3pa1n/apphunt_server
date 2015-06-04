@@ -96,7 +96,7 @@ function isUserDeviceExisting(devices, notificationId) {
     return isDeviceIdExisting;
 }
 
-function* getWithScores(fromDate, toDate, query, loginType) {
+function* getWithScores(fromDate, toDate, query, loginType, page, pageSize) {
     var where = {};
 
     if(query !== undefined) {
@@ -109,20 +109,36 @@ function* getWithScores(fromDate, toDate, query, loginType) {
         where.loginType = loginType
     }
 
-    var result = []
-    var users = yield User.find(where).exec()
+    var query = User.find(where)
+    if(page != 0  && pageSize != 0) {
+        query = query.limit(pageSize).skip((page - 1) * pageSize)
+    }
+
+    var resultUsers = []
+    var users = yield query.exec()
     for(var i=0; i<users.length; i++) {
         var user = users[i].toObject()
         var userDetails = yield UserScoreUtils.getUserDetails(user._id, fromDate, toDate)
         user.score = userDetails.score
-        result.push(user);
+        resultUsers.push(user);
     }
 
-    result.sort(function(user1, user2) {
+    resultUsers.sort(function(user1, user2) {
         return user2.score - user1.score
     })
 
-    return result
+    var allUsersCount = yield User.count(where).exec()
+
+    var response = {
+        users: resultUsers,
+        totalCount: allUsersCount,
+        page: page
+    }
+    if(page != 0 && pageSize != 0 && allUsersCount > 0) {
+        response.totalPages = Math.ceil(allUsersCount / pageSize)
+    }
+
+    return resultUsers
 
 }
 
