@@ -96,13 +96,6 @@ function isUserDeviceExisting(devices, notificationId) {
     return isDeviceIdExisting;
 }
 
-function* getWithScores(fromDate, toDate) {
-    var resultUsers = yield UserScoreHandler.getUsersScore(fromDate, toDate)
-    return resultUsers
-
-}
-
 module.exports.create = create
 module.exports.get = get
 module.exports.update = update
-module.exports.getWithScores = getWithScores

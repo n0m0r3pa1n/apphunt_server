@@ -52,6 +52,8 @@ function* getUsersScore(fromDate, toDate) {
     })
     var commentsUserIds = _.keys(commentsResults)
 
+
+
     var votes = yield Vote.find(whereDatesRange).exec()
     var votesResults = _.countBy(votes, function(vote) {
         return vote.user
@@ -72,9 +74,15 @@ function* getUsersScore(fromDate, toDate) {
         var user = yield User.findById(userId).exec()
         user = user.toObject()
         user.score = 0
-        user.score += commentsResults[userId] * Points.comment
-        user.score += votesResults[userId] * Points.vote
-        user.score += appsResults[userId] * Points.app
+        if(_.has(commentsResults, userId)) {
+            user.score += commentsResults[userId] * Points.comment
+        }
+        if(_.has(votesResults, userId)) {
+            user.score += votesResults[userId] * Points.vote
+        }
+        if(_.has(appsResults, userId)) {
+            user.score += appsResults[userId] * Points.app
+        }
         results.push(user)
     }
 
