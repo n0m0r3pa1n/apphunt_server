@@ -6,7 +6,7 @@ var App = models.App
 var Vote = models.Vote
 var Comment = models.Comment
 
-var UserScoreUtils = require('../utils/user_score_utils')
+var UserScoreHandler = require('./user_score_handler')
 
 var VotesHandler = require('./votes_handler')
 var STATUS_CODES = require('../config/config').STATUS_CODES
@@ -28,7 +28,7 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
     for(var i=0; i<usersIds.length; i++) {
         var userId = usersIds[i];
         if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
-            collection.usersDetails.push(yield UserScoreUtils.getUserDetails(userId, fromDate, toDate))
+            collection.usersDetails.push(yield UserScoreHandler.getUserDetails(userId, fromDate, toDate))
         }
     }
     return yield collection.save()
