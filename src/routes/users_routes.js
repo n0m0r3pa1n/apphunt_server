@@ -68,6 +68,7 @@ var routes = [
                     notificationId: Joi.string().optional(),
                     loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
                     locale: Joi.string().optional(),
+                    coverPicture: Joi.string().optional(),
                     appVersion: Joi.string().optional(),
                     following: Joi.array().items(Joi.string()).optional()
                 }

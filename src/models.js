@@ -35,6 +35,7 @@ var userSchema = new Schema(
         username: String,
         email: {type: String, index:true, unique: true},
         profilePicture: String,
+        coverPicture: String,
         loginType: {type: String, enum: _.values(loginTypes), default: loginTypes.Facebook},
         locale: String,
         appVersion: String,
