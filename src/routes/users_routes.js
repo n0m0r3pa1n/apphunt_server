@@ -1,4 +1,5 @@
 var UsersHandler = require('../handlers/users_handler')
+var UserScoreHandler = require('../handlers/user_score_handler')
 var User = require('../models').User
 var loginTypes = require('../config/config').LOGIN_TYPES
 var _ = require("underscore")
@@ -29,7 +30,7 @@ var routes = [
         handler: function(req,reply) {
             var fromDate = req.query.fromDate
             var toDate = req.query.toDate
-            reply.co(UsersHandler.getWithScores(fromDate, toDate))
+            reply.co(UserScoreHandler.getUsersScore(fromDate, toDate))
         },
         config: {
             validate: {

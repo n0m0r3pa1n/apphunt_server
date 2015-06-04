@@ -102,8 +102,8 @@ describe("Users", function() {
 		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
 		var appId = (yield dbHelper.createApp(user1Id)).result.id
 		var app2Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")).result.id
-		yield dbHelper.createComment(appId, user2Id)
-		yield dbHelper.createComment(appId, user1Id)
+		//yield dbHelper.createComment(appId, user2Id)
+		//yield dbHelper.createComment(appId, user1Id)
 
 		yield dbHelper.voteApp(app2Id, user1Id)
 
