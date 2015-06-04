@@ -205,6 +205,27 @@ var collectionsRoutes = [
             description: 'Get users collection',
             tags: ['api']
         }
+    },
+    {
+        method: "GET",
+        path: "/user-collections/search",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            var q = req.query.q;
+            reply.co(UsersCollectionsHandler.search(q, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    q: Joi.string().required(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional()
+                }
+            },
+            description: 'Search app collection by name. UserId is optional if you want to know if the user has voted for each app.',
+            tags: ['api']
+        }
     }
 ]
 

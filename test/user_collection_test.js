@@ -134,5 +134,37 @@ describe("Collections", function() {
         response.result.totalCount.should.equal(2)
     });
 
+    it("should search for collections", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "packpack")).result.id
 
+        var collectionResponse = yield dbHelper.createUsersCollection(userId)
+        var collectionId = collectionResponse.result.id
+
+        var today = new Date()
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collectionId,
+            payload: {
+                users: [userId, user2Id],
+                fromDate: today,
+                toDate: today
+            }
+        }
+        var addUsersResponse = yield Server.injectThen(opts)
+
+        var opts = {
+            method: 'GET',
+            url: '/user-collections/search?q=Top'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(1)
+        var usersDetails = response.result.collections[0].usersDetails
+        usersDetails[0].user._id.toString().should.equal(userId.toString())
+        usersDetails[1].user._id.toString().should.equal(user2Id.toString())
+
+    });
 })
