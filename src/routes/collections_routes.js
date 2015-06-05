@@ -242,6 +242,23 @@ var collectionsRoutes = [
             description: 'Get collections in which the user does not exist.',
             tags: ['api']
         }
+    },
+    {
+        method: "DELETE",
+        path: "/user-collections/users",
+        handler: function(req,reply) {
+            reply.co(UsersCollectionsHandler.removeUser(req.query.collectionId, req.query.userDetailsId))
+        },
+        config: {
+            validate: {
+                query: {
+                    collectionId: Joi.string().required(),
+                    userDetailsId: Joi.string().required()
+                }
+            },
+            description: 'Remove app from a collection',
+            tags: ['api']
+        }
     }
 ]
 

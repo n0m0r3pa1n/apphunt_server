@@ -4,7 +4,7 @@ require('./spec_helper')
 var AppsCollection = require("../src/models").AppsCollection
 var STATUS_CODES = require('../src/config/config').STATUS_CODES
 
-describe("Collections", function() {
+describe("App Collections", function() {
 
     it("should create apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id

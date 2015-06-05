@@ -105,9 +105,23 @@ function orderUsersInCollection(collection) {
     return collection
 }
 
+function* removeUser(collectionId, userDetailsId) {
+    var collection = yield UsersCollection.findById(collectionId).exec()
+    for(var i=0; i< collection.usersDetails.length; i++) {
+        var currUserDetailsId = collection.usersDetails[i]._id.toString()
+        if(currUserDetailsId == userDetailsId) {
+            collection.usersDetails.splice(i, 1);
+        }
+    }
+
+    yield collection.save()
+    return {statusCode: STATUS_CODES.OK}
+}
+
 module.exports.create = create
 module.exports.addUsers = addUsers
 module.exports.get = get
 module.exports.getCollections = getCollections
 module.exports.search = search
 module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser
+module.exports.removeUser = removeUser

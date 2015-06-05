@@ -4,7 +4,7 @@ require('./spec_helper')
 var AppsCollection = require("../src/models").AppsCollection
 var STATUS_CODES = require('../src/config/config').STATUS_CODES
 
-describe("Collections", function() {
+describe("User Collections", function() {
 
     it("should create users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
@@ -116,7 +116,7 @@ describe("Collections", function() {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.id.should.equal(collectionId)
+        response.result._id.toString().should.equal(collectionId)
     });
 
     it("should get all user collections", function*() {
@@ -206,5 +206,39 @@ describe("Collections", function() {
         usersDetails[0].user._id.toString().should.equal(userId.toString())
         usersDetails[1].user._id.toString().should.equal(user2Id.toString())
 
+    });
+
+    it("should remove user from users collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+
+        var collectionResponse = yield dbHelper.createUsersCollection(userId)
+        var collectionId = collectionResponse.result.id
+
+        var today = new Date()
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collectionId,
+            payload: {
+                users: [userId, user2Id],
+                fromDate: today,
+                toDate: today
+            }
+        }
+
+        var collectionResponse2 = yield Server.injectThen(opts)
+        opts = {
+            method: 'DELETE',
+            url: '/user-collections/users?collectionId=' + collectionId + "&userDetailsId=" + collectionResponse2.result.usersDetails[0]._id
+        }
+
+        var response = yield Server.injectThen(opts)
+        opts = {
+            method: 'GET',
+            url: '/user-collections/' + collectionId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.usersDetails.length.should.equal(1)
     });
 })
