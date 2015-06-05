@@ -118,6 +118,13 @@ function* removeUser(collectionId, userDetailsId) {
     return {statusCode: STATUS_CODES.OK}
 }
 
+function* remove(collectionId) {
+    yield UsersCollection.remove({_id: collectionId}).exec()
+    return {
+        statusCode: STATUS_CODES.OK
+    }
+}
+
 module.exports.create = create
 module.exports.addUsers = addUsers
 module.exports.get = get
@@ -125,3 +132,4 @@ module.exports.getCollections = getCollections
 module.exports.search = search
 module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser
 module.exports.removeUser = removeUser
+module.exports.remove = remove

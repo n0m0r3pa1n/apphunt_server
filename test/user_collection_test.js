@@ -241,4 +241,24 @@ describe("User Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.usersDetails.length.should.equal(1)
     });
+
+    it("should remove collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+        yield dbHelper.createUsersCollection(userId)
+        var opts = {
+            method: 'DELETE',
+            url: '/user-collections?collectionId=' + collectionId
+        }
+
+        yield Server.injectThen(opts)
+
+        var opts = {
+            method: 'GET',
+            url: '/user-collections'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(1)
+    })
 })

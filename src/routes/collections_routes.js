@@ -256,10 +256,27 @@ var collectionsRoutes = [
                     userDetailsId: Joi.string().required()
                 }
             },
-            description: 'Remove app from a collection',
+            description: 'Remove user from a collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "DELETE",
+        path: "/user-collections",
+        handler: function(req,reply) {
+            reply.co(UsersCollectionsHandler.remove(req.query.collectionId))
+        },
+        config: {
+            validate: {
+                query: {
+                    collectionId: Joi.string().required(),
+                }
+            },
+            description: 'Remove users collection',
             tags: ['api']
         }
     }
+
 ]
 
 module.exports.collectionsRoutes = collectionsRoutes
