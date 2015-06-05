@@ -46,7 +46,7 @@ function isUserAlreadyAdded(userDetails, userId) {
 
 
 function* get(collectionId, userId) {
-    var collection = yield UsersCollection.findById(collectionId).populate("createdBy").populate("users").exec()
+    var collection = yield UsersCollection.findById(collectionId).populate("createdBy").deepPopulate("usersDetails.user").exec()
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
@@ -54,7 +54,6 @@ function* get(collectionId, userId) {
 }
 
 function* getAvailableCollectionsForUser(userId) {
-    //console.log(yield UsersCollection.find().exec())
     var availableCollections = yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec()
     return availableCollections;
 }
