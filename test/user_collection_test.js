@@ -119,7 +119,7 @@ describe("Collections", function() {
         response.result.id.should.equal(collectionId)
     });
 
-    it("should get all user collection", function*() {
+    it("should get all user collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         yield dbHelper.createUsersCollection(userId)
         yield dbHelper.createUsersCollection(userId)
@@ -132,6 +132,46 @@ describe("Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.equal(2)
         response.result.totalCount.should.equal(2)
+    });
+
+    it("should get all available collections for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+        var collection2Id = (yield dbHelper.createUsersCollection(userId)).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("asas.saa")).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collectionId,
+            payload: {
+                users: [userId],
+                fromDate: new Date(),
+                toDate: new Date()
+            }
+        }
+
+        yield Server.injectThen(opts)
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + collection2Id,
+            payload: {
+                users: [user2Id],
+                fromDate: new Date(),
+                toDate: new Date()
+            }
+        }
+
+        yield Server.injectThen(opts)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/user-collections/available?userId=' + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.length.should.equal(1)
     });
 
     it("should search for collections", function*() {

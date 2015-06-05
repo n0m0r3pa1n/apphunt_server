@@ -223,7 +223,23 @@ var collectionsRoutes = [
                     pageSize: Joi.number().integer().min(1).optional()
                 }
             },
-            description: 'Search app collection by name. UserId is optional if you want to know if the user has voted for each app.',
+            description: 'Search user collection by name.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/user-collections/available",
+        handler: function(req,reply) {
+            reply.co(UsersCollectionsHandler.getAvailableCollectionsForUser(req.query.userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required()
+                }
+            },
+            description: 'Get collections in which the user does not exist.',
             tags: ['api']
         }
     }
