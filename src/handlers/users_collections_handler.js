@@ -50,6 +50,7 @@ function* get(collectionId, userId) {
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
+    collection = orderUsersInCollection(collection)
     return collection
 }
 
