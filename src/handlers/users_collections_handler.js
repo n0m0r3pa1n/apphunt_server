@@ -53,6 +53,12 @@ function* get(collectionId, userId) {
     return collection
 }
 
+function* getAvailableCollectionsForUser(userId) {
+    //console.log(yield UsersCollection.find().exec())
+    var availableCollections = yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec()
+    return availableCollections;
+}
+
 function* getCollections(page, pageSize) {
     return yield findPagedCollections({}, page, pageSize)
 }
@@ -104,3 +110,4 @@ module.exports.addUsers = addUsers
 module.exports.get = get
 module.exports.getCollections = getCollections
 module.exports.search = search
+module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser

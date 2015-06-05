@@ -32,7 +32,7 @@
     "simple-mock": "latest"
   },
   "scripts": {
-    "start": "node --harmony .",
+    "start": "nodemon --harmony .",
     "test": "node_modules/mocha/bin/mocha --harmony -w"
   },
   "engines": {
