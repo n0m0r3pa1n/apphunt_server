@@ -103,9 +103,15 @@ function* removeApp(collectionId, appId) {
     return {statusCode: STATUS_CODES.OK}
 }
 
+function* removeCollection(collectionId) {
+    var collection = yield AppsCollection.remove({_id: collectionId}).exec()
+    return {statusCode: STATUS_CODES.OK}
+}
+
 module.exports.create = create
 module.exports.addApps = addApps
 module.exports.getCollections = getCollections
 module.exports.get = get
 module.exports.search = search
 module.exports.removeApp = removeApp
+module.exports.removeCollection = removeCollection

@@ -110,6 +110,22 @@ var collectionsRoutes = [
     },
     {
         method: "DELETE",
+        path: "/app-collections",
+        handler: function(req,reply) {
+            reply.co(AppsCollectionsHandler.removeCollection(req.query.collectionId))
+        },
+        config: {
+            validate: {
+                query: {
+                    collectionId: Joi.string().required()
+                }
+            },
+            description: 'Remove app collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "DELETE",
         path: "/app-collections/apps",
         handler: function(req,reply) {
             reply.co(AppsCollectionsHandler.removeApp(req.query.collectionId, req.query.appId))

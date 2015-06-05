@@ -238,4 +238,34 @@ describe("App Collections", function() {
         apps[0]._id.toString().should.equal(appId)
     });
 
+    it("should remove app collection", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "tctctc")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId, app2Id]
+            }
+        }
+        yield Server.injectThen(opts)
+
+
+        var opts = {
+            method: 'DELETE',
+            url: '/app-collections?collectionId=' + collectionId
+        }
+        var response = yield Server.injectThen(opts)
+        var opts = {
+            method: 'GET',
+            url: '/app-collections?page=1&pageSize=1'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(0)
+    })
+
 })
