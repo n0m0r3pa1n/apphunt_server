@@ -1,5 +1,6 @@
 var Joi = require('joi')
 var UsersStatsHandler = require('../handlers/stats/users_stats_handler')
+var periodSchema = require('../schemas/stats_period_schema').periodSchema
 var userStatsRoutes = [
     {
         method: "GET",
@@ -16,6 +17,51 @@ var userStatsRoutes = [
                     page: Joi.number().optional(),
                     pageSize: Joi.number().optional()
                 }
+            },
+            description: 'Get a list of all registered users.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/stats/users/comments",
+        handler: function(req,reply) {
+            var model = req.query
+            reply.co(UsersStatsHandler.getUserCommentsCount(model.fromDate, model.toDate))
+        },
+        config: {
+            validate: {
+                query: periodSchema
+            },
+            description: 'Get a list of all registered users.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/stats/users/login",
+        handler: function(req,reply) {
+            var model = req.query
+            reply.co(UsersStatsHandler.getLoggedInUsersCount(model.fromDate, model.toDate))
+        },
+        config: {
+            validate: {
+                query: periodSchema
+            },
+            description: 'Get a list of all registered users.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/stats/users/app/votes",
+        handler: function(req,reply) {
+            var model = req.query
+            reply.co(UsersStatsHandler.getLoggedInUsersCount(model.fromDate, model.toDate))
+        },
+        config: {
+            validate: {
+                query: periodSchema
             },
             description: 'Get a list of all registered users.',
             tags: ['api']

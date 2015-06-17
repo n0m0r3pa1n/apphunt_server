@@ -1,10 +1,11 @@
 var STATUS_CODES = require('../config/config').STATUS_CODES
 
 var Mongoose = require('mongoose')
-var Vote = require('../models').Vote
-var App = require('../models').App
-var Comment = require('../models').Comment
-var User = require('../models').User
+var Models = require('../models')
+var Vote = Models.Vote
+var App = Models.App
+var Comment = Models.Comment
+var User = Models.User
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
