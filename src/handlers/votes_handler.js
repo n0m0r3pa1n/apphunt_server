@@ -5,6 +5,7 @@ var Vote = require('../models').Vote
 var App = require('../models').App
 var Comment = require('../models').Comment
 var User = require('../models').User
+var AppsCollection = require('../models').AppsCollection
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
@@ -181,6 +182,29 @@ function* clearAppVotes(voteIds) {
     }
 }
 
+function* createAppCollectionVote(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).exec()
+    if(!collection) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
+    }
+
+    var user = yield User.findById(userId).exec()
+    var vote = new Vote()
+    vote.user = user
+
+    vote = yield vote.save()
+    collection.votes.push(vote)
+    collection.votesCount = collection.votes.length
+
+    yield collection.save()
+
+    return {
+        votesCount: collection.votesCount
+    }
+
+}
+
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
 module.exports.hasUserVotedForApp = hasUserVotedForApp
@@ -191,5 +215,7 @@ module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
 module.exports.clearAppVotes = clearAppVotes
+
+module.exports.createAppCollectionVote = createAppCollectionVote
 
 module.exports.hasUserVotedForAppsCollection = hasUserVotedForAppsCollection

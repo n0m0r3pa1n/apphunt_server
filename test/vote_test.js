@@ -89,4 +89,18 @@ describe("Votes", function() {
         response.result.apps[0].votesCount.should.equal(1)
         expect(response.result.apps[0].votes).to.not.exist()
     });
+
+    it("should vote apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var opts = {
+            method: 'POST',
+            url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + user2Id
+        }
+
+        var response =  yield Server.injectThen(opts);
+        response.result.votesCount.should.eq(1)
+
+    });
 })

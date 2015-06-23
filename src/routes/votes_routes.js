@@ -69,7 +69,24 @@ var routes = [
             description: 'Downvote for a comment',
             tags: ['api']
         }
-    }
+    },
+    {
+        method: "POST",
+        path: "/app-collections/votes",
+        handler: function(req,reply) {
+            reply.co(VotesHandler.createAppCollectionVote(req.query.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required(),
+                    collectionId: Joi.string().required()
+                }
+            },
+            description: 'Vote for a app collection',
+            tags: ['api']
+        }
+    },
 ]
 
 module.exports.voteRoutes = routes
