@@ -175,6 +175,15 @@ function voteApp(appId, userId) {
     return Server.injectThen(opts);
 }
 
+function voteAppsCollection(collectionId, userId) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + userId
+    }
+
+    return Server.injectThen(opts);
+}
+
 function createAppsCollection(userId) {
     var opts = {
         method: 'POST',
@@ -218,6 +227,7 @@ module.exports.createComment = createComment
 module.exports.createCommentWithText = createCommentWithText
 module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
+module.exports.voteAppsCollection = voteAppsCollection
 module.exports.createAppsCollection = createAppsCollection
 module.exports.createUsersCollection = createUsersCollection
 module.exports.EMAIL = email

@@ -64,15 +64,16 @@ function* get(collectionId, userId) {
     return collection
 }
 
-function* getCollections(status, page, pageSize) {
+function* getCollections(status, sortBy, page, pageSize) {
     var where = status === undefined ? {} : {status: status}
-    return yield findPagedCollections(where, page, pageSize)
+    var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
+    return yield findPagedCollections(where, sort, page, pageSize)
 }
 
 
 function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
-    var response = yield findPagedCollections(where, page, pageSize)
+    var response = yield findPagedCollections(where, {}, page, pageSize)
     var collections = []
     for(var i=0; i<response.collections.length; i++) {
         collections[i] = orderAppsInCollection(response.collections[i])
@@ -90,12 +91,12 @@ function orderAppsInCollection(collection) {
     return collection
 }
 
-function* findPagedCollections(where, page, pageSize) {
+function* findPagedCollections(where, sort, page, pageSize) {
     var query = AppsCollection.find(where)
         .deepPopulate('votes.user apps.createdBy')
         .populate("createdBy")
         .populate("apps")
-    query.sort({createdAt: 'desc' })
+    query.sort(sort)
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)

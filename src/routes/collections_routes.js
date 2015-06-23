@@ -12,14 +12,15 @@ var collectionsRoutes = [
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            reply.co(AppsCollectionsHandler.getCollections(req.query.status, page, pageSize))
+            reply.co(AppsCollectionsHandler.getCollections(req.query.status, req.query.sortBy, page, pageSize))
         },
         config: {
             validate: {
                 query: {
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
-                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional()
+                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional(),
+                    sortBy: Joi.string().optional()
                 }
             },
             description: 'Get all apps collections.',

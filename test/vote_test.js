@@ -94,12 +94,8 @@ describe("Votes", function() {
         var userId = (yield dbHelper.createUser()).result.id
         var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
-        var opts = {
-            method: 'POST',
-            url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + user2Id
-        }
 
-        var response =  yield Server.injectThen(opts);
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
         response.result.votesCount.should.eq(2)
 
     });

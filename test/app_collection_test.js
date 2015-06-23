@@ -4,6 +4,7 @@ require('./spec_helper')
 var AppsCollection = require("../src/models").AppsCollection
 var STATUS_CODES = require('../src/config/config').STATUS_CODES
 var COLLECTION_STATUSES = require('../src/config/config').COLLECTION_STATUSES
+var sleep = require("co-sleep")
 
 describe("App Collections", function() {
 
@@ -353,5 +354,29 @@ describe("App Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.equal(1)
+    });
+
+    it("should get apps collection sorted", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("asdasdasdasdasd")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        yield dbHelper.voteAppsCollection(collectionId, user2Id)
+        var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections?sortBy=date'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections[0]._id.toString().should.eq(collection2Id)
+
+        opts = {
+            method: 'GET',
+            url: '/app-collections?sortBy=vote'
+        }
+
+        response = yield Server.injectThen(opts)
+        response.result.collections[0]._id.toString().should.eq(collectionId)
     });
 })
