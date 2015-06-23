@@ -64,8 +64,9 @@ function* get(collectionId, userId) {
     return collection
 }
 
-function* getCollections(page, pageSize) {
-    return yield findPagedCollections({}, page, pageSize)
+function* getCollections(status, page, pageSize) {
+    var where = status === undefined ? {} : {status: status}
+    return yield findPagedCollections(where, page, pageSize)
 }
 
 

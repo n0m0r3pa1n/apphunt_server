@@ -342,4 +342,16 @@ describe("App Collections", function() {
         response.result.statusCode.should.eq(STATUS_CODES.OK)
     })
 
+    it("should get apps collection with status", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections?status=draft'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.equal(1)
+    });
 })

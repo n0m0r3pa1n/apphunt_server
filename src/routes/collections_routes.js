@@ -3,6 +3,7 @@ var AppsCollection = require("../models").AppsCollection
 var UsersCollection = require("../models").UsersCollection
 var AppsCollectionsHandler = require('../handlers/apps_collections_handler')
 var UsersCollectionsHandler = require('../handlers/users_collections_handler')
+var COLLECTION_STATUSES = require('../config/config').COLLECTION_STATUSES
 
 var collectionsRoutes = [
     {
@@ -11,13 +12,14 @@ var collectionsRoutes = [
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            reply.co(AppsCollectionsHandler.getCollections(page, pageSize))
+            reply.co(AppsCollectionsHandler.getCollections(req.query.status, page, pageSize))
         },
         config: {
             validate: {
                 query: {
                     page: Joi.number().integer().min(1).optional(),
-                    pageSize: Joi.number().integer().min(1).optional()
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional()
                 }
             },
             description: 'Get all apps collections.',
