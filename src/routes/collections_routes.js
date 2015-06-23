@@ -44,6 +44,25 @@ var collectionsRoutes = [
         }
     },
     {
+        method: "PUT",
+        path:"/app-collections/{collectionId}/actions/favourite",
+        handler: function(req, reply) {
+            reply.co(AppsCollectionsHandler.favourite(req.params.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    collectionId: Joi.string().required()
+                },
+                query: {
+                    userId: Joi.string().optional()
+                }
+            },
+            description: 'Get apps collection',
+            tags: ['api']
+        }
+    },
+    {
         method: "GET",
         path: "/app-collections/search",
         handler: function(req,reply) {

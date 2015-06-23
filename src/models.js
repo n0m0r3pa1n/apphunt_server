@@ -125,6 +125,7 @@ var appsCollectionSchema = new Schema(_.extend({}, baseCollection,
 
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
+        favouritedBy: [{type: Schema.Types.ObjectId, ref: 'User'}],
         votesCount: {type: Number, default: 0}
     })
 )

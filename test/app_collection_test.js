@@ -268,4 +268,25 @@ describe("App Collections", function() {
         response.result.collections.length.should.equal(0)
     })
 
+    it("should favourite app collection", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId + "/actions/favourite?userId=" + userId
+        }
+        var favouriteResponse = yield Server.injectThen(opts)
+        favouriteResponse.result.statusCode.should.equal(STATUS_CODES.OK)
+
+        opts = {
+            method: 'GET',
+            url: '/app-collections/' + collectionId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.favouritedBy.length.should.eq(1)
+    })
+
 })

@@ -4,6 +4,7 @@ var AppsCollection = models.AppsCollection
 var User = models.User
 
 var VotesHandler = require('./votes_handler')
+var UserHandler = require('./users_handler')
 var STATUS_CODES = require('../config/config').STATUS_CODES
 
 function* create(appsCollection, userId) {
@@ -23,6 +24,18 @@ function* addApps(collectionId, apps) {
 
 function objToString(obj) {
     return obj.toString()
+}
+
+function* favourite(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).exec()
+    if(!collection) {
+        return {statusCode: STATUS_CODES.NOT_FOUND}
+    }
+    console.log("Favourite by: ", collection.favouritedBy)
+    collection.favouritedBy.push(userId);
+    yield collection.save()
+
+    return {statusCode: STATUS_CODES.OK}
 }
 
 function* get(collectionId, userId) {
@@ -67,7 +80,10 @@ function orderAppsInCollection(collection) {
 }
 
 function* findPagedCollections(where, page, pageSize) {
-    var query = AppsCollection.find(where).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps")
+    var query = AppsCollection.find(where)
+        .deepPopulate('votes.user apps.createdBy')
+        .populate("createdBy")
+        .populate("apps")
     query.sort({createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
@@ -112,6 +128,7 @@ module.exports.create = create
 module.exports.addApps = addApps
 module.exports.getCollections = getCollections
 module.exports.get = get
+module.exports.favourite = favourite
 module.exports.search = search
 module.exports.removeApp = removeApp
 module.exports.removeCollection = removeCollection
