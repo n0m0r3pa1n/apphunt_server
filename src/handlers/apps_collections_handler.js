@@ -125,6 +125,10 @@ function* removeApp(collectionId, appId) {
         }
     }
 
+    if(collection.apps.length < MIN_APPS_LENGTH_FOR_COLLECTION) {
+        collection.status = COLLECTION_STATUSES.DRAFT
+    }
+
     yield collection.save()
     return {statusCode: STATUS_CODES.OK}
 }

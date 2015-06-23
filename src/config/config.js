@@ -19,7 +19,7 @@ var appStatuses = {
 
 var collectionStatuses = {
     PUBLIC: "public",
-    PRIVATE: "private"
+    DRAFT: "draft"
 }
 
 var appStatusesFilter = {
@@ -74,6 +74,3 @@ module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH
 module.exports.APP_HUNT_EMAIL = APP_HUNT_EMAIL
 module.exports.APP_HUNT_TWITTER_HANDLE = APP_HUNT_TWITTER_HANDLE
 module.exports.MIN_APPS_LENGTH_FOR_COLLECTION = MIN_APPS_LENGTH_FOR_COLLECTION
-
-
-

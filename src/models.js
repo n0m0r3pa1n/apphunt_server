@@ -124,7 +124,7 @@ var baseCollection = {
 
 var appsCollectionSchema = new Schema(_.extend({}, baseCollection,
     {
-        status: {type: String, enum: _.values(collectionStatuses), default: collectionStatuses.PRIVATE},
+        status: {type: String, enum: _.values(collectionStatuses), default: collectionStatuses.DRAFT},
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
         favouritedBy: [{type: Schema.Types.ObjectId, ref: 'User'}],

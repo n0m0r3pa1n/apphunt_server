@@ -29,7 +29,6 @@ describe("App Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.apps.length.should.equal(1)
-
     });
 
     it("should add app in not empty collection", function*() {
@@ -315,6 +314,32 @@ describe("App Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.status.should.eq(COLLECTION_STATUSES.PUBLIC)
+    })
+
+    it("should make app collection private", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = (yield dbHelper.createAppWithPackage(userId, "com.omnomnom")).result.id
+        var appId2 = (yield dbHelper.createAppWithPackage(userId, "com.tyga")).result.id
+        var appId3 = (yield dbHelper.createAppWithPackage(userId, "com.shtastie")).result.id
+        var appId4 = (yield dbHelper.createAppWithPackage(userId, "com.sadpanda")).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId, appId2, appId3, appId4]
+            }
+        }
+        yield Server.injectThen(opts)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/app-collections/apps?collectionId=' + collectionId + '&appId=' + appId,
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.statusCode.should.eq(STATUS_CODES.OK)
     })
 
 })
