@@ -5,12 +5,18 @@ var User = models.User
 
 var VotesHandler = require('./votes_handler')
 var UserHandler = require('./users_handler')
-var STATUS_CODES = require('../config/config').STATUS_CODES
+var Config = require('../config/config')
+var STATUS_CODES = Config.STATUS_CODES
+var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
+var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 
 function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
-    return yield AppsCollection.create(appsCollection)
+    var collection =  yield AppsCollection.create(appsCollection)
+    yield VotesHandler.createAppCollectionVote(collection.id, userId)
+
+    return collection;
 }
 
 function* addApps(collectionId, apps) {
@@ -19,7 +25,12 @@ function* addApps(collectionId, apps) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
     collection.apps = _.union( _.map( collection.apps, objToString), _.map( apps, objToString))
-    return  collection.save()
+    if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
+        collection.status = COLLECTION_STATUSES.PUBLIC
+    }
+
+    yield collection.save()
+    return collection
 }
 
 function objToString(obj) {
@@ -31,7 +42,6 @@ function* favourite(collectionId, userId) {
     if(!collection) {
         return {statusCode: STATUS_CODES.NOT_FOUND}
     }
-    console.log("Favourite by: ", collection.favouritedBy)
     collection.favouritedBy.push(userId);
     yield collection.save()
 

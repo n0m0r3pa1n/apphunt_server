@@ -3,6 +3,7 @@ var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppsCollection = require("../src/models").AppsCollection
 var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var COLLECTION_STATUSES = require('../src/config/config').COLLECTION_STATUSES
 
 describe("App Collections", function() {
 
@@ -287,6 +288,33 @@ describe("App Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.favouritedBy.length.should.eq(1)
+    })
+
+    it("should make app collection public", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = (yield dbHelper.createAppWithPackage(userId, "com.omnomnom")).result.id
+        var appId2 = (yield dbHelper.createAppWithPackage(userId, "com.tyga")).result.id
+        var appId3 = (yield dbHelper.createAppWithPackage(userId, "com.shtastie")).result.id
+        var appId4 = (yield dbHelper.createAppWithPackage(userId, "com.sadpanda")).result.id
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId, appId2, appId3, appId4]
+            }
+        }
+        yield Server.injectThen(opts)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections/' + collectionId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.status.should.eq(COLLECTION_STATUSES.PUBLIC)
     })
 
 })

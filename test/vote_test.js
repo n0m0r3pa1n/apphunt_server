@@ -100,7 +100,7 @@ describe("Votes", function() {
         }
 
         var response =  yield Server.injectThen(opts);
-        response.result.votesCount.should.eq(1)
+        response.result.votesCount.should.eq(2)
 
     });
 })
