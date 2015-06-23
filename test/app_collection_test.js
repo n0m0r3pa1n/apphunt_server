@@ -392,4 +392,21 @@ describe("App Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.eq(2)
     });
+
+    it("should get apps collection for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(user2Id)
+
+
+        var opts = {
+            method: 'GET',
+            url: "/app-collections/mine?userId=" + userId,
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.eq(2)
+    });
 })

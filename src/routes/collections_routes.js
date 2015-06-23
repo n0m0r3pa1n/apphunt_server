@@ -29,6 +29,26 @@ var collectionsRoutes = [
     },
     {
         method: "GET",
+        path: "/app-collections/mine",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsCollectionsHandler.getCollectionsForUser(req.query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().required()
+                }
+            },
+            description: 'Get all apps collections.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
         path:"/app-collections/{collectionId}",
         handler: function(req, reply) {
             reply.co(AppsCollectionsHandler.get(req.params.collectionId, req.query.userId))

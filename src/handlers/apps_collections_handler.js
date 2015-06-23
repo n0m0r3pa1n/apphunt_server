@@ -74,6 +74,10 @@ function* getFavouriteCollections(userId, page, pageSize) {
     return yield findPagedCollections({favouritedBy: userId}, {}, page, pageSize)
 }
 
+function* getCollectionsForUser(userId, page, pageSize) {
+    return yield findPagedCollections({createdBy: userId}, {}, page, pageSize)
+}
+
 function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield findPagedCollections(where, {}, page, pageSize)
@@ -152,3 +156,4 @@ module.exports.search = search
 module.exports.removeApp = removeApp
 module.exports.removeCollection = removeCollection
 module.exports.getFavouriteCollections = getFavouriteCollections
+module.exports.getCollectionsForUser = getCollectionsForUser
