@@ -273,12 +273,7 @@ describe("App Collections", function() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
-
-        var opts = {
-            method: 'PUT',
-            url: '/app-collections/' + collectionId + "/actions/favourite?userId=" + userId
-        }
-        var favouriteResponse = yield Server.injectThen(opts)
+        var favouriteResponse = yield dbHelper.favouriteCollection(collectionId, userId)
         favouriteResponse.result.statusCode.should.equal(STATUS_CODES.OK)
 
         opts = {
@@ -378,5 +373,23 @@ describe("App Collections", function() {
 
         response = yield Server.injectThen(opts)
         response.result.collections[0]._id.toString().should.eq(collectionId)
+    });
+
+    it("should get favourite apps collection for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        yield dbHelper.favouriteCollection(collectionId, userId)
+        yield dbHelper.favouriteCollection(collection2Id, userId)
+
+
+        var opts = {
+            method: 'GET',
+            url: "/app-collections/favourites?userId=" + userId,
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.eq(2)
     });
 })

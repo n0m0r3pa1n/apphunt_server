@@ -47,6 +47,26 @@ var collectionsRoutes = [
         }
     },
     {
+        method: "GET",
+        path: "/app-collections/favourites",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsCollectionsHandler.getFavouriteCollections(req.query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().required()
+                }
+            },
+            description: 'Get favourite apps for user.',
+            tags: ['api']
+        }
+    },
+    {
         method: "PUT",
         path:"/app-collections/{collectionId}/actions/favourite",
         handler: function(req, reply) {

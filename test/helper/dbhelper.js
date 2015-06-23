@@ -214,6 +214,15 @@ function createUsersCollection(userId) {
     return Server.injectThen(opts)
 }
 
+function favouriteCollection(collectionId, userId) {
+    var opts = {
+        method: 'PUT',
+        url: '/app-collections/' + collectionId + "/actions/favourite?userId=" + userId
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -230,6 +239,7 @@ module.exports.voteApp = voteApp
 module.exports.voteAppsCollection = voteAppsCollection
 module.exports.createAppsCollection = createAppsCollection
 module.exports.createUsersCollection = createUsersCollection
+module.exports.favouriteCollection = favouriteCollection
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2
