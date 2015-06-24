@@ -1,4 +1,5 @@
 var _ = require("underscore")
+var Boom = require("boom")
 var models = require("../models")
 var AppsCollection = models.AppsCollection
 var User = models.User
@@ -6,7 +7,6 @@ var User = models.User
 var VotesHandler = require('./votes_handler')
 var UserHandler = require('./users_handler')
 var Config = require('../config/config')
-var STATUS_CODES = Config.STATUS_CODES
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 
@@ -22,7 +22,7 @@ function* create(appsCollection, userId) {
 function* addApps(collectionId, apps) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Collection cannot be found!')
     }
     collection.apps = _.union( _.map( collection.apps, objToString), _.map( apps, objToString))
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
@@ -40,18 +40,18 @@ function objToString(obj) {
 function* favourite(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Collection cannot be found!')
     }
     collection.favouritedBy.push(userId);
     yield collection.save()
 
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK();
 }
 
 function* get(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Collection cannot be found!')
     }
 
     collection = orderAppsInCollection(collection)
@@ -139,12 +139,12 @@ function* removeApp(collectionId, appId) {
     }
 
     yield collection.save()
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK();
 }
 
 function* removeCollection(collectionId) {
     var collection = yield AppsCollection.remove({_id: collectionId}).exec()
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK();
 }
 
 module.exports.create = create

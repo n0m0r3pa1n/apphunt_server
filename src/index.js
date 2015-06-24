@@ -5,7 +5,7 @@ var Routes = require('./routes').routes
 var User = require('./models').User
 
 var STATUS_CODES = require('./config/config').STATUS_CODES
-var StringUtils = require('./utils/string_utils')
+var JSExtensions = require('./utils/js_extension_utils')
 
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 

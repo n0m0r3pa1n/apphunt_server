@@ -8,6 +8,7 @@
   "dependencies": {
     "badboy": "latest",
     "bolt-js": "latest",
+    "boom": "^2.8.0",
     "cartesian-product": "^2.1.2",
     "co": "^4.5.4",
     "deck": "0.0.4",

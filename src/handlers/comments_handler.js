@@ -1,8 +1,7 @@
 var _ = require("underscore")
-
+var Boom = require('boom')
 var CONFIG  = require('../config/config')
 var MESSAGES  = require('../config/messages')
-var STATUS_CODES = CONFIG.STATUS_CODES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var CONVERSATION_SYMBOL = '@'
 
@@ -17,7 +16,7 @@ var NotificationsHandler = require('./notifications_handler')
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+        return Boom.notFound("Non-existing app")
     }
 
     var user = yield User.findById(userId).exec()
@@ -26,7 +25,7 @@ function* create(comment, appId, userId, parentId) {
     if(parentId !== undefined) {
         parentComment = yield Comment.findById(parentId).exec()
         if(!parentComment) {
-            return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+            return Boom.notFound("Non-existing parent comment")
         }
     }
 
@@ -157,9 +156,7 @@ function* deleteComment(commentId) {
 
     yield Comment.remove({_id: commentId}).exec()
 
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
 function* clearAppComments(appId) {

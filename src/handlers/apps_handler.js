@@ -2,13 +2,12 @@ var DevsHunter = require('./utils/devs_hunter_handler')
 var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
+var Boom = require('boom')
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
 var MESSAGES = require('../config/messages')
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
-
-var STATUS_CODES = CONFIG.STATUS_CODES
 
 var PLATFORMS = CONFIG.PLATFORMS
 var BOLT_APP_ID = CONFIG.BOLT_APP_ID
@@ -41,7 +40,7 @@ function* create(app, userId) {
 
     var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
-        return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
+        return Boom.conflict('App already exists')
     }
 
     var parsedApp = {}
@@ -49,7 +48,7 @@ function* create(app, userId) {
         if(app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.getAndroidApp(app.package)
             if(parsedApp === null) {
-                return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+                return Boom.notFound("Non-existing app")
             }
 
             var d = parsedApp.developer
@@ -63,7 +62,7 @@ function* create(app, userId) {
     }
 
     if(parsedApp == null) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+        return Boom.notFound("Non-existing app")
     }
 
     var user = yield User.findOne({_id: userId}).exec()
@@ -115,7 +114,7 @@ function* getAppCategories(parsedApp) {
 function* update(app) {
     var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
     if(!existingApp) {
-        return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
+        return Boom.notFound("Non-existing app")
     }
     var isAppApproved = existingApp.status == APP_STATUSES.WAITING && app.status == APP_STATUSES.APPROVED;
 
@@ -151,15 +150,13 @@ function* deleteApp(package) {
 
     yield App.remove({package: package}).exec()
 
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(app == null) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing app")
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     if(status === APP_STATUSES.REJECTED) {
@@ -198,7 +195,7 @@ function* changeAppStatus(appPackage, status) {
     app.status = status;
     yield app.save()
 
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK()
 }
 
 function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
@@ -275,7 +272,7 @@ function* filterApps(packages, platform) {
 function* getApp(appId, userId) {
     var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
     if(!app) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App can not be found!')
     }
 
     if(userId !== undefined) {

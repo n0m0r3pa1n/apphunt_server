@@ -1,3 +1,4 @@
+var Boom = require("boom")
 String.format = function() {
     // The string containing the format items (e.g. "{0}")
     // will and always has to be the first argument.
@@ -12,4 +13,8 @@ String.format = function() {
     }
 
     return theString;
+}
+
+Boom.OK = function() {
+    return {statusCode: 200}
 }

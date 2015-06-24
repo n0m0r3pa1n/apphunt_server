@@ -1,4 +1,5 @@
 var _ = require("underscore")
+var Boom = require('boom')
 var models = require("../models")
 var UsersCollection = models.UsersCollection
 var User = models.User
@@ -7,10 +8,7 @@ var Vote = models.Vote
 var Comment = models.Comment
 
 var UserScoreHandler = require('./user_score_handler')
-
 var VotesHandler = require('./votes_handler')
-var STATUS_CODES = require('../config/config').STATUS_CODES
-
 
 function* create(usersCollection, userId) {
     var user = yield User.findById(userId).exec()
@@ -22,7 +20,7 @@ function* create(usersCollection, userId) {
 function* addUsers(collectionId, usersIds, fromDate, toDate) {
     var collection = yield UsersCollection.findById(collectionId).exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing collection")
     }
 
     for(var i=0; i<usersIds.length; i++) {
@@ -48,7 +46,7 @@ function isUserAlreadyAdded(userDetails, userId) {
 function* get(collectionId, userId) {
     var collection = yield UsersCollection.findById(collectionId).populate("createdBy").deepPopulate("usersDetails.user").exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing collection")
     }
     collection = orderUsersInCollection(collection)
     return collection
@@ -115,14 +113,12 @@ function* removeUser(collectionId, userDetailsId) {
     }
 
     yield collection.save()
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK()
 }
 
 function* remove(collectionId) {
     yield UsersCollection.remove({_id: collectionId}).exec()
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
 module.exports.create = create

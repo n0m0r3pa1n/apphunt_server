@@ -1,4 +1,4 @@
-var STATUS_CODES = require('../config/config').STATUS_CODES
+var Boom = require('boom')
 
 var Mongoose = require('mongoose')
 var Vote = require('../models').Vote
@@ -14,13 +14,13 @@ function* createAppVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App not found')
     }
 
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
+            return Boom.conflict('Vote exists')
         }
     }
     var vote = new Vote()
@@ -42,8 +42,7 @@ function* deleteAppVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App not found')
     }
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
@@ -63,13 +62,13 @@ function* deleteAppVote(userId, appId) {
 function* createCommentVote(commentId, userId) {
     var comment = yield Comment.findById(commentId).populate('votes').exec()
     if(!comment) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+        return Boom.notFound('Non-existing parent comment')
     }
 
     for(var i=0; i< comment.votes.length; i++) {
         var currUserId = comment.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
+            return Boom.conflict('Vote exists')
         }
     }
 
@@ -94,7 +93,7 @@ function* deleteCommentVote(userId, commentId) {
     var query = Comment.findById(commentId)
     var comment = yield query.populate("votes").exec()
     if(!comment) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Non-existing comment')
     }
 
     for(var i=0; i< comment.votes.length; i++) {
@@ -185,7 +184,7 @@ function* clearAppVotes(voteIds) {
 function* createAppCollectionVote(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Non-existing collection')
     }
 
     var user = yield User.findById(userId).exec()

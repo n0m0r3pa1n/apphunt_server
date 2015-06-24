@@ -1,12 +1,11 @@
 var _ = require('underscore')
-
+var Boom = require('boom')
 var Bolt = require("bolt-js")
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
 
 var User = require('../models').User
 var Device = require('../models').Device
-var STATUS_CODES = require('../config/config').STATUS_CODES
 var UserScoreHandler = require('./user_score_handler')
 
 
@@ -65,14 +64,14 @@ function followUser(user) {
 function* update(userId, notificationId) {
     var user = yield User.findById(userId).populate('devices').exec();
     if(user == null) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('User not found!')
     }
 
     if(isUserDeviceExisting(user.devices, notificationId) == false) {
         var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true})
         user.devices.push(device)
     } else {
-        return { statusCode: STATUS_CODES.CONFLICT }
+        return Boom.conflict('Existing user device!')
     }
     user.loginType = user.loginType.toLowerCase()
     user.save(function(err) {
@@ -80,7 +79,7 @@ function* update(userId, notificationId) {
             console.log(err)
         }
     })
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK()
 }
 
 function isUserDeviceExisting(devices, notificationId) {
