@@ -4,7 +4,6 @@ require('./spec_helper')
 var AppsCollection = require("../src/models").AppsCollection
 var STATUS_CODES = require('../src/config/config').STATUS_CODES
 var COLLECTION_STATUSES = require('../src/config/config').COLLECTION_STATUSES
-var sleep = require("co-sleep")
 
 describe("App Collections", function() {
 

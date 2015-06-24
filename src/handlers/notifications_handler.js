@@ -55,7 +55,6 @@ function sendNotification(deviceIds, title, message, image, type) {
     }
 
     if(deviceIds.length > 0 && deviceIds !== null) {
-        console.log('Sending ' + type + ' notification')
         bolt.sendNotification(notification)
     }
 }

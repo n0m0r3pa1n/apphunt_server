@@ -7,20 +7,20 @@
   "license": "ISC",
   "dependencies": {
     "badboy": "latest",
+    "bolt-js": "latest",
     "cartesian-product": "^2.1.2",
-    "co": "^4.0.2",
+    "co": "^4.5.4",
     "deck": "0.0.4",
-    "hapi": "^8.1.0",
-    "hapi-swagger": "^0.6.1",
+    "hapi": "^8.6.1",
+    "hapi-swagger": "^0.7.3",
     "huntme": "latest",
-    "joi": "^6.0.0",
-    "mongoose": "4.0.1",
+    "joi": "^6.4.3",
+    "mongoose": "4.0.6",
+    "mongoose-deep-populate": "^1.1.0",
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
     "request-promise": "^0.3.3",
-    "underscore": "~1.6.0",
-    "mongoose-deep-populate": "^1.0.0",
-    "bolt-js": "latest"
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "casual": "^1.4.6",
