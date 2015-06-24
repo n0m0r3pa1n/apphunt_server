@@ -1,7 +1,7 @@
 var Models = require('../../models')
 var User = Models.User
 
-var PaginationHandler = require('./pagination_stats_handler')
+import * as PaginationHandler from './pagination_stats_handler'
 
 function* getAllUsers(username, loginType, page, pageSize) {
     var where = {};

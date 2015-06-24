@@ -1,5 +1,11 @@
 'use strict';
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler.js');
+
+var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+
 var _ = require('underscore');
 var Boom = require('boom');
 var CONFIG = require('../config/config');
@@ -92,24 +98,14 @@ function* get(appId, userId, page, pageSize) {
         query = query.limit(pageSize).skip((page - 1) * pageSize);
     }
 
-    var resultComments = yield query.exec();
+    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, 'comments', Comment.count({ app: appId }), page, pageSize);
     if (userId !== undefined) {
-        resultComments = yield VotesHandler.setHasUserVotedForCommentField(resultComments, userId);
+        resultComments.comments = yield VotesHandler.setHasUserVotedForCommentField(resultComments.comments, userId);
     }
 
-    var allCommentsCount = yield Comment.count({ app: appId }).exec();
+    removeVotesField(resultComments.comments);
 
-    removeVotesField(resultComments);
-
-    var response = {
-        comments: resultComments,
-        totalCount: allCommentsCount,
-        page: page
-    };
-    if (page != 0 && pageSize != 0) {
-        response.totalPages = Math.ceil(allCommentsCount / pageSize);
-    }
-    return response;
+    return resultComments;
 }
 
 function* getCount(appId) {

@@ -25,7 +25,7 @@ var UrlsHandler = require('./utils/urls_handler')
 var CommentsHandler = require('./comments_handler')
 var NotificationsHandler = require('./notifications_handler')
 var EmailsHandler = require('./utils/emails_handler')
-
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 var DateUtils = require('../utils/date_utils')
 
 var App = require('../models').App
@@ -228,35 +228,11 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
     var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+    formatApps(userId, result.apps);
 
-    var apps = yield query.exec()
-    var resultApps = convertToArray(apps)
-
-    if(userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
-    }
-
-    for(var i=0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
-    }
-
-    var allAppsCount = yield App.count(where).exec()
-
-    removeUnusedFields(resultApps)
-
-    var response = {
-        apps: resultApps,
-        date: responseDate,
-        totalCount: allAppsCount,
-        page: page
-    }
-    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize)
-    }
-    return response
+    result.date = responseDate
+    return result
 }
 
 export function* filterApps(packages, platform) {
@@ -284,6 +260,7 @@ export function* getApp(appId, userId) {
     return app
 }
 
+
 export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
@@ -296,34 +273,9 @@ export function* searchApps(q, platform, status, page, pageSize, userId) {
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
-
-    var apps = yield query.exec()
-    var resultApps = convertToArray(apps)
-
-    if(userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
-    }
-
-    for(var i=0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
-    }
-
-    var allAppsCount = yield App.count(where).exec()
-    removeUnusedFields(resultApps)
-
-    var response = {
-        apps: resultApps,
-        totalCount: allAppsCount,
-        page: page
-    }
-
-    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize)
-    }
-    return response
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
+    formatApps(userId, result.apps);
+    return result
 }
 
 
@@ -350,4 +302,18 @@ function convertToArray(apps) {
     }
 
     return resultApps;
+}
+
+function formatApps(userId, apps) {
+    apps = convertToArray(apps)
+    if (userId !== undefined && apps !== undefined) {
+        apps = VotesHandler.setHasUserVotedForAppField(apps, userId)
+    }
+
+    for (var i = 0; i < apps.length; i++) {
+        apps[i].commentsCount = yield setCommentsCount(apps[i]._id)
+    }
+
+    removeUnusedFields(apps)
+    return i;
 }

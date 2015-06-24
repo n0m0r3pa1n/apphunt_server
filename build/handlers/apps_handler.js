@@ -11,6 +11,13 @@ exports.getApps = getApps;
 exports.filterApps = filterApps;
 exports.getApp = getApp;
 exports.searchApps = searchApps;
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler.js');
+
+var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
 var _ = require('underscore');
@@ -233,35 +240,21 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     var query = App.find(where).deepPopulate('votes.user').populate('categories').populate('createdBy');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
 
-    if (page != 0 && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    result.apps = convertToArray(result.apps);
+
+    if (userId !== undefined && result.apps !== undefined) {
+        result.apps = VotesHandler.setHasUserVotedForAppField(result.apps, userId);
     }
 
-    var apps = yield query.exec();
-    var resultApps = convertToArray(apps);
-
-    if (userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId);
+    for (var i = 0; i < result.apps.length; i++) {
+        result.apps[i].commentsCount = yield setCommentsCount(result.apps[i]._id);
     }
 
-    for (var i = 0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id);
-    }
+    removeUnusedFields(result.apps);
 
-    var allAppsCount = yield App.count(where).exec();
-
-    removeUnusedFields(resultApps);
-
-    var response = {
-        apps: resultApps,
-        date: responseDate,
-        totalCount: allAppsCount,
-        page: page
-    };
-    if (page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize);
-    }
-    return response;
+    result.date = responseDate;
+    return result;
 }
 
 function* filterApps(packages, platform) {
@@ -301,34 +294,20 @@ function* searchApps(q, platform, status, page, pageSize, userId) {
     var query = App.find(where).deepPopulate('votes.user').populate('categories').populate('createdBy');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
 
-    if (page != 0 && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    result.apps = convertToArray(result.apps);
+
+    if (userId !== undefined && result.apps !== undefined) {
+        result.apps = VotesHandler.setHasUserVotedForAppField(result.apps, userId);
     }
 
-    var apps = yield query.exec();
-    var resultApps = convertToArray(apps);
-
-    if (userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId);
+    for (var i = 0; i < result.apps.length; i++) {
+        result.apps[i].commentsCount = yield setCommentsCount(result.apps[i]._id);
     }
 
-    for (var i = 0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id);
-    }
+    removeUnusedFields(result.apps);
 
-    var allAppsCount = yield App.count(where).exec();
-    removeUnusedFields(resultApps);
-
-    var response = {
-        apps: resultApps,
-        totalCount: allAppsCount,
-        page: page
-    };
-
-    if (page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize);
-    }
-    return response;
+    return result;
 }
 
 //==========================================================

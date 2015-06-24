@@ -12,6 +12,7 @@ var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
 var NotificationsHandler = require('./notifications_handler')
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').exec()
@@ -92,24 +93,14 @@ function* get(appId, userId, page,  pageSize) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
     }
 
-    var resultComments = yield query.exec()
+    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, "comments", Comment.count({app: appId}), page, pageSize)
     if(userId !== undefined) {
-        resultComments = yield VotesHandler.setHasUserVotedForCommentField(resultComments, userId)
+        resultComments.comments = yield VotesHandler.setHasUserVotedForCommentField(resultComments.comments, userId)
     }
 
-    var allCommentsCount = yield Comment.count({app: appId}).exec()
+    removeVotesField(resultComments.comments)
 
-    removeVotesField(resultComments)
-
-    var response = {
-        comments: resultComments,
-        totalCount: allCommentsCount,
-        page: page
-    }
-    if(page != 0 && pageSize != 0) {
-        response.totalPages = Math.ceil(allCommentsCount / pageSize)
-    }
-    return response
+    return resultComments
 }
 
 function* getCount(appId) {

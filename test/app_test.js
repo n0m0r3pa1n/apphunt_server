@@ -148,7 +148,6 @@ describe("Apps", function () {
         var appR1 = yield dbHelper.createApp(userResponse.result.id)
         var appR2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
-
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
 
