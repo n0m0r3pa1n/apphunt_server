@@ -10,6 +10,8 @@ var Config = require('../config/config')
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
+
 export function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
@@ -105,24 +107,7 @@ function* findPagedCollections(where, sort, page, pageSize) {
         .populate("apps")
     query.sort(sort)
 
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
-
-    var collections = yield query.exec()
-
-    var allCollectionsCount = yield AppsCollection.count(where).exec()
-
-    var response = {
-        collections: collections,
-        totalCount: allCollectionsCount,
-        page: page
-    }
-
-    if(page != 0 && pageSize != 0 && allCollectionsCount > 0) {
-        response.totalPages = Math.ceil(allCollectionsCount / pageSize)
-    }
-    return response
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
 }
 
 export function* removeApp(collectionId, appId) {

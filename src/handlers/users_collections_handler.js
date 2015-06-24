@@ -9,6 +9,7 @@ var Comment = models.Comment
 
 var UserScoreHandler = require('./user_score_handler')
 var VotesHandler = require('./votes_handler')
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
 function* create(usersCollection, userId) {
     var user = yield User.findById(userId).exec()
@@ -53,8 +54,7 @@ function* get(collectionId, userId) {
 }
 
 function* getAvailableCollectionsForUser(userId) {
-    var availableCollections = yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec()
-    return availableCollections;
+    return yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec();
 }
 
 function* getCollections(page, pageSize) {
@@ -63,25 +63,9 @@ function* getCollections(page, pageSize) {
 
 function* findPagedCollections(where, page, pageSize) {
     var query = UsersCollection.find(where).deepPopulate('usersDetails.user').populate("createdBy").populate("usersDetails")
-
     query.sort({createdAt: 'desc' })
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
 
-    var collections = yield query.exec()
-    var allCollectionsCount = yield UsersCollection.count(where).exec()
-
-    var response = {
-        collections: collections,
-        totalCount: allCollectionsCount,
-        page: page
-    }
-
-    if(page != 0 && pageSize != 0 && allCollectionsCount > 0) {
-        response.totalPages = Math.ceil(allCollectionsCount / pageSize)
-    }
-    return response
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
 }
 
 function* search(q, page, pageSize) {

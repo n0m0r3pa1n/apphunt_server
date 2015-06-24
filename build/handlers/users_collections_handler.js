@@ -1,5 +1,11 @@
 "use strict";
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+
+var _statsPagination_stats_handlerJs = require("./stats/pagination_stats_handler.js");
+
+var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+
 var _ = require("underscore");
 var Boom = require("boom");
 var models = require("../models");
@@ -53,8 +59,7 @@ function* get(collectionId, userId) {
 }
 
 function* getAvailableCollectionsForUser(userId) {
-    var availableCollections = yield UsersCollection.find({ "usersDetails.user": { $ne: userId } }).exec();
-    return availableCollections;
+    return yield UsersCollection.find({ "usersDetails.user": { $ne: userId } }).exec();
 }
 
 function* getCollections(page, pageSize) {
@@ -63,25 +68,9 @@ function* getCollections(page, pageSize) {
 
 function* findPagedCollections(where, page, pageSize) {
     var query = UsersCollection.find(where).deepPopulate("usersDetails.user").populate("createdBy").populate("usersDetails");
-
     query.sort({ createdAt: "desc" });
-    if (page != 0 && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize);
-    }
 
-    var collections = yield query.exec();
-    var allCollectionsCount = yield UsersCollection.count(where).exec();
-
-    var response = {
-        collections: collections,
-        totalCount: allCollectionsCount,
-        page: page
-    };
-
-    if (page != 0 && pageSize != 0 && allCollectionsCount > 0) {
-        response.totalPages = Math.ceil(allCollectionsCount / pageSize);
-    }
-    return response;
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
 }
 
 function* search(q, page, pageSize) {
