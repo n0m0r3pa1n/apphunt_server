@@ -242,16 +242,7 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
     result.apps = convertToArray(result.apps);
-
-    if (userId !== undefined && result.apps !== undefined) {
-        result.apps = VotesHandler.setHasUserVotedForAppField(result.apps, userId);
-    }
-
-    for (var i = 0; i < result.apps.length; i++) {
-        result.apps[i].commentsCount = yield setCommentsCount(result.apps[i]._id);
-    }
-
-    removeUnusedFields(result.apps);
+    yield formatApps(userId, result.apps);
 
     result.date = responseDate;
     return result;
@@ -296,17 +287,7 @@ function* searchApps(q, platform, status, page, pageSize, userId) {
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
     result.apps = convertToArray(result.apps);
-
-    if (userId !== undefined && result.apps !== undefined) {
-        result.apps = VotesHandler.setHasUserVotedForAppField(result.apps, userId);
-    }
-
-    for (var i = 0; i < result.apps.length; i++) {
-        result.apps[i].commentsCount = yield setCommentsCount(result.apps[i]._id);
-    }
-
-    removeUnusedFields(result.apps);
-
+    yield formatApps(userId, result.apps);
     return result;
 }
 
@@ -333,4 +314,16 @@ function convertToArray(apps) {
     }
 
     return resultApps;
+}
+
+function* formatApps(userId, apps) {
+    if (userId !== undefined && apps !== undefined) {
+        apps = VotesHandler.setHasUserVotedForAppField(apps, userId);
+    }
+
+    for (var i = 0; i < apps.length; i++) {
+        apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
+    }
+
+    removeUnusedFields(apps);
 }

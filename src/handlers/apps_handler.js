@@ -229,7 +229,8 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
-    formatApps(userId, result.apps);
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
 
     result.date = responseDate
     return result
@@ -274,7 +275,8 @@ export function* searchApps(q, platform, status, page, pageSize, userId) {
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
-    formatApps(userId, result.apps);
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
     return result
 }
 
@@ -304,8 +306,7 @@ function convertToArray(apps) {
     return resultApps;
 }
 
-function formatApps(userId, apps) {
-    apps = convertToArray(apps)
+function* formatApps(userId, apps) {
     if (userId !== undefined && apps !== undefined) {
         apps = VotesHandler.setHasUserVotedForAppField(apps, userId)
     }
@@ -315,5 +316,4 @@ function formatApps(userId, apps) {
     }
 
     removeUnusedFields(apps)
-    return i;
 }
