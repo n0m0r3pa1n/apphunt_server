@@ -27,13 +27,19 @@
     "casual": "^1.4.6",
     "chai": "^1.10.0",
     "co-mocha": "^1.1.0",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0",
+    "gulp-concat": "2.5.2",
+    "gulp-sourcemaps": "1.5.2",
+    "gulp-util": "3.0.4",
     "inject-then": "^2.0.0",
     "mocha": "^2.0.1",
     "mocha-mongoose": "^1.0.3",
+    "require-dir": "0.3.0",
     "simple-mock": "latest"
   },
   "scripts": {
-    "start": "nodemon --harmony .",
+    "start": "nodemon --harmony -w ./build",
     "test": "node_modules/mocha/bin/mocha --harmony -w"
   },
   "engines": {

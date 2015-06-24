@@ -1,4 +1,4 @@
-var DevsHunter = require('../../src/handlers/utils/devs_hunter_handler')
+var DevsHunter = require('../../build/handlers/utils/devs_hunter_handler')
 var simple = require('simple-mock');
 
 var mockGetAndroidApp = function() {

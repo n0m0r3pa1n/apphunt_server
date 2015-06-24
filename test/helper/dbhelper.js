@@ -1,7 +1,7 @@
 var BadBoy = require('badboy')
 var Co = require('co')
-var AppsHandler = require('../../src/handlers/apps_handler')
-var loginTypes = require("../../src/config/config").LOGIN_TYPES
+var AppsHandler = require('../../build/handlers/apps_handler')
+var loginTypes = require("../../build/config/config").LOGIN_TYPES
 
 var email = "dummy@dummy.com"
 var category1 = "TEST1"

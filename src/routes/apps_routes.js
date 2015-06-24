@@ -1,4 +1,3 @@
-var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
 var Joi = require('joi')
 var PLATFORMS_ENUM = require('../config/config').PLATFORMS
@@ -6,6 +5,7 @@ var APP_STATUSES_FILTER_ENUM = require('../config/config').APP_STATUSES_FILTER
 var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS]
 var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL]
 
+import * as AppsHandler from '../handlers/apps_handler.js'
 
 var routes = [
     {

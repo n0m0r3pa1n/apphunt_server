@@ -1,9 +1,9 @@
 var Joi = require('joi')
 var AppsCollection = require("../models").AppsCollection
 var UsersCollection = require("../models").UsersCollection
-var AppsCollectionsHandler = require('../handlers/apps_collections_handler')
 var UsersCollectionsHandler = require('../handlers/users_collections_handler')
 var COLLECTION_STATUSES = require('../config/config').COLLECTION_STATUSES
+import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
 
 var collectionsRoutes = [
     {

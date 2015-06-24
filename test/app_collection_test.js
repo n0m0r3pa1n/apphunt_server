@@ -1,9 +1,9 @@
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var AppsCollection = require("../src/models").AppsCollection
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
-var COLLECTION_STATUSES = require('../src/config/config').COLLECTION_STATUSES
+var AppsCollection = require("../build/models").AppsCollection
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
+var COLLECTION_STATUSES = require('../build/config/config').COLLECTION_STATUSES
 
 describe("App Collections", function() {
 
@@ -15,10 +15,10 @@ describe("App Collections", function() {
     });
 
     it("should add app in an empty collection", function*() {
+
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,

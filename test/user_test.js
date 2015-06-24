@@ -1,8 +1,8 @@
 var should = require('chai').should()
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
-var loginTypes = require('../src/config/config').LOGIN_TYPES
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
+var loginTypes = require('../build/config/config').LOGIN_TYPES
 
 describe("Users", function() {
 

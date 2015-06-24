@@ -10,7 +10,7 @@ var Config = require('../config/config')
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 
-function* create(appsCollection, userId) {
+export function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
     var collection =  yield AppsCollection.create(appsCollection)
@@ -19,7 +19,7 @@ function* create(appsCollection, userId) {
     return collection;
 }
 
-function* addApps(collectionId, apps) {
+export function* addApps(collectionId, apps) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
@@ -37,7 +37,7 @@ function objToString(obj) {
     return obj.toString()
 }
 
-function* favourite(collectionId, userId) {
+export function* favourite(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
@@ -48,7 +48,7 @@ function* favourite(collectionId, userId) {
     return Boom.OK();
 }
 
-function* get(collectionId, userId) {
+export function* get(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
@@ -64,21 +64,21 @@ function* get(collectionId, userId) {
     return collection
 }
 
-function* getCollections(status, sortBy, page, pageSize) {
+export function* getCollections(status, sortBy, page, pageSize) {
     var where = status === undefined ? {} : {status: status}
     var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
     return yield findPagedCollections(where, sort, page, pageSize)
 }
 
-function* getFavouriteCollections(userId, page, pageSize) {
+export function* getFavouriteCollections(userId, page, pageSize) {
     return yield findPagedCollections({favouritedBy: userId}, {}, page, pageSize)
 }
 
-function* getCollectionsForUser(userId, page, pageSize) {
+export function* getCollectionsForUser(userId, page, pageSize) {
     return yield findPagedCollections({createdBy: userId}, {}, page, pageSize)
 }
 
-function* search(q, page, pageSize, userId) {
+export function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield findPagedCollections(where, {}, page, pageSize)
     var collections = []
@@ -125,7 +125,7 @@ function* findPagedCollections(where, sort, page, pageSize) {
     return response
 }
 
-function* removeApp(collectionId, appId) {
+export function* removeApp(collectionId, appId) {
     var collection = yield AppsCollection.findById(collectionId).exec()
     for(var i=0; i< collection.apps.length; i++) {
         var currAppId = collection.apps[i]
@@ -142,18 +142,7 @@ function* removeApp(collectionId, appId) {
     return Boom.OK();
 }
 
-function* removeCollection(collectionId) {
+export function* removeCollection(collectionId) {
     var collection = yield AppsCollection.remove({_id: collectionId}).exec()
     return Boom.OK();
 }
-
-module.exports.create = create
-module.exports.addApps = addApps
-module.exports.getCollections = getCollections
-module.exports.get = get
-module.exports.favourite = favourite
-module.exports.search = search
-module.exports.removeApp = removeApp
-module.exports.removeCollection = removeCollection
-module.exports.getFavouriteCollections = getFavouriteCollections
-module.exports.getCollectionsForUser = getCollectionsForUser

@@ -35,7 +35,7 @@ var Vote = require('../models').Vote
 var Comment = require('../models').Comment
 var AppCategory = require('../models').AppCategory
 
-function* create(app, userId) {
+export function* create(app, userId) {
     app.package = getClearedAppPackage(app.package)
 
     var existingApp = yield App.findOne({package: app.package }).exec()
@@ -111,7 +111,7 @@ function* getAppCategories(parsedApp) {
     return appCategories
 }
 
-function* update(app) {
+export function* update(app) {
     var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
     if(!existingApp) {
         return Boom.notFound("Non-existing app")
@@ -143,17 +143,17 @@ function postTweet(app, user) {
 }
 
 
-function* deleteApp(package) {
-    var app = yield App.findOne({package: package}).exec()
+export function* deleteApp(packageName) {
+    var app = yield App.findOne({package: packageName}).exec()
     yield VotesHandler.clearAppVotes(app.votes)
     yield CommentsHandler.clearAppComments(app._id)
 
-    yield App.remove({package: package}).exec()
+    yield App.remove({package: packageName}).exec()
 
     return Boom.OK()
 }
 
-function* changeAppStatus(appPackage, status) {
+export function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(app == null) {
         return Boom.notFound("Non-existing app")
@@ -168,6 +168,7 @@ function* changeAppStatus(appPackage, status) {
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
+        var links = []
         if(isAppApproved) {
             links = [{
                 url: app.url, platform: "default"
@@ -198,7 +199,7 @@ function* changeAppStatus(appPackage, status) {
     return Boom.OK()
 }
 
-function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
+export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
 
     var where = {};
 
@@ -258,7 +259,7 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     return response
 }
 
-function* filterApps(packages, platform) {
+export function* filterApps(packages, platform) {
     var existingApps = yield App.find( { package: { $in: packages } } ).exec()
     var existingAppsPackages = []
     for(var i in existingApps) {
@@ -269,7 +270,7 @@ function* filterApps(packages, platform) {
     return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
 }
 
-function* getApp(appId, userId) {
+export function* getApp(appId, userId) {
     var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
     if(!app) {
         return Boom.notFound('App can not be found!')
@@ -283,7 +284,7 @@ function* getApp(appId, userId) {
     return app
 }
 
-function* searchApps(q, platform, status, page, pageSize, userId) {
+export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
     if(status !== undefined) {
@@ -350,12 +351,3 @@ function convertToArray(apps) {
 
     return resultApps;
 }
-
-module.exports.create = create
-module.exports.getApps = getApps
-module.exports.update = update
-module.exports.deleteApp = deleteApp
-module.exports.filterApps = filterApps
-module.exports.getApp = getApp
-module.exports.searchApps = searchApps
-module.exports.changeAppStatus = changeAppStatus

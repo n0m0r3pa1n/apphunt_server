@@ -3,8 +3,8 @@ var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var AppCategory = require("../src/models").AppCategory
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var AppCategory = require("../build/models").AppCategory
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
 
 describe("Votes", function() {
 
