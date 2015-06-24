@@ -8,8 +8,10 @@ var User = require('../models').User
 var Device = require('../models').Device
 var UserScoreHandler = require('./user_score_handler')
 
+import * as AuthHandler from './authentication_handler.js'
 
-function* get(email, loginType) {
+
+export function* get(email, loginType) {
     var where = {}
     if(loginType !== undefined){
         where.loginType = loginType
@@ -22,7 +24,11 @@ function* get(email, loginType) {
     return yield User.find(where).exec();
 }
 
-function* create(user, notificationId) {
+export function* find(userId) {
+    return yield User.findById(userId).exec()
+}
+
+export function* create(user, notificationId) {
     var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
     if (!currUser) {
         currUser = yield User.create(user)
@@ -39,10 +45,14 @@ function* create(user, notificationId) {
             var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
             currUser.devices.push(device)
 		}
-        currUser.save()
+        yield currUser.save()
 	}
 
-	return currUser;
+    let myUser = currUser.toObject()
+    myUser.token = AuthHandler.generateToken(currUser._id)
+    myUser.id = myUser._id
+    delete myUser._id
+	return myUser;
 }
 
 function postTweet(user) {
@@ -61,7 +71,7 @@ function followUser(user) {
     bolt.followUsers([user.username])
 }
 
-function* update(userId, notificationId) {
+export function* update(userId, notificationId) {
     var user = yield User.findById(userId).populate('devices').exec();
     if(user == null) {
         return Boom.notFound('User not found!')
@@ -94,7 +104,3 @@ function isUserDeviceExisting(devices, notificationId) {
 
     return isDeviceIdExisting;
 }
-
-module.exports.create = create
-module.exports.get = get
-module.exports.update = update

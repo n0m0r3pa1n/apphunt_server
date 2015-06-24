@@ -17,6 +17,7 @@ var userStatsRoutes = [
                     pageSize: Joi.number().optional()
                 }
             },
+            auth: false,
             description: 'Get a list of all registered users.',
             tags: ['api']
         }

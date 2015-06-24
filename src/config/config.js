@@ -55,6 +55,9 @@ var EMAIL_TEMPLATES_PATH = "assets/templates/email/"
 var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co"
 var APP_HUNT_TWITTER_HANDLE = "TheAppHunt"
 
+export const PRIVATE_KEY = "AppHunt!#Private"
+export const AUTH_TYPE = "jwt"
+
 module.exports.DEVS_HUNTER_URL = DEVS_HUNTER_URL
 module.exports.GCM_API_KEY = GCM_API_KEY
 module.exports.API_VERSION = API_VERSION

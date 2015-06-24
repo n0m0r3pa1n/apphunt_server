@@ -1,5 +1,19 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+exports.get = get;
+exports.find = find;
+exports.create = create;
+exports.update = update;
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _authentication_handlerJs = require('./authentication_handler.js');
+
+var AuthHandler = _interopRequireWildcard(_authentication_handlerJs);
+
 var _ = require('underscore');
 var Boom = require('boom');
 var Bolt = require('bolt-js');
@@ -23,6 +37,10 @@ function* get(email, loginType) {
     return yield User.find(where).exec();
 }
 
+function* find(userId) {
+    return yield User.findById(userId).exec();
+}
+
 function* create(user, notificationId) {
     var currUser = yield User.findOne({ email: user.email }).populate('devices').exec();
     if (!currUser) {
@@ -40,10 +58,14 @@ function* create(user, notificationId) {
             var device = yield Device.findOneOrCreate({ notificationId: notificationId }, { notificationId: notificationId, notificationsEnabled: true });
             currUser.devices.push(device);
         }
-        currUser.save();
+        yield currUser.save();
     }
 
-    return currUser;
+    var myUser = currUser.toObject();
+    myUser.token = AuthHandler.generateToken(currUser._id);
+    myUser.id = myUser._id;
+    delete myUser._id;
+    return myUser;
 }
 
 function postTweet(user) {
@@ -95,7 +117,3 @@ function isUserDeviceExisting(devices, notificationId) {
 
     return isDeviceIdExisting;
 }
-
-module.exports.create = create;
-module.exports.get = get;
-module.exports.update = update;

@@ -1,9 +1,9 @@
-var UsersHandler = require('../handlers/users_handler')
+var _ = require("underscore")
+var Joi = require('joi')
+import * as UsersHandler from '../handlers/users_handler.js'
 var UserScoreHandler = require('../handlers/user_score_handler')
 var User = require('../models').User
 var loginTypes = require('../config/config').LOGIN_TYPES
-var _ = require("underscore")
-var Joi = require('joi')
 
 var routes = [
     {
@@ -20,6 +20,7 @@ var routes = [
 
                 }
             },
+            auth: false,
             description: 'Get a list of all registered users.',
             tags: ['api']
         }
@@ -39,6 +40,7 @@ var routes = [
                     toDate: Joi.date().required(),
                 }
             },
+            auth: false,
             description: 'Get a list of users with their scores.',
             tags: ['api']
         }
@@ -66,6 +68,7 @@ var routes = [
                     following: Joi.array().items(Joi.string()).optional()
                 }
             },
+            auth: false,
             description: 'Create a user registration',
             tags: ['api']
         }
@@ -88,6 +91,7 @@ var routes = [
                 }
 
             },
+            auth: false,
             description: 'Update user notification id',
             tags: ['api']
         }

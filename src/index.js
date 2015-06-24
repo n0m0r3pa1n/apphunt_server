@@ -4,6 +4,9 @@ var Co = require('co')
 var Routes = require('./routes').routes
 var User = require('./models').User
 
+import * as AuthenticationHandler from './handlers/authentication_handler.js'
+import {PRIVATE_KEY} from './config/config.js'
+
 var STATUS_CODES = require('./config/config').STATUS_CODES
 var JSExtensions = require('./utils/js_extension_utils')
 
@@ -36,6 +39,18 @@ server.register({
     }else{
         server.log(['start'], 'hapi-swagger interface loaded')
     }
+});
+
+server.register(require('hapi-auth-jwt2'), function (err) {
+    if (err) {
+        console.log(err);
+    }
+
+    server.auth.strategy('jwt', 'jwt', true,
+        {
+            key: PRIVATE_KEY, // Never Share your secret key
+            validateFunc: AuthenticationHandler.validate       // validate function defined above
+        });
 });
 
 server.decorate('reply', 'co', function (handler) {

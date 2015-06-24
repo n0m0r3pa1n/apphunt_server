@@ -15,6 +15,7 @@ var routes = [
                     appId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Vote for an app',
             tags: ['api']
         }
@@ -32,6 +33,7 @@ var routes = [
                     appId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Downvote for an app',
             tags: ['api']
         }
@@ -49,6 +51,7 @@ var routes = [
                     commentId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Vote for a comment',
             tags: ['api']
         }
@@ -66,6 +69,7 @@ var routes = [
                     commentId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Downvote for a comment',
             tags: ['api']
         }
@@ -83,6 +87,7 @@ var routes = [
                     collectionId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Vote for a app collection',
             tags: ['api']
         }

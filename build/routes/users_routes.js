@@ -1,11 +1,17 @@
 'use strict';
 
-var UsersHandler = require('../handlers/users_handler');
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _handlersUsers_handlerJs = require('../handlers/users_handler.js');
+
+var UsersHandler = _interopRequireWildcard(_handlersUsers_handlerJs);
+
+var _ = require('underscore');
+var Joi = require('joi');
+
 var UserScoreHandler = require('../handlers/user_score_handler');
 var User = require('../models').User;
 var loginTypes = require('../config/config').LOGIN_TYPES;
-var _ = require('underscore');
-var Joi = require('joi');
 
 var routes = [{
     method: 'GET',
@@ -21,6 +27,7 @@ var routes = [{
 
             }
         },
+        auth: false,
         description: 'Get a list of all registered users.',
         tags: ['api']
     }
@@ -39,6 +46,7 @@ var routes = [{
                 toDate: Joi.date().required()
             }
         },
+        auth: false,
         description: 'Get a list of users with their scores.',
         tags: ['api']
     }
@@ -65,6 +73,7 @@ var routes = [{
                 following: Joi.array().items(Joi.string()).optional()
             }
         },
+        auth: false,
         description: 'Create a user registration',
         tags: ['api']
     }
@@ -86,6 +95,7 @@ var routes = [{
             }
 
         },
+        auth: false,
         description: 'Update user notification id',
         tags: ['api']
     }

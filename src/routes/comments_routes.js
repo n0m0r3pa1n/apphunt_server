@@ -19,6 +19,7 @@ var routes = [
                     parentId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Create comment for app',
             tags: ['api']
         }
@@ -37,6 +38,7 @@ var routes = [
                     userId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Get comments for app',
             tags: ['api']
         }
@@ -53,6 +55,7 @@ var routes = [
                     commentId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Delete comment',
             tags: ['api']
         }

@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 var DEVS_HUNTER_URL = "http://devs-hunter.herokuapp.com";
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs";
 var API_VERSION = 1.0;
@@ -57,6 +60,11 @@ var EMAIL_TEMPLATES_PATH = "assets/templates/email/";
 var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co";
 var APP_HUNT_TWITTER_HANDLE = "TheAppHunt";
 
+var PRIVATE_KEY = "AppHunt!#Private";
+exports.PRIVATE_KEY = PRIVATE_KEY;
+var AUTH_TYPE = "jwt";
+
+exports.AUTH_TYPE = AUTH_TYPE;
 module.exports.DEVS_HUNTER_URL = DEVS_HUNTER_URL;
 module.exports.GCM_API_KEY = GCM_API_KEY;
 module.exports.API_VERSION = API_VERSION;

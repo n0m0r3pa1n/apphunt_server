@@ -1,5 +1,13 @@
 'use strict';
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _handlersAuthentication_handlerJs = require('./handlers/authentication_handler.js');
+
+var AuthenticationHandler = _interopRequireWildcard(_handlersAuthentication_handlerJs);
+
+var _configConfigJs = require('./config/config.js');
+
 var Mongoose = require('mongoose');
 var Hapi = require('hapi');
 var Co = require('co');
@@ -38,6 +46,17 @@ server.register({
     } else {
         server.log(['start'], 'hapi-swagger interface loaded');
     }
+});
+
+server.register(require('hapi-auth-jwt2'), function (err) {
+    if (err) {
+        console.log(err);
+    }
+
+    server.auth.strategy('jwt', 'jwt', true, {
+        key: _configConfigJs.PRIVATE_KEY, // Never Share your secret key
+        validateFunc: AuthenticationHandler.validate // validate function defined above
+    });
 });
 
 server.decorate('reply', 'co', function (handler) {

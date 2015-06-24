@@ -15,6 +15,7 @@ var routes = [
                     type: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Get all available notifications.',
             tags: ['api']
         }
@@ -35,6 +36,7 @@ var routes = [
                     sendTime: Joi.date().optional()
                 }
             },
+            auth: false,
             description: 'Create a new notification to be send to devices.',
             tags: ['api']
         }

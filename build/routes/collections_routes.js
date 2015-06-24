@@ -29,6 +29,7 @@ var collectionsRoutes = [{
                 sortBy: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Get all apps collections.",
         tags: ["api"]
     }
@@ -48,6 +49,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Get all apps collections.",
         tags: ["api"]
     }
@@ -66,6 +68,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Get apps collection",
         tags: ["api"]
     }
@@ -85,6 +88,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Get favourite apps for user.",
         tags: ["api"]
     }
@@ -103,6 +107,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Get apps collection",
         tags: ["api"]
     }
@@ -126,6 +131,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Search app collection by name. UserId is optional if you want to know if the user has voted for each app.",
         tags: ["api"]
     }
@@ -145,6 +151,7 @@ var collectionsRoutes = [{
                 picture: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Create new apps collection",
         tags: ["api"]
     }
@@ -165,6 +172,7 @@ var collectionsRoutes = [{
                 apps: Joi.array().min(1).items(Joi.string()).unique().required()
             }
         },
+        auth: false,
         description: "Add app(s) to collection",
         tags: ["api"]
     }
@@ -180,6 +188,7 @@ var collectionsRoutes = [{
                 collectionId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Remove app collection",
         tags: ["api"]
     }
@@ -196,6 +205,7 @@ var collectionsRoutes = [{
                 appId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Remove app from a collection",
         tags: ["api"]
     }
@@ -214,6 +224,7 @@ var collectionsRoutes = [{
                 pageSize: Joi.number().integer().min(1).optional()
             }
         },
+        auth: false,
         description: "Get all users collections.",
         tags: ["api"]
     }
@@ -233,6 +244,7 @@ var collectionsRoutes = [{
                 picture: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Create new users collection",
         tags: ["api"]
     }
@@ -255,6 +267,7 @@ var collectionsRoutes = [{
                 toDate: Joi.date().required()
             }
         },
+        auth: false,
         description: "Add user(s) to collection",
         tags: ["api"]
     }
@@ -273,6 +286,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().optional()
             }
         },
+        auth: false,
         description: "Get users collection",
         tags: ["api"]
     }
@@ -293,6 +307,7 @@ var collectionsRoutes = [{
                 pageSize: Joi.number().integer().min(1).optional()
             }
         },
+        auth: false,
         description: "Search user collection by name.",
         tags: ["api"]
     }
@@ -308,6 +323,7 @@ var collectionsRoutes = [{
                 userId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Get collections in which the user does not exist.",
         tags: ["api"]
     }
@@ -324,6 +340,7 @@ var collectionsRoutes = [{
                 userDetailsId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Remove user from a collection",
         tags: ["api"]
     }
@@ -339,6 +356,7 @@ var collectionsRoutes = [{
                 collectionId: Joi.string().required()
             }
         },
+        auth: false,
         description: "Remove users collection",
         tags: ["api"]
     }

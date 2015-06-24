@@ -118,6 +118,6 @@ describe("Users", function() {
 
 		var response = yield Server.injectThen(opts)
 		response.result.length.should.equal(2)
-		response.result[0]._id.toString().should.equal(user1Id)
+		response.result[0]._id.toString().should.equal(String(user1Id))
 	});
 })

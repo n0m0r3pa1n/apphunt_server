@@ -5,12 +5,12 @@ var AppsCollection = models.AppsCollection
 var User = models.User
 
 var VotesHandler = require('./votes_handler')
-var UserHandler = require('./users_handler')
 var Config = require('../config/config')
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as UserHandler from './users_handler.js'
 
 export function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
