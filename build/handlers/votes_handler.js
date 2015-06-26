@@ -203,6 +203,29 @@ function* createAppCollectionVote(collectionId, userId) {
     };
 }
 
+function* deleteAppCollectionVote(collectionId, userId) {
+    var user = yield User.findById(userId).exec();
+
+    var query = AppsCollection.findById(collectionId);
+    var collection = yield query.populate('votes').exec();
+    if (!collection) {
+        return Boom.notFound('Non-existing apps collection');
+    }
+
+    for (var i = 0; i < collection.votes.length; i++) {
+        var currUserId = collection.votes[i].user;
+        if (currUserId == userId) {
+            collection.votes.splice(i, 1);
+            collection.votesCount = collection.votes.length;
+        }
+    }
+
+    yield collection.save();
+    return {
+        votesCount: collection.votesCount
+    };
+}
+
 module.exports.createAppVote = createAppVote;
 module.exports.deleteAppVote = deleteAppVote;
 module.exports.hasUserVotedForApp = hasUserVotedForApp;
@@ -215,5 +238,6 @@ module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField;
 module.exports.clearAppVotes = clearAppVotes;
 
 module.exports.createAppCollectionVote = createAppCollectionVote;
+module.exports.deleteAppCollectionVote = deleteAppCollectionVote;
 
 module.exports.hasUserVotedForAppsCollection = hasUserVotedForAppsCollection;

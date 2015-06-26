@@ -88,6 +88,23 @@ var routes = [{
         description: 'Vote for a app collection',
         tags: ['api']
     }
+}, {
+    method: 'DELETE',
+    path: '/app-collections/votes',
+    handler: function handler(req, reply) {
+        reply.co(VotesHandler.deleteAppCollectionVote(req.query.collectionId, req.query.userId));
+    },
+    config: {
+        validate: {
+            query: {
+                userId: Joi.string().required(),
+                collectionId: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: 'Vote for a app collection',
+        tags: ['api']
+    }
 }];
 
 module.exports.voteRoutes = routes;

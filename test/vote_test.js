@@ -99,4 +99,21 @@ describe("Votes", function() {
         response.result.votesCount.should.eq(2)
 
     });
+
+    it("should unvote apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + user2Id
+        }
+
+        response = yield Server.injectThen(opts);
+        response.result.votesCount.should.eq(1)
+
+    });
 })
