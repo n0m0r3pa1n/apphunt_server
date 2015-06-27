@@ -75,7 +75,7 @@ var routes = [{
     method: 'POST',
     path: '/app-collections/votes',
     handler: function handler(req, reply) {
-        reply.co(VotesHandler.createAppCollectionVote(req.query.collectionId, req.query.userId));
+        reply.co(VotesHandler.createCollectionVote(req.query.collectionId, req.query.userId));
     },
     config: {
         validate: {
@@ -92,7 +92,7 @@ var routes = [{
     method: 'DELETE',
     path: '/app-collections/votes',
     handler: function handler(req, reply) {
-        reply.co(VotesHandler.deleteAppCollectionVote(req.query.collectionId, req.query.userId));
+        reply.co(VotesHandler.deleteCollectionVote(req.query.collectionId, req.query.userId));
     },
     config: {
         validate: {

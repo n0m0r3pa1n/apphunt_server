@@ -116,4 +116,15 @@ describe("Votes", function() {
         response.result.votesCount.should.eq(1)
 
     });
+
+    it("should not vote apps collection twice", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+        var response2 = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+
+        response2.result.statusCode.should.eq(STATUS_CODES.CONFLICT);
+    });
 })

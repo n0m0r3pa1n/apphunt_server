@@ -63,6 +63,7 @@ function* create(user, notificationId) {
 
     var myUser = currUser.toObject();
     myUser.token = AuthHandler.generateToken(currUser._id);
+    myUser.id = myUser._id;
     return myUser;
 }
 

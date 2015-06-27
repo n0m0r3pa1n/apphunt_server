@@ -112,7 +112,7 @@ function* deleteCommentVote(userId, commentId) {
 // </editor-fold>
 
 // <editor-fold desc="Votes checks">
-function hasUserVotedForComment (comment, userId) {
+function hasUserVotedForComment(comment, userId) {
     return hasUserVotedForUnpopulatedObj(comment, userId)
 }
 
@@ -154,7 +154,7 @@ function hasUserVotedForAppsCollection(collection, userId) {
 function hasUserVotedForPopulatedObj(obj, userId) {
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
-        if (user !== null && userId == user._id) {
+        if (user !== null && String(userId) == String(user._id)) {
             return true;
         }
     }
@@ -165,9 +165,10 @@ function hasUserVotedForUnpopulatedObj(obj, userId) {
     if(!userId) {
         return false;
     }
+
     for (var j = 0; j < obj.votes.length; j++) {
         var votedUserId = obj.votes[j].user;
-        if (userId == votedUserId) {
+        if (String(userId) == String(votedUserId)) {
             return true;
         }
     }
@@ -184,13 +185,13 @@ function* clearAppVotes(voteIds) {
     }
 }
 
-function* createAppCollectionVote(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).exec()
+function* createCollectionVote(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').exec()
     if(!collection) {
         return Boom.notFound('Non-existing collection')
     }
 
-    if(hasUserVotedForUnpopulatedObj(collection, userId)) {
+    if(hasUserVotedForPopulatedObj(collection, userId)) {
         return Boom.conflict('Vote exists')
     }
 
@@ -210,7 +211,7 @@ function* createAppCollectionVote(collectionId, userId) {
 
 }
 
-function* deleteAppCollectionVote(collectionId, userId) {
+function* deleteCollectionVote(collectionId, userId) {
     var user = yield User.findById(userId).exec()
 
     var query = AppsCollection.findById(collectionId)
@@ -244,7 +245,7 @@ module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
 module.exports.clearAppVotes = clearAppVotes
 
-module.exports.createAppCollectionVote = createAppCollectionVote
-module.exports.deleteAppCollectionVote = deleteAppCollectionVote
+module.exports.createCollectionVote = createCollectionVote
+module.exports.deleteCollectionVote = deleteCollectionVote
 
 module.exports.hasUserVotedForAppsCollection = hasUserVotedForAppsCollection

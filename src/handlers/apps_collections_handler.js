@@ -16,7 +16,7 @@ export function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
     var collection =  yield AppsCollection.create(appsCollection)
-    yield VotesHandler.createAppCollectionVote(collection.id, userId)
+    yield VotesHandler.createCollectionVote(collection.id, userId)
 
     return collection;
 }
