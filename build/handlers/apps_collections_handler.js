@@ -89,23 +89,54 @@ function* get(collectionId, userId) {
     return collection;
 }
 
-function* getCollections(status, sortBy, page, pageSize) {
+function* getCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : { status: status };
     var sort = sortBy == "vote" ? { votesCount: "desc", updatedAt: "desc" } : { updatedAt: "desc", votesCount: "desc" };
-    return yield findPagedCollections(where, sort, page, pageSize);
+    var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
+
+    var collectionsList = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = result.collections[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var collection = _step.value;
+
+            var collectionObj = orderAppsInCollection(collection);
+            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
+            collectionsList.push(collectionObj);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator["return"]) {
+                _iterator["return"]();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    result.collections = collectionsList;
+    return result;
 }
 
 function* getFavouriteCollections(userId, page, pageSize) {
-    return yield findPagedCollections({ favouritedBy: userId }, {}, page, pageSize);
+    return yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
 }
 
 function* getCollectionsForUser(userId, page, pageSize) {
-    return yield findPagedCollections({ createdBy: userId }, {}, page, pageSize);
+    return yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
 }
 
 function* search(q, page, pageSize, userId) {
     var where = { name: { $regex: q, $options: "i" } };
-    var response = yield findPagedCollections(where, {}, page, pageSize);
+    var response = yield getPagedCollectionsResult(where, {}, page, pageSize);
     var collections = [];
     for (var i = 0; i < response.collections.length; i++) {
         collections[i] = orderAppsInCollection(response.collections[i]);
@@ -123,7 +154,7 @@ function orderAppsInCollection(collection) {
     return collection;
 }
 
-function* findPagedCollections(where, sort, page, pageSize) {
+function* getPagedCollectionsResult(where, sort, page, pageSize) {
     var query = AppsCollection.find(where).deepPopulate("votes.user apps.createdBy").populate("createdBy").populate("apps");
     query.sort(sort);
 

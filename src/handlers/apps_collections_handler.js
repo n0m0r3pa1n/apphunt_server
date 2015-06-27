@@ -66,23 +66,33 @@ export function* get(collectionId, userId) {
     return collection
 }
 
-export function* getCollections(status, sortBy, page, pageSize) {
+export function* getCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : {status: status}
     var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
-    return yield findPagedCollections(where, sort, page, pageSize)
+    let result = yield getPagedCollectionsResult(where, sort, page, pageSize)
+
+    let collectionsList = []
+    for(let collection of result.collections) {
+        let collectionObj = orderAppsInCollection(collection)
+        collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
+        collectionsList.push(collectionObj);
+    }
+
+    result.collections = collectionsList
+    return result;
 }
 
 export function* getFavouriteCollections(userId, page, pageSize) {
-    return yield findPagedCollections({favouritedBy: userId}, {}, page, pageSize)
+    return yield getPagedCollectionsResult({favouritedBy: userId}, {}, page, pageSize)
 }
 
 export function* getCollectionsForUser(userId, page, pageSize) {
-    return yield findPagedCollections({createdBy: userId}, {}, page, pageSize)
+    return yield getPagedCollectionsResult({createdBy: userId}, {}, page, pageSize)
 }
 
 export function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
-    var response = yield findPagedCollections(where, {}, page, pageSize)
+    var response = yield getPagedCollectionsResult(where, {}, page, pageSize)
     var collections = []
     for(var i=0; i<response.collections.length; i++) {
         collections[i] = orderAppsInCollection(response.collections[i])
@@ -100,7 +110,7 @@ function orderAppsInCollection(collection) {
     return collection
 }
 
-function* findPagedCollections(where, sort, page, pageSize) {
+function* getPagedCollectionsResult(where, sort, page, pageSize) {
     var query = AppsCollection.find(where)
         .deepPopulate('votes.user apps.createdBy')
         .populate("createdBy")

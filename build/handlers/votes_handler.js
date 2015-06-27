@@ -150,7 +150,7 @@ function setHasUserVotedForAppField(apps, userId) {
 }
 
 function hasUserVotedForAppsCollection(collection, userId) {
-    return hasUserVotedForUnpopulatedObj(collection, userId);
+    return hasUserVotedForPopulatedObj(collection, userId);
 }
 
 function hasUserVotedForPopulatedObj(obj, userId) {
@@ -164,6 +164,9 @@ function hasUserVotedForPopulatedObj(obj, userId) {
 }
 
 function hasUserVotedForUnpopulatedObj(obj, userId) {
+    if (!userId) {
+        return false;
+    }
     for (var j = 0; j < obj.votes.length; j++) {
         var votedUserId = obj.votes[j].user;
         if (userId == votedUserId) {

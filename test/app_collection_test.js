@@ -408,4 +408,28 @@ describe("App Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.eq(2)
     });
+
+    it("should get apps collection with hasVoted for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(userId)
+        yield dbHelper.createAppsCollection(user2Id)
+
+        var opts = {
+            method: 'GET',
+            url: "/app-collections?userId=" + userId + "&page=1&pageSize=10",
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.eq(3)
+        var numOfVotes = 0
+        for(var i=0; i < response.result.collections.length; i++) {
+            var collection = response.result.collections[i]
+            if(collection.hasVoted == true && String(collection.createdBy._id) == String(userId)) {
+                numOfVotes++;
+            }
+        }
+        numOfVotes.should.eq(2)
+    });
 })
