@@ -191,6 +191,10 @@ function* createAppCollectionVote(collectionId, userId) {
         return Boom.notFound('Non-existing collection');
     }
 
+    if (hasUserVotedForUnpopulatedObj(collection, userId)) {
+        return Boom.conflict('Vote exists');
+    }
+
     var user = yield User.findById(userId).exec();
     var vote = new Vote();
     vote.user = user;
