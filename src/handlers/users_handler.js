@@ -50,8 +50,6 @@ export function* create(user, notificationId) {
 
     let myUser = currUser.toObject()
     myUser.token = AuthHandler.generateToken(currUser._id)
-    myUser.id = myUser._id
-    delete myUser._id
 	return myUser;
 }
 
