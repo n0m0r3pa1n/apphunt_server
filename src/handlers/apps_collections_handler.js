@@ -75,11 +75,26 @@ export function* getCollections(status, userId, sortBy, page, pageSize) {
     for(let collection of result.collections) {
         let collectionObj = orderAppsInCollection(collection)
         collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
+        collectionObj.isFavourite = isFavourite(collectionObj, userId)
         collectionsList.push(collectionObj);
     }
 
     result.collections = collectionsList
     return result;
+}
+
+function isFavourite(collectionObj, userId) {
+    if(userId == undefined) {
+        return false;
+    }
+
+    let userFavouritedBy = collectionObj.favouritedBy
+    for(let favouritedId of userFavouritedBy) {
+        if(favouritedId == userId) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function* getFavouriteCollections(userId, page, pageSize) {

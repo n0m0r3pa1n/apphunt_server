@@ -432,4 +432,26 @@ describe("App Collections", function() {
         }
         numOfVotes.should.eq(2)
     });
+
+    it("should get favourite apps within all apps collection for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        yield dbHelper.favouriteCollection(collectionId, userId)
+        yield dbHelper.favouriteCollection(collection2Id, userId)
+
+
+        var opts = {
+            method: 'GET',
+            url: "/app-collections?userId=" + userId + "&page=1&pageSize=10",
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.eq(2)
+        for(var i in response.result.collections) {
+            var collection = response.result.collections[i]
+            collection.isFavourite.should.eq(true)
+        }
+    });
 })

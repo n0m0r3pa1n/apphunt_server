@@ -105,6 +105,7 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
 
             var collectionObj = orderAppsInCollection(collection);
             collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
+            collectionObj.isFavourite = isFavourite(collectionObj, userId);
             collectionsList.push(collectionObj);
         }
     } catch (err) {
@@ -124,6 +125,42 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
 
     result.collections = collectionsList;
     return result;
+}
+
+function isFavourite(collectionObj, userId) {
+    if (userId == undefined) {
+        return false;
+    }
+
+    var userFavouritedBy = collectionObj.favouritedBy;
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = userFavouritedBy[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var favouritedId = _step2.value;
+
+            if (favouritedId == userId) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                _iterator2["return"]();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    return false;
 }
 
 function* getFavouriteCollections(userId, page, pageSize) {
