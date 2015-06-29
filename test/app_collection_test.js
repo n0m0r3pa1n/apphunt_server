@@ -275,7 +275,7 @@ describe("App Collections", function() {
         var favouriteResponse = yield dbHelper.favouriteCollection(collectionId, userId)
         favouriteResponse.result.statusCode.should.equal(STATUS_CODES.OK)
 
-        opts = {
+        var opts = {
             method: 'GET',
             url: '/app-collections/' + collectionId
         }
@@ -454,4 +454,28 @@ describe("App Collections", function() {
             collection.isFavourite.should.eq(true)
         }
     });
+
+    it("should unfavourite app collection", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var favouriteResponse = yield dbHelper.favouriteCollection(collectionId, userId)
+        favouriteResponse.result.statusCode.should.equal(STATUS_CODES.OK)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/app-collections/' + collectionId + '/actions/favourite?userId=' + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.statusCode.should.eq(STATUS_CODES.OK)
+
+        var opts2 = {
+            method: 'GET',
+            url: "/app-collections/favourites?userId=" + userId,
+        }
+
+        var response2 = yield Server.injectThen(opts2)
+        response2.result.collections.length.should.eq(0)
+    })
 })

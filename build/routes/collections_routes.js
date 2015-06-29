@@ -109,7 +109,26 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: "Get apps collection",
+        description: "Favourite collection for user",
+        tags: ["api"]
+    }
+}, {
+    method: "DELETE",
+    path: "/app-collections/{collectionId}/actions/favourite",
+    handler: function handler(req, reply) {
+        reply.co(AppsCollectionsHandler.unfavourite(req.params.collectionId, req.query.userId));
+    },
+    config: {
+        validate: {
+            params: {
+                collectionId: Joi.string().required()
+            },
+            query: {
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false,
+        description: "Delete collections from favourites for user",
         tags: ["api"]
     }
 }, {

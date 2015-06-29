@@ -50,6 +50,24 @@ export function* favourite(collectionId, userId) {
     return Boom.OK();
 }
 
+export function* unfavourite(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).exec()
+    if(!collection) {
+        return Boom.notFound('Collection cannot be found!')
+    }
+    var size = collection.favouritedBy.length;
+    for(let i=0; i < size; i++) {
+        let currentFavouritedId = collection.favouritedBy[i]
+        if(currentFavouritedId == userId) {
+            collection.favouritedBy.splice(i, 1);
+        }
+    }
+
+    yield collection.save()
+
+    return Boom.OK();
+}
+
 export function* get(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps").exec()
     if(!collection) {

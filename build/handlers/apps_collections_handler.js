@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.create = create;
 exports.addApps = addApps;
 exports.favourite = favourite;
+exports.unfavourite = unfavourite;
 exports.get = get;
 exports.getCollections = getCollections;
 exports.getFavouriteCollections = getFavouriteCollections;
@@ -68,6 +69,24 @@ function* favourite(collectionId, userId) {
         return Boom.notFound("Collection cannot be found!");
     }
     collection.favouritedBy.push(userId);
+    yield collection.save();
+
+    return Boom.OK();
+}
+
+function* unfavourite(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).exec();
+    if (!collection) {
+        return Boom.notFound("Collection cannot be found!");
+    }
+    var size = collection.favouritedBy.length;
+    for (var i = 0; i < size; i++) {
+        var currentFavouritedId = collection.favouritedBy[i];
+        if (currentFavouritedId == userId) {
+            collection.favouritedBy.splice(i, 1);
+        }
+    }
+
     yield collection.save();
 
     return Boom.OK();
