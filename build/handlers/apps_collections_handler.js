@@ -189,7 +189,40 @@ function isFavourite(collectionObj, userId) {
 }
 
 function* getFavouriteCollections(userId, page, pageSize) {
-    return yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
+    var result = yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
+    var collectionsList = [];
+    if (result.collections !== undefined && result.collections.length > 0) {
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
+
+        try {
+            for (var _iterator3 = result.collections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                var collection = _step3.value;
+
+                var collectionObj = orderAppsInCollection(collection);
+                collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
+                collectionObj.isFavourite = isFavourite(collectionObj, userId);
+                collectionsList.push(collectionObj);
+            }
+        } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+                    _iterator3["return"]();
+                }
+            } finally {
+                if (_didIteratorError3) {
+                    throw _iteratorError3;
+                }
+            }
+        }
+    }
+
+    result.collections = collectionsList;
+    return result;
 }
 
 function* getCollectionsForUser(userId, page, pageSize) {

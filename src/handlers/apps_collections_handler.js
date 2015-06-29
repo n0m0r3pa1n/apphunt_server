@@ -44,7 +44,7 @@ export function* favourite(collectionId, userId) {
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
     }
-    
+
     for(let favouritedBy in collection.favouritedBy) {
         if(favouritedBy == userId) {
             return Boom.conflict("User has already voted!");
@@ -122,7 +122,19 @@ function isFavourite(collectionObj, userId) {
 }
 
 export function* getFavouriteCollections(userId, page, pageSize) {
-    return yield getPagedCollectionsResult({favouritedBy: userId}, {}, page, pageSize)
+    let result = yield getPagedCollectionsResult({favouritedBy: userId}, {}, page, pageSize)
+    let collectionsList = []
+    if(result.collections !== undefined && result.collections.length > 0) {
+        for(let collection of result.collections) {
+            let collectionObj = orderAppsInCollection(collection)
+            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
+            collectionObj.isFavourite = isFavourite(collectionObj, userId)
+            collectionsList.push(collectionObj);
+        }
+    }
+
+    result.collections = collectionsList
+    return result;
 }
 
 export function* getCollectionsForUser(userId, page, pageSize) {
@@ -156,7 +168,7 @@ function* getPagedCollectionsResult(where, sort, page, pageSize) {
         .populate("apps")
     query.sort(sort)
 
-    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
 }
 
 export function* removeApp(collectionId, appId) {
