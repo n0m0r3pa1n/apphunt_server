@@ -44,6 +44,12 @@ export function* favourite(collectionId, userId) {
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
     }
+    
+    for(let favouritedBy in collection.favouritedBy) {
+        if(favouritedBy == userId) {
+            return Boom.conflict("User has already voted!");
+        }
+    }
     collection.favouritedBy.push(userId);
     yield collection.save()
 
