@@ -95,15 +95,10 @@ export function* getCollections(status, userId, sortBy, page, pageSize) {
     var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
     let result = yield getPagedCollectionsResult(where, sort, page, pageSize)
 
-    let collectionsList = []
-    for(let collection of result.collections) {
-        let collectionObj = orderAppsInCollection(collection)
-        collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
-        collectionObj.isFavourite = isFavourite(collectionObj, userId)
-        collectionsList.push(collectionObj);
+    if(result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
     }
 
-    result.collections = collectionsList
     return result;
 }
 
@@ -123,22 +118,32 @@ function isFavourite(collectionObj, userId) {
 
 export function* getFavouriteCollections(userId, page, pageSize) {
     let result = yield getPagedCollectionsResult({favouritedBy: userId}, {}, page, pageSize)
-    let collectionsList = []
     if(result.collections !== undefined && result.collections.length > 0) {
-        for(let collection of result.collections) {
-            let collectionObj = orderAppsInCollection(collection)
-            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
-            collectionObj.isFavourite = isFavourite(collectionObj, userId)
-            collectionsList.push(collectionObj);
-        }
+        result.collections = getPopulatedCollections(result.collections, userId);
     }
 
-    result.collections = collectionsList
     return result;
 }
 
+function getPopulatedCollections(collections, userId) {
+    let collectionsList = []
+    for (let collection of collections) {
+        let collectionObj = orderAppsInCollection(collection)
+        collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
+        collectionObj.isFavourite = isFavourite(collectionObj, userId)
+        collectionsList.push(collectionObj);
+    }
+
+    return collectionsList
+}
+
 export function* getCollectionsForUser(userId, page, pageSize) {
-    return yield getPagedCollectionsResult({createdBy: userId}, {}, page, pageSize)
+    let result = yield getPagedCollectionsResult({createdBy: userId}, {}, page, pageSize)
+    if(result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
 }
 
 export function* search(q, page, pageSize, userId) {
