@@ -46,7 +46,7 @@ function* create(appsCollection, userId) {
 }
 
 function* addApps(collectionId, apps) {
-    var collection = yield AppsCollection.findById(collectionId).exec();
+    var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec();
     if (!collection) {
         return Boom.notFound("Collection cannot be found!");
     }
