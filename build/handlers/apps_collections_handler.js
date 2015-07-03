@@ -119,19 +119,30 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
     var sort = sortBy == "vote" ? { votesCount: "desc", updatedAt: "desc" } : { updatedAt: "desc", votesCount: "desc" };
     var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
 
-    var collectionsList = [];
+    if (result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
+}
+
+function isFavourite(collectionObj, userId) {
+    if (userId == undefined) {
+        return false;
+    }
+
+    var userFavouritedBy = collectionObj.favouritedBy;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = result.collections[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var collection = _step.value;
+        for (var _iterator = userFavouritedBy[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var favouritedId = _step.value;
 
-            var collectionObj = orderAppsInCollection(collection);
-            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
-            collectionObj.isFavourite = isFavourite(collectionObj, userId);
-            collectionsList.push(collectionObj);
+            if (favouritedId == userId) {
+                return true;
+            }
         }
     } catch (err) {
         _didIteratorError = true;
@@ -148,27 +159,32 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
         }
     }
 
-    result.collections = collectionsList;
+    return false;
+}
+
+function* getFavouriteCollections(userId, page, pageSize) {
+    var result = yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
+    if (result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
     return result;
 }
 
-function isFavourite(collectionObj, userId) {
-    if (userId == undefined) {
-        return false;
-    }
-
-    var userFavouritedBy = collectionObj.favouritedBy;
+function getPopulatedCollections(collections, userId) {
+    var collectionsList = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator2 = userFavouritedBy[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var favouritedId = _step2.value;
+        for (var _iterator2 = collections[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var collection = _step2.value;
 
-            if (favouritedId == userId) {
-                return true;
-            }
+            var collectionObj = orderAppsInCollection(collection);
+            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
+            collectionObj.isFavourite = isFavourite(collectionObj, userId);
+            collectionsList.push(collectionObj);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -185,48 +201,16 @@ function isFavourite(collectionObj, userId) {
         }
     }
 
-    return false;
-}
-
-function* getFavouriteCollections(userId, page, pageSize) {
-    var result = yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
-    var collectionsList = [];
-    if (result.collections !== undefined && result.collections.length > 0) {
-        var _iteratorNormalCompletion3 = true;
-        var _didIteratorError3 = false;
-        var _iteratorError3 = undefined;
-
-        try {
-            for (var _iterator3 = result.collections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                var collection = _step3.value;
-
-                var collectionObj = orderAppsInCollection(collection);
-                collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
-                collectionObj.isFavourite = isFavourite(collectionObj, userId);
-                collectionsList.push(collectionObj);
-            }
-        } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-                    _iterator3["return"]();
-                }
-            } finally {
-                if (_didIteratorError3) {
-                    throw _iteratorError3;
-                }
-            }
-        }
-    }
-
-    result.collections = collectionsList;
-    return result;
+    return collectionsList;
 }
 
 function* getCollectionsForUser(userId, page, pageSize) {
-    return yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
+    var result = yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
+    if (result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
 }
 
 function* search(q, page, pageSize, userId) {
