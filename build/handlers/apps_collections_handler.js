@@ -56,7 +56,7 @@ function* addApps(collectionId, apps) {
     }
 
     yield collection.save();
-    return collection;
+    return Boom.OK();
 }
 
 function objToString(obj) {
