@@ -223,6 +223,15 @@ function favouriteCollection(collectionId, userId) {
     return Server.injectThen(opts)
 }
 
+function getCollection(collectionId) {
+    var opts = {
+        method: 'GET',
+        url: '/app-collections/' + collectionId
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -240,6 +249,7 @@ module.exports.voteAppsCollection = voteAppsCollection
 module.exports.createAppsCollection = createAppsCollection
 module.exports.createUsersCollection = createUsersCollection
 module.exports.favouriteCollection = favouriteCollection
+module.exports.getCollection = getCollection
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

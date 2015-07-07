@@ -15,7 +15,6 @@ describe("App Collections", function() {
     });
 
     it("should add app in an empty collection", function*() {
-
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
@@ -27,8 +26,10 @@ describe("App Collections", function() {
             }
         }
 
-        var response = yield Server.injectThen(opts)
-        response.result.apps.length.should.equal(1)
+       yield Server.injectThen(opts)
+
+       var response = yield dbHelper.getCollection(collectionId)
+       response.result.apps.length.should.equal(1)
     });
 
     it("should add app in not empty collection", function*() {
@@ -55,7 +56,9 @@ describe("App Collections", function() {
             }
         }
 
-        var response = yield Server.injectThen(opts)
+        yield Server.injectThen(opts)
+
+        var response = yield dbHelper.getCollection(collectionId)
         response.result.apps.length.should.equal(2)
     });
 
@@ -82,8 +85,28 @@ describe("App Collections", function() {
             }
         }
 
-        var response = yield Server.injectThen(opts)
+        yield Server.injectThen(opts)
+
+        var response = yield dbHelper.getCollection(collectionId)
         response.result.apps.length.should.equal(1)
+    });
+
+    it("should not add non existing app", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = "1234567890"
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                apps: [appId]
+            }
+        }
+        yield Server.injectThen(opts)
+
+        var response = yield dbHelper.getCollection(collectionId)
+        response.result.apps.length.should.equal(0)
     });
 
     it("should get apps collection", function*() {
@@ -100,12 +123,7 @@ describe("App Collections", function() {
         yield Server.injectThen(opts)
 
 
-        var opts = {
-            method: 'GET',
-            url: '/app-collections/' + collectionId
-        }
-
-        var response = yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
         response.result._id.toString().should.equal(collectionId.toString())
     });
 
@@ -128,12 +146,7 @@ describe("App Collections", function() {
         yield Server.injectThen(opts)
 
 
-        var opts = {
-            method: 'GET',
-            url: '/app-collections/' + collectionId
-        }
-
-        var response = yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
         var apps = response.result.apps
         apps[0]._id.toString().should.equal(app2Id.toString())
         apps[1]._id.toString().should.equal(appId.toString())
@@ -225,14 +238,9 @@ describe("App Collections", function() {
             url: '/app-collections/apps?collectionId=' + collectionId + "&appId=" + app2Id
         }
 
-        var response = yield Server.injectThen(opts)
+       yield Server.injectThen(opts)
 
-        opts = {
-            method: 'GET',
-            url: '/app-collections/' + collectionId
-        }
-
-        var response = yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
         var apps = response.result.apps
         apps.length.should.equal(1)
         apps[0]._id.toString().should.equal(appId)
@@ -275,12 +283,7 @@ describe("App Collections", function() {
         var favouriteResponse = yield dbHelper.favouriteCollection(collectionId, userId)
         favouriteResponse.result.statusCode.should.equal(STATUS_CODES.OK)
 
-        var opts = {
-            method: 'GET',
-            url: '/app-collections/' + collectionId
-        }
-
-        var response = yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
         response.result.favouritedBy.length.should.eq(1)
     })
 
@@ -301,13 +304,7 @@ describe("App Collections", function() {
         }
         yield Server.injectThen(opts)
 
-
-        var opts = {
-            method: 'GET',
-            url: '/app-collections/' + collectionId
-        }
-
-        var response = yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
         response.result.status.should.eq(COLLECTION_STATUSES.PUBLIC)
     })
 

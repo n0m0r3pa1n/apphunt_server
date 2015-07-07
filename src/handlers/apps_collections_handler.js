@@ -2,6 +2,7 @@ var _ = require("underscore")
 var Boom = require("boom")
 var models = require("../models")
 var AppsCollection = models.AppsCollection
+var App = models.App
 var User = models.User
 
 var VotesHandler = require('./votes_handler')
@@ -25,6 +26,13 @@ export function* addApps(collectionId, apps) {
     var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
+    }
+
+    for(let appId of apps) {
+        var app = yield App.findById(appId).exec();
+        if(!app) {
+            return Boom.notFound("App not found")
+        }
     }
     collection.apps = _.union( _.map( collection.apps, objToString), _.map( apps, objToString))
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {

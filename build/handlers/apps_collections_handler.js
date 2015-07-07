@@ -29,6 +29,7 @@ var _ = require("underscore");
 var Boom = require("boom");
 var models = require("../models");
 var AppsCollection = models.AppsCollection;
+var App = models.App;
 var User = models.User;
 
 var VotesHandler = require("./votes_handler");
@@ -50,6 +51,35 @@ function* addApps(collectionId, apps) {
     if (!collection) {
         return Boom.notFound("Collection cannot be found!");
     }
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var appId = _step.value;
+
+            var app = yield App.findById(appId).exec();
+            if (!app) {
+                return Boom.notFound("App not found");
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator["return"]) {
+                _iterator["return"]();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
     collection.apps = _.union(_.map(collection.apps, objToString), _.map(apps, objToString));
     if (collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
         collection.status = COLLECTION_STATUSES.PUBLIC;
@@ -132,29 +162,29 @@ function isFavourite(collectionObj, userId) {
     }
 
     var userFavouritedBy = collectionObj.favouritedBy;
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator = userFavouritedBy[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var favouritedId = _step.value;
+        for (var _iterator2 = userFavouritedBy[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var favouritedId = _step2.value;
 
             if (favouritedId == userId) {
                 return true;
             }
         }
     } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion && _iterator["return"]) {
-                _iterator["return"]();
+            if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                _iterator2["return"]();
             }
         } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
+            if (_didIteratorError2) {
+                throw _iteratorError2;
             }
         }
     }
@@ -173,13 +203,13 @@ function* getFavouriteCollections(userId, page, pageSize) {
 
 function getPopulatedCollections(collections, userId) {
     var collectionsList = [];
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
 
     try {
-        for (var _iterator2 = collections[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var collection = _step2.value;
+        for (var _iterator3 = collections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var collection = _step3.value;
 
             var collectionObj = orderAppsInCollection(collection);
             collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
@@ -187,16 +217,16 @@ function getPopulatedCollections(collections, userId) {
             collectionsList.push(collectionObj);
         }
     } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-                _iterator2["return"]();
+            if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+                _iterator3["return"]();
             }
         } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
+            if (_didIteratorError3) {
+                throw _iteratorError3;
             }
         }
     }
