@@ -182,8 +182,8 @@ var collectionsRoutes = [
         path: "/app-collections/{collectionId}",
         handler: function(req,reply) {
             var collectionId = req.params.collectionId
-            var apps = req.payload.apps
-            reply.co(AppsCollectionsHandler.addApps(collectionId, apps))
+            var collection = req.payload.collection
+            reply.co(AppsCollectionsHandler.update(collectionId, collection))
         },
         config: {
             validate: {
@@ -191,11 +191,15 @@ var collectionsRoutes = [
                     collectionId: Joi.string().required()
                 },
                 payload: {
-                    apps: Joi.array().min(1).items(Joi.string()).unique().required()
+                    collection: Joi.object({
+                        name: Joi.string().required(),
+                        picture: Joi.string().required(),
+                        description: Joi.string().required(),
+                        apps: Joi.array().min(1).items(Joi.string()).unique().required()}).unknown()
                 }
             },
             auth: false,
-            description: 'Add app(s) to collection',
+            description: 'Update apps collection',
             tags: ['api']
         }
     },

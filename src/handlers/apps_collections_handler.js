@@ -22,24 +22,30 @@ export function* create(appsCollection, userId) {
     return collection;
 }
 
-export function* addApps(collectionId, apps) {
+export function* update(collectionId, newCollection) {
     var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
     }
 
-    for(let appId of apps) {
+    for(let appId of newCollection.apps) {
         var app = yield App.findById(appId).exec();
         if(!app) {
             return Boom.notFound("App not found")
         }
     }
-    collection.apps = _.union( _.map( collection.apps, objToString), _.map( apps, objToString))
+
+    collection.apps = newCollection.apps
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
         collection.status = COLLECTION_STATUSES.PUBLIC
     }
 
+    collection.name = newCollection.name
+    collection.description = newCollection.description
+    collection.picture = newCollection.picture
+
     yield collection.save()
+
     return Boom.OK()
 }
 

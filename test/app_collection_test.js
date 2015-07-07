@@ -5,6 +5,14 @@ var AppsCollection = require("../build/models").AppsCollection
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var COLLECTION_STATUSES = require('../build/config/config').COLLECTION_STATUSES
 
+var updateCollection = {
+    name: "Name",
+    description: "Desc",
+    picture: "Pic",
+    apps: []
+}
+
+
 describe("App Collections", function() {
 
     it("should create apps collection", function*() {
@@ -14,15 +22,44 @@ describe("App Collections", function() {
         response.result.apps.length.should.equal(0)
     });
 
-    it("should add app in an empty collection", function*() {
+    it("should update apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
+
+        updateCollection.name = "TestName"
+        updateCollection.description = "TestDesc"
+        updateCollection.picture = "TestPic"
+        updateCollection.apps = [appId]
+
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId]
+                collection: updateCollection
+            }
+        }
+
+        yield Server.injectThen(opts)
+        var response = yield dbHelper.getCollection(collectionId)
+        response.result.name.should.eq("TestName")
+        response.result.description.should.eq("TestDesc")
+        response.result.picture.should.eq("TestPic")
+        response.result.apps.length.should.eq(1)
+    });
+
+    it("should add app in an empty collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+
+        updateCollection.apps = [appId]
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId,
+            payload: {
+                collection: updateCollection
             }
         }
 
@@ -37,22 +74,23 @@ describe("App Collections", function() {
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
 
+        updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
 
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.omv.bg")).result.id
-
+        updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [app2Id]
+                collection: updateCollection
             }
         }
 
@@ -62,45 +100,17 @@ describe("App Collections", function() {
         response.result.apps.length.should.equal(2)
     });
 
-    it("should not add app already in collection", function*() {
-        var userId = (yield dbHelper.createUser()).result.id
-        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
-        var appId = (yield dbHelper.createApp(userId)).result.id
-
-        var opts = {
-            method: 'PUT',
-            url: '/app-collections/' + collectionId,
-            payload: {
-                apps: [appId]
-            }
-        }
-        yield Server.injectThen(opts)
-
-
-        var opts = {
-            method: 'PUT',
-            url: '/app-collections/' + collectionId,
-            payload: {
-                apps: [appId]
-            }
-        }
-
-        yield Server.injectThen(opts)
-
-        var response = yield dbHelper.getCollection(collectionId)
-        response.result.apps.length.should.equal(1)
-    });
-
     it("should not add non existing app", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = "1234567890"
 
+        updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -113,11 +123,13 @@ describe("App Collections", function() {
         var userId = (yield dbHelper.createUser()).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -136,11 +148,12 @@ describe("App Collections", function() {
         yield dbHelper.voteApp(app2Id, user2Id)
 
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, app2Id]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -193,11 +206,13 @@ describe("App Collections", function() {
 
         var collectionResponse = yield dbHelper.createAppsCollection(userId)
         var collectionId = collectionResponse.result.id
+        updateCollection.name = collectionResponse.result.name
+        updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, app2Id]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -224,11 +239,12 @@ describe("App Collections", function() {
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "tctctc")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
+        updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, app2Id]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -252,11 +268,12 @@ describe("App Collections", function() {
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "tctctc")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
+        updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, app2Id]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -295,11 +312,12 @@ describe("App Collections", function() {
         var appId3 = (yield dbHelper.createAppWithPackage(userId, "com.shtastie")).result.id
         var appId4 = (yield dbHelper.createAppWithPackage(userId, "com.sadpanda")).result.id
 
+        updateCollection.apps = [appId, appId2, appId3, appId4]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, appId2, appId3, appId4]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)
@@ -316,11 +334,12 @@ describe("App Collections", function() {
         var appId3 = (yield dbHelper.createAppWithPackage(userId, "com.shtastie")).result.id
         var appId4 = (yield dbHelper.createAppWithPackage(userId, "com.sadpanda")).result.id
 
+        updateCollection.apps = [appId, appId2, appId3, appId4]
         var opts = {
             method: 'PUT',
             url: '/app-collections/' + collectionId,
             payload: {
-                apps: [appId, appId2, appId3, appId4]
+                collection: updateCollection
             }
         }
         yield Server.injectThen(opts)

@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.create = create;
-exports.addApps = addApps;
+exports.update = update;
 exports.favourite = favourite;
 exports.unfavourite = unfavourite;
 exports.get = get;
@@ -46,7 +46,7 @@ function* create(appsCollection, userId) {
     return collection;
 }
 
-function* addApps(collectionId, apps) {
+function* update(collectionId, newCollection) {
     var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec();
     if (!collection) {
         return Boom.notFound("Collection cannot be found!");
@@ -57,7 +57,7 @@ function* addApps(collectionId, apps) {
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = newCollection.apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var appId = _step.value;
 
             var app = yield App.findById(appId).exec();
@@ -80,12 +80,17 @@ function* addApps(collectionId, apps) {
         }
     }
 
-    collection.apps = _.union(_.map(collection.apps, objToString), _.map(apps, objToString));
+    collection.apps = newCollection.apps;
     if (collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
         collection.status = COLLECTION_STATUSES.PUBLIC;
     }
 
+    collection.name = newCollection.name;
+    collection.description = newCollection.description;
+    collection.picture = newCollection.picture;
+
     yield collection.save();
+
     return Boom.OK();
 }
 
