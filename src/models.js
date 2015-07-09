@@ -142,7 +142,12 @@ var usersCollectionSchema = new Schema(_.extend({}, baseCollection,
             votes: {type: Number, default: 0}
         }]
     })
+)
 
+var collectionBannerSchema = new Schema(
+    {
+        url: String
+    }
 )
 
 
@@ -171,4 +176,5 @@ module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 module.exports.Developer = Mongoose.model('Developer', developerSchema)
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema)
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema)
+module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema)
 

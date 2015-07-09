@@ -127,6 +127,10 @@ var usersCollectionSchema = new Schema(_.extend({}, baseCollection, {
     }]
 }));
 
+var collectionBannerSchema = new Schema({
+    url: String
+});
+
 userSchema.plugin(Timestamps);
 appSchema.plugin(Timestamps);
 voteSchema.plugin(Timestamps);
@@ -152,3 +156,4 @@ module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema);
 module.exports.Developer = Mongoose.model('Developer', developerSchema);
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema);
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema);
+module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema);

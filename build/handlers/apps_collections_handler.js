@@ -14,6 +14,8 @@ exports.getCollectionsForUser = getCollectionsForUser;
 exports.search = search;
 exports.removeApp = removeApp;
 exports.removeCollection = removeCollection;
+exports.getBanners = getBanners;
+exports.createBanner = createBanner;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
@@ -31,6 +33,7 @@ var models = require("../models");
 var AppsCollection = models.AppsCollection;
 var App = models.App;
 var User = models.User;
+var CollectionBanner = models.CollectionBanner;
 
 var VotesHandler = require("./votes_handler");
 var Config = require("../config/config");
@@ -294,5 +297,15 @@ function* removeApp(collectionId, appId) {
 
 function* removeCollection(collectionId) {
     var collection = yield AppsCollection.remove({ _id: collectionId }).exec();
+    return Boom.OK();
+}
+
+function* getBanners() {
+    return yield CollectionBanner.find({}).exec();
+}
+
+function* createBanner(url) {
+    var banner = new CollectionBanner({ url: url });
+    yield banner.save();
     return Boom.OK();
 }

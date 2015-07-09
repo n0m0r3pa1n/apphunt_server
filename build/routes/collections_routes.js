@@ -384,6 +384,29 @@ var collectionsRoutes = [{
         description: "Remove users collection",
         tags: ["api"]
     }
+}, {
+    method: "GET",
+    path: "/app-collections/banners",
+    handler: function handler(req, reply) {
+        reply.co(AppsCollectionsHandler.getBanners());
+    }
+
+}, {
+    method: "POST",
+    path: "/app-collections/banners",
+    handler: function handler(req, reply) {
+        reply.co(AppsCollectionsHandler.createBanner(req.payload.url));
+    },
+    config: {
+        validate: {
+            payload: {
+                url: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: "Create collection banner",
+        tags: ["api"]
+    }
 }];
 
 module.exports.collectionsRoutes = collectionsRoutes;

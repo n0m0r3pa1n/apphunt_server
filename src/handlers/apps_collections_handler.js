@@ -4,6 +4,7 @@ var models = require("../models")
 var AppsCollection = models.AppsCollection
 var App = models.App
 var User = models.User
+var CollectionBanner = models.CollectionBanner
 
 var VotesHandler = require('./votes_handler')
 var Config = require('../config/config')
@@ -124,10 +125,10 @@ function isFavourite(collectionObj, userId) {
     let userFavouritedBy = collectionObj.favouritedBy
     for(let favouritedId of userFavouritedBy) {
         if(favouritedId == userId) {
-            return true;
+            return true
         }
     }
-    return false;
+    return false
 }
 
 export function* getFavouriteCollections(userId, page, pageSize) {
@@ -136,7 +137,7 @@ export function* getFavouriteCollections(userId, page, pageSize) {
         result.collections = getPopulatedCollections(result.collections, userId);
     }
 
-    return result;
+    return result
 }
 
 function getPopulatedCollections(collections, userId) {
@@ -187,7 +188,7 @@ function* getPagedCollectionsResult(where, sort, page, pageSize) {
         .populate("apps")
     query.sort(sort)
 
-    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
 }
 
 export function* removeApp(collectionId, appId) {
@@ -204,10 +205,20 @@ export function* removeApp(collectionId, appId) {
     }
 
     yield collection.save()
-    return Boom.OK();
+    return Boom.OK()
 }
 
 export function* removeCollection(collectionId) {
     var collection = yield AppsCollection.remove({_id: collectionId}).exec()
-    return Boom.OK();
+    return Boom.OK()
+}
+
+export function* getBanners() {
+    return yield CollectionBanner.find({}).exec()
+}
+
+export function* createBanner(url) {
+    var banner = new CollectionBanner({url: url})
+    yield banner.save()
+    return Boom.OK()
 }
