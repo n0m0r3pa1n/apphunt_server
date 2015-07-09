@@ -389,8 +389,10 @@ var collectionsRoutes = [{
     path: "/app-collections/banners",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.getBanners());
-    }
-
+    },
+    auth: false,
+    description: "Get collection banners",
+    tags: ["api"]
 }, {
     method: "POST",
     path: "/app-collections/banners",
