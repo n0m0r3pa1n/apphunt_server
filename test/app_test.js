@@ -118,6 +118,7 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
+        response.result.apps[0].categories.length.should.exist()
     });
 
     it("should get apps by date", function*() {

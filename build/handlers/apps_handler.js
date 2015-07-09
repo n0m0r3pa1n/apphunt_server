@@ -118,13 +118,41 @@ function getClearedAppPackage(packageName) {
 }
 
 function* getAppCategories(parsedApp) {
-    var appCategories = [];
-    for (var index in parsedApp.categories) {
-        var category = yield AppCategory.findOneOrCreate({ name: parsedApp.categories[index] }, { name: parsedApp.categories[index] });
-        appCategories.push(category);
+    var categoryName = getFormattedCategory(parsedApp.category);
+    var categories = [];
+    var category = yield AppCategory.findOneOrCreate({ name: categoryName }, { name: categoryName });
+    categories.push(category);
+
+    return categories;
+}
+
+function getFormattedCategory(category) {
+    var res = category.split('/');
+
+    var newCategory = res[res.length - 1].toLowerCase();
+    newCategory = newCategory.capitalizeFirstLetter();
+    newCategory = newCategory.replace('and', '&');
+    newCategory = newCategory.replaceAll('_', ' ');
+
+    var finalCategory = newCategory;
+
+    var split = newCategory.split(' ');
+    if (split.length > 1) {
+        finalCategory = '';
+        for (var i = 0; i < split.length; i++) {
+            var part = split[i];
+            if (i == split.length - 1) {
+                finalCategory += part.capitalizeFirstLetter();
+            } else {
+                if (part === 'Game') {
+                    continue;
+                }
+                finalCategory += part.capitalizeFirstLetter() + ' ';
+            }
+        }
     }
 
-    return appCategories;
+    return finalCategory;
 }
 
 function* update(app) {
@@ -323,6 +351,33 @@ function* formatApps(userId, apps) {
 
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
+        var categories = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = apps[i].categories[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var category = _step.value;
+
+                categories.push(category.name);
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator['return']) {
+                    _iterator['return']();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
+        apps[i].categories = categories;
     }
 
     removeUnusedFields(apps);

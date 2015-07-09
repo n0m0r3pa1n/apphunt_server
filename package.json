@@ -41,7 +41,7 @@
     "simple-mock": "latest"
   },
   "scripts": {
-    "start": "nodemon --harmony -w ./build",
+    "start": "nodemon --harmony -w ./build ./build/index.js",
     "test": "node_modules/mocha/bin/mocha --harmony -w"
   },
   "engines": {

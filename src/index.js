@@ -8,7 +8,7 @@ import * as AuthenticationHandler from './handlers/authentication_handler.js'
 import {PRIVATE_KEY} from './config/config.js'
 
 var STATUS_CODES = require('./config/config').STATUS_CODES
-var JSExtensions = require('./utils/js_extension_utils')
+var JSExtensions = require('./utils/extension_utils')
 
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 

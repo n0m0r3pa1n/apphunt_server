@@ -102,13 +102,41 @@ function getClearedAppPackage(packageName) {
 }
 
 function* getAppCategories(parsedApp) {
-    var appCategories = []
-    for (var index in parsedApp.categories) {
-        var category = yield AppCategory.findOneOrCreate({name: parsedApp.categories[index]}, {name: parsedApp.categories[index]})
-        appCategories.push(category)
+    let categoryName = getFormattedCategory(parsedApp.category);
+    let categories = []
+    var category = yield AppCategory.findOneOrCreate({name: categoryName}, {name: categoryName})
+    categories.push(category)
+
+    return categories
+}
+
+function getFormattedCategory(category) {
+    var res = category.split("/");
+
+    var newCategory = res[res.length-1].toLowerCase();
+    newCategory = newCategory.capitalizeFirstLetter()
+    newCategory = newCategory.replace('and', '&')
+    newCategory = newCategory.replaceAll('_', ' ')
+
+    let finalCategory = newCategory;
+
+    let split = newCategory.split(' ')
+    if(split.length > 1) {
+        finalCategory = "";
+        for(let i=0; i < split.length; i ++) {
+            let part = split[i]
+            if(i == split.length-1) {
+                finalCategory += part.capitalizeFirstLetter();
+            } else {
+                if(part === "Game") {
+                    continue;
+                }
+                finalCategory += part.capitalizeFirstLetter() + " ";
+            }
+        }
     }
 
-    return appCategories
+    return finalCategory;
 }
 
 export function* update(app) {
@@ -313,6 +341,11 @@ function* formatApps(userId, apps) {
 
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id)
+        let categories = []
+        for(let category of apps[i].categories) {
+            categories.push(category.name)
+        }
+        apps[i].categories = categories
     }
 
     removeUnusedFields(apps)
