@@ -43,6 +43,12 @@ var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION;
 function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec();
     appsCollection.createdBy = user;
+    if (appsCollection.picture == undefined) {
+        var count = yield CollectionBanner.count().exec();
+        var rand = Math.floor(Math.random() * count);
+        var banner = yield CollectionBanner.findOne().skip(rand);
+        appsCollection.picture = banner;
+    }
     var collection = yield AppsCollection.create(appsCollection);
     yield VotesHandler.createCollectionVote(collection.id, userId);
 

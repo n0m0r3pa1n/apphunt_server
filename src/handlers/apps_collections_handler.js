@@ -17,6 +17,12 @@ import * as UserHandler from './users_handler.js'
 export function* create(appsCollection, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
+    if(appsCollection.picture == undefined) {
+        let count = yield CollectionBanner.count().exec()
+        let rand = Math.floor(Math.random() * count);
+        let banner = yield CollectionBanner.findOne().skip(rand)
+        appsCollection.picture = banner;
+    }
     var collection =  yield AppsCollection.create(appsCollection)
     yield VotesHandler.createCollectionVote(collection.id, userId)
 
