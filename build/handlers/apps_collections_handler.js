@@ -301,7 +301,34 @@ function* removeCollection(collectionId) {
 }
 
 function* getBanners() {
-    return yield CollectionBanner.find({}).exec();
+    var banners = yield CollectionBanner.find({}).select({ "url": 1, "_id": 0 }).exec();
+    var result = [];
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+        for (var _iterator4 = banners[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var banner = _step4.value;
+
+            result.push(banner.url);
+        }
+    } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+                _iterator4["return"]();
+            }
+        } finally {
+            if (_didIteratorError4) {
+                throw _iteratorError4;
+            }
+        }
+    }
+
+    return { banners: result };
 }
 
 function* createBanner(url) {

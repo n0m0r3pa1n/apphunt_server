@@ -214,7 +214,13 @@ export function* removeCollection(collectionId) {
 }
 
 export function* getBanners() {
-    return yield CollectionBanner.find({}).exec()
+    let banners = yield CollectionBanner.find({}).select({ "url": 1, "_id": 0}).exec()
+    let result = []
+    for (let banner of banners) {
+        result.push(banner.url)
+    }
+
+    return {banners: result};
 }
 
 export function* createBanner(url) {

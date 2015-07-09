@@ -504,6 +504,6 @@ describe("App Collections", function() {
         }
 
         var response2 = yield Server.injectThen(opts2)
-        response2.result[0].url.should.eq('test')
+        response2.result.banners[0].should.eq('test')
     })
 })
