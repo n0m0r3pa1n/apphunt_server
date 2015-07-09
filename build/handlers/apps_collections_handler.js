@@ -46,7 +46,7 @@ function* create(appsCollection, userId) {
     if (appsCollection.picture == undefined) {
         var count = yield CollectionBanner.count().exec();
         var rand = Math.floor(Math.random() * count);
-        var banner = yield CollectionBanner.findOne().skip(rand);
+        var banner = yield CollectionBanner.findOne().skip(rand).exec();
         appsCollection.picture = banner;
     }
     var collection = yield AppsCollection.create(appsCollection);

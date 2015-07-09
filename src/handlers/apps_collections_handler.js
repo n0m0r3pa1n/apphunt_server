@@ -20,7 +20,7 @@ export function* create(appsCollection, userId) {
     if(appsCollection.picture == undefined) {
         let count = yield CollectionBanner.count().exec()
         let rand = Math.floor(Math.random() * count);
-        let banner = yield CollectionBanner.findOne().skip(rand)
+        let banner = yield CollectionBanner.findOne().skip(rand).exec()
         appsCollection.picture = banner;
     }
     var collection =  yield AppsCollection.create(appsCollection)
