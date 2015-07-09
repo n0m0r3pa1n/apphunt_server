@@ -22,6 +22,24 @@ describe("App Collections", function() {
         response.result.apps.length.should.equal(0)
     });
 
+    it("should create apps collection without banner", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        yield dbHelper.createBanner("AAAAA");
+        yield dbHelper.createBanner("AAAAABBBB");
+
+        var opts = {
+            method: 'POST',
+            url: '/app-collections',
+            payload: {
+                userId: userId,
+                name: "Top apps for march",
+                description: "The best apps for march"
+            }
+        }
+        var response = yield Server.injectThen(opts)
+        response.result.picture.should.exist()
+    });
+
     it("should update apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
