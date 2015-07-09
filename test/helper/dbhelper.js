@@ -232,10 +232,23 @@ function getCollection(collectionId) {
     return Server.injectThen(opts)
 }
 
+function createBanner(url) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections/banners',
+        payload: {
+            url: url
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
 module.exports.createAppWithParams = createAppWithParams
+module.exports.createBanner = createBanner
 module.exports.createUser = createUser
 module.exports.createUserWithParams = createUserWithParams
 module.exports.createUserWithLoginType = createUserWithLoginType

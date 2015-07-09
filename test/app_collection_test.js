@@ -495,4 +495,15 @@ describe("App Collections", function() {
         var response2 = yield Server.injectThen(opts2)
         response2.result.collections.length.should.eq(0)
     })
+
+    it("should create banner", function* () {
+        var banner = (yield dbHelper.createBanner("test")).result.id
+        var opts2 = {
+            method: 'GET',
+            url: "/app-collections/banners",
+        }
+
+        var response2 = yield Server.injectThen(opts2)
+        response2.result[0].url.should.eq('test')
+    })
 })

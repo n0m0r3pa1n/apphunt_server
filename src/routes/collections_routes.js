@@ -403,9 +403,11 @@ var collectionsRoutes = [
         handler: function(req, reply) {
             reply.co(AppsCollectionsHandler.getBanners())
         },
-        auth:false,
-        description: "Get collection banners",
-        tags: ['api']
+        config: {
+            auth: false,
+            description: "Get collection banners",
+            tags: ['api']
+        }
     },
     {
         method: "POST",
