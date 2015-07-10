@@ -105,9 +105,7 @@ function* update(collectionId, newCollection, userId) {
     collection.picture = newCollection.picture;
 
     var savedCollection = yield collection.save();
-    var result = yield AppsCollection.find(savedCollection).populate("createdBy apps votes").deepPopulate("apps.createdBy").exec();
-
-    console.log(getPopulatedCollection(result, userId));
+    var result = yield AppsCollection.findById(savedCollection.id).populate("createdBy apps votes").deepPopulate("apps.createdBy").exec();
     return getPopulatedCollection(result, userId);
 }
 
@@ -258,7 +256,6 @@ function getPopulatedCollection(collection, userId) {
     var collectionObj = orderAppsInCollection(collection);
     collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
     collectionObj.isFavourite = isFavourite(collectionObj, userId);
-
     return collectionObj;
 }
 

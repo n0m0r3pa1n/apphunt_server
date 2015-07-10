@@ -58,9 +58,8 @@ export function* update(collectionId, newCollection, userId) {
     collection.picture = newCollection.picture
 
     let savedCollection = yield collection.save()
-    let result = yield AppsCollection.find(savedCollection).populate('createdBy apps votes').deepPopulate('apps.createdBy').exec()
+    let result = yield AppsCollection.findById(savedCollection.id).populate('createdBy apps votes').deepPopulate('apps.createdBy').exec()
 
-    console.log(getPopulatedCollection(result, userId))
     return getPopulatedCollection(result, userId)
 }
 
@@ -168,7 +167,6 @@ function getPopulatedCollection(collection, userId) {
     let collectionObj = orderAppsInCollection(collection)
     collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
     collectionObj.isFavourite = isFavourite(collectionObj, userId)
-
     return collectionObj;
 }
 

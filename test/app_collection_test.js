@@ -58,8 +58,8 @@ describe("App Collections", function() {
             }
         }
 
-        yield Server.injectThen(opts)
-        var response = yield dbHelper.getCollection(collectionId)
+        var response = yield Server.injectThen(opts)
+        console.log(response.result)
         response.result.name.should.eq("TestName")
         response.result.description.should.eq("TestDesc")
         response.result.picture.should.eq("TestPic")
