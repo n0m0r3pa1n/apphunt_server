@@ -55,10 +55,14 @@ function* create(appsCollection, userId) {
     return collection;
 }
 
-function* update(collectionId, newCollection) {
+function* update(collectionId, newCollection, userId) {
     var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec();
     if (!collection) {
         return Boom.notFound("Collection cannot be found!");
+    }
+
+    if (!(collection.createdBy.id === userId)) {
+        return Boom.methodNotAllowed("Created by is different from user id.");
     }
 
     var _iteratorNormalCompletion = true;
@@ -101,7 +105,10 @@ function* update(collectionId, newCollection) {
     collection.picture = newCollection.picture;
 
     var savedCollection = yield collection.save();
-    return yield AppsCollection.find(savedCollection).populate("apps").exec();
+    var result = yield AppsCollection.find(savedCollection).populate("createdBy apps votes").deepPopulate("apps.createdBy").exec();
+
+    console.log(getPopulatedCollection(result, userId));
+    return getPopulatedCollection(result, userId);
 }
 
 function objToString(obj) {
@@ -226,9 +233,7 @@ function getPopulatedCollections(collections, userId) {
         for (var _iterator3 = collections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var collection = _step3.value;
 
-            var collectionObj = orderAppsInCollection(collection);
-            collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
-            collectionObj.isFavourite = isFavourite(collectionObj, userId);
+            var collectionObj = getPopulatedCollection(collection, userId);
             collectionsList.push(collectionObj);
         }
     } catch (err) {
@@ -247,6 +252,14 @@ function getPopulatedCollections(collections, userId) {
     }
 
     return collectionsList;
+}
+
+function getPopulatedCollection(collection, userId) {
+    var collectionObj = orderAppsInCollection(collection);
+    collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
+    collectionObj.isFavourite = isFavourite(collectionObj, userId);
+
+    return collectionObj;
 }
 
 function* getCollectionsForUser(userId, page, pageSize) {

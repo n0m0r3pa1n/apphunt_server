@@ -181,10 +181,14 @@ var collectionsRoutes = [{
     handler: function handler(req, reply) {
         var collectionId = req.params.collectionId;
         var collection = req.payload.collection;
-        reply.co(AppsCollectionsHandler.update(collectionId, collection));
+        var userId = req.query.userId;
+        reply.co(AppsCollectionsHandler.update(collectionId, collection, userId));
     },
     config: {
         validate: {
+            query: {
+                userId: Joi.string().required()
+            },
             params: {
                 collectionId: Joi.string().required()
             },

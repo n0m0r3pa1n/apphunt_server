@@ -29,10 +29,14 @@ export function* create(appsCollection, userId) {
     return collection;
 }
 
-export function* update(collectionId, newCollection) {
-    var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec()
+export function* update(collectionId, newCollection, userId) {
+    var collection = yield AppsCollection.findById(collectionId).populate('createdBy').exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
+    }
+
+    if(!(collection.createdBy.id === userId)) {
+        return Boom.methodNotAllowed("Created by is different from user id.")
     }
 
     for(let appId of newCollection.apps) {
@@ -54,7 +58,10 @@ export function* update(collectionId, newCollection) {
     collection.picture = newCollection.picture
 
     let savedCollection = yield collection.save()
-    return yield AppsCollection.find(savedCollection).populate('apps').exec()
+    let result = yield AppsCollection.find(savedCollection).populate('createdBy apps votes').deepPopulate('apps.createdBy').exec()
+
+    console.log(getPopulatedCollection(result, userId))
+    return getPopulatedCollection(result, userId)
 }
 
 function objToString(obj) {
@@ -150,13 +157,19 @@ export function* getFavouriteCollections(userId, page, pageSize) {
 function getPopulatedCollections(collections, userId) {
     let collectionsList = []
     for (let collection of collections) {
-        let collectionObj = orderAppsInCollection(collection)
-        collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
-        collectionObj.isFavourite = isFavourite(collectionObj, userId)
+        let collectionObj = getPopulatedCollection(collection, userId)
         collectionsList.push(collectionObj);
     }
 
     return collectionsList
+}
+
+function getPopulatedCollection(collection, userId) {
+    let collectionObj = orderAppsInCollection(collection)
+    collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
+    collectionObj.isFavourite = isFavourite(collectionObj, userId)
+
+    return collectionObj;
 }
 
 export function* getCollectionsForUser(userId, page, pageSize) {

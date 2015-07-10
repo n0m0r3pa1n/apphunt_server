@@ -52,7 +52,7 @@ describe("App Collections", function() {
 
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -66,6 +66,26 @@ describe("App Collections", function() {
         response.result.apps.length.should.eq(1)
     });
 
+    it("should not update apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("ASAS")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+
+        updateCollection.apps = [appId]
+
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId + "?userId=" + user2Id,
+            payload: {
+                collection: updateCollection
+            }
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.statusCode.should.eq(STATUS_CODES.METHOD_NOT_ALLOWED)
+    });
+
     it("should add app in an empty collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
@@ -75,7 +95,7 @@ describe("App Collections", function() {
 
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -95,7 +115,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -106,7 +126,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -126,7 +146,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -145,7 +165,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -169,7 +189,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -228,7 +248,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -260,7 +280,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -289,7 +309,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, app2Id]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -333,7 +353,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, appId2, appId3, appId4]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
@@ -355,7 +375,7 @@ describe("App Collections", function() {
         updateCollection.apps = [appId, appId2, appId3, appId4]
         var opts = {
             method: 'PUT',
-            url: '/app-collections/' + collectionId,
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
             payload: {
                 collection: updateCollection
             }
