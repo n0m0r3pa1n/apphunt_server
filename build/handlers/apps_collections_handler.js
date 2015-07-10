@@ -92,15 +92,15 @@ function* update(collectionId, newCollection) {
     collection.apps = newCollection.apps;
     if (collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
         collection.status = COLLECTION_STATUSES.PUBLIC;
+    } else {
+        collection.status = COLLECTION_STATUSES.DRAFT;
     }
 
     collection.name = newCollection.name;
     collection.description = newCollection.description;
     collection.picture = newCollection.picture;
 
-    yield collection.save();
-
-    return Boom.OK();
+    return yield collection.save();
 }
 
 function objToString(obj) {

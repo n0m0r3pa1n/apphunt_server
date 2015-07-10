@@ -53,9 +53,7 @@ export function* update(collectionId, newCollection) {
     collection.description = newCollection.description
     collection.picture = newCollection.picture
 
-    yield collection.save()
-
-    return Boom.OK()
+    return yield collection.save()
 }
 
 function objToString(obj) {
