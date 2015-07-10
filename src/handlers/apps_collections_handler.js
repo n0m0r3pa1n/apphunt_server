@@ -53,7 +53,8 @@ export function* update(collectionId, newCollection) {
     collection.description = newCollection.description
     collection.picture = newCollection.picture
 
-    return yield collection.save()
+    let savedCollection = yield collection.save()
+    return yield AppsCollection.find(savedCollection).populate('apps').exec()
 }
 
 function objToString(obj) {
