@@ -193,7 +193,7 @@ var collectionsRoutes = [{
                     name: Joi.string().required(),
                     picture: Joi.string().required(),
                     description: Joi.string().required(),
-                    apps: Joi.array().min(1).items(Joi.string()).unique().required() }).unknown()
+                    apps: Joi.array().items(Joi.string()).unique().required() }).unknown()
             }
         },
         auth: false,
