@@ -72,6 +72,30 @@ var collectionsRoutes = [
     },
     {
         method: "GET",
+        path:"/app-collections/available",
+        handler: function(req, reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+
+            reply.co(AppsCollectionsHandler.getAvailableCollections(req.query.userId, req.query.appId, req.query.status, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required(),
+                    appId: Joi.string().required(),
+                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                }
+            },
+            auth: false,
+            description: 'Get apps collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
         path: "/app-collections/favourites",
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page

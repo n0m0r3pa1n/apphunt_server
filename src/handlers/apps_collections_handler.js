@@ -130,6 +130,18 @@ export function* getCollections(status, userId, sortBy, page, pageSize) {
     return result;
 }
 
+export function* getAvailableCollections(userId, appId, status, page, pageSize) {
+    var where = status === undefined ? {} : {status: status}
+    where.createdBy = {$eq: userId }
+    where.apps = {$ne: appId}
+    let result = yield getPagedCollectionsResult(where, {}, page, pageSize)
+    if(result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
+}
+
 function isFavourite(collectionObj, userId) {
     if(userId == undefined) {
         return false;

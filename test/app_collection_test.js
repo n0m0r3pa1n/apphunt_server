@@ -59,7 +59,6 @@ describe("App Collections", function() {
         }
 
         var response = yield Server.injectThen(opts)
-        console.log(response.result)
         response.result.name.should.eq("TestName")
         response.result.description.should.eq("TestDesc")
         response.result.picture.should.eq("TestPic")
@@ -175,6 +174,31 @@ describe("App Collections", function() {
 
         var response = yield dbHelper.getCollection(collectionId)
         response.result._id.toString().should.equal(collectionId.toString())
+    });
+
+    it("should get available collections for app", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        updateCollection.apps = [appId]
+        var opts = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
+            payload: {
+                collection: updateCollection
+            }
+        }
+        yield Server.injectThen(opts)
+
+        var opts = {
+            method: 'GET',
+            url: '/app-collections/available?appId=' + appId + "&userId=" + userId,
+        }
+        var response = yield Server.injectThen(opts)
+        response.result.collections.length.should.eq(1)
+        String(response.result.collections[0]._id).should.eq(collection2Id)
     });
 
     it("should get apps collection with sorted by votesCount apps", function*() {

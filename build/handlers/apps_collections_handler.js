@@ -9,6 +9,7 @@ exports.favourite = favourite;
 exports.unfavourite = unfavourite;
 exports.get = get;
 exports.getCollections = getCollections;
+exports.getAvailableCollections = getAvailableCollections;
 exports.getFavouriteCollections = getFavouriteCollections;
 exports.getCollectionsForUser = getCollectionsForUser;
 exports.search = search;
@@ -106,6 +107,7 @@ function* update(collectionId, newCollection, userId) {
 
     var savedCollection = yield collection.save();
     var result = yield AppsCollection.findById(savedCollection.id).populate("createdBy apps votes").deepPopulate("apps.createdBy").exec();
+
     return getPopulatedCollection(result, userId);
 }
 
@@ -169,6 +171,18 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
     var sort = sortBy == "vote" ? { votesCount: "desc", updatedAt: "desc" } : { updatedAt: "desc", votesCount: "desc" };
     var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
 
+    if (result.collections !== undefined && result.collections.length > 0) {
+        result.collections = getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
+}
+
+function* getAvailableCollections(userId, appId, status, page, pageSize) {
+    var where = status === undefined ? {} : { status: status };
+    where.createdBy = { $eq: userId };
+    where.apps = { $ne: appId };
+    var result = yield getPagedCollectionsResult(where, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
         result.collections = getPopulatedCollections(result.collections, userId);
     }
