@@ -51,6 +51,7 @@ export function* update(collectionId, newCollection, userId) {
         collection.status = COLLECTION_STATUSES.PUBLIC
     } else {
         collection.status = COLLECTION_STATUSES.DRAFT
+        collection.favouritedBy = []
     }
 
     collection.name = newCollection.name
