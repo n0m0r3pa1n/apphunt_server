@@ -8,36 +8,33 @@ exports.getPaginatedResultsWithName = getPaginatedResultsWithName;
 exports.getPaginatedResults = getPaginatedResults;
 
 function* getPaginatedResultsWithNameAndCount(query, resultsName, countQuery, currentPage, pageSize) {
-    var totalPages = 0;
     var totalRecordsCount = yield countQuery.count().exec();
 
     setupPaginatedQuery(query, currentPage, pageSize);
 
     var results = yield query.find().exec();
 
-    return getResponse(results, resultsName, totalRecordsCount, currentPage, totalPages);
+    return getResponse(results, resultsName, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
 function* getPaginatedResultsWithName(query, resultsName, currentPage, pageSize) {
-    var totalPages = 0;
     var totalRecordsCount = yield query.count().exec();
 
     setupPaginatedQuery(query, currentPage, pageSize);
 
     var results = yield query.find().exec();
-    return getResponse(results, resultsName, totalRecordsCount, currentPage, totalPages);
+    return getResponse(results, resultsName, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
 function* getPaginatedResults(query, currentPage, pageSize) {
     var response = {};
-    var totalPages = 0;
     var totalRecordsCount = yield query.count().exec();
 
     setupPaginatedQuery(query, currentPage, pageSize);
 
     var results = yield query.find().exec();
 
-    return getResponse(results, null, totalRecordsCount, currentPage, totalPages);
+    return getResponse(results, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
 function setupPaginatedQuery(query, currentPage, pageSize) {

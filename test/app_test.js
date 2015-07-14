@@ -445,6 +445,23 @@ describe("Apps", function () {
         var response4 = yield Server.injectThen(opts2);
         response4.result.apps.length.should.equal(0)
     });
+
+    it("should get all paginated apps", function*() {
+        var userResponse = yield dbHelper.createUser()
+        for(var i=0; i < 7; i ++) {
+            yield dbHelper.createAppWithPackage(userResponse.result.id, "com.sad.panda." + i)
+        }
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all&page=1&pageSize=5'
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.apps.length.should.equal(5)
+        response.result.totalPages.should.equal(2)
+    });
 })
 
 
