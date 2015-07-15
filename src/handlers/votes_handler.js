@@ -1,11 +1,11 @@
-var STATUS_CODES = require('../config/config').STATUS_CODES
+var Boom = require('boom')
 
 var Mongoose = require('mongoose')
-var Models = require('../models')
-var Vote = Models.Vote
-var App = Models.App
-var Comment = Models.Comment
-var User = Models.User
+var Vote = require('../models').Vote
+var App = require('../models').App
+var Comment = require('../models').Comment
+var User = require('../models').User
+var AppsCollection = require('../models').AppsCollection
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
@@ -14,13 +14,13 @@ function* createAppVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App not found')
     }
 
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
+            return Boom.conflict('Vote exists')
         }
     }
     var vote = new Vote()
@@ -42,8 +42,7 @@ function* deleteAppVote(userId, appId) {
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
     if(!app) {
-
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App not found')
     }
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
@@ -63,13 +62,13 @@ function* deleteAppVote(userId, appId) {
 function* createCommentVote(commentId, userId) {
     var comment = yield Comment.findById(commentId).populate('votes').exec()
     if(!comment) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+        return Boom.notFound('Non-existing parent comment')
     }
 
     for(var i=0; i< comment.votes.length; i++) {
         var currUserId = comment.votes[i].user
         if(currUserId == userId) {
-            return {statusCode: STATUS_CODES.CONFLICT}
+            return Boom.conflict('Vote exists')
         }
     }
 
@@ -94,7 +93,7 @@ function* deleteCommentVote(userId, commentId) {
     var query = Comment.findById(commentId)
     var comment = yield query.populate("votes").exec()
     if(!comment) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('Non-existing comment')
     }
 
     for(var i=0; i< comment.votes.length; i++) {
@@ -113,7 +112,7 @@ function* deleteCommentVote(userId, commentId) {
 // </editor-fold>
 
 // <editor-fold desc="Votes checks">
-function hasUserVotedForComment (comment, userId) {
+function hasUserVotedForComment(comment, userId) {
     return hasUserVotedForUnpopulatedObj(comment, userId)
 }
 
@@ -149,13 +148,13 @@ function setHasUserVotedForAppField(apps, userId) {
 }
 
 function hasUserVotedForAppsCollection(collection, userId) {
-    return hasUserVotedForUnpopulatedObj(collection, userId)
+    return hasUserVotedForPopulatedObj(collection, userId)
 }
 
 function hasUserVotedForPopulatedObj(obj, userId) {
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
-        if (user !== null && userId == user._id) {
+        if (user !== null && String(userId) == String(user._id)) {
             return true;
         }
     }
@@ -163,9 +162,13 @@ function hasUserVotedForPopulatedObj(obj, userId) {
 }
 
 function hasUserVotedForUnpopulatedObj(obj, userId) {
+    if(!userId) {
+        return false;
+    }
+
     for (var j = 0; j < obj.votes.length; j++) {
         var votedUserId = obj.votes[j].user;
-        if (userId == votedUserId) {
+        if (String(userId) == String(votedUserId)) {
             return true;
         }
     }
@@ -182,6 +185,55 @@ function* clearAppVotes(voteIds) {
     }
 }
 
+function* createCollectionVote(collectionId, userId) {
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').exec()
+    if(!collection) {
+        return Boom.notFound('Non-existing collection')
+    }
+
+    if(hasUserVotedForPopulatedObj(collection, userId)) {
+        return Boom.conflict('Vote exists')
+    }
+
+    var user = yield User.findById(userId).exec()
+    var vote = new Vote()
+    vote.user = user
+
+    vote = yield vote.save()
+    collection.votes.push(vote)
+    collection.votesCount = collection.votes.length
+
+    yield collection.save()
+
+    return {
+        votesCount: collection.votesCount
+    }
+
+}
+
+function* deleteCollectionVote(collectionId, userId) {
+    var user = yield User.findById(userId).exec()
+
+    var query = AppsCollection.findById(collectionId)
+    var collection = yield query.populate("votes").exec()
+    if(!collection) {
+        return Boom.notFound('Non-existing apps collection')
+    }
+
+    for(var i=0; i< collection.votes.length; i++) {
+        var currUserId = collection.votes[i].user
+        if(currUserId == userId) {
+            collection.votes.splice(i, 1);
+            collection.votesCount = collection.votes.length
+        }
+    }
+
+    yield collection.save()
+    return {
+        votesCount: collection.votesCount
+    }
+}
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
 module.exports.hasUserVotedForApp = hasUserVotedForApp
@@ -192,5 +244,8 @@ module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
 module.exports.clearAppVotes = clearAppVotes
+
+module.exports.createCollectionVote = createCollectionVote
+module.exports.deleteCollectionVote = deleteCollectionVote
 
 module.exports.hasUserVotedForAppsCollection = hasUserVotedForAppsCollection

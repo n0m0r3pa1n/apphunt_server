@@ -1,8 +1,7 @@
 var _ = require("underscore")
-
+var Boom = require('boom')
 var CONFIG  = require('../config/config')
 var MESSAGES  = require('../config/messages')
-var STATUS_CODES = CONFIG.STATUS_CODES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var CONVERSATION_SYMBOL = '@'
 
@@ -13,11 +12,12 @@ var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
 var NotificationsHandler = require('./notifications_handler')
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+        return Boom.notFound("Non-existing app")
     }
 
     var user = yield User.findById(userId).exec()
@@ -26,7 +26,7 @@ function* create(comment, appId, userId, parentId) {
     if(parentId !== undefined) {
         parentComment = yield Comment.findById(parentId).exec()
         if(!parentComment) {
-            return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing parent comment" }
+            return Boom.notFound("Non-existing parent comment")
         }
     }
 
@@ -93,24 +93,14 @@ function* get(appId, userId, page,  pageSize) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)
     }
 
-    var resultComments = yield query.exec()
+    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, "comments", Comment.count({app: appId}), page, pageSize)
     if(userId !== undefined) {
-        resultComments = yield VotesHandler.setHasUserVotedForCommentField(resultComments, userId)
+        resultComments.comments = yield VotesHandler.setHasUserVotedForCommentField(resultComments.comments, userId)
     }
 
-    var allCommentsCount = yield Comment.count({app: appId}).exec()
+    removeVotesField(resultComments.comments)
 
-    removeVotesField(resultComments)
-
-    var response = {
-        comments: resultComments,
-        totalCount: allCommentsCount,
-        page: page
-    }
-    if(page != 0 && pageSize != 0) {
-        response.totalPages = Math.ceil(allCommentsCount / pageSize)
-    }
-    return response
+    return resultComments
 }
 
 function* getCount(appId) {
@@ -157,9 +147,7 @@ function* deleteComment(commentId) {
 
     yield Comment.remove({_id: commentId}).exec()
 
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
 function* clearAppComments(appId) {

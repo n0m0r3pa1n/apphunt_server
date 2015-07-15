@@ -1,8 +1,8 @@
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var AppsCollection = require("../src/models").AppsCollection
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var AppsCollection = require("../build/models").AppsCollection
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
 
 describe("User Collections", function() {
 

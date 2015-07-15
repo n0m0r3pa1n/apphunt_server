@@ -3,8 +3,8 @@ var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var AppCategory = require("../src/models").AppCategory
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var AppCategory = require("../build/models").AppCategory
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
 
 describe("Votes", function() {
 
@@ -88,5 +88,43 @@ describe("Votes", function() {
         expect(response.result.apps[0].votesCount).to.exist()
         response.result.apps[0].votesCount.should.equal(1)
         expect(response.result.apps[0].votes).to.not.exist()
+    });
+
+    it("should vote apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+        response.result.votesCount.should.eq(2)
+
+    });
+
+    it("should unvote apps collection", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + user2Id
+        }
+
+        response = yield Server.injectThen(opts);
+        response.result.votesCount.should.eq(1)
+
+    });
+
+    it("should not vote apps collection twice", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+        var response2 = yield dbHelper.voteAppsCollection(collectionId, user2Id)
+
+        response2.result.statusCode.should.eq(STATUS_CODES.CONFLICT);
     });
 })

@@ -1,15 +1,10 @@
-var UrlsHandler = require('../../src/handlers/utils/urls_handler')
+var UrlsHandler = require('../../build/handlers/utils/urls_handler')
+var HuntMe = require('huntme')
 var simple = require('simple-mock');
 
 var mockUrlsHandler = function() {
-    simple.mock(UrlsHandler, "getShortLink", function () {
-        return {
-            data: {
-                link_save: {
-                    link: 'http://bit.ly/test'
-                }
-            }
-        }
+    simple.mock(HuntMe.prototype, "createLink", function () {
+        return {url: String("http://bit.ly/test") };
     })
 }
 

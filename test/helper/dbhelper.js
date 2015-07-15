@@ -1,7 +1,7 @@
 var BadBoy = require('badboy')
 var Co = require('co')
-var AppsHandler = require('../../src/handlers/apps_handler')
-var loginTypes = require("../../src/config/config").LOGIN_TYPES
+var AppsHandler = require('../../build/handlers/apps_handler')
+var loginTypes = require("../../build/config/config").LOGIN_TYPES
 
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
@@ -175,6 +175,15 @@ function voteApp(appId, userId) {
     return Server.injectThen(opts);
 }
 
+function voteAppsCollection(collectionId, userId) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections/votes?collectionId=' + collectionId + "&userId=" + userId
+    }
+
+    return Server.injectThen(opts);
+}
+
 function createAppsCollection(userId) {
     var opts = {
         method: 'POST',
@@ -205,10 +214,41 @@ function createUsersCollection(userId) {
     return Server.injectThen(opts)
 }
 
+function favouriteCollection(collectionId, userId) {
+    var opts = {
+        method: 'PUT',
+        url: '/app-collections/' + collectionId + "/actions/favourite?userId=" + userId
+    }
+
+    return Server.injectThen(opts)
+}
+
+function getCollection(collectionId) {
+    var opts = {
+        method: 'GET',
+        url: '/app-collections/' + collectionId
+    }
+
+    return Server.injectThen(opts)
+}
+
+function createBanner(url) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections/banners',
+        payload: {
+            url: url
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
 module.exports.createAppWithParams = createAppWithParams
+module.exports.createBanner = createBanner
 module.exports.createUser = createUser
 module.exports.createUserWithParams = createUserWithParams
 module.exports.createUserWithLoginType = createUserWithLoginType
@@ -218,8 +258,11 @@ module.exports.createComment = createComment
 module.exports.createCommentWithText = createCommentWithText
 module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
+module.exports.voteAppsCollection = voteAppsCollection
 module.exports.createAppsCollection = createAppsCollection
 module.exports.createUsersCollection = createUsersCollection
+module.exports.favouriteCollection = favouriteCollection
+module.exports.getCollection = getCollection
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

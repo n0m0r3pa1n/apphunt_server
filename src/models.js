@@ -2,10 +2,12 @@ var Mongoose = require('mongoose')
 var DeepPopulate = require('mongoose-deep-populate');
 var Schema = Mongoose.Schema
 var Co = require('co')
-Timestamps = require('mongoose-timestamp')
-var platforms = require('./config/config').PLATFORMS
-var appStatuses = require('./config/config').APP_STATUSES
-var loginTypes = require('./config/config').LOGIN_TYPES
+var Timestamps = require('mongoose-timestamp')
+var Config = require('./config/config')
+var platforms = Config.PLATFORMS
+var appStatuses = Config.APP_STATUSES
+var collectionStatuses = Config.COLLECTION_STATUSES
+var loginTypes = Config.LOGIN_TYPES
 var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {
@@ -122,9 +124,10 @@ var baseCollection = {
 
 var appsCollectionSchema = new Schema(_.extend({}, baseCollection,
     {
-
+        status: {type: String, enum: _.values(collectionStatuses), default: collectionStatuses.DRAFT},
         apps: [{type: Schema.Types.ObjectId, ref: 'App'}],
         votes: [{type: Schema.Types.ObjectId, ref: 'Vote'}],
+        favouritedBy: [{type: Schema.Types.ObjectId, ref: 'User'}],
         votesCount: {type: Number, default: 0}
     })
 )
@@ -139,7 +142,12 @@ var usersCollectionSchema = new Schema(_.extend({}, baseCollection,
             votes: {type: Number, default: 0}
         }]
     })
+)
 
+var collectionBannerSchema = new Schema(
+    {
+        url: String
+    }
 )
 
 
@@ -168,4 +176,5 @@ module.exports.AppCategory = Mongoose.model('AppCategory', appCategorySchema)
 module.exports.Developer = Mongoose.model('Developer', developerSchema)
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema)
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema)
+module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema)
 

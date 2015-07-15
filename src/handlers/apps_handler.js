@@ -2,13 +2,12 @@ var DevsHunter = require('./utils/devs_hunter_handler')
 var Badboy = require('badboy')
 var _ = require("underscore")
 var Bolt = require("bolt-js")
+var Boom = require('boom')
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
 var MESSAGES = require('../config/messages')
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
-
-var STATUS_CODES = CONFIG.STATUS_CODES
 
 var PLATFORMS = CONFIG.PLATFORMS
 var BOLT_APP_ID = CONFIG.BOLT_APP_ID
@@ -26,7 +25,7 @@ var UrlsHandler = require('./utils/urls_handler')
 var CommentsHandler = require('./comments_handler')
 var NotificationsHandler = require('./notifications_handler')
 var EmailsHandler = require('./utils/emails_handler')
-
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 var DateUtils = require('../utils/date_utils')
 
 var App = require('../models').App
@@ -36,12 +35,12 @@ var Vote = require('../models').Vote
 var Comment = require('../models').Comment
 var AppCategory = require('../models').AppCategory
 
-function* create(app, userId) {
+export function* create(app, userId) {
     app.package = getClearedAppPackage(app.package)
 
     var existingApp = yield App.findOne({package: app.package }).exec()
     if (existingApp) {
-        return {statusCode: STATUS_CODES.CONFLICT, message: "App already exists"}
+        return Boom.conflict('App already exists')
     }
 
     var parsedApp = {}
@@ -49,7 +48,7 @@ function* create(app, userId) {
         if(app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.getAndroidApp(app.package)
             if(parsedApp === null) {
-                return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+                return Boom.notFound("Non-existing app")
             }
 
             var d = parsedApp.developer
@@ -63,7 +62,7 @@ function* create(app, userId) {
     }
 
     if(parsedApp == null) {
-        return { statusCode: STATUS_CODES.NOT_FOUND, message: "Non-existing app" }
+        return Boom.notFound("Non-existing app")
     }
 
     var user = yield User.findOne({_id: userId}).exec()
@@ -103,19 +102,47 @@ function getClearedAppPackage(packageName) {
 }
 
 function* getAppCategories(parsedApp) {
-    var appCategories = []
-    for (var index in parsedApp.categories) {
-        var category = yield AppCategory.findOneOrCreate({name: parsedApp.categories[index]}, {name: parsedApp.categories[index]})
-        appCategories.push(category)
-    }
+    let categoryName = getFormattedCategory(parsedApp.category);
+    let categories = []
+    var category = yield AppCategory.findOneOrCreate({name: categoryName}, {name: categoryName})
+    categories.push(category)
 
-    return appCategories
+    return categories
 }
 
-function* update(app) {
+function getFormattedCategory(category) {
+    var res = category.split("/");
+
+    var newCategory = res[res.length-1].toLowerCase();
+    newCategory = newCategory.capitalizeFirstLetter()
+    newCategory = newCategory.replace('and', '&')
+    newCategory = newCategory.replaceAll('_', ' ')
+
+    let finalCategory = newCategory;
+
+    let split = newCategory.split(' ')
+    if(split.length > 1) {
+        finalCategory = "";
+        for(let i=0; i < split.length; i ++) {
+            let part = split[i]
+            if(i == split.length-1) {
+                finalCategory += part.capitalizeFirstLetter();
+            } else {
+                if(part === "Game") {
+                    continue;
+                }
+                finalCategory += part.capitalizeFirstLetter() + " ";
+            }
+        }
+    }
+
+    return finalCategory;
+}
+
+export function* update(app) {
     var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
     if(!existingApp) {
-        return {statusCode: STATUS_CODES.NOT_FOUND, message: "App does not exist"}
+        return Boom.notFound("Non-existing app")
     }
     var isAppApproved = existingApp.status == APP_STATUSES.WAITING && app.status == APP_STATUSES.APPROVED;
 
@@ -144,22 +171,20 @@ function postTweet(app, user) {
 }
 
 
-function* deleteApp(package) {
-    var app = yield App.findOne({package: package}).exec()
+export function* deleteApp(packageName) {
+    var app = yield App.findOne({package: packageName}).exec()
     yield VotesHandler.clearAppVotes(app.votes)
     yield CommentsHandler.clearAppComments(app._id)
 
-    yield App.remove({package: package}).exec()
+    yield App.remove({package: packageName}).exec()
 
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
-function* changeAppStatus(appPackage, status) {
+export function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
     if(app == null) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing app")
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     if(status === APP_STATUSES.REJECTED) {
@@ -171,6 +196,7 @@ function* changeAppStatus(appPackage, status) {
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
+        var links = []
         if(isAppApproved) {
             links = [{
                 url: app.url, platform: "default"
@@ -198,10 +224,10 @@ function* changeAppStatus(appPackage, status) {
     app.status = status;
     yield app.save()
 
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK()
 }
 
-function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
+export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
 
     var where = {};
 
@@ -230,38 +256,15 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
 
-    var apps = yield query.exec()
-    var resultApps = convertToArray(apps)
-
-    if(userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
-    }
-
-    for(var i=0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
-    }
-
-    var allAppsCount = yield App.count(where).exec()
-
-    removeUnusedFields(resultApps)
-
-    var response = {
-        apps: resultApps,
-        date: responseDate,
-        totalCount: allAppsCount,
-        page: page
-    }
-    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize)
-    }
-    return response
+    result.date = responseDate
+    return result
 }
 
-function* filterApps(packages, platform) {
+export function* filterApps(packages, platform) {
     var existingApps = yield App.find( { package: { $in: packages } } ).exec()
     var existingAppsPackages = []
     for(var i in existingApps) {
@@ -272,10 +275,10 @@ function* filterApps(packages, platform) {
     return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
 }
 
-function* getApp(appId, userId) {
+export function* getApp(appId, userId) {
     var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
     if(!app) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound('App can not be found!')
     }
 
     if(userId !== undefined) {
@@ -286,7 +289,8 @@ function* getApp(appId, userId) {
     return app
 }
 
-function* searchApps(q, platform, status, page, pageSize, userId) {
+
+export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
     if(status !== undefined) {
@@ -298,34 +302,10 @@ function* searchApps(q, platform, status, page, pageSize, userId) {
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
 
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
-
-    var apps = yield query.exec()
-    var resultApps = convertToArray(apps)
-
-    if(userId !== undefined && resultApps !== undefined) {
-        resultApps = VotesHandler.setHasUserVotedForAppField(resultApps, userId)
-    }
-
-    for(var i=0; i < resultApps.length; i++) {
-        resultApps[i].commentsCount = yield setCommentsCount(resultApps[i]._id)
-    }
-
-    var allAppsCount = yield App.count(where).exec()
-    removeUnusedFields(resultApps)
-
-    var response = {
-        apps: resultApps,
-        totalCount: allAppsCount,
-        page: page
-    }
-
-    if(page != 0 && pageSize != 0 && allAppsCount > 0) {
-        response.totalPages = Math.ceil(allAppsCount / pageSize)
-    }
-    return response
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
+    return result
 }
 
 
@@ -354,11 +334,19 @@ function convertToArray(apps) {
     return resultApps;
 }
 
-module.exports.create = create
-module.exports.getApps = getApps
-module.exports.update = update
-module.exports.deleteApp = deleteApp
-module.exports.filterApps = filterApps
-module.exports.getApp = getApp
-module.exports.searchApps = searchApps
-module.exports.changeAppStatus = changeAppStatus
+function* formatApps(userId, apps) {
+    if (userId !== undefined && apps !== undefined) {
+        apps = VotesHandler.setHasUserVotedForAppField(apps, userId)
+    }
+
+    for (var i = 0; i < apps.length; i++) {
+        apps[i].commentsCount = yield setCommentsCount(apps[i]._id)
+        let categories = []
+        for(let category of apps[i].categories) {
+            categories.push(category.name)
+        }
+        apps[i].categories = categories
+    }
+
+    removeUnusedFields(apps)
+}

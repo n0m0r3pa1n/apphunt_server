@@ -1,6 +1,6 @@
 require('./spec_helper')
 var should = require('chai').should()
-var TweetComposer = require('../src/utils/tweet_composer')
+var TweetComposer = require('../build/utils/tweet_composer')
 
 describe("Tweet composer", function () {
 

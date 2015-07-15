@@ -15,6 +15,7 @@ var routes = [
                     appId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Vote for an app',
             tags: ['api']
         }
@@ -32,6 +33,7 @@ var routes = [
                     appId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Downvote for an app',
             tags: ['api']
         }
@@ -49,6 +51,7 @@ var routes = [
                     commentId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Vote for a comment',
             tags: ['api']
         }
@@ -66,7 +69,44 @@ var routes = [
                     commentId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Downvote for a comment',
+            tags: ['api']
+        }
+    },
+    {
+        method: "POST",
+        path: "/app-collections/votes",
+        handler: function(req,reply) {
+            reply.co(VotesHandler.createCollectionVote(req.query.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required(),
+                    collectionId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Vote for a app collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "DELETE",
+        path: "/app-collections/votes",
+        handler: function(req,reply) {
+            reply.co(VotesHandler.deleteCollectionVote(req.query.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required(),
+                    collectionId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Vote for a app collection',
             tags: ['api']
         }
     }

@@ -1,1 +1,1 @@
-web: node --harmony src/index.js
+web: node --harmony build/index.js

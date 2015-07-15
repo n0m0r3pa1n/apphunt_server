@@ -3,7 +3,7 @@ var User = Models.User
 var Comment = Models.Comment
 var Vote = Models.Vote
 
-var PaginationHandler = require('./pagination_stats_handler')
+import * as PaginationHandler from './pagination_stats_handler'
 
 function* getAllUsers(username, loginType, page, pageSize) {
     var where = {};

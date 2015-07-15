@@ -1,8 +1,9 @@
 var Joi = require('joi')
 var AppsCollection = require("../models").AppsCollection
 var UsersCollection = require("../models").UsersCollection
-var AppsCollectionsHandler = require('../handlers/apps_collections_handler')
 var UsersCollectionsHandler = require('../handlers/users_collections_handler')
+var COLLECTION_STATUSES = require('../config/config').COLLECTION_STATUSES
+import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
 
 var collectionsRoutes = [
     {
@@ -11,15 +12,40 @@ var collectionsRoutes = [
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            reply.co(AppsCollectionsHandler.getCollections(page, pageSize))
+            reply.co(AppsCollectionsHandler.getCollections(req.query.status, req.query.userId, req.query.sortBy, page, pageSize))
         },
         config: {
             validate: {
                 query: {
                     page: Joi.number().integer().min(1).optional(),
-                    pageSize: Joi.number().integer().min(1).optional()
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional(),
+                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional(),
+                    sortBy: Joi.string().optional()
                 }
             },
+            auth: false,
+            description: 'Get all apps collections.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/app-collections/mine",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsCollectionsHandler.getCollectionsForUser(req.query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().required()
+                }
+            },
+            auth: false,
             description: 'Get all apps collections.',
             tags: ['api']
         }
@@ -39,7 +65,93 @@ var collectionsRoutes = [
                     userId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Get apps collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path:"/app-collections/available",
+        handler: function(req, reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+
+            reply.co(AppsCollectionsHandler.getAvailableCollections(req.query.userId, req.query.appId, req.query.status, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.string().required(),
+                    appId: Joi.string().required(),
+                    status: Joi.array().items(Joi.string()).valid([COLLECTION_STATUSES.DRAFT, COLLECTION_STATUSES.PUBLIC]).optional(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                }
+            },
+            auth: false,
+            description: 'Get apps collection',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/app-collections/favourites",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsCollectionsHandler.getFavouriteCollections(req.query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Get favourite apps for user.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "PUT",
+        path:"/app-collections/{collectionId}/actions/favourite",
+        handler: function(req, reply) {
+            reply.co(AppsCollectionsHandler.favourite(req.params.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    collectionId: Joi.string().required()
+                },
+                query: {
+                    userId: Joi.string().optional()
+                }
+            },
+            auth: false,
+            description: 'Favourite collection for user',
+            tags: ['api']
+        }
+    },
+    {
+        method: "DELETE",
+        path:"/app-collections/{collectionId}/actions/favourite",
+        handler: function(req, reply) {
+            reply.co(AppsCollectionsHandler.unfavourite(req.params.collectionId, req.query.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    collectionId: Joi.string().required()
+                },
+                query: {
+                    userId: Joi.string().optional()
+                }
+            },
+            auth: false,
+            description: 'Delete collections from favourites for user',
             tags: ['api']
         }
     },
@@ -63,6 +175,7 @@ var collectionsRoutes = [
                     userId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Search app collection by name. UserId is optional if you want to know if the user has voted for each app.',
             tags: ['api']
         }
@@ -83,6 +196,7 @@ var collectionsRoutes = [
                     picture: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Create new apps collection',
             tags: ['api']
         }
@@ -92,19 +206,28 @@ var collectionsRoutes = [
         path: "/app-collections/{collectionId}",
         handler: function(req,reply) {
             var collectionId = req.params.collectionId
-            var apps = req.payload.apps
-            reply.co(AppsCollectionsHandler.addApps(collectionId, apps))
+            var collection = req.payload.collection
+            var userId = req.query.userId
+            reply.co(AppsCollectionsHandler.update(collectionId, collection, userId))
         },
         config: {
             validate: {
+                query: {
+                    userId: Joi.string().required()
+                },
                 params: {
                     collectionId: Joi.string().required()
                 },
                 payload: {
-                    apps: Joi.array().min(1).items(Joi.string()).unique().required()
+                    collection: Joi.object({
+                        name: Joi.string().required(),
+                        picture: Joi.string().required(),
+                        description: Joi.string().required(),
+                        apps: Joi.array().items(Joi.string()).unique().required()}).unknown()
                 }
             },
-            description: 'Add app(s) to collection',
+            auth: false,
+            description: 'Update apps collection',
             tags: ['api']
         }
     },
@@ -120,6 +243,7 @@ var collectionsRoutes = [
                     collectionId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Remove app collection',
             tags: ['api']
         }
@@ -137,6 +261,7 @@ var collectionsRoutes = [
                     appId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Remove app from a collection',
             tags: ['api']
         }
@@ -156,6 +281,7 @@ var collectionsRoutes = [
                     pageSize: Joi.number().integer().min(1).optional()
                 }
             },
+            auth: false,
             description: 'Get all users collections.',
             tags: ['api']
         }
@@ -176,6 +302,7 @@ var collectionsRoutes = [
                     picture: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Create new users collection',
             tags: ['api']
         }
@@ -199,6 +326,7 @@ var collectionsRoutes = [
                     toDate: Joi.date().required()
                 }
             },
+            auth: false,
             description: 'Add user(s) to collection',
             tags: ['api']
         }
@@ -218,6 +346,7 @@ var collectionsRoutes = [
                     userId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Get users collection',
             tags: ['api']
         }
@@ -239,6 +368,7 @@ var collectionsRoutes = [
                     pageSize: Joi.number().integer().min(1).optional()
                 }
             },
+            auth: false,
             description: 'Search user collection by name.',
             tags: ['api']
         }
@@ -255,6 +385,7 @@ var collectionsRoutes = [
                     userId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Get collections in which the user does not exist.',
             tags: ['api']
         }
@@ -272,6 +403,7 @@ var collectionsRoutes = [
                     userDetailsId: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Remove user from a collection',
             tags: ['api']
         }
@@ -288,11 +420,40 @@ var collectionsRoutes = [
                     collectionId: Joi.string().required(),
                 }
             },
+            auth: false,
             description: 'Remove users collection',
             tags: ['api']
         }
+    },
+    {
+        method: "GET",
+        path: "/app-collections/banners",
+        handler: function(req, reply) {
+            reply.co(AppsCollectionsHandler.getBanners())
+        },
+        config: {
+            auth: false,
+            description: "Get collection banners",
+            tags: ['api']
+        }
+    },
+    {
+        method: "POST",
+        path: "/app-collections/banners",
+        handler: function(req, reply) {
+            reply.co(AppsCollectionsHandler.createBanner(req.payload.url))
+        },
+        config: {
+            validate: {
+                payload: {
+                    url: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: "Create collection banner",
+            tags: ['api']
+        }
     }
-
 ]
 
 module.exports.collectionsRoutes = collectionsRoutes

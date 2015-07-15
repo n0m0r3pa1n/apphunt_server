@@ -4,7 +4,7 @@ var assert = require('chai').assert
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 describe("Apps", function () {
@@ -118,6 +118,7 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
+        response.result.apps[0].categories.length.should.exist()
     });
 
     it("should get apps by date", function*() {
@@ -147,7 +148,6 @@ describe("Apps", function () {
         var userResponse = yield dbHelper.createUser()
         var appR1 = yield dbHelper.createApp(userResponse.result.id)
         var appR2 = yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
-
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
@@ -444,6 +444,23 @@ describe("Apps", function () {
 
         var response4 = yield Server.injectThen(opts2);
         response4.result.apps.length.should.equal(0)
+    });
+
+    it("should get all paginated apps", function*() {
+        var userResponse = yield dbHelper.createUser()
+        for(var i=0; i < 7; i ++) {
+            yield dbHelper.createAppWithPackage(userResponse.result.id, "com.sad.panda." + i)
+        }
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all&page=1&pageSize=5'
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.apps.length.should.equal(5)
+        response.result.totalPages.should.equal(2)
     });
 })
 

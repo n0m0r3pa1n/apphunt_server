@@ -3,7 +3,7 @@ require('./helper/cleardb')
 require('./helper/dbhelper')
 require('./helper/inject-server')
 var initMock = require('./spec_helper').initMock
-var STATUS_CODES = require('../src/config/config').STATUS_CODES
+var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var simple = require('simple-mock');
 
 describe("Real Apps", function() {

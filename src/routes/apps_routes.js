@@ -1,4 +1,3 @@
-var AppsHandler = require('../handlers/apps_handler')
 var App = require('../models').App
 var Joi = require('joi')
 var PLATFORMS_ENUM = require('../config/config').PLATFORMS
@@ -6,6 +5,7 @@ var APP_STATUSES_FILTER_ENUM = require('../config/config').APP_STATUSES_FILTER
 var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS]
 var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL]
 
+import * as AppsHandler from '../handlers/apps_handler.js'
 
 var routes = [
     {
@@ -38,6 +38,7 @@ var routes = [
                     query: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
             tags: ['api']
         }
@@ -66,6 +67,7 @@ var routes = [
                     platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
                 }
             },
+            auth: false,
             description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
             tags: ['api']
         }
@@ -87,6 +89,7 @@ var routes = [
                     platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
                 }
             },
+            auth: false,
             description: 'Create new app',
             tags: ['api']
         }
@@ -104,6 +107,7 @@ var routes = [
                     app: Joi.object().required()
                 }
             },
+            auth: false,
             description: 'Create new app',
             tags: ['api']
         }
@@ -120,6 +124,7 @@ var routes = [
                     package: Joi.string().required()
                 }
             },
+            auth: false,
             description: 'Delete app',
             tags: ['api']
         }
@@ -139,6 +144,7 @@ var routes = [
                     userId: Joi.string().optional()
                 }
             },
+            auth: false,
             description: 'Get apps submissions for user',
             tags: ['api']
         }
@@ -155,7 +161,8 @@ var routes = [
                     platform: Joi.string().valid(PLATFORMS).required(),
                     packages: Joi.array().items(Joi.string()).required()
                 }
-            }
+            },
+            auth: false
         }
     },
     {
@@ -173,7 +180,8 @@ var routes = [
                 params: {
                     appPackage: Joi.string().required()
                 }
-            }
+            },
+            auth: false
         }
     }
 

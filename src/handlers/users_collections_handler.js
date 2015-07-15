@@ -1,4 +1,5 @@
 var _ = require("underscore")
+var Boom = require('boom')
 var models = require("../models")
 var UsersCollection = models.UsersCollection
 var User = models.User
@@ -7,10 +8,8 @@ var Vote = models.Vote
 var Comment = models.Comment
 
 var UserScoreHandler = require('./user_score_handler')
-
 var VotesHandler = require('./votes_handler')
-var STATUS_CODES = require('../config/config').STATUS_CODES
-
+import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
 function* create(usersCollection, userId) {
     var user = yield User.findById(userId).exec()
@@ -22,7 +21,7 @@ function* create(usersCollection, userId) {
 function* addUsers(collectionId, usersIds, fromDate, toDate) {
     var collection = yield UsersCollection.findById(collectionId).exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing collection")
     }
 
     for(var i=0; i<usersIds.length; i++) {
@@ -48,15 +47,14 @@ function isUserAlreadyAdded(userDetails, userId) {
 function* get(collectionId, userId) {
     var collection = yield UsersCollection.findById(collectionId).populate("createdBy").deepPopulate("usersDetails.user").exec()
     if(!collection) {
-        return {statusCode: STATUS_CODES.NOT_FOUND}
+        return Boom.notFound("Non-existing collection")
     }
     collection = orderUsersInCollection(collection)
     return collection
 }
 
 function* getAvailableCollectionsForUser(userId) {
-    var availableCollections = yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec()
-    return availableCollections;
+    return yield UsersCollection.find({"usersDetails.user": {$ne: userId}}).exec();
 }
 
 function* getCollections(page, pageSize) {
@@ -65,25 +63,9 @@ function* getCollections(page, pageSize) {
 
 function* findPagedCollections(where, page, pageSize) {
     var query = UsersCollection.find(where).deepPopulate('usersDetails.user').populate("createdBy").populate("usersDetails")
-
     query.sort({createdAt: 'desc' })
-    if(page != 0  && pageSize != 0) {
-        query = query.limit(pageSize).skip((page - 1) * pageSize)
-    }
 
-    var collections = yield query.exec()
-    var allCollectionsCount = yield UsersCollection.count(where).exec()
-
-    var response = {
-        collections: collections,
-        totalCount: allCollectionsCount,
-        page: page
-    }
-
-    if(page != 0 && pageSize != 0 && allCollectionsCount > 0) {
-        response.totalPages = Math.ceil(allCollectionsCount / pageSize)
-    }
-    return response
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
 }
 
 function* search(q, page, pageSize) {
@@ -115,14 +97,12 @@ function* removeUser(collectionId, userDetailsId) {
     }
 
     yield collection.save()
-    return {statusCode: STATUS_CODES.OK}
+    return Boom.OK()
 }
 
 function* remove(collectionId) {
     yield UsersCollection.remove({_id: collectionId}).exec()
-    return {
-        statusCode: STATUS_CODES.OK
-    }
+    return Boom.OK()
 }
 
 module.exports.create = create
