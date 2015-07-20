@@ -94,6 +94,7 @@ function* create(app, userId) {
     app.shortUrl = '';
     app.name = parsedApp.name;
     app.url = parsedApp.url;
+    app.screenshots = parsedApp.screenshots;
 
     var parsedDescription = app.description;
     if (parsedDescription == '' || parsedDescription === undefined) {
