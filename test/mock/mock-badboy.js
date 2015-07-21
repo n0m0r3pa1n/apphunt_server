@@ -28,7 +28,17 @@ var mockGetIosApp = function() {
             isFree: true,
             package: '908842747',
             description: 'Test',
-            url: 'https://play.google.com/store/apps/details?id=com.koli' }
+            url: 'https://play.google.com/store/apps/details?id=com.koli',
+            score: {
+                oneStars: 136,
+                twoStars: 66,
+                threeStars: 127,
+                fourStars: 317,
+                fiveStars: 1053,
+                count: 1699,
+                total: 4.22
+            }
+        }
     })
 }
 

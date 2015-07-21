@@ -108,7 +108,7 @@ var routes = [
                 }
             },
             auth: false,
-            description: 'Create new app',
+            description: 'Update existing app',
             tags: ['api']
         }
     },

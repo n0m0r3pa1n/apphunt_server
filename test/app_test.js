@@ -15,6 +15,7 @@ describe("Apps", function () {
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
         response.result.description.should.exist();
+        response.result.averageScore.should.eq(4.22)
     });
 
     it("should create and vote for Android app", function*() {

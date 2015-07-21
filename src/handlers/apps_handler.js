@@ -77,6 +77,7 @@ export function* create(app, userId) {
     app.name = parsedApp.name
     app.url = parsedApp.url
     app.screenshots = parsedApp.screenshots
+    app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total
 
 
     var parsedDescription = app.description;

@@ -31,7 +31,16 @@ var mockGetAndroidApp = function() {
                 "https://lh6.ggpht.com/kwa79_IOUXi8Wxy6_TwZXio-h1N7I1anOHfJ118No2DKRmfb7He7Hi-B_-oo8ftOtASO=h310",
                 "https://lh6.ggpht.com/9GUf4ullIthdMCw2AvrbtprX_IJYLER3bTeSQx4Bv1lGX7NkIKMj6HRuFev_g9qdK54=h310",
                 "https://lh5.ggpht.com/2kDd4AotVKyNgR3eBGV1g3IjR6Y-GKPeh0bhdaKXpka6N5Zh5aXJPbpEiKIP_0XoSw=h310"
-            ]
+            ],
+            score: {
+                oneStars: 136,
+                twoStars: 66,
+                threeStars: 127,
+                fourStars: 317,
+                fiveStars: 1053,
+                count: 1699,
+                total: 4.22
+            }
         }
     })
 }

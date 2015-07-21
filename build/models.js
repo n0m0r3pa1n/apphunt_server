@@ -75,7 +75,8 @@ var appSchema = new Schema({
     platform: { type: String, 'enum': _.values(platforms), 'default': platforms.Android },
     developer: { type: Schema.Types.ObjectId, ref: 'Developer' },
     votesCount: { type: Number, 'default': 0 },
-    screenshots: [{ type: String }]
+    screenshots: [{ type: String }],
+    averageScore: { type: Number, 'default': 0 }
 });
 
 var voteSchema = new Schema({
