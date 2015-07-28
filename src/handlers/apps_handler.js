@@ -28,12 +28,13 @@ var EmailsHandler = require('./utils/emails_handler')
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
 var DateUtils = require('../utils/date_utils')
 
-var App = require('../models').App
-var Developer = require('../models').Developer
-var User = require('../models').User
-var Vote = require('../models').Vote
-var Comment = require('../models').Comment
-var AppCategory = require('../models').AppCategory
+var Models = require('../models')
+var App = Models.App
+var Developer = Models.Developer
+var User = Models.User
+var Vote = Models.Vote
+var Comment = Models.Comment
+var AppCategory = Models.AppCategory
 
 export function* create(app, userId) {
     app.package = getClearedAppPackage(app.package)
@@ -75,6 +76,8 @@ export function* create(app, userId) {
     app.shortUrl = ''
     app.name = parsedApp.name
     app.url = parsedApp.url
+    app.screenshots = parsedApp.screenshots
+    app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total
 
 
     var parsedDescription = app.description;
