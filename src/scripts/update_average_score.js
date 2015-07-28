@@ -1,5 +1,5 @@
 var Mongoose = require('mongoose')
-var dbURI = 'mongodb://localhost/apphunt'
+//var dbURI = 'mongodb://localhost/apphunt'
 // Dev DB URI
 //var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g'
 // Prod DB URI
@@ -12,13 +12,16 @@ var App = require('../models').App
 var DevsHunter = require('../handlers/utils/devs_hunter_handler')
 
 Co(function* () {
+
     let apps = yield App.find({$or: [{averageScore: 0}, {averageScore: undefined}]}).exec()
     let size = apps.length
+    console.log("Updating " + size)
     let i = 0
     for(let app of apps) {
         i++;
         let parsedApp = yield DevsHunter.getAndroidApp(app.package)
         if(parsedApp == null) {
+            console.log("Null " + i + " " + app.package)
             continue;
         }
         console.log("Update " + i + " of " + size)

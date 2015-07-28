@@ -1,7 +1,7 @@
 'use strict';
 
 var Mongoose = require('mongoose');
-var dbURI = 'mongodb://localhost/apphunt';
+//var dbURI = 'mongodb://localhost/apphunt'
 // Dev DB URI
 //var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g'
 // Prod DB URI
@@ -14,8 +14,10 @@ var App = require('../models').App;
 var DevsHunter = require('../handlers/utils/devs_hunter_handler');
 
 Co(function* () {
+
     var apps = yield App.find({ $or: [{ averageScore: 0 }, { averageScore: undefined }] }).exec();
     var size = apps.length;
+    console.log('Updating ' + size);
     var i = 0;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -28,6 +30,7 @@ Co(function* () {
             i++;
             var parsedApp = yield DevsHunter.getAndroidApp(app['package']);
             if (parsedApp == null) {
+                console.log('Null ' + i + ' ' + app['package']);
                 continue;
             }
             console.log('Update ' + i + ' of ' + size);
