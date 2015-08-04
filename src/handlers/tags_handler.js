@@ -14,7 +14,8 @@ export function* saveTagsForApp(tags, appId) {
     }
 
     for (let tag of tags) {
-        var createdTag = yield Tag.findOneOrCreate({name: tag}, {name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId]})
+        var createdTag = yield Tag.findOneOrCreate({name: tag, type: TAG_TYPES.APPLICATION},
+            {name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId]})
         if(createdTag.itemIds == null || createdTag.itemIds.length == 0) {
             createdTag.itemIds = []
             createdTag.itemIds.push(appId)
@@ -26,14 +27,14 @@ export function* saveTagsForApp(tags, appId) {
     }
 }
 
-function doesArrayContains(array, id) {
-    for(let arrayId of array) {
-        if(String(arrayId) === String(id)) {
-            return true;
-        }
+export function* getTagSuggestions(name) {
+    let tags = yield Tag.find({name: {$regex: name, $options: 'i'}})
+    let response = []
+    for(let tag of tags) {
+        response.push(tag.name)
     }
 
-    return false;
+    return response
 }
 
 export function* getAppsForTags(names) {
@@ -60,4 +61,14 @@ export function* getAppsForTags(names) {
     }
 
     return apps
+}
+
+function doesArrayContains(array, id) {
+    for(let arrayId of array) {
+        if(String(arrayId) === String(id)) {
+            return true;
+        }
+    }
+
+    return false;
 }

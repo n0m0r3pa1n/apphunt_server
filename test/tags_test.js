@@ -25,4 +25,19 @@ describe("Tags", function () {
         var response = yield Server.injectThen(opts)
         response.result.length.should.equal(1)
     });
+
+    it("should get tags suggestions", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var response = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
+        var response2 = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test4", "example1"])
+        response.statusCode.should.equal(STATUS_CODES.OK)
+
+        var opts = {
+            method: "GET",
+            url: '/v1/tags/suggest?name=test'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.length.should.eq(3)
+    });
 })

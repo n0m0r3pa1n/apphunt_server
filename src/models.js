@@ -160,7 +160,7 @@ var appVersionSchema = new Schema(
 )
 
 var tagsSchema = new Schema({
-    name: {type: String, unique: true},
+    name: {type: String},
     type: {type: String, enum: _.values(tagTypes), default: tagTypes.APPLICATION},
     itemIds: [{type: Schema.Types.ObjectId}]
 })

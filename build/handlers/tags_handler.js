@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 exports.saveTagsForApp = saveTagsForApp;
+exports.getTagSuggestions = getTagSuggestions;
 exports.getAppsForTags = getAppsForTags;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -33,7 +34,7 @@ function* saveTagsForApp(tags, appId) {
         for (var _iterator = tags[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var tag = _step.value;
 
-            var createdTag = yield Tag.findOneOrCreate({ name: tag }, { name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId] });
+            var createdTag = yield Tag.findOneOrCreate({ name: tag, type: TAG_TYPES.APPLICATION }, { name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId] });
             if (createdTag.itemIds == null || createdTag.itemIds.length == 0) {
                 createdTag.itemIds = [];
                 createdTag.itemIds.push(appId);
@@ -59,18 +60,18 @@ function* saveTagsForApp(tags, appId) {
     }
 }
 
-function doesArrayContains(array, id) {
+function* getTagSuggestions(name) {
+    var tags = yield Tag.find({ name: { $regex: name, $options: 'i' } });
+    var response = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator2 = array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var arrayId = _step2.value;
+        for (var _iterator2 = tags[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var tag = _step2.value;
 
-            if (String(arrayId) === String(id)) {
-                return true;
-            }
+            response.push(tag.name);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -87,7 +88,7 @@ function doesArrayContains(array, id) {
         }
     }
 
-    return false;
+    return response;
 }
 
 function* getAppsForTags(names) {
@@ -176,4 +177,35 @@ function* getAppsForTags(names) {
     }
 
     return apps;
+}
+
+function doesArrayContains(array, id) {
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
+
+    try {
+        for (var _iterator6 = array[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var arrayId = _step6.value;
+
+            if (String(arrayId) === String(id)) {
+                return true;
+            }
+        }
+    } catch (err) {
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                _iterator6['return']();
+            }
+        } finally {
+            if (_didIteratorError6) {
+                throw _iteratorError6;
+            }
+        }
+    }
+
+    return false;
 }
