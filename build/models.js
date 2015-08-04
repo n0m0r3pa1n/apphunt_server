@@ -140,6 +140,10 @@ var tagsSchema = new Schema({
     itemIds: [{ type: Schema.Types.ObjectId }]
 });
 
+var appVersionSchema = new Schema({
+    version: Number
+});
+
 userSchema.plugin(Timestamps);
 appSchema.plugin(Timestamps);
 voteSchema.plugin(Timestamps);
@@ -166,4 +170,5 @@ module.exports.Developer = Mongoose.model('Developer', developerSchema);
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema);
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema);
 module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema);
+module.exports.AppVersion = Mongoose.model('AppVersion', appVersionSchema);module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema);
 module.exports.Tag = Mongoose.model('Tag', tagsSchema);

@@ -153,12 +153,17 @@ var collectionBannerSchema = new Schema(
     }
 )
 
+var appVersionSchema = new Schema(
+    {
+        version: Number
+    }
+)
+
 var tagsSchema = new Schema({
     name: {type: String, unique: true},
     type: {type: String, enum: _.values(tagTypes), default: tagTypes.APPLICATION},
     itemIds: [{type: Schema.Types.ObjectId}]
 })
-
 
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)
@@ -186,4 +191,5 @@ module.exports.Developer = Mongoose.model('Developer', developerSchema)
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema)
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema)
 module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema)
+module.exports.AppVersion = Mongoose.model('AppVersion', appVersionSchema)
 module.exports.Tag = Mongoose.model('Tag', tagsSchema)
