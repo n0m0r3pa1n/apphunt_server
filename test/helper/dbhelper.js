@@ -10,21 +10,28 @@ var appPackage = "com.dasfqwersdcxxdfgh"
 var platform = "Android"
 
 function createApp(userId) {
-    return createAppWithParams(userId, appPackage, platform)
+    return createAppWithParams(userId, appPackage, platform, [])
 }
 
 function createAppWithPlatform(userId, platform) {
-    return createAppWithParams(userId, appPackage, platform)
+    return createAppWithParams(userId, appPackage, platform, [])
 }
 
 function createAppWithPackage(userId, appPackage) {
-    return createAppWithParams(userId, appPackage, platform)
+    return createAppWithParams(userId, appPackage, platform, [])
 }
 
-function createAppWithParams(userId, appPackage, platform) {
+function createAppWithTags(userId, appPackage, tags) {
+    return createAppWithParams(userId, appPackage, platform, tags)
+}
+
+function createAppWithParams(userId, appPackage, platform, tags) {
     var name = "Example App";
     var icon = "http://example.com/icon.png";
     var url = "http://example.com";
+    if(tags == undefined) {
+        tags = []
+    }
 
     var opts = {
         method: 'POST',
@@ -33,7 +40,8 @@ function createAppWithParams(userId, appPackage, platform) {
             package: appPackage,
             userId: userId,
             description: "Test description",
-            platform: platform
+            platform: platform,
+            tags: tags
         }
     }
 
@@ -247,6 +255,7 @@ function createBanner(url) {
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
+module.exports.createAppWithTags = createAppWithTags
 module.exports.createAppWithParams = createAppWithParams
 module.exports.createBanner = createBanner
 module.exports.createUser = createUser

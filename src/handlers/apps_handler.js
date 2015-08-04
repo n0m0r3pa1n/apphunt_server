@@ -26,6 +26,7 @@ var CommentsHandler = require('./comments_handler')
 var NotificationsHandler = require('./notifications_handler')
 var EmailsHandler = require('./utils/emails_handler')
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as TagsHandler from './tags_handler.js'
 var DateUtils = require('../utils/date_utils')
 
 var Models = require('../models')
@@ -36,7 +37,7 @@ var Vote = Models.Vote
 var Comment = Models.Comment
 var AppCategory = Models.AppCategory
 
-export function* create(app, userId) {
+export function* create(app, tags, userId) {
     app.package = getClearedAppPackage(app.package)
 
     var existingApp = yield App.findOne({package: app.package }).exec()
@@ -89,10 +90,12 @@ export function* create(app, userId) {
     }
 
     var createdApp = yield App.create(app)
-    var voteResponse = yield VotesHandler.createAppVote(userId, createdApp.id)
+    yield VotesHandler.createAppVote(userId, createdApp.id)
+    yield TagsHandler.saveTagsForApp(tags, createdApp.id)
 
     return createdApp
 }
+
 
 function getClearedAppPackage(packageName) {
     var splitByAmpersandRegEx = /^.*(?=(\&))/

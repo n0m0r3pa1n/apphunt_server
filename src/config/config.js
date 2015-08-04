@@ -21,6 +21,11 @@ var collectionStatuses = {
     DRAFT: "draft"
 }
 
+var tagTypes = {
+    COLLECTION: "collection",
+    APPLICATION: "application"
+}
+
 var appStatusesFilter = {
     REJECTED: "rejected",
     WAITING: "waiting",
@@ -66,6 +71,7 @@ module.exports.Android = Android
 module.exports.iOS = iOS
 module.exports.PLATFORMS = platforms
 module.exports.APP_STATUSES = appStatuses
+module.exports.TAG_TYPES = tagTypes
 module.exports.COLLECTION_STATUSES = collectionStatuses
 module.exports.APP_STATUSES_FILTER = appStatusesFilter
 module.exports.NOTIFICATION_TYPES = notificationTypes

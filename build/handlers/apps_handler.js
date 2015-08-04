@@ -18,6 +18,10 @@ var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler
 
 var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
 
+var _tags_handlerJs = require('./tags_handler.js');
+
+var TagsHandler = _interopRequireWildcard(_tags_handlerJs);
+
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
 var _ = require('underscore');
@@ -55,7 +59,7 @@ var Vote = Models.Vote;
 var Comment = Models.Comment;
 var AppCategory = Models.AppCategory;
 
-function* create(app, userId) {
+function* create(app, tags, userId) {
     app['package'] = getClearedAppPackage(app['package']);
 
     var existingApp = yield App.findOne({ 'package': app['package'] }).exec();
@@ -105,7 +109,8 @@ function* create(app, userId) {
     }
 
     var createdApp = yield App.create(app);
-    var voteResponse = yield VotesHandler.createAppVote(userId, createdApp.id);
+    yield VotesHandler.createAppVote(userId, createdApp.id);
+    yield TagsHandler.saveTagsForApp(tags, createdApp.id);
 
     return createdApp;
 }

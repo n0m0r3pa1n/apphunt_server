@@ -1,5 +1,7 @@
 'use strict';
 
+var _routesTags_routesJs = require('./routes/tags_routes.js');
+
 var userRoutes = require('./routes/users_routes').userRoutes;
 var appRoutes = require('./routes/apps_routes').appRoutes;
 var notificationRoutes = require('./routes/notifications_routes').notificationRoutes;
@@ -19,4 +21,5 @@ routes = routes.concat(voteRoutes);
 routes = routes.concat(statsRoutes);
 routes = routes.concat(collectionsRoutes);
 routes = routes.concat(versionRoutes);
+routes = routes.concat(_routesTags_routesJs.tagRoutes);
 module.exports.routes = routes;

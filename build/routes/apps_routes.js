@@ -8,8 +8,11 @@ var AppsHandler = _interopRequireWildcard(_handlersApps_handlerJs);
 
 var App = require('../models').App;
 var Joi = require('joi');
-var PLATFORMS_ENUM = require('../config/config').PLATFORMS;
-var APP_STATUSES_FILTER_ENUM = require('../config/config').APP_STATUSES_FILTER;
+var _ = require('underscore');
+var Config = require('../config/config');
+var PLATFORMS_ENUM = Config.PLATFORMS;
+var APP_STATUSES_FILTER_ENUM = Config.APP_STATUSES_FILTER;
+var TAG_TYPES = _.values(Config.TAG_TYPES);
 var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS];
 var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL];
 
@@ -80,7 +83,7 @@ var routes = [{
     path: '/apps',
     handler: function handler(req, reply) {
         var app = new App(req.payload);
-        reply.co(AppsHandler.create(app, req.payload.userId));
+        reply.co(AppsHandler.create(app, req.payload.tags, req.payload.userId));
     },
     config: {
         validate: {
@@ -89,6 +92,7 @@ var routes = [{
                 'package': Joi.string().required(),
                 userId: Joi.string().required(),
                 description: Joi.string().required(),
+                tags: Joi.array().items(Joi.string()).optional(),
                 platform: Joi.array().items(Joi.string()).valid(PLATFORMS).required()
             }
         },

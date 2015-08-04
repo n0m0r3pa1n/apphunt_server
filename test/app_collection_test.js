@@ -1,4 +1,6 @@
 var expect = require('chai').expect
+var should = require('chai').should()
+var assert = require('chai').assert
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppsCollection = require("../build/models").AppsCollection
@@ -58,6 +60,7 @@ describe("App Collections", function() {
             }
         }
 
+
         var response = yield Server.injectThen(opts)
         response.result.name.should.eq("TestName")
         response.result.description.should.eq("TestDesc")
@@ -70,7 +73,6 @@ describe("App Collections", function() {
         var user2Id = (yield dbHelper.createUserWithParams("ASAS")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
-
         updateCollection.apps = [appId]
 
         var opts = {
