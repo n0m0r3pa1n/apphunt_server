@@ -133,6 +133,10 @@ var collectionBannerSchema = new Schema({
     url: String
 });
 
+var appVersionSchema = new Schema({
+    version: Number
+});
+
 userSchema.plugin(Timestamps);
 appSchema.plugin(Timestamps);
 voteSchema.plugin(Timestamps);
@@ -159,3 +163,4 @@ module.exports.Developer = Mongoose.model('Developer', developerSchema);
 module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionSchema);
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema);
 module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema);
+module.exports.AppVersion = Mongoose.model('AppVersion', appVersionSchema);

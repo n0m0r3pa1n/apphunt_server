@@ -4,6 +4,7 @@ var notificationRoutes = require('./routes/notifications_routes').notificationRo
 var commentRoutes = require('./routes/comments_routes').commentRoutes
 var voteRoutes = require('./routes/votes_routes').voteRoutes
 var collectionsRoutes = require('./routes/collections_routes').collectionsRoutes
+var versionRoutes = require('./routes/version_routes').versionRoutes
 
 var statsRoutes = require('./routes/stats_routes').userStatsRoutes
 
@@ -15,4 +16,5 @@ routes = routes.concat(commentRoutes)
 routes = routes.concat(voteRoutes)
 routes = routes.concat(statsRoutes)
 routes = routes.concat(collectionsRoutes)
+routes = routes.concat(versionRoutes)
 module.exports.routes = routes

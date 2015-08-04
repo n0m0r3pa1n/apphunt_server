@@ -47,6 +47,14 @@ function* create(user, notificationId) {
         currUser = yield User.create(user);
         postTweet(currUser);
         followUser(currUser);
+    } else {
+        currUser.name = user.name;
+        currUser.username = user.username;
+        currUser.profilePicture = user.profilePicture;
+        currUser.coverPicture = user.coverPicture;
+        currUser.loginType = user.loginType;
+        currUser.locale = user.locale;
+        currUser.appVersion = user.appVersion;
     }
 
     if (notificationId) {
