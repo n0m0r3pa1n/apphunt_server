@@ -134,7 +134,7 @@ var collectionBannerSchema = new Schema({
 });
 
 var appVersionSchema = new Schema({
-    version: Number
+    versionCode: Number
 });
 
 userSchema.plugin(Timestamps);

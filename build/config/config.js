@@ -65,7 +65,7 @@ exports.PRIVATE_KEY = PRIVATE_KEY;
 var AUTH_TYPE = "jwt";
 
 exports.AUTH_TYPE = AUTH_TYPE;
-module.exports.LATEST_APP_VERSION = 21;
+module.exports.LATEST_APP_VERSION = { versionCode: 21 };
 module.exports.DEVS_HUNTER_URL = DEVS_HUNTER_URL;
 module.exports.GCM_API_KEY = GCM_API_KEY;
 module.exports.API_VERSION = API_VERSION;
