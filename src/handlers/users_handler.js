@@ -34,24 +34,32 @@ export function* create(user, notificationId) {
         currUser = yield User.create(user)
         postTweet(currUser)
         followUser(currUser)
+    } else {
+        currUser.name = user.name
+        currUser.username = user.username
+        currUser.profilePicture = user.profilePicture
+        currUser.coverPicture = user.coverPicture
+        currUser.loginType = user.loginType
+        currUser.locale = user.locale
+        currUser.appVersion = user.appVersion
     }
 
-	if(notificationId) {
-		if (currUser.devices == undefined || currUser.devices == null) {
+    if(notificationId) {
+        if (currUser.devices == undefined || currUser.devices == null) {
             currUser.devices = []
-		}
+        }
 
-		if(isUserDeviceExisting(currUser.devices, notificationId) == false) {
+        if(isUserDeviceExisting(currUser.devices, notificationId) == false) {
             var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
             currUser.devices.push(device)
-		}
+        }
         yield currUser.save()
-	}
+    }
 
     let myUser = currUser.toObject()
     myUser.token = AuthHandler.generateToken(currUser._id)
     myUser.id = myUser._id;
-	return myUser;
+    return myUser;
 }
 
 function postTweet(user) {
