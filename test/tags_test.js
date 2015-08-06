@@ -24,6 +24,14 @@ describe("Tags", function () {
 
         var response = yield Server.injectThen(opts)
         response.result.length.should.equal(1)
+
+        var opts2 = {
+            method: "GET",
+            url: '/v1/apps/tags?names[]=racing&names[]=adventure'
+        }
+
+        var response2 = yield Server.injectThen(opts2)
+        response2.result.length.should.equal(1)
     });
 
     it("should get tags suggestions", function*() {
@@ -39,6 +47,7 @@ describe("Tags", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.eq(3  )
+        const APP_NAME_AND_TAGS_LENGTH = 4
+        response.result.length.should.eq(APP_NAME_AND_TAGS_LENGTH)
     });
 })

@@ -5,7 +5,7 @@ var mockGetAndroidApp = function() {
     simple.mock(DevsHunter, "getAndroidApp", function() {
         return {
             name: 'Test App',
-            category: '/store/apps/category/ENTERTAINMENT',
+            category: '/store/apps/category/RACING_&_ADVENTURE',
             icon: 'https://lh5.ggpht.com/vrsl2YRVDaz1Icm6dmd4zrdDisvmNfjYD6fF7-sUVus_W7RsKWVPyuRqxKRezEY5hGfF=w300',
             isFree: true,
             package: 'com.example.test',

@@ -19,6 +19,7 @@ var Boom = require('boom');
 var Bolt = require('bolt-js');
 var TweetComposer = require('../utils/tweet_composer');
 var CONFIG = require('../config/config');
+var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
 
 var User = require('../models').User;
 var Device = require('../models').Device;
@@ -45,8 +46,10 @@ function* create(user, notificationId) {
     var currUser = yield User.findOne({ email: user.email }).populate('devices').exec();
     if (!currUser) {
         currUser = yield User.create(user);
-        postTweet(currUser);
-        followUser(currUser);
+        if (currUser.loginType == LOGIN_TYPES.Twitter) {
+            postTweet(currUser);
+            followUser(currUser);
+        }
     } else {
         currUser.name = user.name;
         currUser.username = user.username;

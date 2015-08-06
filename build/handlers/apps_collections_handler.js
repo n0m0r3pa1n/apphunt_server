@@ -56,7 +56,7 @@ function* create(appsCollection, tags, userId) {
         appsCollection.picture = banner.url;
     }
     var collection = yield AppsCollection.create(appsCollection);
-    yield TagsHandler.saveTagsForCollection(tags, collection.id);
+    yield TagsHandler.saveTagsForCollection(tags, collection.id, collection.name);
     yield VotesHandler.createCollectionVote(collection.id, userId);
 
     return collection;
