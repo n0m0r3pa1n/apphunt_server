@@ -28,14 +28,45 @@ var tagRoutes = [{
     }
 }, {
     method: 'GET',
-    path: '/apps/tags',
+    path: '/tags',
     handler: function handler(req, reply) {
-        reply.co(TagsHandler.getAppsForTags(req.query.names));
+        reply.co(TagsHandler.getItemsForTag(req.query.names, req.query.userId));
     },
     config: {
         validate: {
             query: {
-                names: Joi.array().items(Joi.string()).required()
+                names: Joi.array().items(Joi.string()).required(),
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false
+    }
+}, {
+    method: 'GET',
+    path: '/collections/tags',
+    handler: function handler(req, reply) {
+        reply.co(TagsHandler.getCollectionsForTags(req.query.names, req.query.userId));
+    },
+    config: {
+        validate: {
+            query: {
+                names: Joi.array().items(Joi.string()).required(),
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false
+    }
+}, {
+    method: 'GET',
+    path: '/apps/tags',
+    handler: function handler(req, reply) {
+        reply.co(TagsHandler.getAppsForTags(req.query.names, req.query.userId));
+    },
+    config: {
+        validate: {
+            query: {
+                names: Joi.array().items(Joi.string()).required(),
+                userId: Joi.string().optional()
             }
         },
         auth: false

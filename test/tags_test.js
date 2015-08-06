@@ -77,6 +77,46 @@ describe("Tags", function () {
 
         var response = yield Server.injectThen(opts)
         const APP_NAME_AND_TAGS_LENGTH = 4
-        response.result.length.should.eq(APP_NAME_AND_TAGS_LENGTH)
+        response.result.length.should.eq(APP_NAME_AND_TAGS_LENGTH);
+    });
+
+    it("should get collections with tags", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var firstAppResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
+        firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
+
+        var opts = {
+            method: "GET",
+            url: '/v1/collections/tags?names[]=march'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.length.should.equal(1)
+    });
+
+    it("should get collections and apps with tags", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
+        collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
+
+        var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["march", "test2"])
+
+        var opts = {
+            method: "GET",
+            url: '/v1/tags?names[]=march'
+        }
+
+        var result = (yield Server.injectThen(opts)).result
+        result.apps.length.should.eq(1)
+        result.collections.length.should.eq(1)
+
+        var opts2 = {
+            method: "GET",
+            url: '/v1/tags?names[]=top'
+        }
+
+        var result2 = (yield Server.injectThen(opts2)).result
+        result2.apps.length.should.eq(0)
+        result2.collections.length.should.eq(1)
     });
 })
