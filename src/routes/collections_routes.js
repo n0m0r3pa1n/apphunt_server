@@ -185,7 +185,7 @@ var collectionsRoutes = [
         path: "/app-collections",
         handler: function(req,reply) {
             var appsCollection = AppsCollection(req.payload)
-            reply.co(AppsCollectionsHandler.create(appsCollection, req.payload.userId))
+            reply.co(AppsCollectionsHandler.create(appsCollection, req.payload.tags, req.payload.userId))
         },
         config: {
             validate: {
@@ -193,7 +193,8 @@ var collectionsRoutes = [
                     userId: Joi.string().required(),
                     name: Joi.string().required(),
                     description: Joi.string().optional(),
-                    picture: Joi.string().optional()
+                    picture: Joi.string().optional(),
+                    tags: Joi.array().items(Joi.string()).optional(),
                 }
             },
             auth: false,

@@ -4,8 +4,10 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 exports.saveTagsForApp = saveTagsForApp;
+exports.saveTagsForCollection = saveTagsForCollection;
 exports.getTagSuggestions = getTagSuggestions;
 exports.getAppsForTags = getAppsForTags;
+exports.getCollectionsForTags = getCollectionsForTags;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -26,6 +28,18 @@ function* saveTagsForApp(tags, appId) {
         return;
     }
 
+    yield updateTags(tags, appId, TAG_TYPES.APPLICATION);
+}
+
+function* saveTagsForCollection(tags, collectionId) {
+    if (tags == undefined) {
+        return;
+    }
+
+    yield updateTags(tags, collectionId, TAG_TYPES.COLLECTION);
+}
+
+function* updateTags(tags, itemId, tagType) {
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -34,12 +48,12 @@ function* saveTagsForApp(tags, appId) {
         for (var _iterator = tags[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var tag = _step.value;
 
-            var createdTag = yield Tag.findOneOrCreate({ name: tag, type: TAG_TYPES.APPLICATION }, { name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId] });
+            var createdTag = yield Tag.findOneOrCreate({ name: tag, type: tagType }, { name: tag, type: tagType, itemIds: [itemId] });
             if (createdTag.itemIds == null || createdTag.itemIds.length == 0) {
                 createdTag.itemIds = [];
-                createdTag.itemIds.push(appId);
-            } else if (!doesArrayContains(createdTag.itemIds, appId)) {
-                createdTag.itemIds.push(appId);
+                createdTag.itemIds.push(itemId);
+            } else if (!doesArrayContains(createdTag.itemIds, itemId)) {
+                createdTag.itemIds.push(itemId);
             }
 
             yield createdTag.save();
@@ -177,6 +191,11 @@ function* getAppsForTags(names) {
     }
 
     return apps;
+}
+
+function* getCollectionsForTags(names) {
+    //TODO finish logic for getting collections by tags
+    return [];
 }
 
 function doesArrayContains(array, id) {

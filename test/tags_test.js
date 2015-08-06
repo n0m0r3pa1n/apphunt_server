@@ -31,6 +31,7 @@ describe("Tags", function () {
         var response = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
         var response2 = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test4", "example1"])
         response.statusCode.should.equal(STATUS_CODES.OK)
+        response2.statusCode.should.equal(STATUS_CODES.OK)
 
         var opts = {
             method: "GET",
@@ -38,6 +39,6 @@ describe("Tags", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.eq(3)
+        response.result.length.should.eq(3  )
     });
 })

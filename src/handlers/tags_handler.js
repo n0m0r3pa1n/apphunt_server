@@ -13,14 +13,26 @@ export function* saveTagsForApp(tags, appId) {
         return;
     }
 
+    yield updateTags(tags, appId, TAG_TYPES.APPLICATION);
+}
+
+export function* saveTagsForCollection(tags, collectionId) {
+    if(tags == undefined) {
+        return;
+    }
+
+    yield updateTags(tags, collectionId, TAG_TYPES.COLLECTION);
+}
+
+function* updateTags(tags, itemId, tagType) {
     for (let tag of tags) {
-        var createdTag = yield Tag.findOneOrCreate({name: tag, type: TAG_TYPES.APPLICATION},
-            {name: tag, type: TAG_TYPES.APPLICATION, itemIds: [appId]})
-        if(createdTag.itemIds == null || createdTag.itemIds.length == 0) {
+        var createdTag = yield Tag.findOneOrCreate({name: tag, type: tagType},
+            {name: tag, type: tagType, itemIds: [itemId]})
+        if (createdTag.itemIds == null || createdTag.itemIds.length == 0) {
             createdTag.itemIds = []
-            createdTag.itemIds.push(appId)
-        } else if(!doesArrayContains(createdTag.itemIds, appId)) {
-            createdTag.itemIds.push(appId)
+            createdTag.itemIds.push(itemId)
+        } else if (!doesArrayContains(createdTag.itemIds, itemId)) {
+            createdTag.itemIds.push(itemId)
         }
 
         yield createdTag.save()
@@ -61,6 +73,11 @@ export function* getAppsForTags(names) {
     }
 
     return apps
+}
+
+export function* getCollectionsForTags(names) {
+    //TODO finish logic for getting collections by tags
+    return []
 }
 
 function doesArrayContains(array, id) {

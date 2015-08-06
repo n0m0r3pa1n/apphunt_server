@@ -7,6 +7,8 @@ var User = models.User
 var CollectionBanner = models.CollectionBanner
 
 var VotesHandler = require('./votes_handler')
+import * as TagsHandler from '../handlers/tags_handler.js'
+
 var Config = require('../config/config')
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
@@ -14,7 +16,7 @@ var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
 import * as UserHandler from './users_handler.js'
 
-export function* create(appsCollection, userId) {
+export function* create(appsCollection, tags, userId) {
     var user = yield User.findById(userId).exec()
     appsCollection.createdBy = user
     if(appsCollection.picture == undefined || appsCollection.picture == null) {
@@ -24,6 +26,7 @@ export function* create(appsCollection, userId) {
         appsCollection.picture = banner.url;
     }
     var collection =  yield AppsCollection.create(appsCollection)
+    yield TagsHandler.saveTagsForCollection(tags, collection.id)
     yield VotesHandler.createCollectionVote(collection.id, userId)
 
     return collection;

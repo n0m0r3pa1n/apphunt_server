@@ -20,6 +20,10 @@ exports.createBanner = createBanner;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
+var _handlersTags_handlerJs = require("../handlers/tags_handler.js");
+
+var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
+
 var _statsPagination_stats_handlerJs = require("./stats/pagination_stats_handler.js");
 
 var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
@@ -37,11 +41,12 @@ var User = models.User;
 var CollectionBanner = models.CollectionBanner;
 
 var VotesHandler = require("./votes_handler");
+
 var Config = require("../config/config");
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES;
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION;
 
-function* create(appsCollection, userId) {
+function* create(appsCollection, tags, userId) {
     var user = yield User.findById(userId).exec();
     appsCollection.createdBy = user;
     if (appsCollection.picture == undefined || appsCollection.picture == null) {
@@ -51,6 +56,7 @@ function* create(appsCollection, userId) {
         appsCollection.picture = banner.url;
     }
     var collection = yield AppsCollection.create(appsCollection);
+    yield TagsHandler.saveTagsForCollection(tags, collection.id);
     yield VotesHandler.createCollectionVote(collection.id, userId);
 
     return collection;
