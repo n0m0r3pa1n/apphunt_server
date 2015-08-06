@@ -91,7 +91,7 @@ export function* getAppsForTags(names) {
         return []
     }
 
-    let itemIds = getUniqueItemIds(tags);
+    let itemIds = getSortedItemIds(tags);
 
     var apps = []
     for(let appId of itemIds) {
@@ -104,13 +104,30 @@ export function* getAppsForTags(names) {
     return apps
 }
 
-function getUniqueItemIds(tags) {
+function getSortedItemIds(tags) {
     let itemIds = []
     for (let tag of tags) {
-        itemIds = itemIds.concat(String(tag.itemIds))
+        for(let tagItemId of tag.itemIds) {
+            itemIds.push(String(tagItemId))
+        }
     }
 
-    return _.uniq(itemIds)
+    return sortByFrequency(itemIds)
+}
+
+function sortByFrequency(array) {
+    var frequency = {};
+
+    array.forEach(function(value) {
+        frequency[value] = 0; });
+
+    var uniques = array.filter(function(value) {
+        return ++frequency[value] == 1;
+    });
+
+    return uniques.sort(function(a, b) {
+        return frequency[b] - frequency[a];
+    });
 }
 
 export function* getCollectionsForTags(names) {

@@ -211,7 +211,7 @@ function* getAppsForTags(names) {
         return [];
     }
 
-    var itemIds = getUniqueItemIds(tags);
+    var itemIds = getSortedItemIds(tags);
 
     var apps = [];
     var _iteratorNormalCompletion6 = true;
@@ -245,7 +245,7 @@ function* getAppsForTags(names) {
     return apps;
 }
 
-function getUniqueItemIds(tags) {
+function getSortedItemIds(tags) {
     var itemIds = [];
     var _iteratorNormalCompletion7 = true;
     var _didIteratorError7 = false;
@@ -254,8 +254,30 @@ function getUniqueItemIds(tags) {
     try {
         for (var _iterator7 = tags[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
             var tag = _step7.value;
+            var _iteratorNormalCompletion8 = true;
+            var _didIteratorError8 = false;
+            var _iteratorError8 = undefined;
 
-            itemIds = itemIds.concat(String(tag.itemIds));
+            try {
+                for (var _iterator8 = tag.itemIds[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                    var tagItemId = _step8.value;
+
+                    itemIds.push(String(tagItemId));
+                }
+            } catch (err) {
+                _didIteratorError8 = true;
+                _iteratorError8 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+                        _iterator8['return']();
+                    }
+                } finally {
+                    if (_didIteratorError8) {
+                        throw _iteratorError8;
+                    }
+                }
+            }
         }
     } catch (err) {
         _didIteratorError7 = true;
@@ -272,7 +294,23 @@ function getUniqueItemIds(tags) {
         }
     }
 
-    return _.uniq(itemIds);
+    return sortByFrequency(itemIds);
+}
+
+function sortByFrequency(array) {
+    var frequency = {};
+
+    array.forEach(function (value) {
+        frequency[value] = 0;
+    });
+
+    var uniques = array.filter(function (value) {
+        return ++frequency[value] == 1;
+    });
+
+    return uniques.sort(function (a, b) {
+        return frequency[b] - frequency[a];
+    });
 }
 
 function* getCollectionsForTags(names) {
@@ -281,29 +319,29 @@ function* getCollectionsForTags(names) {
 }
 
 function doesArrayContains(array, id) {
-    var _iteratorNormalCompletion8 = true;
-    var _didIteratorError8 = false;
-    var _iteratorError8 = undefined;
+    var _iteratorNormalCompletion9 = true;
+    var _didIteratorError9 = false;
+    var _iteratorError9 = undefined;
 
     try {
-        for (var _iterator8 = array[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var arrayId = _step8.value;
+        for (var _iterator9 = array[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var arrayId = _step9.value;
 
             if (String(arrayId) === String(id)) {
                 return true;
             }
         }
     } catch (err) {
-        _didIteratorError8 = true;
-        _iteratorError8 = err;
+        _didIteratorError9 = true;
+        _iteratorError9 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion8 && _iterator8['return']) {
-                _iterator8['return']();
+            if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+                _iterator9['return']();
             }
         } finally {
-            if (_didIteratorError8) {
-                throw _iteratorError8;
+            if (_didIteratorError9) {
+                throw _iteratorError9;
             }
         }
     }

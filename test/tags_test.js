@@ -11,11 +11,11 @@ describe("Tags", function () {
 
     it("should get apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
-        var response = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
-        response.statusCode.should.equal(STATUS_CODES.OK)
-        response.result.categories.length.should.equal(1)
-        response.result.description.should.exist();
-        response.result.averageScore.should.eq(4.22)
+        var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
+        firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
+        firstAppResponse.result.categories.length.should.equal(1)
+        firstAppResponse.result.description.should.exist();
+        firstAppResponse.result.averageScore.should.eq(4.22)
 
         var opts = {
             method: "GET",
@@ -30,8 +30,37 @@ describe("Tags", function () {
             url: '/v1/apps/tags?names[]=racing&names[]=adventure'
         }
 
-        var response2 = yield Server.injectThen(opts2)
-        response2.result.length.should.equal(1)
+        var getAppsResponse = yield Server.injectThen(opts2)
+        getAppsResponse.result.length.should.equal(1)
+    });
+
+    it("should get sorted apps by tags occurence", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["nomnom", "test2"])
+        var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["nomnom", "test15"])
+        var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["nomnom", "test15"])
+
+        var opts = {
+            method: "GET",
+            url: '/v1/apps/tags?names[]=nomnom&names[]=test15'
+        }
+
+        var result = (yield Server.injectThen(opts)).result
+        result.length.should.equal(3)
+        result[0].package.should.equal("com.test2")
+        result[1].package.should.equal("com.test3")
+        result[2].package.should.equal("com.test")
+
+        var opts2 = {
+            method: "GET",
+            url: '/v1/apps/tags?names[]=nomnom&names[]=test2'
+        }
+
+        var result2 = (yield Server.injectThen(opts2)).result
+        result2.length.should.equal(3)
+        result2[0].package.should.equal("com.test")
+        result2[1].package.should.equal("com.test2")
+        result2[2].package.should.equal("com.test3")
     });
 
     it("should get tags suggestions", function*() {
