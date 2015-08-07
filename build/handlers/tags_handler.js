@@ -142,7 +142,7 @@ function* getTagSuggestions(name) {
         }
     }
 
-    return response;
+    return { tags: response };
 }
 
 function* getAppsForTags(names, userId) {

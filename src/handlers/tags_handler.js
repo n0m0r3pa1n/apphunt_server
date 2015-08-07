@@ -61,7 +61,7 @@ export function* getTagSuggestions(name) {
         response.push(tag.name)
     }
 
-    return response
+    return {tags: response }
 }
 
 export function* getAppsForTags(names, userId) {
