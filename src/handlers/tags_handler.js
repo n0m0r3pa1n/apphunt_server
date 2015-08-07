@@ -55,7 +55,7 @@ function* updateTags(tags, itemId, tagType) {
 }
 
 export function* getTagSuggestions(name) {
-    let tags = yield Tag.find({name: {$regex: name, $options: 'i'}})
+    let tags = yield Tag.find({name: {$regex: '^' + name, $options: 'i'}})
     let response = []
     for(let tag of tags) {
         response.push(tag.name)

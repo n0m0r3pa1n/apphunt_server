@@ -65,19 +65,19 @@ describe("Tags", function () {
 
     it("should get tags suggestions", function*() {
         var userResponse = yield dbHelper.createUser()
-        var response = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
+        var response = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["shazam", "music"])
         var response2 = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test4", "example1"])
         response.statusCode.should.equal(STATUS_CODES.OK)
         response2.statusCode.should.equal(STATUS_CODES.OK)
 
         var opts = {
             method: "GET",
-            url: '/v1/tags/suggest?name=test'
+            url: '/v1/tags/suggest?name=m'
         }
 
         var response = yield Server.injectThen(opts)
-        const APP_NAME_AND_TAGS_LENGTH = 4
-        response.result.length.should.eq(APP_NAME_AND_TAGS_LENGTH);
+        const APP_NAME_AND_TAGS_LENGTH = 1
+        response.result.tags.length.should.eq(APP_NAME_AND_TAGS_LENGTH);
     });
 
     it("should get collections with tags", function*() {

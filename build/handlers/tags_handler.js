@@ -115,7 +115,7 @@ function* updateTags(tags, itemId, tagType) {
 }
 
 function* getTagSuggestions(name) {
-    var tags = yield Tag.find({ name: { $regex: name, $options: 'i' } });
+    var tags = yield Tag.find({ name: { $regex: '^' + name, $options: 'i' } });
     var response = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
