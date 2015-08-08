@@ -92,6 +92,13 @@ describe("Tags", function () {
 
         var response = yield Server.injectThen(opts)
         response.result.length.should.equal(1)
+
+        var opts1 = {
+            method: 'GET',
+            url: '/app-collections',
+        }
+        var response1 = yield Server.injectThen(opts1)
+        response1.result.collections[0].tags.length.should.eq(4)
     });
 
     it("should get collections and apps with tags", function*() {

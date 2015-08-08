@@ -126,6 +126,16 @@ export function* getItemsForTag(names, userId) {
     }
 }
 
+export function* getTagsForCollection(collectionId) {
+    let tags = yield Tag.find({itemId: collectionId, type: TAG_TYPES.COLLECTION}).exec()
+    let tagsObj = []
+    for(let tag of tags) {
+        tagsObj.push(tag.name)
+    }
+
+    return tagsObj
+}
+
 function getTagsFromName(appName) {
     appName = replaceSpecialCharacters(appName)
     let split = appName.split(" ")

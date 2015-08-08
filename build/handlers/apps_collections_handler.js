@@ -115,7 +115,7 @@ function* update(collectionId, newCollection, userId) {
     var savedCollection = yield collection.save();
     var result = yield AppsCollection.findById(savedCollection.id).populate("createdBy apps votes").deepPopulate("apps.createdBy").exec();
 
-    return getPopulatedCollection(result, userId);
+    return yield getPopulatedCollection(result, userId);
 }
 
 function objToString(obj) {
@@ -163,14 +163,14 @@ function* get(collectionId, userId) {
         return Boom.notFound("Collection cannot be found!");
     }
 
-    collection = orderAppsInCollection(collection);
+    var collectionObj = yield getPopulatedCollection(collection);
     //TODO: uncomment when consider votes
     //if(userId !== undefined) {
     //    collection = collection.toObject()
     //    collection.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
     //}
 
-    return collection;
+    return collectionObj;
 }
 
 function* getCollections(status, userId, sortBy, page, pageSize) {
@@ -179,7 +179,7 @@ function* getCollections(status, userId, sortBy, page, pageSize) {
     var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
 
     if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = getPopulatedCollections(result.collections, userId);
+        result.collections = yield getPopulatedCollections(result.collections, userId);
     }
 
     return result;
@@ -191,7 +191,7 @@ function* getAvailableCollections(userId, appId, status, page, pageSize) {
     where.apps = { $ne: appId };
     var result = yield getPagedCollectionsResult(where, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = getPopulatedCollections(result.collections, userId);
+        result.collections = yield getPopulatedCollections(result.collections, userId);
     }
 
     return result;
@@ -236,13 +236,13 @@ function isFavourite(collectionObj, userId) {
 function* getFavouriteCollections(userId, page, pageSize) {
     var result = yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = getPopulatedCollections(result.collections, userId);
+        result.collections = yield getPopulatedCollections(result.collections, userId);
     }
 
     return result;
 }
 
-function getPopulatedCollections(collections, userId) {
+function* getPopulatedCollections(collections, userId) {
     var collectionsList = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
@@ -252,7 +252,7 @@ function getPopulatedCollections(collections, userId) {
         for (var _iterator3 = collections[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var collection = _step3.value;
 
-            var collectionObj = getPopulatedCollection(collection, userId);
+            var collectionObj = yield getPopulatedCollection(collection, userId);
             collectionsList.push(collectionObj);
         }
     } catch (err) {
@@ -273,17 +273,18 @@ function getPopulatedCollections(collections, userId) {
     return collectionsList;
 }
 
-function getPopulatedCollection(collection, userId) {
+function* getPopulatedCollection(collection, userId) {
     var collectionObj = orderAppsInCollection(collection);
     collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId);
     collectionObj.isFavourite = isFavourite(collectionObj, userId);
+    collectionObj.tags = yield TagsHandler.getTagsForCollection(collectionObj.id);
     return collectionObj;
 }
 
 function* getCollectionsForUser(userId, page, pageSize) {
     var result = yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = getPopulatedCollections(result.collections, userId);
+        result.collections = yield getPopulatedCollections(result.collections, userId);
     }
 
     return result;
