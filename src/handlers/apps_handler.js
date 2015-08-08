@@ -282,16 +282,21 @@ export function* filterApps(packages, platform) {
 }
 
 export function* getApp(appId, userId) {
-    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec()
+    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec()
     if(!app) {
         return Boom.notFound('App can not be found!')
     }
-
+    app = app.toObject()
     if(userId !== undefined) {
-        app = app.toObject()
         app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId)
     }
 
+    let categories = []
+    for(let category of app.categories) {
+        categories.push(category.name)
+    }
+
+    app.categories = categories
     return app
 }
 

@@ -296,16 +296,42 @@ function* filterApps(packages, platform) {
 }
 
 function* getApp(appId, userId) {
-    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy').exec();
+    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec();
     if (!app) {
         return Boom.notFound('App can not be found!');
     }
-
+    app = app.toObject();
     if (userId !== undefined) {
-        app = app.toObject();
         app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId);
     }
 
+    var categories = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = app.categories[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var category = _step.value;
+
+            categories.push(category.name);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    app.categories = categories;
     return app;
 }
 
@@ -360,27 +386,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
 
         try {
-            for (var _iterator = apps[i].categories[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var category = _step.value;
+            for (var _iterator2 = apps[i].categories[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var category = _step2.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion && _iterator['return']) {
-                    _iterator['return']();
+                if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                    _iterator2['return']();
                 }
             } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
                 }
             }
         }
