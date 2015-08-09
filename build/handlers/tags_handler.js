@@ -10,6 +10,7 @@ exports.getAppsForTags = getAppsForTags;
 exports.getCollectionsForTags = getCollectionsForTags;
 exports.getItemsForTag = getItemsForTag;
 exports.getTagsForCollection = getTagsForCollection;
+exports.getTagsForApp = getTagsForApp;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -294,7 +295,15 @@ function* getItemsForTag(names, userId) {
 }
 
 function* getTagsForCollection(collectionId) {
-    var tags = yield Tag.find({ itemIds: collectionId, type: TAG_TYPES.COLLECTION }).exec();
+    return yield getTagsForItem(collectionId, TAG_TYPES.COLLECTION);
+}
+
+function* getTagsForApp(appId) {
+    return yield getTagsForItem(appId, TAG_TYPES.APPLICATION);
+}
+
+function* getTagsForItem(itemId, tagType) {
+    var tags = yield Tag.find({ itemIds: itemId, type: tagType }).exec();
     var tagsObj = [];
     var _iteratorNormalCompletion8 = true;
     var _didIteratorError8 = false;

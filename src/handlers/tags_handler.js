@@ -128,7 +128,16 @@ export function* getItemsForTag(names, userId) {
 }
 
 export function* getTagsForCollection(collectionId) {
-    let tags = yield Tag.find({itemIds: collectionId, type: TAG_TYPES.COLLECTION}).exec()
+    return yield getTagsForItem(collectionId, TAG_TYPES.COLLECTION)
+}
+
+export function* getTagsForApp(appId) {
+    return yield getTagsForItem(appId, TAG_TYPES.APPLICATION)
+}
+
+
+function* getTagsForItem(itemId, tagType) {
+    let tags = yield Tag.find({itemIds: itemId, type: tagType}).exec()
     let tagsObj = []
     for(let tag of tags) {
         tagsObj.push(tag.name)
