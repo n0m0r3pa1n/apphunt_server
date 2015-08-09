@@ -192,6 +192,21 @@ function voteAppsCollection(collectionId, userId) {
     return Server.injectThen(opts);
 }
 
+function createAppsCollectionWithParams(userId, name) {
+    var opts = {
+        method: 'POST',
+        url: '/app-collections',
+        payload: {
+            userId: userId,
+            name: name,
+            description: "The best apps for march",
+            picture: "http://pic-bg.net"
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 function createAppsCollection(userId) {
     var opts = {
         method: 'POST',
@@ -269,6 +284,7 @@ module.exports.voteComment = voteComment
 module.exports.voteApp = voteApp
 module.exports.voteAppsCollection = voteAppsCollection
 module.exports.createAppsCollection = createAppsCollection
+module.exports.createAppsCollectionWithParams = createAppsCollectionWithParams
 module.exports.createUsersCollection = createUsersCollection
 module.exports.favouriteCollection = favouriteCollection
 module.exports.getCollection = getCollection

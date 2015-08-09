@@ -184,7 +184,7 @@ function* getPopulatedCollection(collection, userId) {
     let collectionObj = orderAppsInCollection(collection)
     collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
     collectionObj.isFavourite = isFavourite(collectionObj, userId)
-    collectionObj.tags = yield TagsHandler.getTagsForCollection(collectionObj.id)
+    collectionObj.tags = yield TagsHandler.getTagsForCollection(collectionObj._id)
     return collectionObj;
 }
 

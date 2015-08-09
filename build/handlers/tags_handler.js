@@ -89,6 +89,7 @@ function* updateTags(tags, itemId, tagType) {
         for (var _iterator2 = tags[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var tag = _step2.value;
 
+            tag = tag.toLowerCase();
             var createdTag = yield Tag.findOneOrCreate({ name: tag, type: tagType }, { name: tag, type: tagType, itemIds: [itemId] });
             if (createdTag.itemIds == null || createdTag.itemIds.length == 0) {
                 createdTag.itemIds = [];
@@ -293,7 +294,7 @@ function* getItemsForTag(names, userId) {
 }
 
 function* getTagsForCollection(collectionId) {
-    var tags = yield Tag.find({ itemId: collectionId, type: TAG_TYPES.COLLECTION }).exec();
+    var tags = yield Tag.find({ itemIds: collectionId, type: TAG_TYPES.COLLECTION }).exec();
     var tagsObj = [];
     var _iteratorNormalCompletion8 = true;
     var _didIteratorError8 = false;

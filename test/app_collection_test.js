@@ -22,6 +22,16 @@ describe("App Collections", function() {
         var response = yield dbHelper.createAppsCollection(userId)
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(0)
+        var response2 = yield dbHelper.createAppsCollectionWithParams(userId, "top apps for june")
+        var opts2 = {
+            method: 'GET',
+            url: "/app-collections",
+        }
+
+        var response3 = yield Server.injectThen(opts2)
+        var collections = response3.result.collections
+        collections[0].tags.should.eql([ 'top', 'apps', 'for', 'june' ])
+        collections[1].tags.should.eql([ 'top', 'apps', 'for', 'march' ])
     });
 
     it("should create apps collection without banner", function*() {
@@ -571,3 +581,4 @@ describe("App Collections", function() {
         response2.result.banners[0].should.eq('test')
     })
 })
+

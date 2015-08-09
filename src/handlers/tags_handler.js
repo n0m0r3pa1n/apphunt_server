@@ -41,6 +41,7 @@ export function* saveTagsForCollection(tags, collectionId, collectionName) {
 function* updateTags(tags, itemId, tagType) {
     tags = _.uniq(tags)
     for (let tag of tags) {
+        tag = tag.toLowerCase()
         var createdTag = yield Tag.findOneOrCreate({name: tag, type: tagType},
             {name: tag, type: tagType, itemIds: [itemId]})
         if (createdTag.itemIds == null || createdTag.itemIds.length == 0) {
@@ -127,7 +128,7 @@ export function* getItemsForTag(names, userId) {
 }
 
 export function* getTagsForCollection(collectionId) {
-    let tags = yield Tag.find({itemId: collectionId, type: TAG_TYPES.COLLECTION}).exec()
+    let tags = yield Tag.find({itemIds: collectionId, type: TAG_TYPES.COLLECTION}).exec()
     let tagsObj = []
     for(let tag of tags) {
         tagsObj.push(tag.name)
