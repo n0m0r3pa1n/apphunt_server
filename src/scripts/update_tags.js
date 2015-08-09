@@ -22,14 +22,13 @@ import * as AppCollectionsHandler from '../handlers/apps_collections_handler.js'
 import * as TagsHandler from '../handlers/tags_handler.js'
 
 Co(function* () {
-    console.log('AAAAAAAAAA')
     let appps2 = yield App.findOne()
     console.log(appps2)
     let i =0;
     let result = yield AppsHandler.getApps(undefined, undefined, "Android", APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined)
     console.log(result)
     let appLength = result.apps.length
-    let result = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
+    let collectionsResult = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
     for(let app of result.apps) {
         let appTags = yield TagsHandler.getTagsForApp(app._id)
         if(appTags.length > 0) {
@@ -41,7 +40,7 @@ Co(function* () {
     }
     console.log("==================================")
     console.log("Collections")
-    for(let collection of result.collections) {
+    for(let collection of collectionsResult.collections) {
         let collectionTags = yield TagsHandler.getTagsForCollection(collection._id)
         if(collectionTags.length > 0) {
             continue;

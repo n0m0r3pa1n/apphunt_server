@@ -34,14 +34,13 @@ var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER;
 var App = require('../models').App;
 
 Co(function* () {
-    console.log('AAAAAAAAAA');
     var appps2 = yield App.findOne();
     console.log(appps2);
     var i = 0;
     var result = yield AppsHandler.getApps(undefined, undefined, 'Android', APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined);
     console.log(result);
     var appLength = result.apps.length;
-    var collections = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
+    var collectionsResult = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -55,7 +54,7 @@ Co(function* () {
                 continue;
             }
             i++;
-            yield TagsHandler.saveTagsForApp([], app._id, app.name, app.categories);
+            yield TagsHandler.saveTagsForApp([], app._id, app.name, app.categories == undefined ? [] : app.categories);
             console.log('Updating ' + i + ' of ' + appLength);
         }
     } catch (err) {
@@ -69,6 +68,39 @@ Co(function* () {
         } finally {
             if (_didIteratorError) {
                 throw _iteratorError;
+            }
+        }
+    }
+
+    console.log('==================================');
+    console.log('Collections');
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = collectionsResult.collections[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var collection = _step2.value;
+
+            var collectionTags = yield TagsHandler.getTagsForCollection(collection._id);
+            if (collectionTags.length > 0) {
+                continue;
+            }
+            i++;
+            yield TagsHandler.saveTagsForCollection([], collection._id, collection.name);
+            console.log('Updating ' + i + ' of ' + appLength);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
             }
         }
     }
