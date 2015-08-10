@@ -233,6 +233,12 @@ function* getAppsForTags(names, userId, page, pageSize) {
 }
 
 function* getCollectionsForTags(names, userId, page, pageSize) {
+    var response = {
+        page: 0,
+        totalCount: 0,
+        totalPages: 0,
+        collections: []
+    };
     var tags = [];
     var _iteratorNormalCompletion6 = true;
     var _didIteratorError6 = false;
@@ -263,15 +269,10 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
     }
 
     if (tags.length == 0) {
-        return [];
+        return response;
     }
 
     var itemIds = getSortedItemIds(tags);
-    var response = {
-        page: 0,
-        totalCount: 0,
-        totalPages: 0
-    };
     if (page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);
         itemIds = response.results;
