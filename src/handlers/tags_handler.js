@@ -3,6 +3,7 @@ var _ = require('underscore')
 var Config = require('../config/config')
 var TAG_TYPES = Config.TAG_TYPES
 var STATUS_CODES = Config.STATUS_CODES
+var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 
 var Models = require('../models')
 var Tag = Models.Tag
@@ -68,7 +69,7 @@ export function* getTagSuggestions(name) {
 export function* getAppsForTags(names, userId) {
     let tags = []
     for(let name of names) {
-        let tag = yield Tag.findOne({name: {$regex: name, $options: 'i'}, type: TAG_TYPES.APPLICATION})
+        let tag = yield Tag.findOne({name: {$regex: '^' + name + '$', $options: 'i'}, type: TAG_TYPES.APPLICATION})
         if(tag !== null) {
             tags.push(tag)
         }
@@ -77,7 +78,7 @@ export function* getAppsForTags(names, userId) {
     if(tags.length == 0) {
         return []
     }
-
+    console.log(tags)
     let itemIds = getSortedItemIds(tags);
 
     var apps = []
@@ -95,7 +96,7 @@ export function* getAppsForTags(names, userId) {
 export function* getCollectionsForTags(names, userId) {
     let tags = []
     for(let name of names) {
-        let tag = yield Tag.findOne({name: {$regex: name, $options: 'i'}, type: TAG_TYPES.COLLECTION})
+        let tag = yield Tag.findOne({name: {$regex: '^' + name + '$', $options: 'i'}, type: TAG_TYPES.COLLECTION})
         if(tag !== null) {
             tags.push(tag)
         }
@@ -109,7 +110,7 @@ export function* getCollectionsForTags(names, userId) {
     var collections = []
     for(let collectionId of itemIds) {
         var collection = yield AppsCollectionsHandler.get(collectionId, userId)
-        if(collection != null) {
+        if(collection != null && collection.status == COLLECTION_STATUSES.PUBLIC) {
             collections.push(collection)
         }
     }

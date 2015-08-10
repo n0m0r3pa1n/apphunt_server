@@ -27,6 +27,7 @@ var _ = require('underscore');
 var Config = require('../config/config');
 var TAG_TYPES = Config.TAG_TYPES;
 var STATUS_CODES = Config.STATUS_CODES;
+var COLLECTION_STATUSES = Config.COLLECTION_STATUSES;
 
 var Models = require('../models');
 var Tag = Models.Tag;
@@ -158,7 +159,7 @@ function* getAppsForTags(names, userId) {
         for (var _iterator4 = names[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
             var _name = _step4.value;
 
-            var tag = yield Tag.findOne({ name: { $regex: _name, $options: 'i' }, type: TAG_TYPES.APPLICATION });
+            var tag = yield Tag.findOne({ name: { $regex: '^' + _name + '$', $options: 'i' }, type: TAG_TYPES.APPLICATION });
             if (tag !== null) {
                 tags.push(tag);
             }
@@ -181,7 +182,7 @@ function* getAppsForTags(names, userId) {
     if (tags.length == 0) {
         return [];
     }
-
+    console.log(tags);
     var itemIds = getSortedItemIds(tags);
 
     var apps = [];
@@ -226,7 +227,7 @@ function* getCollectionsForTags(names, userId) {
         for (var _iterator6 = names[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
             var _name2 = _step6.value;
 
-            var tag = yield Tag.findOne({ name: { $regex: _name2, $options: 'i' }, type: TAG_TYPES.COLLECTION });
+            var tag = yield Tag.findOne({ name: { $regex: '^' + _name2 + '$', $options: 'i' }, type: TAG_TYPES.COLLECTION });
             if (tag !== null) {
                 tags.push(tag);
             }
@@ -262,7 +263,7 @@ function* getCollectionsForTags(names, userId) {
             var collectionId = _step7.value;
 
             var collection = yield AppsCollectionsHandler.get(collectionId, userId);
-            if (collection != null) {
+            if (collection != null && collection.status == COLLECTION_STATUSES.PUBLIC) {
                 collections.push(collection);
             }
         }

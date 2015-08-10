@@ -15,16 +15,13 @@ var _handlersTags_handlerJs = require('../handlers/tags_handler.js');
 var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
 
 var Mongoose = require('mongoose');
-//var dbURI = 'mongodb://localhost/apphunt'
+var dbURI = 'mongodb://localhost/apphunt';
 // Dev DB URI
-var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g';
+//var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g'
 // Prod DB URI
 //var dbURI = 'mongodb://NaughtySpirit:fmi123@ds031531.mongolab.com:31531/heroku_app33343837'
 
-Mongoose.connect(dbURI, function (err, obj) {
-    console.log(err);
-    console.log(obj);
-});
+Mongoose.connect(dbURI, function (err, obj) {});
 
 var Co = require('co');
 var CONFIG = require('../config/config');
@@ -35,27 +32,39 @@ var App = require('../models').App;
 
 Co(function* () {
     var appps2 = yield App.findOne();
-    console.log(appps2);
     var i = 0;
-    var result = yield AppsHandler.getApps(undefined, undefined, 'Android', APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined);
-    console.log(result);
-    var appLength = result.apps.length;
+    //let result = yield AppsHandler.getApps(undefined, undefined, "Android", APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined)
+    //console.log(result.apps.length)
+    //let appLength = result.apps.length
+    //
+    //for(let app of result.apps) {
+    //    let appTags = yield TagsHandler.getTagsForApp(app._id)
+    //    if(appTags.length > 0) {
+    //        continue;
+    //    }
+    //    i++;
+    //    yield TagsHandler.saveTagsForApp([], app._id, app.name, app.categories == undefined ? [] : app.categories)
+    //    console.log("Updating " + i + " of " + appLength)
+    //}
+    console.log('==================================');
+    console.log('Collections');
     var collectionsResult = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
+    var collectionsLength = collectionsResult.collections.length;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = result.apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var app = _step.value;
+        for (var _iterator = collectionsResult.collections[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var collection = _step.value;
 
-            var appTags = yield TagsHandler.getTagsForApp(app._id);
-            if (appTags.length > 0) {
+            var collectionTags = yield TagsHandler.getTagsForCollection(collection._id);
+            if (collectionTags.length > 0) {
                 continue;
             }
             i++;
-            yield TagsHandler.saveTagsForApp([], app._id, app.name, app.categories == undefined ? [] : app.categories);
-            console.log('Updating ' + i + ' of ' + appLength);
+            yield TagsHandler.saveTagsForCollection([], collection._id, collection.name);
+            console.log('Updating ' + i + ' of ' + collectionsLength);
         }
     } catch (err) {
         _didIteratorError = true;
@@ -68,39 +77,6 @@ Co(function* () {
         } finally {
             if (_didIteratorError) {
                 throw _iteratorError;
-            }
-        }
-    }
-
-    console.log('==================================');
-    console.log('Collections');
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = collectionsResult.collections[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var collection = _step2.value;
-
-            var collectionTags = yield TagsHandler.getTagsForCollection(collection._id);
-            if (collectionTags.length > 0) {
-                continue;
-            }
-            i++;
-            yield TagsHandler.saveTagsForCollection([], collection._id, collection.name);
-            console.log('Updating ' + i + ' of ' + appLength);
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-                _iterator2['return']();
-            }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
             }
         }
     }
