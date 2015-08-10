@@ -163,14 +163,13 @@ function* get(collectionId, userId) {
         return Boom.notFound("Collection cannot be found!");
     }
 
-    var collectionObj = yield getPopulatedCollection(collection);
     //TODO: uncomment when consider votes
     //if(userId !== undefined) {
     //    collection = collection.toObject()
     //    collection.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
     //}
 
-    return collectionObj;
+    return yield getPopulatedCollection(collection, userId);
 }
 
 function* getCollections(status, userId, sortBy, page, pageSize) {

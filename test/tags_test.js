@@ -97,11 +97,12 @@ describe("Tags", function () {
 
         var opts = {
             method: "GET",
-            url: '/v1/collections/tags?names[]=march'
+            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id
         }
 
         var response = yield Server.injectThen(opts)
         response.result.length.should.equal(1)
+        response.result[0].hasVoted.should.eq(true)
 
         var opts1 = {
             method: 'GET',
@@ -123,11 +124,12 @@ describe("Tags", function () {
 
         var opts = {
             method: "GET",
-            url: '/v1/tags?names[]=march'
+            url: '/v1/tags?names[]=march&userId=' + userResponse.result.id
         }
 
         var result = (yield Server.injectThen(opts)).result
         result.apps.length.should.eq(1)
+        result.apps[0].hasVoted.should.eq(true)
         result.collections.length.should.eq(1)
 
         var opts2 = {
