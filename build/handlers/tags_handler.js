@@ -22,6 +22,10 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
+var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler.js');
+
+var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+
 var _ = require('underscore');
 
 var Config = require('../config/config');
@@ -149,7 +153,13 @@ function* getTagSuggestions(name) {
     return { tags: response };
 }
 
-function* getAppsForTags(names, userId) {
+function* getAppsForTags(names, userId, page, pageSize) {
+    var response = {
+        page: 0,
+        totalCount: 0,
+        totalPages: 0,
+        apps: []
+    };
     var tags = [];
     var _iteratorNormalCompletion4 = true;
     var _didIteratorError4 = false;
@@ -180,10 +190,16 @@ function* getAppsForTags(names, userId) {
     }
 
     if (tags.length == 0) {
-        return [];
+        return response;
     }
     var itemIds = getSortedItemIds(tags);
 
+    if (page != 0 && pageSize != 0) {
+        response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);
+        itemIds = response.results;
+    } else {
+        response.totalCount = itemIds.length;
+    }
     var apps = [];
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
@@ -213,10 +229,11 @@ function* getAppsForTags(names, userId) {
         }
     }
 
-    return apps;
+    response.apps = apps;
+    return response;
 }
 
-function* getCollectionsForTags(names, userId) {
+function* getCollectionsForTags(names, userId, page, pageSize) {
     var tags = [];
     var _iteratorNormalCompletion6 = true;
     var _didIteratorError6 = false;
@@ -251,7 +268,17 @@ function* getCollectionsForTags(names, userId) {
     }
 
     var itemIds = getSortedItemIds(tags);
-
+    var response = {
+        page: 0,
+        totalCount: 0,
+        totalPages: 0
+    };
+    if (page != 0 && pageSize != 0) {
+        response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);
+        itemIds = response.results;
+    } else {
+        response.totalCount = itemIds.length;
+    }
     var collections = [];
     var _iteratorNormalCompletion7 = true;
     var _didIteratorError7 = false;
@@ -281,16 +308,18 @@ function* getCollectionsForTags(names, userId) {
         }
     }
 
-    return collections;
+    response.collections = collections;
+
+    return response;
 }
 
 function* getItemsForTag(names, userId) {
-    var apps = yield getAppsForTags(names, userId);
-    var collections = yield getCollectionsForTags(names, userId);
+    var apps = yield getAppsForTags(names, userId, 0, 0);
+    var collections = yield getCollectionsForTags(names, userId, 0, 0);
 
     return {
-        apps: apps,
-        collections: collections
+        apps: apps.apps,
+        collections: collections.collections
     };
 }
 

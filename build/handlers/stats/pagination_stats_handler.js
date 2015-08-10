@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.getPaginatedResultsWithNameAndCount = getPaginatedResultsWithNameAndCount;
 exports.getPaginatedResultsWithName = getPaginatedResultsWithName;
 exports.getPaginatedResults = getPaginatedResults;
+exports.getPaginationWithResults = getPaginationWithResults;
 
 function* getPaginatedResultsWithNameAndCount(query, resultsName, countQuery, currentPage, pageSize) {
     var totalRecordsCount = yield countQuery.count().exec();
@@ -35,6 +36,16 @@ function* getPaginatedResults(query, currentPage, pageSize) {
     var results = yield query.find().exec();
 
     return getResponse(results, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
+}
+
+function getPaginationWithResults(results, currentPage, pageSize) {
+    var totalRecordsCount = results.length;
+    var objects = results;
+    if (currentPage != 0 && pageSize != 0) {
+        objects = results.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    }
+
+    return getResponse(objects, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
 function setupPaginatedQuery(query, currentPage, pageSize) {

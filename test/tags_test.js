@@ -20,18 +20,21 @@ describe("Tags", function () {
     it("should get apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
+        var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test", "test2"])
+        var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["test", "test2"])
         firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
         firstAppResponse.result.categories.length.should.equal(1)
-        firstAppResponse.result.description.should.exist();
-        firstAppResponse.result.averageScore.should.eq(4.22)
 
         var opts = {
             method: "GET",
-            url: '/v1/apps/tags?names[]=test'
+            url: '/v1/apps/tags?names[]=test&page=1&pageSize=2'
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.equal(1)
+        response.result.totalCount.should.equal(3)
+        response.result.totalPages.should.equal(2)
+        response.result.page.should.equal(1)
+        response.result.apps.length.should.equal(2)
 
         var opts2 = {
             method: "GET",
@@ -39,7 +42,18 @@ describe("Tags", function () {
         }
 
         var getAppsResponse = yield Server.injectThen(opts2)
-        getAppsResponse.result.length.should.equal(1)
+        getAppsResponse.result.apps.length.should.equal(3)
+
+        var opts3 = {
+            method: "GET",
+            url: '/v1/apps/tags?names[]=test&page=2&pageSize=2'
+        }
+
+        var response3 = yield Server.injectThen(opts3)
+        response3.result.totalCount.should.equal(3)
+        response3.result.totalPages.should.equal(2)
+        response3.result.page.should.equal(2)
+        response3.result.apps.length.should.equal(1)
     });
 
     it("should get sorted apps by tags occurence", function*() {
@@ -54,10 +68,10 @@ describe("Tags", function () {
         }
 
         var result = (yield Server.injectThen(opts)).result
-        result.length.should.equal(3)
-        result[0].package.should.equal("com.test2")
-        result[1].package.should.equal("com.test3")
-        result[2].package.should.equal("com.test")
+        result.apps.length.should.equal(3)
+        result.apps[0].package.should.equal("com.test2")
+        result.apps[1].package.should.equal("com.test3")
+        result.apps[2].package.should.equal("com.test")
 
         var opts2 = {
             method: "GET",
@@ -65,10 +79,10 @@ describe("Tags", function () {
         }
 
         var result2 = (yield Server.injectThen(opts2)).result
-        result2.length.should.equal(3)
-        result2[0].package.should.equal("com.test")
-        result2[1].package.should.equal("com.test2")
-        result2[2].package.should.equal("com.test3")
+        result2.apps.length.should.equal(3)
+        result2.apps[0].package.should.equal("com.test")
+        result2.apps[1].package.should.equal("com.test2")
+        result2.apps[2].package.should.equal("com.test3")
     });
 
     it("should get tags suggestions", function*() {
@@ -88,28 +102,52 @@ describe("Tags", function () {
         response.result.tags.length.should.eq(APP_NAME_AND_TAGS_LENGTH);
     });
 
-    it("should get collections with tags", function*() {
+    it("should get paginated collections with tags", function*() {
         var userResponse = yield dbHelper.createUser()
         var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
-        yield makeCollectionPublic(userResponse.result.id, collectionResponse.result.id)
+        var collection2Response = yield dbHelper.createAppsCollectionWithParams(userResponse.result.id, "test march")
+        var collection3Response = yield dbHelper.createAppsCollectionWithParams(userResponse.result.id, "test 2 march")
+        var appsIds = yield createAppsIdsList(userResponse.result.id)
+        yield makeCollectionPublic(userResponse.result.id, collectionResponse.result.id, appsIds)
+        yield makeCollectionPublic(userResponse.result.id, collection2Response.result.id, appsIds)
+        yield makeCollectionPublic(userResponse.result.id, collection3Response.result.id, appsIds)
 
         collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
+        collection2Response.statusCode.should.equal(STATUS_CODES.OK)
+        collection3Response.statusCode.should.equal(STATUS_CODES.OK)
 
         var opts = {
             method: "GET",
-            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id
+            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=1&pageSize=2'
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.equal(1)
-        response.result[0].hasVoted.should.eq(true)
+        response.result.collections.length.should.equal(2)
+        response.result.page.should.eq(1)
+        response.result.totalPages.should.eq(2)
+        response.result.totalCount.should.eq(3)
+        response.result.collections.length.should.eq(2)
+        response.result.collections[0].hasVoted.should.eq(true)
+
+
+        var opts3 = {
+            method: "GET",
+            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=2&pageSize=2'
+        }
+
+        var response3 = yield Server.injectThen(opts3)
+        response3.result.collections.length.should.equal(1)
+        response3.result.totalPages.should.eq(2)
+        response3.result.totalCount.should.eq(3)
+        response3.result.page.should.eq(2)
+
 
         var opts1 = {
             method: 'GET',
             url: '/app-collections',
         }
         var response1 = yield Server.injectThen(opts1)
-        response1.result.collections[0].tags.length.should.eq(4)
+        response1.result.collections[0].tags.length.should.eq(3)
     });
 
     it("should get collections and apps with tags", function*() {
@@ -118,7 +156,8 @@ describe("Tags", function () {
         var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
         var collectionId = collectionResponse.result.id
         collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
-        yield makeCollectionPublic(userId, collectionId)
+        var appIds = yield createAppsIdsList(userId)
+        yield makeCollectionPublic(userId, collectionId, appIds)
 
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["march", "test2"])
 
@@ -142,13 +181,8 @@ describe("Tags", function () {
         result2.collections.length.should.eq(1)
     });
 
-    function* makeCollectionPublic(userId, collectionId) {
-        var appId = (yield dbHelper.createApp(userId)).result.id
-        var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.test1")).result.id
-        var app3Id = (yield dbHelper.createAppWithPackage(userId, "com.test2")).result.id
-        var app4Id = (yield dbHelper.createAppWithPackage(userId, "com.test3")).result.id
-
-        updateCollection.apps = [appId, app2Id, app3Id, app4Id]
+    function* makeCollectionPublic(userId, collectionId, appsIds) {
+        updateCollection.apps = appsIds
 
         var opts3 = {
             method: 'PUT',
@@ -159,5 +193,14 @@ describe("Tags", function () {
         }
 
         var resp = (yield Server.injectThen(opts3)).result
+    }
+
+    function* createAppsIdsList(userId) {
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.test1")).result.id
+        var app3Id = (yield dbHelper.createAppWithPackage(userId, "com.test2")).result.id
+        var app4Id = (yield dbHelper.createAppWithPackage(userId, "com.test3")).result.id
+
+        return [appId, app2Id, app3Id, app4Id];
     }
 })

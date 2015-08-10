@@ -38,12 +38,16 @@ export var tagRoutes = [
         method: "GET",
         path: "/collections/tags",
         handler: function (req, reply) {
-            reply.co(TagsHandler.getCollectionsForTags(req.query.names, req.query.userId))
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(TagsHandler.getCollectionsForTags(req.query.names, req.query.userId, page, pageSize))
         },
         config: {
             validate: {
                 query: {
                     names: Joi.array().items(Joi.string()).required(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional()
                 }
             },
@@ -54,12 +58,16 @@ export var tagRoutes = [
         method: "GET",
         path: "/apps/tags",
         handler: function (req, reply) {
-            reply.co(TagsHandler.getAppsForTags(req.query.names, req.query.userId))
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(TagsHandler.getAppsForTags(req.query.names, req.query.userId, page, pageSize))
         },
         config: {
             validate: {
                 query: {
                     names: Joi.array().items(Joi.string()).required(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional()
                 }
             },

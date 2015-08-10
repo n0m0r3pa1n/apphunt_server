@@ -28,6 +28,16 @@ export function* getPaginatedResults(query, currentPage, pageSize) {
     return getResponse(results, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
+export function getPaginationWithResults(results, currentPage, pageSize) {
+    var totalRecordsCount = results.length;
+    var objects = results;
+    if(currentPage != 0 && pageSize != 0) {
+        objects = results.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    }
+
+    return getResponse(objects, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
+}
+
 function setupPaginatedQuery(query, currentPage, pageSize) {
     if(currentPage != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((currentPage - 1) * pageSize)
