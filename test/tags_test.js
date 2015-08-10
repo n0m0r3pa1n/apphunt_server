@@ -9,6 +9,14 @@ require('./spec_helper')
 
 describe("Tags", function () {
 
+    var updateCollection = {
+        name: "Top apps for march june july",
+        description: "Desc",
+        picture: "Pic",
+        apps: []
+    }
+
+
     it("should get apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
@@ -82,8 +90,10 @@ describe("Tags", function () {
 
     it("should get collections with tags", function*() {
         var userResponse = yield dbHelper.createUser()
-        var firstAppResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
-        firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
+        var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
+        yield makeCollectionPublic(userResponse.result.id, collectionResponse.result.id)
+
+        collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
 
         var opts = {
             method: "GET",
@@ -91,7 +101,7 @@ describe("Tags", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.equal(0)
+        response.result.length.should.equal(1)
 
         var opts1 = {
             method: 'GET',
@@ -103,8 +113,11 @@ describe("Tags", function () {
 
     it("should get collections and apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
+        var userId = userResponse.result.id
         var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
+        var collectionId = collectionResponse.result.id
         collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
+        yield makeCollectionPublic(userId, collectionId)
 
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["march", "test2"])
 
@@ -115,7 +128,7 @@ describe("Tags", function () {
 
         var result = (yield Server.injectThen(opts)).result
         result.apps.length.should.eq(1)
-        result.collections.length.should.eq(0)
+        result.collections.length.should.eq(1)
 
         var opts2 = {
             method: "GET",
@@ -124,6 +137,25 @@ describe("Tags", function () {
 
         var result2 = (yield Server.injectThen(opts2)).result
         result2.apps.length.should.eq(0)
-        result2.collections.length.should.eq(0)
+        result2.collections.length.should.eq(1)
     });
+
+    function* makeCollectionPublic(userId, collectionId) {
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.test1")).result.id
+        var app3Id = (yield dbHelper.createAppWithPackage(userId, "com.test2")).result.id
+        var app4Id = (yield dbHelper.createAppWithPackage(userId, "com.test3")).result.id
+
+        updateCollection.apps = [appId, app2Id, app3Id, app4Id]
+
+        var opts3 = {
+            method: 'PUT',
+            url: '/app-collections/' + collectionId + "?userId=" + userId,
+            payload: {
+                collection: updateCollection
+            }
+        }
+
+        var resp = (yield Server.injectThen(opts3)).result
+    }
 })
