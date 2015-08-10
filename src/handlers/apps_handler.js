@@ -33,8 +33,6 @@ var Models = require('../models')
 var App = Models.App
 var Developer = Models.Developer
 var User = Models.User
-var Vote = Models.Vote
-var Comment = Models.Comment
 var AppCategory = Models.AppCategory
 
 export function* create(app, tags, userId) {
@@ -278,7 +276,20 @@ export function* filterApps(packages, platform) {
     }
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages)
-    return {"availablePackages": appsToBeAdded, "existingPackages": existingAppsPackages }
+    let packagesResult = []
+    for(let app of appsToBeAdded) {
+        let parsedApp = null
+        try {
+            parsedApp = yield DevsHunter.getAndroidApp(app)
+        } catch (e) {
+            continue;
+        }
+
+        if(parsedApp != null) {
+            packagesResult.push(app)
+        }
+    }
+    return {"availablePackages": packagesResult, "existingPackages": existingAppsPackages }
 }
 
 export function* getApp(appId, userId) {
