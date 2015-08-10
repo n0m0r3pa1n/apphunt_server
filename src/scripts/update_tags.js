@@ -1,9 +1,9 @@
 var Mongoose = require('mongoose')
 //var dbURI = 'mongodb://localhost/apphunt'
 // Dev DB URI
-var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g'
+//var dbURI = 'mongodb://NaSp:fmi123@ds031877.mongolab.com:31877/heroku_948fv92g'
 // Prod DB URI
-//var dbURI = 'mongodb://NaughtySpirit:fmi123@ds031531.mongolab.com:31531/heroku_app33343837'
+var dbURI = 'mongodb://NaughtySpirit:fmi123@ds031531.mongolab.com:31531/heroku_app33343837'
 
 Mongoose.connect(dbURI, function(err, obj) {
 })
