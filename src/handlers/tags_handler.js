@@ -72,7 +72,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        apps: []
+        results: []
     }
     let tags = []
     for(let name of names) {
@@ -99,7 +99,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
             apps.push(app)
         }
     }
-    response.apps = apps;
+    response.results = apps;
     return response
 }
 
@@ -109,7 +109,7 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        collections: []
+        results: []
     }
     let tags = []
     for(let name of names) {
@@ -136,9 +136,7 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
             collections.push(collection)
         }
     }
-
-    response.collections = collections;
-
+    response.results = collections;
     return response
 }
 
@@ -147,8 +145,8 @@ export function* getItemsForTag(names, userId) {
     let collections = yield getCollectionsForTags(names, userId, 0, 0);
 
     return {
-        apps: apps.apps,
-        collections: collections.collections
+        apps: apps.results,
+        collections: collections.results
     }
 }
 
