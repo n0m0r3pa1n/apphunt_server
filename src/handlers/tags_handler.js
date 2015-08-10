@@ -72,7 +72,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        results: []
+        apps: []
     }
     let tags = []
     for(let name of names) {
@@ -99,7 +99,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
             apps.push(app)
         }
     }
-    response.results = apps;
+    response.apps = apps;
     return response
 }
 
