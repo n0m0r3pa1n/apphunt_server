@@ -193,7 +193,6 @@ function* getAppsForTags(names, userId, page, pageSize) {
         return response;
     }
     var itemIds = getSortedItemIds(tags);
-
     if (page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);
         itemIds = response.results;

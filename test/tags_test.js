@@ -118,7 +118,7 @@ describe("Tags", function () {
 
         var opts = {
             method: "GET",
-            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=1&pageSize=2'
+            url: '/v1/app-collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=1&pageSize=2'
         }
 
         var response = yield Server.injectThen(opts)
@@ -132,7 +132,7 @@ describe("Tags", function () {
 
         var opts3 = {
             method: "GET",
-            url: '/v1/collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=2&pageSize=2'
+            url: '/v1/app-collections/tags?names[]=march&userId=' + userResponse.result.id + '&page=2&pageSize=2'
         }
 
         var response3 = yield Server.injectThen(opts3)

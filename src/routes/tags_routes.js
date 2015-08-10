@@ -36,7 +36,7 @@ export var tagRoutes = [
     },
     {
         method: "GET",
-        path: "/collections/tags",
+        path: "/app-collections/tags",
         handler: function (req, reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
