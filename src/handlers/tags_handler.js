@@ -88,7 +88,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
     let itemIds = getSortedItemIds(tags);
     if(page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize)
-        itemIds = response.results;
+        itemIds = response.apps;
     } else {
         response.totalCount = itemIds.length
     }
