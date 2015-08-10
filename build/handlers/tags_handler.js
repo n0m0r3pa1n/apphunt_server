@@ -182,7 +182,6 @@ function* getAppsForTags(names, userId) {
     if (tags.length == 0) {
         return [];
     }
-    console.log(tags);
     var itemIds = getSortedItemIds(tags);
 
     var apps = [];

@@ -78,7 +78,6 @@ export function* getAppsForTags(names, userId) {
     if(tags.length == 0) {
         return []
     }
-    console.log(tags)
     let itemIds = getSortedItemIds(tags);
 
     var apps = []

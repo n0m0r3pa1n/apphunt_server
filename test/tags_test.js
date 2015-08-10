@@ -91,7 +91,7 @@ describe("Tags", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.equal(1)
+        response.result.length.should.equal(0)
 
         var opts1 = {
             method: 'GET',
@@ -115,7 +115,7 @@ describe("Tags", function () {
 
         var result = (yield Server.injectThen(opts)).result
         result.apps.length.should.eq(1)
-        result.collections.length.should.eq(1)
+        result.collections.length.should.eq(0)
 
         var opts2 = {
             method: "GET",
@@ -124,6 +124,6 @@ describe("Tags", function () {
 
         var result2 = (yield Server.injectThen(opts2)).result
         result2.apps.length.should.eq(0)
-        result2.collections.length.should.eq(1)
+        result2.collections.length.should.eq(0)
     });
 })
