@@ -34,7 +34,7 @@ describe("Tags", function () {
         response.result.totalCount.should.equal(3)
         response.result.totalPages.should.equal(2)
         response.result.page.should.equal(1)
-        response.result.results.length.should.equal(2)
+        response.result.apps.length.should.equal(2)
 
         var opts2 = {
             method: "GET",
@@ -42,7 +42,7 @@ describe("Tags", function () {
         }
 
         var getAppsResponse = yield Server.injectThen(opts2)
-        getAppsResponse.result.results.length.should.equal(3)
+        getAppsResponse.result.apps.length.should.equal(3)
 
         var opts3 = {
             method: "GET",
@@ -53,7 +53,7 @@ describe("Tags", function () {
         response3.result.totalCount.should.equal(3)
         response3.result.totalPages.should.equal(2)
         response3.result.page.should.equal(2)
-        response3.result.results.length.should.equal(1)
+        response3.result.apps.length.should.equal(1)
     });
 
     it("should get sorted apps by tags occurence", function*() {
@@ -68,10 +68,10 @@ describe("Tags", function () {
         }
 
         var result = (yield Server.injectThen(opts)).result
-        result.results.length.should.equal(3)
-        result.results[0].package.should.equal("com.test2")
-        result.results[1].package.should.equal("com.test3")
-        result.results[2].package.should.equal("com.test")
+        result.apps.length.should.equal(3)
+        result.apps[0].package.should.equal("com.test2")
+        result.apps[1].package.should.equal("com.test3")
+        result.apps[2].package.should.equal("com.test")
 
         var opts2 = {
             method: "GET",
@@ -79,10 +79,10 @@ describe("Tags", function () {
         }
 
         var result2 = (yield Server.injectThen(opts2)).result
-        result2.results.length.should.equal(3)
-        result2.results[0].package.should.equal("com.test")
-        result2.results[1].package.should.equal("com.test2")
-        result2.results[2].package.should.equal("com.test3")
+        result2.apps.length.should.equal(3)
+        result2.apps[0].package.should.equal("com.test")
+        result2.apps[1].package.should.equal("com.test2")
+        result2.apps[2].package.should.equal("com.test3")
     });
 
     it("should get tags suggestions", function*() {
@@ -122,12 +122,12 @@ describe("Tags", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.results.length.should.equal(2)
+        response.result.collections.length.should.equal(2)
         response.result.page.should.eq(1)
         response.result.totalPages.should.eq(2)
         response.result.totalCount.should.eq(3)
-        response.result.results.length.should.eq(2)
-        response.result.results[0].
+        response.result.collections.length.should.eq(2)
+        response.result.collections[0].
             hasVoted.should.eq(true)
 
 
@@ -137,7 +137,7 @@ describe("Tags", function () {
         }
 
         var response3 = yield Server.injectThen(opts3)
-        response3.result.results.length.should.equal(1)
+        response3.result.collections.length.should.equal(1)
         response3.result.totalPages.should.eq(2)
         response3.result.totalCount.should.eq(3)
         response3.result.page.should.eq(2)

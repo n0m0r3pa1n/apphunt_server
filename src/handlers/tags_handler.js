@@ -88,7 +88,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
     let itemIds = getSortedItemIds(tags);
     if(page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize)
-        itemIds = response.apps;
+        itemIds = response.results;
     } else {
         response.totalCount = itemIds.length
     }
@@ -99,6 +99,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
             apps.push(app)
         }
     }
+    delete response.results
     response.apps = apps;
     return response
 }
@@ -109,7 +110,7 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        results: []
+        collections: []
     }
     let tags = []
     for(let name of names) {
@@ -136,7 +137,8 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
             collections.push(collection)
         }
     }
-    response.results = collections;
+    delete response.results
+    response.collections = collections;
     return response
 }
 
@@ -145,8 +147,8 @@ export function* getItemsForTag(names, userId) {
     let collections = yield getCollectionsForTags(names, userId, 0, 0);
 
     return {
-        apps: apps.results,
-        collections: collections.results
+        apps: apps.apps,
+        collections: collections.collections
     }
 }
 

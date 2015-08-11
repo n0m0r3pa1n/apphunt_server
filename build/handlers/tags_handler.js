@@ -158,7 +158,7 @@ function* getAppsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        results: []
+        apps: []
     };
     var tags = [];
     var _iteratorNormalCompletion4 = true;
@@ -228,7 +228,8 @@ function* getAppsForTags(names, userId, page, pageSize) {
         }
     }
 
-    response.results = apps;
+    delete response.results;
+    response.apps = apps;
     return response;
 }
 
@@ -237,7 +238,7 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
         page: 0,
         totalCount: 0,
         totalPages: 0,
-        results: []
+        collections: []
     };
     var tags = [];
     var _iteratorNormalCompletion6 = true;
@@ -308,7 +309,8 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
         }
     }
 
-    response.results = collections;
+    delete response.results;
+    response.collections = collections;
     return response;
 }
 
@@ -317,8 +319,8 @@ function* getItemsForTag(names, userId) {
     var collections = yield getCollectionsForTags(names, userId, 0, 0);
 
     return {
-        apps: apps.results,
-        collections: collections.results
+        apps: apps.apps,
+        collections: collections.collections
     };
 }
 
