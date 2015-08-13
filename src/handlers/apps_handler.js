@@ -309,6 +309,7 @@ export function* getApp(appId, userId) {
         categories.push(category.name)
     }
 
+    app.tags = yield TagsHandler.getTagsForApp(app._id)
     app.categories = categories
     return app
 }

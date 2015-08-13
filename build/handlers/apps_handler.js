@@ -366,6 +366,7 @@ function* getApp(appId, userId) {
         }
     }
 
+    app.tags = yield TagsHandler.getTagsForApp(app._id);
     app.categories = categories;
     return app;
 }
