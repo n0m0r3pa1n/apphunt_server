@@ -160,6 +160,10 @@ export function* getTagsForApp(appId) {
     return yield getTagsForItem(appId, TAG_TYPES.APPLICATION)
 }
 
+export function* deleteTagsForApp(appId) {
+    yield Tag.remove({itemIds: appId, type: TAG_TYPES.APPLICATION}).exec()
+}
+
 
 function* getTagsForItem(itemId, tagType) {
     let tags = yield Tag.find({itemIds: itemId, type: tagType}).exec()

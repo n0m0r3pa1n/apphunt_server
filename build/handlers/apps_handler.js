@@ -195,7 +195,7 @@ function* deleteApp(packageName) {
     var app = yield App.findOne({ 'package': packageName }).exec();
     yield VotesHandler.clearAppVotes(app.votes);
     yield CommentsHandler.clearAppComments(app._id);
-
+    yield TagsHandler.deleteTagsForApp(app._id);
     yield App.remove({ 'package': packageName }).exec();
 
     return Boom.OK();
@@ -229,7 +229,9 @@ function* changeAppStatus(appPackage, status) {
             }
             app.shortUrl = yield UrlsHandler.getShortLink(links);
 
-            postTweet(app, createdBy);
+            if (createdBy.loginType == LOGIN_TYPES.Twitter) {
+                postTweet(app, createdBy);
+            }
             EmailsHandler.sendEmailToDeveloper(app);
 
             var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);

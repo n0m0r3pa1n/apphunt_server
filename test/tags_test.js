@@ -182,6 +182,27 @@ describe("Tags", function () {
         result2.collections.length.should.eq(1)
     });
 
+    it("should delete tags for app", function* () {
+        var userResponse = yield dbHelper.createUser()
+        var appResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["nomnom", "test2"])
+        
+        var opts = {
+            method: 'DELETE',
+            url: '/apps?package=' + appResponse.result.package
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+
+        var opts2 = {
+            method: "GET",
+            url: '/v1/tags?names[]=nomnom'
+        }
+
+        var result2 = (yield Server.injectThen(opts2)).result
+        result2.apps.length.should.eq(0)
+    })
+
     function* makeCollectionPublic(userId, collectionId, appsIds) {
         updateCollection.apps = appsIds
 

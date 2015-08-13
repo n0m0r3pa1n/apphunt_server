@@ -11,6 +11,7 @@ exports.getCollectionsForTags = getCollectionsForTags;
 exports.getItemsForTag = getItemsForTag;
 exports.getTagsForCollection = getTagsForCollection;
 exports.getTagsForApp = getTagsForApp;
+exports.deleteTagsForApp = deleteTagsForApp;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -330,6 +331,10 @@ function* getTagsForCollection(collectionId) {
 
 function* getTagsForApp(appId) {
     return yield getTagsForItem(appId, TAG_TYPES.APPLICATION);
+}
+
+function* deleteTagsForApp(appId) {
+    yield Tag.remove({ itemIds: appId, type: TAG_TYPES.APPLICATION }).exec();
 }
 
 function* getTagsForItem(itemId, tagType) {
