@@ -11,7 +11,7 @@ exports.getCollectionsForTags = getCollectionsForTags;
 exports.getItemsForTag = getItemsForTag;
 exports.getTagsForCollection = getTagsForCollection;
 exports.getTagsForApp = getTagsForApp;
-exports.deleteTagsForApp = deleteTagsForApp;
+exports.removeAppFromTags = removeAppFromTags;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -333,13 +333,8 @@ function* getTagsForApp(appId) {
     return yield getTagsForItem(appId, TAG_TYPES.APPLICATION);
 }
 
-function* deleteTagsForApp(appId) {
-    yield Tag.remove({ itemIds: appId, type: TAG_TYPES.APPLICATION }).exec();
-}
-
-function* getTagsForItem(itemId, tagType) {
-    var tags = yield Tag.find({ itemIds: itemId, type: tagType }).exec();
-    var tagsObj = [];
+function* removeAppFromTags(appId) {
+    var tags = yield Tag.find({ itemIds: appId, type: TAG_TYPES.APPLICATION }).exec();
     var _iteratorNormalCompletion8 = true;
     var _didIteratorError8 = false;
     var _iteratorError8 = undefined;
@@ -348,7 +343,11 @@ function* getTagsForItem(itemId, tagType) {
         for (var _iterator8 = tags[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
             var tag = _step8.value;
 
-            tagsObj.push(tag.name);
+            var index = tag.itemIds.indexOf(appId);
+            if (index > -1) {
+                tag.itemIds.splice(index, 1);
+            }
+            yield tag.save();
         }
     } catch (err) {
         _didIteratorError8 = true;
@@ -364,26 +363,20 @@ function* getTagsForItem(itemId, tagType) {
             }
         }
     }
-
-    return tagsObj;
 }
 
-function getTagsFromName(appName) {
-    appName = replaceSpecialCharacters(appName);
-    var split = appName.split(' ');
-    var tags = [];
+function* getTagsForItem(itemId, tagType) {
+    var tags = yield Tag.find({ itemIds: itemId, type: tagType }).exec();
+    var tagsObj = [];
     var _iteratorNormalCompletion9 = true;
     var _didIteratorError9 = false;
     var _iteratorError9 = undefined;
 
     try {
-        for (var _iterator9 = split[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-            var str = _step9.value;
+        for (var _iterator9 = tags[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var tag = _step9.value;
 
-            if (str === ' ' || str === '') {
-                continue;
-            }
-            tags.push(str);
+            tagsObj.push(tag.name);
         }
     } catch (err) {
         _didIteratorError9 = true;
@@ -400,46 +393,25 @@ function getTagsFromName(appName) {
         }
     }
 
-    return tags;
+    return tagsObj;
 }
 
-function replaceSpecialCharacters(str) {
-    return str.replace(/[^\w\s]/gi, '');
-}
-
-function getSortedItemIds(tags) {
-    var itemIds = [];
+function getTagsFromName(appName) {
+    appName = replaceSpecialCharacters(appName);
+    var split = appName.split(' ');
+    var tags = [];
     var _iteratorNormalCompletion10 = true;
     var _didIteratorError10 = false;
     var _iteratorError10 = undefined;
 
     try {
-        for (var _iterator10 = tags[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-            var tag = _step10.value;
-            var _iteratorNormalCompletion11 = true;
-            var _didIteratorError11 = false;
-            var _iteratorError11 = undefined;
+        for (var _iterator10 = split[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+            var str = _step10.value;
 
-            try {
-                for (var _iterator11 = tag.itemIds[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                    var tagItemId = _step11.value;
-
-                    itemIds.push(String(tagItemId));
-                }
-            } catch (err) {
-                _didIteratorError11 = true;
-                _iteratorError11 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion11 && _iterator11['return']) {
-                        _iterator11['return']();
-                    }
-                } finally {
-                    if (_didIteratorError11) {
-                        throw _iteratorError11;
-                    }
-                }
+            if (str === ' ' || str === '') {
+                continue;
             }
+            tags.push(str);
         }
     } catch (err) {
         _didIteratorError10 = true;
@@ -452,6 +424,62 @@ function getSortedItemIds(tags) {
         } finally {
             if (_didIteratorError10) {
                 throw _iteratorError10;
+            }
+        }
+    }
+
+    return tags;
+}
+
+function replaceSpecialCharacters(str) {
+    return str.replace(/[^\w\s]/gi, '');
+}
+
+function getSortedItemIds(tags) {
+    var itemIds = [];
+    var _iteratorNormalCompletion11 = true;
+    var _didIteratorError11 = false;
+    var _iteratorError11 = undefined;
+
+    try {
+        for (var _iterator11 = tags[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var tag = _step11.value;
+            var _iteratorNormalCompletion12 = true;
+            var _didIteratorError12 = false;
+            var _iteratorError12 = undefined;
+
+            try {
+                for (var _iterator12 = tag.itemIds[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                    var tagItemId = _step12.value;
+
+                    itemIds.push(String(tagItemId));
+                }
+            } catch (err) {
+                _didIteratorError12 = true;
+                _iteratorError12 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion12 && _iterator12['return']) {
+                        _iterator12['return']();
+                    }
+                } finally {
+                    if (_didIteratorError12) {
+                        throw _iteratorError12;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError11 = true;
+        _iteratorError11 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion11 && _iterator11['return']) {
+                _iterator11['return']();
+            }
+        } finally {
+            if (_didIteratorError11) {
+                throw _iteratorError11;
             }
         }
     }
@@ -476,29 +504,29 @@ function sortByFrequency(array) {
 }
 
 function doesArrayContains(array, id) {
-    var _iteratorNormalCompletion12 = true;
-    var _didIteratorError12 = false;
-    var _iteratorError12 = undefined;
+    var _iteratorNormalCompletion13 = true;
+    var _didIteratorError13 = false;
+    var _iteratorError13 = undefined;
 
     try {
-        for (var _iterator12 = array[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-            var arrayId = _step12.value;
+        for (var _iterator13 = array[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+            var arrayId = _step13.value;
 
             if (String(arrayId) === String(id)) {
                 return true;
             }
         }
     } catch (err) {
-        _didIteratorError12 = true;
-        _iteratorError12 = err;
+        _didIteratorError13 = true;
+        _iteratorError13 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion12 && _iterator12['return']) {
-                _iterator12['return']();
+            if (!_iteratorNormalCompletion13 && _iterator13['return']) {
+                _iterator13['return']();
             }
         } finally {
-            if (_didIteratorError12) {
-                throw _iteratorError12;
+            if (_didIteratorError13) {
+                throw _iteratorError13;
             }
         }
     }
