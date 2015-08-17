@@ -10,16 +10,13 @@ var Device = require('../models').Device
 var UserScoreHandler = require('./user_score_handler')
 
 import * as AuthHandler from './authentication_handler.js'
+import * as ScoresHandler from './user_score_handler.js'
 
 
 export function* get(userId, email, loginType) {
     var where = {}
     if(loginType !== undefined){
         where.loginType = loginType
-    }
-
-    if(userId !== undefined) {
-
     }
 
     if(email !== undefined) {
@@ -31,6 +28,22 @@ export function* get(userId, email, loginType) {
 
 export function* find(userId) {
     return yield User.findById(userId).exec()
+}
+
+export function* getUserProfile(userId) {
+    let user = yield find(userId)
+    if(user == null) {
+        return Boom.notFound("User is not existing!")
+    }
+    user = user.toObject()
+    let details = yield ScoresHandler.getUserDetails(userId)
+    user.apps = details.addedApps
+    user.comments = details.comments
+    user.votes = details.votes
+    user.collections = details.collections
+    user.score = details.score
+
+    return user
 }
 
 export function* create(user, notificationId) {

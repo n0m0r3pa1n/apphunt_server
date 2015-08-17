@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.get = get;
 exports.find = find;
+exports.getUserProfile = getUserProfile;
 exports.create = create;
 exports.update = update;
 
@@ -13,6 +14,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var _authentication_handlerJs = require('./authentication_handler.js');
 
 var AuthHandler = _interopRequireWildcard(_authentication_handlerJs);
+
+var _user_score_handlerJs = require('./user_score_handler.js');
+
+var ScoresHandler = _interopRequireWildcard(_user_score_handlerJs);
 
 var _ = require('underscore');
 var Boom = require('boom');
@@ -31,8 +36,6 @@ function* get(userId, email, loginType) {
         where.loginType = loginType;
     }
 
-    if (userId !== undefined) {}
-
     if (email !== undefined) {
         where.email = email;
     }
@@ -42,6 +45,22 @@ function* get(userId, email, loginType) {
 
 function* find(userId) {
     return yield User.findById(userId).exec();
+}
+
+function* getUserProfile(userId) {
+    var user = yield find(userId);
+    if (user == null) {
+        return Boom.notFound('User is not existing!');
+    }
+    user = user.toObject();
+    var details = yield ScoresHandler.getUserDetails(userId);
+    user.apps = details.addedApps;
+    user.comments = details.comments;
+    user.votes = details.votes;
+    user.collections = details.collections;
+    user.score = details.score;
+
+    return user;
 }
 
 function* create(user, notificationId) {

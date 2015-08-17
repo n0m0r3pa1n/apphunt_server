@@ -39,6 +39,24 @@ describe("Users", function() {
 		users.length.should.equal(1)
 	})
 
+    it("should get populated user profile", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentResponse = yield dbHelper.createComment(appId, userId)
+
+        var opts = {
+            method: 'GET',
+            url: '/users/' + userId
+        }
+
+        var result = (yield Server.injectThen(opts)).result
+        result.apps.should.eq(1)
+        result.collections.should.eq(1)
+        result.comments.should.eq(1)
+        result.votes.should.eq(2)
+    })
+
 	it("should get all users", function*() {
 		var response = yield dbHelper.createUserWithParams("poli@abv.bg")
 		var response2 = yield dbHelper.createUserWithParams("lqwqwqoli@abv.bg")
