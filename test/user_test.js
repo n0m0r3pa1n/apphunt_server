@@ -17,6 +17,18 @@ describe("Users", function() {
 		response.result.locale.should.equals("USA-en")
 	});
 
+	it("should get user by id", function* () {
+		var response = yield dbHelper.createUser("USA-en")
+		response.statusCode.should.equal(STATUS_CODES.OK)
+		var opts = {
+			method: 'GET',
+			url: '/users/' + response.result._id
+		}
+
+		var resp = yield Server.injectThen(opts)
+		String(resp.result._id).should.eq(String(response.result._id))
+	})
+
 	it("should not create user", function*() {
 		var response = yield dbHelper.createUser()
 		response.statusCode.should.equal(STATUS_CODES.OK)

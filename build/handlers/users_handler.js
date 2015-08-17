@@ -25,11 +25,13 @@ var User = require('../models').User;
 var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
 
-function* get(email, loginType) {
+function* get(userId, email, loginType) {
     var where = {};
     if (loginType !== undefined) {
         where.loginType = loginType;
     }
+
+    if (userId !== undefined) {}
 
     if (email !== undefined) {
         where.email = email;

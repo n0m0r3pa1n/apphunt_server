@@ -17,18 +17,33 @@ var routes = [{
     method: 'GET',
     path: '/users',
     handler: function handler(req, reply) {
-        reply.co(UsersHandler.get(req.query.email, req.query.loginType));
+        reply.co(UsersHandler.get(req.query.userId, req.query.email, req.query.loginType));
     },
     config: {
         validate: {
             query: {
                 email: Joi.string().optional(),
                 loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional()
-
             }
         },
         auth: false,
         description: 'Get a list of all registered users.',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
+    path: '/users/{userId}',
+    handler: function handler(req, reply) {
+        reply.co(UsersHandler.find(req.params.userId));
+    },
+    config: {
+        validate: {
+            params: {
+                userId: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: 'Get user by id.',
         tags: ['api']
     }
 }, {

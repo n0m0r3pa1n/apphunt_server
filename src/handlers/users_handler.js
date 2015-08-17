@@ -12,10 +12,14 @@ var UserScoreHandler = require('./user_score_handler')
 import * as AuthHandler from './authentication_handler.js'
 
 
-export function* get(email, loginType) {
+export function* get(userId, email, loginType) {
     var where = {}
     if(loginType !== undefined){
         where.loginType = loginType
+    }
+
+    if(userId !== undefined) {
+
     }
 
     if(email !== undefined) {
