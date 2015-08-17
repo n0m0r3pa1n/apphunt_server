@@ -28,7 +28,7 @@ var routes = [
         method: "GET",
         path: "/users/{userId}",
         handler: function(req,reply) {
-            reply.co(UsersHandler.find(req.params.userId))
+            reply.co(UsersHandler.getUserProfile(req.params.userId))
         },
         config: {
             validate: {

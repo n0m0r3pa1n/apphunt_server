@@ -5,6 +5,7 @@ var User = models.User
 var App = models.App
 var Vote = models.Vote
 var Comment = models.Comment
+var AppsCollection = models.AppsCollection
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -21,18 +22,26 @@ function* getUserDetails(userId, fromDate, toDate) {
         addedApps: 0,
         comments: 0,
         votes: 0,
+        collections: 0,
         score: 0
     }
 
-    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS)
-    var whereDatesRange = {
-        createdAt: {"$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
-            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())}
+    var whereDatesRange = {}
+    if(toDate !== undefined && fromDate !== undefined) {
+        toDate = new Date(toDate.getTime() + DAY_MILLISECONDS)
+
+        whereDatesRange = {
+            createdAt: {
+                "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+                "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+            }
+        }
     }
 
     userDetails.addedApps = yield App.count(_.extend({createdBy: userId}, whereDatesRange)).exec()
     userDetails.votes = yield Vote.count(_.extend({user: userId}, whereDatesRange)).exec()
     userDetails.comments = yield Comment.count(_.extend({createdBy: userId}, whereDatesRange)).exec()
+    userDetails.collections = yield AppsCollection.count(_.extend({createdBy: userId}, whereDatesRange)).exec()
     userDetails.score = userDetails.votes * Points.vote + userDetails.comments * Points.comment + userDetails.addedApps * Points.app;
     return userDetails
 }
