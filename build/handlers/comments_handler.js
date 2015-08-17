@@ -169,7 +169,7 @@ function* clearAppComments(appId) {
 }
 
 function* getCommentsForUser(userId, page, pageSize) {
-    var query = Comment.find({ createdBy: userId }).populate('app');
+    var query = Comment.find({ createdBy: userId }).populate('app createdBy');
     return yield PaginationHandler.getPaginatedResultsWithName(query, 'comments', page, pageSize);
 }
 
