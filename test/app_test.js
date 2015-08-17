@@ -122,6 +122,35 @@ describe("Apps", function () {
         response.result.apps[0].categories.length.should.exist()
     });
 
+    it("should get apps per user", function*() {
+        var userResponse = yield dbHelper.createUser()
+        var userResult = userResponse.result
+        yield dbHelper.createApp(userResult.id)
+        yield dbHelper.createAppWithPackage(userResult.id, "com.test3")
+        yield dbHelper.createAppWithPackage(userResult.id, "com.test2")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/mine?userId=' + userResult.id
+        }
+
+        var response = yield Server.injectThen(opts);
+        var result = response.result;
+        result.apps.length.should.eq(3)
+        result.totalCount.should.eq(3)
+
+        var opts2 = {
+            method: 'GET',
+            url: '/apps/mine?page=1&pageSize=2&userId=' + userResult.id
+        }
+
+        var paginatedResult = (yield Server.injectThen(opts2)).result;
+        paginatedResult.apps.length.should.eq(2)
+        paginatedResult.totalCount.should.eq(3)
+        paginatedResult.page.should.eq(1)
+        paginatedResult.totalPages.should.eq(2)
+    });
+
     it("should get apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)

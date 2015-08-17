@@ -270,6 +270,17 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
     return result
 }
 
+export function* getAppsForUser(userId, page, pageSize) {
+
+    var query = App.find({createdBy: userId}).deepPopulate("votes.user").populate("categories").populate("createdBy")
+    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
+
+    return result
+}
+
 export function* filterApps(packages, platform) {
     var existingApps = yield App.find( { package: { $in: packages } } ).exec()
     var existingAppsPackages = []

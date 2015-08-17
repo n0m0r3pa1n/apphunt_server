@@ -8,6 +8,7 @@ exports.update = update;
 exports.deleteApp = deleteApp;
 exports.changeAppStatus = changeAppStatus;
 exports.getApps = getApps;
+exports.getAppsForUser = getAppsForUser;
 exports.filterApps = filterApps;
 exports.getApp = getApp;
 exports.searchApps = searchApps;
@@ -281,6 +282,17 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     yield formatApps(userId, result.apps);
 
     result.date = responseDate;
+    return result;
+}
+
+function* getAppsForUser(userId, page, pageSize) {
+
+    var query = App.find({ createdBy: userId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    query.sort({ votesCount: 'desc', createdAt: 'desc' });
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    result.apps = convertToArray(result.apps);
+    yield formatApps(userId, result.apps);
+
     return result;
 }
 
