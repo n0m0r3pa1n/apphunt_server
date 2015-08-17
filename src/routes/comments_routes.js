@@ -44,6 +44,25 @@ var routes = [
         }
     },
     {
+        method: "GET",
+        path: "/comments/mine",
+        handler: function(req, reply) {
+            reply.co(CommentsHandler.getCommentsForUser(req.query.userId, req.query.page, req.query.pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional()
+                }
+            },
+            auth: false,
+            description: 'Get comments for user',
+            tags: ['api']
+        }
+    },
+    {
         method: "DELETE",
         path:"/comments",
         handler: function(req, reply) {

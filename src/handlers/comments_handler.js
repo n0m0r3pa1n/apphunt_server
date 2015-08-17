@@ -158,6 +158,11 @@ function* clearAppComments(appId) {
     }
 }
 
+export function* getCommentsForUser(userId, page, pageSize) {
+    var query = Comment.find({createdBy: userId}).populate('app')
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize)
+}
+
 module.exports.create = create
 module.exports.get = get
 module.exports.getCount = getCount
