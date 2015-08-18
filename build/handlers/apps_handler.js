@@ -285,9 +285,9 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     return result;
 }
 
-function* getAppsForUser(userId, page, pageSize) {
+function* getAppsForUser(creatorId, userId, page, pageSize) {
 
-    var query = App.find({ createdBy: userId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    var query = App.find({ createdBy: creatorId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
     result.apps = convertToArray(result.apps);

@@ -1,9 +1,14 @@
 var _ = require("underscore")
 var Joi = require('joi')
+Joi.objectId = require('joi-objectid');
 import * as UsersHandler from '../handlers/users_handler.js'
 var UserScoreHandler = require('../handlers/user_score_handler')
+var CommentsHandler = require('../handlers/comments_handler')
 var User = require('../models').User
 var loginTypes = require('../config/config').LOGIN_TYPES
+
+import * as AppsHandler from '../handlers/apps_handler.js'
+import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
 
 var routes = [
     {
@@ -58,6 +63,78 @@ var routes = [
             },
             auth: false,
             description: 'Get a list of users with their scores.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/users/{creatorId}/apps",
+        handler: function(req, reply) {
+            var query = req.query
+            var params = req.params
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsHandler.getAppsForUser(params.creatorId, query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.objectId().optional(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional()
+                },
+                params: {
+                    creatorId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/users/{creatorId}/comments",
+        handler: function(req, reply) {
+            reply.co(CommentsHandler.getCommentsForUser(req.params.creatorId, req.query.userId, req.query.page, req.query.pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional()
+                },
+                params: {
+                    creatorId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Get comments for user',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/users/{creatorId}/collections",
+        handler: function(req,reply) {
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(AppsCollectionsHandler.getCollectionsForCreator(req.params.creatorId, req.query.userId, page, pageSize))
+        },
+        config: {
+            validate: {
+                query: {
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional(),
+                    userId: Joi.string().optional()
+                },
+                params: {
+                    creatorId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Get all apps collections.',
             tags: ['api']
         }
     },

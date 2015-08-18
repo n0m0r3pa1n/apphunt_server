@@ -196,6 +196,20 @@ export function* getCollectionsForUser(userId, page, pageSize) {
     return result;
 }
 
+
+export function* getCollectionsForCreator(creatorId, userId, page, pageSize) {
+    let where = {}
+    where.createdBy = creatorId
+    if(String(creatorId) != String(userId)) {
+        where.status = COLLECTION_STATUSES.PUBLIC
+    }
+    let result = yield getPagedCollectionsResult(where, {}, page, pageSize)
+    if(result.collections !== undefined && result.collections.length > 0) {
+        result.collections = yield getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
+}
 export function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize)

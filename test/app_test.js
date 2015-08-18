@@ -131,7 +131,7 @@ describe("Apps", function () {
 
         var opts = {
             method: 'GET',
-            url: '/apps/mine?userId=' + userResult.id
+            url: '/users/'+userResult.id+'/apps'
         }
 
         var response = yield Server.injectThen(opts);
@@ -141,7 +141,7 @@ describe("Apps", function () {
 
         var opts2 = {
             method: 'GET',
-            url: '/apps/mine?page=1&pageSize=2&userId=' + userResult.id
+            url: '/users/'+userResult.id+'/apps?page=1&pageSize=2'
         }
 
         var paginatedResult = (yield Server.injectThen(opts2)).result;

@@ -105,9 +105,7 @@ function* get(appId, userId, page,  pageSize) {
 
 function* getCount(appId) {
 	var where = {app: appId}
-	var result = yield Comment.count(where).exec()
-
-	return result
+	return yield Comment.count(where).exec()
 }
 
 function removeVotesField(comments) {
@@ -158,9 +156,15 @@ function* clearAppComments(appId) {
     }
 }
 
-export function* getCommentsForUser(userId, page, pageSize) {
-    var query = Comment.find({createdBy: userId}).populate('app createdBy')
-    return yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize)
+export function* getCommentsForUser(creatorId, userId, page, pageSize) {
+    var query = Comment.find({createdBy: creatorId}).deepPopulate("children.createdBy children.votes").populate('app createdBy votes')
+    let result = yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize)
+    if(userId !== undefined) {
+        result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId)
+    }
+    removeVotesField(result.comments)
+
+    return result;
 }
 
 module.exports.create = create

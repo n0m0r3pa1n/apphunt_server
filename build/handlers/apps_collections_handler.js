@@ -12,6 +12,7 @@ exports.getCollections = getCollections;
 exports.getAvailableCollections = getAvailableCollections;
 exports.getFavouriteCollections = getFavouriteCollections;
 exports.getCollectionsForUser = getCollectionsForUser;
+exports.getCollectionsForCreator = getCollectionsForCreator;
 exports.search = search;
 exports.removeApp = removeApp;
 exports.removeCollection = removeCollection;
@@ -282,6 +283,20 @@ function* getPopulatedCollection(collection, userId) {
 
 function* getCollectionsForUser(userId, page, pageSize) {
     var result = yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
+    if (result.collections !== undefined && result.collections.length > 0) {
+        result.collections = yield getPopulatedCollections(result.collections, userId);
+    }
+
+    return result;
+}
+
+function* getCollectionsForCreator(creatorId, userId, page, pageSize) {
+    var where = {};
+    where.createdBy = creatorId;
+    if (String(creatorId) != String(userId)) {
+        where.status = COLLECTION_STATUSES.PUBLIC;
+    }
+    var result = yield getPagedCollectionsResult(where, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
         result.collections = yield getPopulatedCollections(result.collections, userId);
     }

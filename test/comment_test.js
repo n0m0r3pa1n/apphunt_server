@@ -184,17 +184,21 @@ describe("Comments", function() {
         var user2Id = (yield dbHelper.createUserWithParams("asasasa")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
 
-        yield dbHelper.createComment(appId, userId)
+        var comment1 = (yield dbHelper.createComment(appId, userId)).result
         yield dbHelper.createComment(appId, user2Id)
+        var vote = (yield dbHelper.voteComment(comment1._id, user2Id)).result
         yield dbHelper.createComment(appId, userId)
+
 
         var opts = {
             method: 'GET',
-            url: '/v1/comments/mine?page=1&pageSize=1&userId=' + userId
+            url: '/v1/users/'+userId+'/comments?page=1&pageSize=2&userId=' + user2Id
         }
         var response = yield Server.injectThen(opts)
-        response.result.comments.length.should.eq(1)
+        response.result.comments.length.should.eq(2)
         response.result.totalCount.should.eq(2)
+        response.result.comments[0].hasVoted.should.eq(true)
+        response.result.comments[1].hasVoted.should.eq(false)
         expect(response.result.comments[0].app.name).to.exist()
     });
 

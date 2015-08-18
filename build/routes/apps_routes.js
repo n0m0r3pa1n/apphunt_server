@@ -8,7 +8,6 @@ var AppsHandler = _interopRequireWildcard(_handlersApps_handlerJs);
 
 var App = require('../models').App;
 var Joi = require('joi');
-Joi.objectId = require('joi-objectid');
 var _ = require('underscore');
 var Config = require('../config/config');
 var PLATFORMS_ENUM = Config.PLATFORMS;
@@ -44,27 +43,6 @@ var routes = [{
                 status: Joi.string().valid(APP_STATUSES).optional(),
                 toDate: Joi.date().optional(),
                 query: Joi.string().optional()
-            }
-        },
-        auth: false,
-        description: 'Get available apps by date. UserId is optional if you want to know if the user has voted for each app.',
-        tags: ['api']
-    }
-}, {
-    method: 'GET',
-    path: '/apps/mine',
-    handler: function handler(req, reply) {
-        var query = req.query;
-        var page = req.query.page === undefined ? 0 : req.query.page;
-        var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
-        reply.co(AppsHandler.getAppsForUser(query.userId, page, pageSize));
-    },
-    config: {
-        validate: {
-            query: {
-                userId: Joi.objectId().required(),
-                page: Joi.number().integer().min(1).optional(),
-                pageSize: Joi.number().integer().min(1).optional()
             }
         },
         auth: false,

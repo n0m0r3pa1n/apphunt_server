@@ -152,6 +152,9 @@ function hasUserVotedForAppsCollection(collection, userId) {
 }
 
 function hasUserVotedForPopulatedObj(obj, userId) {
+    if(userId == undefined || userId == null) {
+        return false;
+    }
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
         if (user !== null && String(userId) == String(user._id)) {
@@ -165,7 +168,6 @@ function hasUserVotedForUnpopulatedObj(obj, userId) {
     if(!userId) {
         return false;
     }
-
     for (var j = 0; j < obj.votes.length; j++) {
         var votedUserId = obj.votes[j].user;
         if (String(userId) == String(votedUserId)) {

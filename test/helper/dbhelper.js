@@ -267,6 +267,36 @@ function createBanner(url) {
     return Server.injectThen(opts)
 }
 
+var updateCollection = {
+    name: "Top apps for march june july",
+    description: "Desc",
+    picture: "Pic",
+    apps: []
+}
+
+function* makeCollectionPublic(userId, collectionId, appsIds) {
+    updateCollection.apps = appsIds
+
+    var opts3 = {
+        method: 'PUT',
+        url: '/app-collections/' + collectionId + "?userId=" + userId,
+        payload: {
+            collection: updateCollection
+        }
+    }
+
+    return (yield Server.injectThen(opts3)).result
+}
+
+function* createAppsIdsList(userId) {
+    var appId = (yield createApp(userId)).result.id
+    var app2Id = (yield createAppWithPackage(userId, "com.test1")).result.id
+    var app3Id = (yield createAppWithPackage(userId, "com.test2")).result.id
+    var app4Id = (yield createAppWithPackage(userId, "com.test3")).result.id
+
+    return [appId, app2Id, app3Id, app4Id];
+}
+
 module.exports.createApp = createApp
 module.exports.createAppWithPackage = createAppWithPackage
 module.exports.createAppWithPlatform = createAppWithPlatform
@@ -288,6 +318,8 @@ module.exports.createAppsCollectionWithParams = createAppsCollectionWithParams
 module.exports.createUsersCollection = createUsersCollection
 module.exports.favouriteCollection = favouriteCollection
 module.exports.getCollection = getCollection
+module.exports.makeCollectionPublic = makeCollectionPublic
+module.exports.createAppsIdsList = createAppsIdsList
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

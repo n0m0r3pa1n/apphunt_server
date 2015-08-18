@@ -500,6 +500,56 @@ describe("App Collections", function() {
         response.result.collections.length.should.eq(2)
     });
 
+    it("should get apps collection for another user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var collection = (yield dbHelper.createAppsCollection(userId)).result
+        var collection2 = (yield dbHelper.createAppsCollection(userId, "Test 2")).result
+        var appIds = yield dbHelper.createAppsIdsList(userId)
+        yield dbHelper.makeCollectionPublic(userId, collection.id, appIds)
+        yield dbHelper.makeCollectionPublic(userId, collection2.id, appIds)
+        yield dbHelper.voteAppsCollection(collection2.id, user2Id)
+
+
+        var opts = {
+            method: 'GET',
+            url: "/users/"+userId+"/collections?userId=" + user2Id,
+        }
+
+        var response = yield Server.injectThen(opts)
+        String(response.result.collections[0]._id).should.eq(String(collection._id))
+        String(response.result.collections[1]._id).should.eq(String(collection2._id))
+        response.result.collections[0].hasVoted.should.eq(false)
+        response.result.collections[1].hasVoted.should.eq(true)
+    });
+
+    it("should get paginated collections for user", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var collection1 = (yield dbHelper.createAppsCollection(userId)).result
+        var collection3 = (yield dbHelper.createAppsCollectionWithParams(userId, "Blah")).result
+        var collection2 = (yield dbHelper.createAppsCollection(user2Id)).result
+        var appIds = yield dbHelper.createAppsIdsList(userId)
+
+        yield dbHelper.makeCollectionPublic(userId, collection1.id, appIds)
+        yield dbHelper.makeCollectionPublic(userId, collection3.id, appIds)
+        yield dbHelper.makeCollectionPublic(userId, collection2.id, appIds)
+
+        yield dbHelper.voteAppsCollection(collection2.id, userId)
+        yield dbHelper.favouriteCollection(collection1.id, userId)
+
+        var opts = {
+            method: 'GET',
+            url: "/users/"+userId + "/collections?page=1&pageSize=1"
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.totalPages.should.eq(2)
+        response.result.totalCount.should.eq(2)
+        response.result.collections.length.should.eq(1)
+        String(response.result.collections[0]._id).should.eq(String(collection1.id))
+    })
+
     it("should get apps collection with hasVoted for user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
         var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
