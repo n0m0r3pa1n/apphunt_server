@@ -137,6 +137,8 @@ describe("Users", function() {
 
 		yield dbHelper.voteApp(app2Id, user1Id)
 
+		yield dbHelper.createAppsCollection(user2Id)
+
 		var fromDate = "2015-05-01"
 
 		var today = new Date()
@@ -148,6 +150,6 @@ describe("Users", function() {
 
 		var response = yield Server.injectThen(opts)
 		response.result.length.should.equal(2)
-		response.result[0]._id.toString().should.equal(String(user1Id))
+		response.result[0]._id.toString().should.equal(String(user2Id))
 	});
 })

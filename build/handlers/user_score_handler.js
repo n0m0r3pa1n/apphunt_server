@@ -14,7 +14,8 @@ var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 var Points = {
     vote: 10,
     comment: 50,
-    app: 40
+    app: 40,
+    collection: 50
 };
 
 function* getUserDetails(userId, fromDate, toDate) {
@@ -44,7 +45,7 @@ function* getUserDetails(userId, fromDate, toDate) {
     userDetails.votes = yield Vote.count(_.extend({ user: userId }, whereDatesRange)).exec();
     userDetails.comments = yield Comment.count(_.extend({ createdBy: userId }, whereDatesRange)).exec();
     userDetails.collections = yield AppsCollection.count(_.extend({ createdBy: userId }, whereDatesRange)).exec();
-    userDetails.score = userDetails.votes * Points.vote + userDetails.comments * Points.comment + userDetails.addedApps * Points.app;
+    userDetails.score = userDetails.votes * Points.vote + userDetails.comments * Points.comment + userDetails.addedApps * Points.app + userDetails.collections * Points.collection;
     return userDetails;
 }
 
@@ -75,7 +76,13 @@ function* getUsersScore(fromDate, toDate) {
     });
     var appsUserIds = _.keys(appsResults);
 
-    var userIds = _.union(commentsUserIds, votesUserIds, appsUserIds);
+    var collections = yield AppsCollection.find(whereDatesRange).exec();
+    var collectionsResult = _.countBy(collections, function (collection) {
+        return collection.createdBy;
+    });
+    var collectionsUserIds = _.keys(collectionsResult);
+
+    var userIds = _.union(commentsUserIds, votesUserIds, appsUserIds, collectionsUserIds);
 
     var results = [];
     for (var i = 0; i < userIds.length; i++) {
@@ -91,6 +98,9 @@ function* getUsersScore(fromDate, toDate) {
         }
         if (_.has(appsResults, userId)) {
             user.score += appsResults[userId] * Points.app;
+        }
+        if (_.has(collectionsResult, userId)) {
+            user.score += collectionsResult[userId] * Points.collection;
         }
         results.push(user);
     }

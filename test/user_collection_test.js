@@ -4,6 +4,13 @@ require('./spec_helper')
 var AppsCollection = require("../build/models").AppsCollection
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
 
+var Points = {
+    vote: 10,
+    comment: 50,
+    app: 40,
+    collection: 50
+}
+
 describe("User Collections", function() {
 
     it("should create users collection", function*() {
@@ -19,6 +26,7 @@ describe("User Collections", function() {
         var appId = (yield dbHelper.createApp(userId)).result.id
         yield dbHelper.createAppWithPackage(userId, "sasasa")
         yield dbHelper.createComment(appId, userId)
+        yield dbHelper.createAppsCollection(userId)
 
         var fromDate = new Date();
         var toDate = new Date();
@@ -36,6 +44,7 @@ describe("User Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.usersDetails.length.should.equal(1)
         expect(response.result.usersDetails[0].score).to.be.above(0)
+        response.result.usersDetails[0].score.should.eq(Points.vote * 3 + Points.comment + Points.app * 2 + Points.collection)
     });
 
     it("should add user in not empty collection", function*() {

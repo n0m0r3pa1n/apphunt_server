@@ -126,7 +126,8 @@ var usersCollectionSchema = new Schema(_.extend({}, baseCollection, {
         score: { type: Number, 'default': 0 },
         addedApps: { type: Number, 'default': 0 },
         comments: { type: Number, 'default': 0 },
-        votes: { type: Number, 'default': 0 }
+        votes: { type: Number, 'default': 0 },
+        collections: { type: Number, 'default': 0 }
     }]
 }));
 
