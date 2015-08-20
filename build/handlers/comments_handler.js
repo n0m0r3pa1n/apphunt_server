@@ -11,6 +11,10 @@ var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler
 
 var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
 
+var _apps_handlerJs = require('./apps_handler.js');
+
+var AppsHandler = _interopRequireWildcard(_apps_handlerJs);
+
 var _ = require('underscore');
 var Boom = require('boom');
 var CONFIG = require('../config/config');
@@ -167,13 +171,37 @@ function* clearAppComments(appId) {
 }
 
 function* getCommentsForUser(creatorId, userId, page, pageSize) {
-    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes app.createdBy').populate('app createdBy votes');
+    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes').populate('createdBy votes');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'comments', page, pageSize);
     if (userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId);
     }
     removeVotesField(result.comments);
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = result.comments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var comment = _step.value;
+
+            comment.app = yield AppsHandler.getApp(comment.app);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
 
     return result;
 }

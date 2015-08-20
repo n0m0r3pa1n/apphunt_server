@@ -14,6 +14,8 @@ var VotesHandler = require('./votes_handler')
 var NotificationsHandler = require('./notifications_handler')
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
+import * as AppsHandler from './apps_handler.js'
+
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').exec()
     if (!app) {
@@ -157,13 +159,16 @@ function* clearAppComments(appId) {
 }
 
 export function* getCommentsForUser(creatorId, userId, page, pageSize) {
-    var query = Comment.find({createdBy: creatorId}).deepPopulate("children.createdBy children.votes app.createdBy").populate('app createdBy votes')
+    var query = Comment.find({createdBy: creatorId}).deepPopulate("children.createdBy children.votes").populate('createdBy votes')
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize)
     if(userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId)
     }
     removeVotesField(result.comments)
+    for(let comment of result.comments) {
+        comment.app = yield AppsHandler.getApp(comment.app)
+    }
 
     return result;
 }
