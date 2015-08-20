@@ -2,6 +2,7 @@ var expect = require('chai').expect
 var should = require('chai').should()
 var assert = require('chai').assert
 var dbHelper = require('./helper/dbhelper')
+var _ = require('underscore')
 require('./spec_helper')
 var AppsCollection = require("../build/models").AppsCollection
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
@@ -513,14 +514,21 @@ describe("App Collections", function() {
 
         var opts = {
             method: 'GET',
-            url: "/users/"+userId+"/collections?userId=" + user2Id,
+            url: "/users/"+userId+"/collections?userId=" + user2Id + '&page=1&pageSize=20',
         }
 
         var response = yield Server.injectThen(opts)
-        String(response.result.collections[0]._id).should.eq(String(collection._id))
-        String(response.result.collections[1]._id).should.eq(String(collection2._id))
-        response.result.collections[0].hasVoted.should.eq(false)
-        response.result.collections[1].hasVoted.should.eq(true)
+        var ids = []
+        for(var i =0; i < response.result.collections.length;i++) {
+            ids.push(String(response.result.collections[i]._id))
+            if(String(response.result.collections[i]._id) == String(collection2.id)) {
+                response.result.collections[i].hasVoted.should.eq(true)
+            }
+        }
+
+        _.contains(ids, String(collection.id)).should.eq(true)
+        _.contains(ids, String(collection2.id)).should.eq(true)
+
     });
 
     it("should get paginated collections for user", function* () {
@@ -547,7 +555,7 @@ describe("App Collections", function() {
         response.result.totalPages.should.eq(2)
         response.result.totalCount.should.eq(2)
         response.result.collections.length.should.eq(1)
-        String(response.result.collections[0]._id).should.eq(String(collection1.id))
+        String(response.result.collections[0]._id).should.eq(String(collection3.id))
     })
 
     it("should get apps collection with hasVoted for user", function*() {
