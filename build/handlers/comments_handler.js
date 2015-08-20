@@ -167,7 +167,7 @@ function* clearAppComments(appId) {
 }
 
 function* getCommentsForUser(creatorId, userId, page, pageSize) {
-    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes').populate('app createdBy votes');
+    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes app.createdBy').populate('app createdBy votes');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'comments', page, pageSize);
     if (userId !== undefined) {
