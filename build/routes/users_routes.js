@@ -44,12 +44,16 @@ var routes = [{
     method: 'GET',
     path: '/users/{userId}',
     handler: function handler(req, reply) {
-        reply.co(UsersHandler.getUserProfile(req.params.userId));
+        reply.co(UsersHandler.getUserProfile(req.params.userId, req.query.fromDate, req.query.toDate));
     },
     config: {
         validate: {
             params: {
                 userId: Joi.string().required()
+            },
+            query: {
+                fromDate: Joi.date().required(),
+                toDate: Joi.date().required()
             }
         },
         auth: false,

@@ -30,13 +30,13 @@ export function* find(userId) {
     return yield User.findById(userId).exec()
 }
 
-export function* getUserProfile(userId) {
+export function* getUserProfile(userId, fromDate, toDate) {
     let user = yield find(userId)
     if(user == null) {
         return Boom.notFound("User is not existing!")
     }
     user = user.toObject()
-    let details = yield ScoresHandler.getUserDetails(userId)
+    let details = yield ScoresHandler.getUserDetails(userId, fromDate, toDate)
     user.apps = details.addedApps
     user.comments = details.comments
     user.votes = details.votes

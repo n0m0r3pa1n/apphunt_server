@@ -23,10 +23,12 @@ describe("Users", function() {
         var profilePicture = "New profile pic"
         var coverPicture = "New cover pic"
         yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
 
         var opts = {
             method: 'GET',
-            url: '/users/' + userId
+            url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
         }
 
         var result = (yield Server.injectThen(opts)).result
@@ -38,9 +40,13 @@ describe("Users", function() {
 	it("should get user by id", function* () {
 		var response = yield dbHelper.createUser("USA-en")
 		response.statusCode.should.equal(STATUS_CODES.OK)
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
 		var opts = {
 			method: 'GET',
-			url: '/users/' + response.result._id
+			url: '/users/' + response.result._id + "?fromDate=" + todayStr + "&toDate=" + todayStr
 		}
 
 		var resp = yield Server.injectThen(opts)
@@ -63,9 +69,12 @@ describe("Users", function() {
         var appId = (yield dbHelper.createApp(userId)).result.id
         var commentResponse = yield dbHelper.createComment(appId, userId)
 
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
         var opts = {
             method: 'GET',
-            url: '/users/' + userId
+            url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
         }
 
         var result = (yield Server.injectThen(opts)).result

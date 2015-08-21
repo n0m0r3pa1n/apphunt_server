@@ -47,13 +47,13 @@ function* find(userId) {
     return yield User.findById(userId).exec();
 }
 
-function* getUserProfile(userId) {
+function* getUserProfile(userId, fromDate, toDate) {
     var user = yield find(userId);
     if (user == null) {
         return Boom.notFound('User is not existing!');
     }
     user = user.toObject();
-    var details = yield ScoresHandler.getUserDetails(userId);
+    var details = yield ScoresHandler.getUserDetails(userId, fromDate, toDate);
     user.apps = details.addedApps;
     user.comments = details.comments;
     user.votes = details.votes;
