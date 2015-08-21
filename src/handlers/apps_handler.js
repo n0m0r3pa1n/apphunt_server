@@ -168,7 +168,7 @@ function postTweet(app, user) {
         url: app.shortUrl,
         hashTag: "app"
     }
-    if(user.loginType !== LOGIN_TYPES.Fake) {
+    if(user.loginType == LOGIN_TYPES.Twitter) {
         tweetOptions.user = user.username
     }
     bolt.postTweet(tweetComposer.compose(tweetOptions))
@@ -214,9 +214,7 @@ export function* changeAppStatus(appPackage, status) {
             }
             app.shortUrl = yield UrlsHandler.getShortLink(links)
 
-            if(createdBy.loginType == LOGIN_TYPES.Twitter) {
-                postTweet(app, createdBy)
-            }
+            postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
 
             var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)

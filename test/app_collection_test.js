@@ -555,7 +555,8 @@ describe("App Collections", function() {
         response.result.totalPages.should.eq(2)
         response.result.totalCount.should.eq(2)
         response.result.collections.length.should.eq(1)
-        String(response.result.collections[0]._id).should.eq(String(collection3.id))
+        var collectionId = String(response.result.collections[0]._id)
+        expect([collection1.id, collection2.id, collection3.id]).to.contain(collectionId)
     })
 
     it("should get apps collection with hasVoted for user", function*() {
