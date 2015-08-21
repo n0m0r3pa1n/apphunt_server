@@ -86,7 +86,7 @@ describe("Apps", function () {
 
         yield dbHelper.voteComment(commentId, userId)
 
-        var user2Id = (yield dbHelper.createUserWithParams("asdsdsadas")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asdsdsadas")).result.id
         yield  dbHelper.voteComment(commentId, user2Id)
         yield dbHelper.voteComment(childCommentId, user2Id)
 
@@ -201,7 +201,7 @@ describe("Apps", function () {
     it("should get apps by date range", function*() {
         var userResponse = yield dbHelper.createUser()
         var appId = (yield dbHelper.createApp(userResponse.result.id)).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("AASa@asd.ds")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("AASa@asd.ds")).result.id
         yield dbHelper.voteApp(appId, user2Id)
         yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
 
@@ -329,7 +329,7 @@ describe("Apps", function () {
 
     it("should get apps order by votes count", function*() {
         var userResponse = yield dbHelper.createUser()
-        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var user2Response = yield dbHelper.createUserWithEmail("abv@abv.vf")
         var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
         var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
 
@@ -368,7 +368,7 @@ describe("Apps", function () {
 
     it("should get app with comments count", function*() {
 		var user1Id = (yield dbHelper.createUser()).result.id
-		var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+		var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
 
 		var appId = (yield dbHelper.createApp(user1Id)).result.id
 
@@ -389,7 +389,7 @@ describe("Apps", function () {
 
     it("should search app by name", function*() {
         var userResponse = yield dbHelper.createUser()
-        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var user2Response = yield dbHelper.createUserWithEmail("abv@abv.vf")
         var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
         var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
 
@@ -425,7 +425,7 @@ describe("Apps", function () {
 
     it("should get apps by name and date range", function*() {
         var userResponse = yield dbHelper.createUser()
-        var user2Response = yield dbHelper.createUserWithParams("abv@abv.vf")
+        var user2Response = yield dbHelper.createUserWithEmail("abv@abv.vf")
         var app1Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test1", "Android")
         var app2Response = yield dbHelper.createAppWithParams(userResponse.result.id, "com.test2", "Android")
 

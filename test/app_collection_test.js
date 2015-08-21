@@ -81,7 +81,7 @@ describe("App Collections", function() {
 
     it("should not update apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("ASAS")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("ASAS")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         updateCollection.apps = [appId]
@@ -216,7 +216,7 @@ describe("App Collections", function() {
 
     it("should get apps collection with sorted by votesCount apps", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("mailmail")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "packpack")).result.id
 
@@ -273,7 +273,7 @@ describe("App Collections", function() {
 
     it("should search for collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("mailmail")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "packpack")).result.id
 
@@ -443,7 +443,7 @@ describe("App Collections", function() {
 
     it("should get apps collection sorted", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("asdasdasdasdasd")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asdasdasdasdasd")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         yield dbHelper.voteAppsCollection(collectionId, user2Id)
         var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
@@ -486,7 +486,7 @@ describe("App Collections", function() {
 
     it("should get apps collection for user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("sas")).result.id
         yield dbHelper.createAppsCollection(userId)
         yield dbHelper.createAppsCollection(userId)
         yield dbHelper.createAppsCollection(user2Id)
@@ -503,7 +503,7 @@ describe("App Collections", function() {
 
     it("should get apps collection for another user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("sas")).result.id
         var collection = (yield dbHelper.createAppsCollection(userId)).result
         var collection2 = (yield dbHelper.createAppsCollection(userId, "Test 2")).result
         var appIds = yield dbHelper.createAppsIdsList(userId)
@@ -533,7 +533,7 @@ describe("App Collections", function() {
 
     it("should get paginated collections for user", function* () {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("sas")).result.id
         var collection1 = (yield dbHelper.createAppsCollection(userId)).result
         var collection3 = (yield dbHelper.createAppsCollectionWithParams(userId, "Blah")).result
         var collection2 = (yield dbHelper.createAppsCollection(user2Id)).result
@@ -561,7 +561,7 @@ describe("App Collections", function() {
 
     it("should get apps collection with hasVoted for user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("sas")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("sas")).result.id
         yield dbHelper.createAppsCollection(userId)
         yield dbHelper.createAppsCollection(userId)
         yield dbHelper.createAppsCollection(user2Id)

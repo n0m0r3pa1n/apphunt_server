@@ -4,7 +4,7 @@ var AppsHandler = require('../../build/handlers/apps_handler')
 var loginTypes = require("../../build/config/config").LOGIN_TYPES
 var APP_STATUSES = require("../../build/config/config").APP_STATUSES
 
-var email = "dummy@dummy.com"
+var dummyEmail = "dummy@dummy.com"
 var category1 = "TEST1"
 var category2 = "TEST2"
 var appPackage = "com.dasfqwersdcxxdfgh"
@@ -63,32 +63,38 @@ function createAppWithParams(userId, appPackage, platform, tags) {
 }
 
 function createUser() {
-    return createUserWithParams(email)
+    return createUserWithEmail(dummyEmail)
 }
 
 function createUser(locale) {
-    var name = "dummy"
-
-    var opts = {
-        method: 'POST',
-        url: '/v1/users',
-        payload: {
-            name: name,
-            email: email,
-            username: "dummy",
-            profilePicture: "http://pic-bg.net",
-            locale: locale,
-            notificationId: "Test123",
-            loginType: loginTypes.Facebook
-        }
-    }
-
-    return Server.injectThen(opts)
+    return createUserWithParams(null, null, null, null, locale)
 }
 
-function createUserWithParams(email) {
-    var name = "dummy"
+function createUserWithEmail(email) {
+    return createUserWithParams(email, null, null, null, null)
+}
 
+function createUserWithPictures(email, profilePicture, coverPicture) {
+    return createUserWithParams(email, null, profilePicture, coverPicture, null)
+}
+
+function createUserWithParams(email, loginType, profilePicture, coverPicture, locale) {
+    var name = "dummy"
+    if(email == null) {
+        email = dummyEmail
+    }
+    if(loginType == null) {
+        loginType = loginTypes.Twitter
+    }
+    if(profilePicture == null) {
+        profilePicture = "profilePicture"
+    }
+    if(coverPicture == null) {
+        coverPicture = "coverPicture"
+    }
+    if(locale == null) {
+        locale = "en"
+    }
     var opts = {
         method: 'POST',
         url: '/v1/users',
@@ -96,8 +102,10 @@ function createUserWithParams(email) {
             name: name,
             email: email,
             username: "dummy",
-            profilePicture: "http://pic-bg.net",
-            loginType: loginTypes.Facebook
+            profilePicture: profilePicture,
+            coverPicture: coverPicture,
+            loginType: loginType,
+            locale: locale
         }
     }
 
@@ -105,20 +113,7 @@ function createUserWithParams(email) {
 }
 
 function createUserWithLoginType(email, loginType) {
-    var name = "dummy"
-
-    var opts = {
-        method: 'POST',
-        url: '/v1/users',
-        payload: {
-            name: name,
-            email: email,
-            profilePicture: "http://pic-bg.net",
-            loginType: loginType
-        }
-    }
-
-    return Server.injectThen(opts)
+   return createUserWithParams(email, loginType, null, null, null)
 }
 
 function createNotification() {
@@ -318,8 +313,9 @@ module.exports.createAppWithTags = createAppWithTags
 module.exports.createAppWithParams = createAppWithParams
 module.exports.createBanner = createBanner
 module.exports.createUser = createUser
-module.exports.createUserWithParams = createUserWithParams
+module.exports.createUserWithEmail = createUserWithEmail
 module.exports.createUserWithLoginType = createUserWithLoginType
+module.exports.createUserWithPictures = createUserWithPictures
 module.exports.createNotification = createNotification
 module.exports.getUsers = getUsers
 module.exports.createComment = createComment
@@ -335,6 +331,6 @@ module.exports.getCollection = getCollection
 module.exports.makeCollectionPublic = makeCollectionPublic
 module.exports.approveApp = approveApp
 module.exports.createAppsIdsList = createAppsIdsList
-module.exports.EMAIL = email
+module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

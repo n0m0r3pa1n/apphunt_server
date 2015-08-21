@@ -17,6 +17,17 @@ describe("Users", function() {
 		response.result.locale.should.equals("USA-en")
 	});
 
+	it("should update user profile", function*() {
+        var email = "dummy"
+		var userId = (yield dbHelper.createUserWithEmail(email)).result.id
+        var profilePicture = "New profile pic"
+        var coverPicture = "New cover pic"
+        var result = (yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)).result
+        result.profilePicture.should.eq(profilePicture)
+        result.coverPicture.should.eq(coverPicture)
+        result._id.toString().should.eq(String(userId))
+	});
+
 	it("should get user by id", function* () {
 		var response = yield dbHelper.createUser("USA-en")
 		response.statusCode.should.equal(STATUS_CODES.OK)
@@ -58,16 +69,16 @@ describe("Users", function() {
     })
 
 	it("should get all users", function*() {
-		var response = yield dbHelper.createUserWithParams("poli@abv.bg")
-		var response2 = yield dbHelper.createUserWithParams("lqwqwqoli@abv.bg")
+		var response = yield dbHelper.createUserWithEmail("poli@abv.bg")
+		var response2 = yield dbHelper.createUserWithEmail("lqwqwqoli@abv.bg")
 		var usersResponse = yield dbHelper.getUsers()
 		var users = usersResponse.result
 		users.length.should.equal(2)
 	})
 
 	it("should get 1 user", function*() {
-		var response = yield dbHelper.createUserWithParams("poli@abv.bg")
-		var response2 = yield dbHelper.createUserWithParams("loli@abv.bg")
+		var response = yield dbHelper.createUserWithEmail("poli@abv.bg")
+		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg")
 
 		var opts = {
 			method: 'GET',
@@ -82,7 +93,7 @@ describe("Users", function() {
 
 	it("should get user by login type", function*() {
 		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", loginTypes.Fake)
-		var response2 = yield dbHelper.createUserWithParams("loli@abv.bg", loginTypes.Custom)
+		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Custom)
 
 		var opts = {
 			method: 'GET',
@@ -113,7 +124,7 @@ describe("Users", function() {
 	});
 
 	it("should update user device id", function*() {
-		var userResponse = yield dbHelper.createUserWithParams("loli@abv.bg", loginTypes.Twitter)
+		var userResponse = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Twitter)
 
 		var opts = {
 			method: 'PUT',

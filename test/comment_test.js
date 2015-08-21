@@ -50,7 +50,7 @@ describe("Comments", function() {
 
     it("should get sorted comments", function*() {
         var user1Id = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
 
         var appId = (yield dbHelper.createApp(user1Id)).result.id
 
@@ -181,7 +181,7 @@ describe("Comments", function() {
 
     it("should get comments for user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("asasasa")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asasasa")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
 
         var comment1 = (yield dbHelper.createComment(appId, userId)).result

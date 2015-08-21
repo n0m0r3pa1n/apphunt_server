@@ -10,7 +10,7 @@ describe("Votes", function() {
 
     it("should vote app", function*() {
         var userResponse = yield dbHelper.createUser()
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
         var response = yield dbHelper.createApp(userResponse.result.id)
 
         var response1 =  yield dbHelper.voteApp(response.result.id, user2Id);
@@ -37,7 +37,7 @@ describe("Votes", function() {
 
     it("should remove app vote", function*() {
         var userResponse = yield dbHelper.createUser()
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
         var appCreatedResponse = yield dbHelper.createApp(userResponse.result.id)
 
         var userVotedResponse =  yield dbHelper.voteApp(appCreatedResponse.result.id, user2Id)
@@ -92,7 +92,7 @@ describe("Votes", function() {
 
     it("should vote apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
         var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
@@ -102,7 +102,7 @@ describe("Votes", function() {
 
     it("should unvote apps collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
         var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)
@@ -119,7 +119,7 @@ describe("Votes", function() {
 
     it("should not vote apps collection twice", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("test@test.co")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
         var response = yield dbHelper.voteAppsCollection(collectionId, user2Id)

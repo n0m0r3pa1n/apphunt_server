@@ -66,7 +66,7 @@ describe("User Collections", function() {
 
         yield Server.injectThen(opts)
 
-        var user2Id = (yield dbHelper.createUserWithParams("sadasdasd@as.ads")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("sadasdasd@as.ads")).result.id
 
         var opts = {
             method: 'PUT',
@@ -147,7 +147,7 @@ describe("User Collections", function() {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
         var collection2Id = (yield dbHelper.createUsersCollection(userId)).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("asas.saa")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asas.saa")).result.id
 
         var opts = {
             method: 'PUT',
@@ -185,7 +185,7 @@ describe("User Collections", function() {
 
     it("should search for collections", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("mailmail")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "packpack")).result.id
 
@@ -219,7 +219,7 @@ describe("User Collections", function() {
 
     it("should remove user from users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var user2Id = (yield dbHelper.createUserWithParams("mailmail")).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("mailmail")).result.id
 
         var collectionResponse = yield dbHelper.createUsersCollection(userId)
         var collectionId = collectionResponse.result.id
