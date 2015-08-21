@@ -90,8 +90,8 @@ function* create(user, notificationId) {
             var device = yield Device.findOneOrCreate({ notificationId: notificationId }, { notificationId: notificationId, notificationsEnabled: true });
             currUser.devices.push(device);
         }
-        yield currUser.save();
     }
+    yield currUser.save();
 
     var myUser = currUser.toObject();
     myUser.token = AuthHandler.generateToken(currUser._id);

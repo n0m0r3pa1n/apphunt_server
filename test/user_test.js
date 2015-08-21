@@ -22,7 +22,14 @@ describe("Users", function() {
 		var userId = (yield dbHelper.createUserWithEmail(email)).result.id
         var profilePicture = "New profile pic"
         var coverPicture = "New cover pic"
-        var result = (yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)).result
+        yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)
+
+        var opts = {
+            method: 'GET',
+            url: '/users/' + userId
+        }
+
+        var result = (yield Server.injectThen(opts)).result
         result.profilePicture.should.eq(profilePicture)
         result.coverPicture.should.eq(coverPicture)
         result._id.toString().should.eq(String(userId))
