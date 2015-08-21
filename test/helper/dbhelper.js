@@ -2,6 +2,7 @@ var BadBoy = require('badboy')
 var Co = require('co')
 var AppsHandler = require('../../build/handlers/apps_handler')
 var loginTypes = require("../../build/config/config").LOGIN_TYPES
+var APP_STATUSES = require("../../build/config/config").APP_STATUSES
 
 var email = "dummy@dummy.com"
 var category1 = "TEST1"
@@ -23,6 +24,19 @@ function createAppWithPackage(userId, appPackage) {
 
 function createAppWithTags(userId, appPackage, tags) {
     return createAppWithParams(userId, appPackage, platform, tags)
+}
+
+function* approveApp(packageName) {
+
+    var opts = {
+        method: 'POST',
+        url: '/v1/apps/'+packageName+'/status',
+        payload: {
+            status: APP_STATUSES.APPROVED
+        }
+    }
+
+    return yield Server.injectThen(opts)
 }
 
 function createAppWithParams(userId, appPackage, platform, tags) {
@@ -319,6 +333,7 @@ module.exports.createUsersCollection = createUsersCollection
 module.exports.favouriteCollection = favouriteCollection
 module.exports.getCollection = getCollection
 module.exports.makeCollectionPublic = makeCollectionPublic
+module.exports.approveApp = approveApp
 module.exports.createAppsIdsList = createAppsIdsList
 module.exports.EMAIL = email
 module.exports.CATEGORY_1 = category1

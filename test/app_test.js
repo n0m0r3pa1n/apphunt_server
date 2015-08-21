@@ -125,9 +125,12 @@ describe("Apps", function () {
     it("should get apps per user", function*() {
         var userResponse = yield dbHelper.createUser()
         var userResult = userResponse.result
-        yield dbHelper.createApp(userResult.id)
+        var appPackage = (yield dbHelper.createApp(userResult.id)).result.package
         yield dbHelper.createAppWithPackage(userResult.id, "com.test3")
         yield dbHelper.createAppWithPackage(userResult.id, "com.test2")
+        yield dbHelper.approveApp(appPackage)
+        yield dbHelper.approveApp("com.test3")
+        yield dbHelper.approveApp("com.test2")
 
         var opts = {
             method: 'GET',

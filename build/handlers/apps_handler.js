@@ -186,7 +186,7 @@ function postTweet(app, user) {
         url: app.shortUrl,
         hashTag: 'app'
     };
-    if (user.loginType !== LOGIN_TYPES.Fake) {
+    if (user.loginType == LOGIN_TYPES.Twitter) {
         tweetOptions.user = user.username;
     }
     bolt.postTweet(tweetComposer.compose(tweetOptions));
@@ -230,9 +230,7 @@ function* changeAppStatus(appPackage, status) {
             }
             app.shortUrl = yield UrlsHandler.getShortLink(links);
 
-            if (createdBy.loginType == LOGIN_TYPES.Twitter) {
-                postTweet(app, createdBy);
-            }
+            postTweet(app, createdBy);
             EmailsHandler.sendEmailToDeveloper(app);
 
             var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
@@ -287,7 +285,7 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
 
 function* getAppsForUser(creatorId, userId, page, pageSize) {
 
-    var query = App.find({ createdBy: creatorId }, APP_STATUS_FILTER.APPROVED).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    var query = App.find({ createdBy: creatorId, status: APP_STATUSES.APPROVED }).deepPopulate('votes.user').populate('categories').populate('createdBy');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
     result.apps = convertToArray(result.apps);
