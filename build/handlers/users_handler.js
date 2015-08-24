@@ -53,13 +53,12 @@ function* getUserProfile(userId, fromDate, toDate) {
         return Boom.notFound('User is not existing!');
     }
     user = user.toObject();
-    var details = yield ScoresHandler.getUserDetails(userId, fromDate, toDate);
+    var details = yield ScoresHandler.getUserDetails(userId);
     user.apps = details.addedApps;
     user.comments = details.comments;
     user.votes = details.votes;
     user.collections = details.collections;
-    user.score = details.score;
-
+    user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
     return user;
 }
 
