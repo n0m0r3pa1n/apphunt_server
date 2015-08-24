@@ -179,26 +179,47 @@ describe("Comments", function() {
         response.result.comments[0].children[0].hasVoted.should.equal(true)
     });
 
-    it("should get comments for user", function*() {
-        var userId = (yield dbHelper.createUser()).result.id
+    it("should get comments for logged in user", function*() {
+        var creatorId = (yield dbHelper.createUser()).result.id
         var user2Id = (yield dbHelper.createUserWithEmail("asasasa")).result.id
-        var appId = (yield dbHelper.createApp(userId)).result.id
+        var appId = (yield dbHelper.createApp(creatorId)).result.id
 
-        var comment1 = (yield dbHelper.createComment(appId, userId)).result
+        var comment1 = (yield dbHelper.createComment(appId, creatorId)).result
         yield dbHelper.createComment(appId, user2Id)
         var vote = (yield dbHelper.voteComment(comment1._id, user2Id)).result
-        yield dbHelper.createComment(appId, userId)
+        yield dbHelper.createComment(appId, creatorId)
 
 
         var opts = {
             method: 'GET',
-            url: '/v1/users/'+userId+'/comments?page=1&pageSize=2&userId=' + user2Id
+            url: '/v1/users/'+creatorId+'/comments?page=1&pageSize=2&userId=' + user2Id
         }
         var response = yield Server.injectThen(opts)
         response.result.comments.length.should.eq(2)
         response.result.totalCount.should.eq(2)
         response.result.comments[0].hasVoted.should.eq(true)
         response.result.comments[1].hasVoted.should.eq(false)
+        expect(response.result.comments[0].app.name).to.exist()
+    });
+
+    it("should get comments for not logged in user", function*() {
+        var creatorId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asasasa")).result.id
+        var appId = (yield dbHelper.createApp(creatorId)).result.id
+
+        var comment1 = (yield dbHelper.createComment(appId, creatorId)).result
+        yield dbHelper.createComment(appId, user2Id)
+        var vote = (yield dbHelper.voteComment(comment1._id, user2Id)).result
+        yield dbHelper.createComment(appId, creatorId)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/v1/users/'+creatorId+'/comments?page=1&pageSize=2'
+        }
+        var response = yield Server.injectThen(opts)
+        response.result.comments.length.should.eq(2)
+        response.result.totalCount.should.eq(2)
         expect(response.result.comments[0].app.name).to.exist()
     });
 

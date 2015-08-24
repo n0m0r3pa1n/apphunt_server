@@ -112,6 +112,9 @@ function* getCount(appId) {
 
 function removeVotesField(comments) {
     for(var i=0; i<comments.length; i++) {
+        if(comments[i] instanceof Comment) {
+            comments[i] = comments[i].toObject()
+        }
         delete comments[i].votes
         if(comments[i].children.length > 0) {
             for(var index in comments[i].children) {
@@ -164,6 +167,9 @@ export function* getCommentsForUser(creatorId, userId, page, pageSize) {
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize)
     if(userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId)
+    }
+    for(let comment of result.comments) {
+
     }
     removeVotesField(result.comments)
     for(let comment of result.comments) {

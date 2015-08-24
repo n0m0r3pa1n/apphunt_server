@@ -59,6 +59,7 @@ function* getUserProfile(userId, fromDate, toDate) {
     user.votes = details.votes;
     user.collections = details.collections;
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
+
     return user;
 }
 
