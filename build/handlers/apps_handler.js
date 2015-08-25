@@ -12,6 +12,9 @@ exports.getAppsForUser = getAppsForUser;
 exports.filterApps = filterApps;
 exports.getApp = getApp;
 exports.searchApps = searchApps;
+exports.favourite = favourite;
+exports.unfavourite = unfavourite;
+exports.getFavouriteApps = getFavouriteApps;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -397,6 +400,48 @@ function* searchApps(q, platform, status, page, pageSize, userId) {
     result.apps = convertToArray(result.apps);
     yield formatApps(userId, result.apps);
     return result;
+}
+
+function* favourite(appId, userId) {
+    var app = yield App.findById(appId).exec();
+    if (!app) {
+        return Boom.notFound('App cannot be found!');
+    }
+
+    for (var favouritedBy in app.favouritedBy) {
+        if (favouritedBy == userId) {
+            return Boom.conflict('User has already favourited app!');
+        }
+    }
+    app.favouritedBy.push(userId);
+    yield app.save();
+
+    return Boom.OK();
+}
+
+function* unfavourite(appId, userId) {
+    var app = yield App.findById(appId).exec();
+    if (!app) {
+        return Boom.notFound('App cannot be found!');
+    }
+
+    var size = app.favouritedBy.length;
+    for (var i = 0; i < size; i++) {
+        var currentFavouritedId = app.favouritedBy[i];
+        if (currentFavouritedId == userId) {
+            app.favouritedBy.splice(i, 1);
+            break;
+        }
+    }
+
+    yield app.save();
+
+    return Boom.OK();
+}
+
+function* getFavouriteApps(userId, page, pageSize) {
+    var query = App.find({ favouritedBy: userId }).populate('createdBy');
+    return yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
 }
 
 //==========================================================

@@ -342,6 +342,48 @@ export function* searchApps(q, platform, status, page, pageSize, userId) {
     return result
 }
 
+export function* favourite(appId, userId) {
+    var app = yield App.findById(appId).exec()
+    if(!app) {
+        return Boom.notFound('App cannot be found!')
+    }
+
+    for(let favouritedBy in app.favouritedBy) {
+        if(favouritedBy == userId) {
+            return Boom.conflict("User has already favourited app!");
+        }
+    }
+    app.favouritedBy.push(userId);
+    yield app.save()
+
+    return Boom.OK();
+}
+
+export function* unfavourite(appId, userId) {
+    var app = yield App.findById(appId).exec()
+    if(!app) {
+        return Boom.notFound('App cannot be found!')
+    }
+
+    var size = app.favouritedBy.length;
+    for(let i=0; i < size; i++) {
+        let currentFavouritedId = app.favouritedBy[i]
+        if(currentFavouritedId == userId) {
+            app.favouritedBy.splice(i, 1);
+            break;
+        }
+    }
+
+    yield app.save()
+
+    return Boom.OK();
+}
+
+export function* getFavouriteApps(userId, page, pageSize) {
+    var query = App.find({favouritedBy: userId})
+        .populate("createdBy")
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+}
 
 //==========================================================
 // Helper functions

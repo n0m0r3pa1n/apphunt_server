@@ -192,6 +192,15 @@ function voteApp(appId, userId) {
     return Server.injectThen(opts);
 }
 
+function favouriteApp(appId, userId) {
+    var opts = {
+        method: 'PUT',
+        url: '/apps/' + appId + "/actions/favourite?userId=" + userId
+    }
+
+    return Server.injectThen(opts);
+}
+
 function voteAppsCollection(collectionId, userId) {
     var opts = {
         method: 'POST',
@@ -331,6 +340,7 @@ module.exports.getCollection = getCollection
 module.exports.makeCollectionPublic = makeCollectionPublic
 module.exports.approveApp = approveApp
 module.exports.createAppsIdsList = createAppsIdsList
+module.exports.favouriteApp = favouriteApp
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

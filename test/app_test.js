@@ -495,6 +495,59 @@ describe("Apps", function () {
         response.result.apps.length.should.equal(5)
         response.result.totalPages.should.equal(2)
     });
+
+    it("should favourite app for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        yield dbHelper.favouriteApp(appId, userId)
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/' + appId
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.favouritedBy.length.should.eq(1)
+    });
+
+    it("should unfavourite app for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("asas")).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        yield dbHelper.favouriteApp(appId, userId)
+        yield dbHelper.favouriteApp(appId, user2Id)
+
+        var opts = {
+            method: 'DELETE',
+            url: '/apps/' + appId + '/actions/favourite?userId=' + userId
+        }
+        yield Server.injectThen(opts)
+
+        opts = {
+            method: 'GET',
+            url: '/apps/' + appId
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.favouritedBy.length.should.eq(1)
+        response.result.favouritedBy[0].toString().should.eq(String(user2Id))
+    });
+
+    it("should get favourite apps for user", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var app2Id = (yield dbHelper.createAppWithPackage(userId, "asas")).result.id
+        yield dbHelper.favouriteApp(appId, userId)
+        yield dbHelper.favouriteApp(app2Id, userId)
+
+        opts = {
+            method: 'GET',
+            url: '/apps/favourites?userId=' + userId + "&page=1&pageSize=2"
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.apps.length.should.eq(2)
+    });
 })
 
 

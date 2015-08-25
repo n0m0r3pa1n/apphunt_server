@@ -72,6 +72,7 @@ var appSchema = new Schema({
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     votes: [{ type: Schema.Types.ObjectId, ref: 'Vote' }],
     categories: [{ type: Schema.Types.ObjectId, ref: 'AppCategory' }],
+    favouritedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     isFree: { type: Boolean, 'default': true },
     platform: { type: String, 'enum': _.values(platforms), 'default': platforms.Android },
     developer: { type: Schema.Types.ObjectId, ref: 'Developer' },

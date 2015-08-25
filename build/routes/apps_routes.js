@@ -183,6 +183,64 @@ var routes = [{
         },
         auth: false
     }
+}, {
+    method: 'PUT',
+    path: '/apps/{appId}/actions/favourite',
+    handler: function handler(req, reply) {
+        reply.co(AppsHandler.favourite(req.params.appId, req.query.userId));
+    },
+    config: {
+        validate: {
+            params: {
+                appId: Joi.string().required()
+            },
+            query: {
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false,
+        description: 'Favourite app for user',
+        tags: ['api']
+    }
+}, {
+    method: 'DELETE',
+    path: '/apps/{appId}/actions/favourite',
+    handler: function handler(req, reply) {
+        reply.co(AppsHandler.unfavourite(req.params.appId, req.query.userId));
+    },
+    config: {
+        validate: {
+            params: {
+                appId: Joi.string().required()
+            },
+            query: {
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false,
+        description: 'Delete app from favourites for user',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
+    path: '/apps/favourites',
+    handler: function handler(req, reply) {
+        var page = req.query.page === undefined ? 0 : req.query.page;
+        var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
+        reply.co(AppsHandler.getFavouriteApps(req.query.userId, page, pageSize));
+    },
+    config: {
+        validate: {
+            query: {
+                page: Joi.number().integer().min(1).optional(),
+                pageSize: Joi.number().integer().min(1).optional(),
+                userId: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: 'Get favourite apps for user.',
+        tags: ['api']
+    }
 }];
 
 module.exports.appRoutes = routes;

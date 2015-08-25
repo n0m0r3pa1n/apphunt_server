@@ -113,7 +113,7 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: "Get favourite apps for user.",
+        description: "Get favourite apps collections for user.",
         tags: ["api"]
     }
 }, {

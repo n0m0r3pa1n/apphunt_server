@@ -79,7 +79,7 @@ export function* favourite(collectionId, userId) {
 
     for(let favouritedBy in collection.favouritedBy) {
         if(favouritedBy == userId) {
-            return Boom.conflict("User has already voted!");
+            return Boom.conflict("User has already favourited collection!");
         }
     }
     collection.favouritedBy.push(userId);
