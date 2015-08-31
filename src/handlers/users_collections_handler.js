@@ -12,8 +12,7 @@ var VotesHandler = require('./votes_handler')
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
 
 function* create(usersCollection, userId) {
-    var user = yield User.findById(userId).exec()
-    usersCollection.createdBy = user
+    usersCollection.createdBy = yield User.findById(userId).exec()
     return yield UsersCollection.create(usersCollection)
 }
 
@@ -27,7 +26,8 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
     for(var i=0; i<usersIds.length; i++) {
         var userId = usersIds[i];
         if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
-            collection.usersDetails.push(yield UserScoreHandler.getUserDetails(userId, fromDate, toDate))
+            let result = yield UserScoreHandler.getUserDetails(userId, fromDate, toDate)
+            collection.usersDetails.push(result)
         }
     }
     return yield collection.save()

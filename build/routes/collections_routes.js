@@ -18,7 +18,7 @@ var collectionsRoutes = [{
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
-        reply.co(AppsCollectionsHandler.getCollections(req.query.status, req.query.userId, req.query.sortBy, page, pageSize));
+        reply.co(AppsCollectionsHandler.searchCollections(req.query.status, req.query.userId, req.query.sortBy, page, pageSize));
     },
     config: {
         validate: {
@@ -40,7 +40,7 @@ var collectionsRoutes = [{
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
-        reply.co(AppsCollectionsHandler.getCollectionsForUser(req.query.userId, page, pageSize));
+        reply.co(AppsCollectionsHandler.getCollections(req.query.userId, req.query.userId, page, pageSize));
     },
     config: {
         validate: {
@@ -102,7 +102,7 @@ var collectionsRoutes = [{
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
-        reply.co(AppsCollectionsHandler.getFavouriteCollections(req.query.userId, page, pageSize));
+        reply.co(AppsCollectionsHandler.getFavouriteCollections(req.query.userId, req.query.userId, page, pageSize));
     },
     config: {
         validate: {

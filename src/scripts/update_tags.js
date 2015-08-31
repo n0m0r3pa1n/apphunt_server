@@ -40,7 +40,7 @@ Co(function* () {
     }
     console.log("==================================")
     console.log("Collections")
-    let collectionsResult = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
+    let collectionsResult = yield AppCollectionsHandler.searchCollections(undefined, undefined, undefined, 0, 0);
     let collectionsLength = collectionsResult.collections.length;
     for(let collection of collectionsResult.collections) {
         let collectionTags = yield TagsHandler.getTagsForCollection(collection._id)

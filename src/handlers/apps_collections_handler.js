@@ -122,7 +122,7 @@ export function* get(collectionId, userId) {
     return yield getPopulatedCollection(collection, userId)
 }
 
-export function* getCollections(status, userId, sortBy, page, pageSize) {
+export function* searchCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : {status: status}
     var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
     let result = yield getPagedCollectionsResult(where, sort, page, pageSize)
@@ -160,8 +160,8 @@ function isFavourite(collectionObj, userId) {
     return false
 }
 
-export function* getFavouriteCollections(userId, page, pageSize) {
-    let result = yield getPagedCollectionsResult({favouritedBy: userId}, {}, page, pageSize)
+export function* getFavouriteCollections(favouritedBy, userId, page, pageSize) {
+    let result = yield getPagedCollectionsResult({favouritedBy: favouritedBy}, {}, page, pageSize)
     if(result.collections !== undefined && result.collections.length > 0) {
         result.collections = yield getPopulatedCollections(result.collections, userId);
     }
@@ -187,17 +187,7 @@ function* getPopulatedCollection(collection, userId) {
     return collectionObj;
 }
 
-export function* getCollectionsForUser(userId, page, pageSize) {
-    let result = yield getPagedCollectionsResult({createdBy: userId}, {}, page, pageSize)
-    if(result.collections !== undefined && result.collections.length > 0) {
-        result.collections = yield getPopulatedCollections(result.collections, userId);
-    }
-
-    return result;
-}
-
-
-export function* getCollectionsForCreator(creatorId, userId, page, pageSize) {
+export function* getCollections(creatorId, userId, page, pageSize) {
     let where = {}
     where.createdBy = creatorId
     if(String(creatorId) != String(userId)) {
@@ -210,6 +200,7 @@ export function* getCollectionsForCreator(creatorId, userId, page, pageSize) {
 
     return result;
 }
+
 export function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize)

@@ -73,7 +73,7 @@ Co(function* () {
 
     console.log('==================================');
     console.log('Collections');
-    var collectionsResult = yield AppCollectionsHandler.getCollections(undefined, undefined, undefined, 0, 0);
+    var collectionsResult = yield AppCollectionsHandler.searchCollections(undefined, undefined, undefined, 0, 0);
     var collectionsLength = collectionsResult.collections.length;
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;

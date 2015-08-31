@@ -131,7 +131,7 @@ var routes = [{
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
-        reply.co(AppsCollectionsHandler.getCollectionsForCreator(req.params.creatorId, req.query.userId, page, pageSize));
+        reply.co(AppsCollectionsHandler.getCollections(req.params.creatorId, req.query.userId, page, pageSize));
     },
     config: {
         validate: {
@@ -146,6 +146,29 @@ var routes = [{
         },
         auth: false,
         description: 'Get all apps collections.',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
+    path: '/users/{favouritedBy}/favourite-collections',
+    handler: function handler(req, reply) {
+        var page = req.query.page === undefined ? 0 : req.query.page;
+        var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
+        reply.co(AppsCollectionsHandler.getFavouriteCollections(req.params.favouritedBy, req.query.userId, page, pageSize));
+    },
+    config: {
+        validate: {
+            query: {
+                page: Joi.number().integer().min(1).optional(),
+                pageSize: Joi.number().integer().min(1).optional(),
+                userId: Joi.string().optional()
+            },
+            params: {
+                favouritedBy: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: 'Get favourite apps collections for user.',
         tags: ['api']
     }
 }, {

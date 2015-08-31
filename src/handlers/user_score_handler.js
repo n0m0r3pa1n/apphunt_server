@@ -16,7 +16,7 @@ var Points = {
     collection: 50
 }
 
-function* getUserDetails(userId, fromDate, toDate) {
+function*  getUserDetails(userId, fromDate, toDate) {
 
     var userDetails = {
         user: userId,
@@ -29,8 +29,7 @@ function* getUserDetails(userId, fromDate, toDate) {
 
     var whereDatesRange = {}
     if(toDate !== undefined && fromDate !== undefined) {
-        toDate = new Date(toDate.getTime() + DAY_MILLISECONDS)
-
+        toDate.setDate(toDate.getUTCDate() + 1)
         whereDatesRange = {
             createdAt: {
                 "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),

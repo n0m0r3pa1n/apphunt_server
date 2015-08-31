@@ -179,4 +179,25 @@ describe("Users", function() {
 		response.result.length.should.equal(2)
 		response.result[0]._id.toString().should.equal(String(user2Id))
 	});
+
+	it("should get favourite apps collection for user", function*() {
+		var userId = (yield dbHelper.createUser()).result.id
+		var user2Id = (yield dbHelper.createUserWithEmail("asasa")).result.id
+
+		var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+		var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
+
+		yield dbHelper.favouriteCollection(collectionId, user2Id)
+		yield dbHelper.favouriteCollection(collection2Id, user2Id)
+
+
+		var opts = {
+			method: 'GET',
+			url: "/users/" + user2Id + "/favourite-collections?page=1&pageSize=2&userId=" + userId,
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result.collections.length.should.eq(2)
+		response.result.collections[0].hasVoted.should.exist()
+	});
 })

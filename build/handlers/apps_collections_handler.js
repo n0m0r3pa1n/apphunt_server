@@ -8,11 +8,10 @@ exports.update = update;
 exports.favourite = favourite;
 exports.unfavourite = unfavourite;
 exports.get = get;
-exports.getCollections = getCollections;
+exports.searchCollections = searchCollections;
 exports.getAvailableCollections = getAvailableCollections;
 exports.getFavouriteCollections = getFavouriteCollections;
-exports.getCollectionsForUser = getCollectionsForUser;
-exports.getCollectionsForCreator = getCollectionsForCreator;
+exports.getCollections = getCollections;
 exports.search = search;
 exports.removeApp = removeApp;
 exports.removeCollection = removeCollection;
@@ -173,7 +172,7 @@ function* get(collectionId, userId) {
     return yield getPopulatedCollection(collection, userId);
 }
 
-function* getCollections(status, userId, sortBy, page, pageSize) {
+function* searchCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : { status: status };
     var sort = sortBy == "vote" ? { votesCount: "desc", updatedAt: "desc" } : { updatedAt: "desc", votesCount: "desc" };
     var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
@@ -233,8 +232,8 @@ function isFavourite(collectionObj, userId) {
     return false;
 }
 
-function* getFavouriteCollections(userId, page, pageSize) {
-    var result = yield getPagedCollectionsResult({ favouritedBy: userId }, {}, page, pageSize);
+function* getFavouriteCollections(favouritedBy, userId, page, pageSize) {
+    var result = yield getPagedCollectionsResult({ favouritedBy: favouritedBy }, {}, page, pageSize);
     if (result.collections !== undefined && result.collections.length > 0) {
         result.collections = yield getPopulatedCollections(result.collections, userId);
     }
@@ -281,16 +280,7 @@ function* getPopulatedCollection(collection, userId) {
     return collectionObj;
 }
 
-function* getCollectionsForUser(userId, page, pageSize) {
-    var result = yield getPagedCollectionsResult({ createdBy: userId }, {}, page, pageSize);
-    if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = yield getPopulatedCollections(result.collections, userId);
-    }
-
-    return result;
-}
-
-function* getCollectionsForCreator(creatorId, userId, page, pageSize) {
+function* getCollections(creatorId, userId, page, pageSize) {
     var where = {};
     where.createdBy = creatorId;
     if (String(creatorId) != String(userId)) {
