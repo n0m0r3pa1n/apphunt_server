@@ -469,8 +469,12 @@ function* unfavourite(appId, userId) {
 }
 
 function* getFavouriteApps(userId, page, pageSize) {
-    var query = App.find({ favouritedBy: userId }).populate('createdBy');
-    return yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    var query = App.find({ favouritedBy: userId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    result.apps = convertToArray(result.apps);
+    yield formatApps(userId, result.apps);
+    return result;
 }
 
 //==========================================================

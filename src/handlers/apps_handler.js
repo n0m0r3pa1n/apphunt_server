@@ -390,8 +390,12 @@ export function* unfavourite(appId, userId) {
 
 export function* getFavouriteApps(userId, page, pageSize) {
     var query = App.find({favouritedBy: userId})
-        .populate("createdBy")
-    return yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+        .deepPopulate('votes.user').populate("categories").populate("createdBy")
+
+    let result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
+    result.apps = convertToArray(result.apps)
+    yield formatApps(userId, result.apps);
+    return result
 }
 
 //==========================================================

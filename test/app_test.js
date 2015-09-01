@@ -554,6 +554,7 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         response.result.apps.length.should.eq(2)
+        expect(response.result.apps[0].hasVoted).to.exist()
     });
 })
 
