@@ -388,8 +388,8 @@ export function* unfavourite(appId, userId) {
     return Boom.OK();
 }
 
-export function* getFavouriteApps(userId, page, pageSize) {
-    var query = App.find({favouritedBy: userId})
+export function* getFavouriteApps(creatorId, userId, page, pageSize) {
+    var query = App.find({favouritedBy: creatorId})
         .deepPopulate('votes.user').populate("categories").populate("createdBy")
 
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)

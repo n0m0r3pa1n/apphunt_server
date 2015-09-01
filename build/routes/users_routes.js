@@ -172,6 +172,29 @@ var routes = [{
         tags: ['api']
     }
 }, {
+    method: 'GET',
+    path: '/users/{creatorId}/favourite-apps',
+    handler: function handler(req, reply) {
+        var page = req.query.page === undefined ? 0 : req.query.page;
+        var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
+        reply.co(AppsHandler.getFavouriteApps(req.params.creatorId, req.query.userId, page, pageSize));
+    },
+    config: {
+        validate: {
+            query: {
+                page: Joi.number().integer().min(1).optional(),
+                pageSize: Joi.number().integer().min(1).optional(),
+                userId: Joi.string().required()
+            },
+            params: {
+                creatorId: Joi.string().required()
+            }
+        },
+        auth: false,
+        description: 'Get favourite apps for user.',
+        tags: ['api']
+    }
+}, {
     method: 'POST',
     path: '/users',
     handler: function handler(req, reply) {

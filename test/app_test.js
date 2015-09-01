@@ -542,19 +542,27 @@ describe("Apps", function () {
 
     it("should get favourite apps for user", function*() {
         var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("muuuu")).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "asas")).result.id
         yield dbHelper.favouriteApp(appId, userId)
         yield dbHelper.favouriteApp(app2Id, userId)
+        yield dbHelper.favouriteApp(app2Id, user2Id)
 
         opts = {
             method: 'GET',
-            url: '/apps/favourites?userId=' + userId + "&page=1&pageSize=2"
+            url: '/users/'+userId+'/favourite-apps?userId=' + user2Id + "&page=1&pageSize=2"
         }
 
         var response = yield Server.injectThen(opts);
         response.result.apps.length.should.eq(2)
         expect(response.result.apps[0].hasVoted).to.exist()
+        for(var i=0; i < response.result.apps.length; i++) {
+            var app = response.result.apps[i]
+            if(app.id == app2Id) {
+                app.hasVoted.should.eq(true)
+            }
+        }
     });
 })
 

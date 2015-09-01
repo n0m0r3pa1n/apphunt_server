@@ -468,8 +468,8 @@ function* unfavourite(appId, userId) {
     return Boom.OK();
 }
 
-function* getFavouriteApps(userId, page, pageSize) {
-    var query = App.find({ favouritedBy: userId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+function* getFavouriteApps(creatorId, userId, page, pageSize) {
+    var query = App.find({ favouritedBy: creatorId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
     result.apps = convertToArray(result.apps);
