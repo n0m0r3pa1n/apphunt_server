@@ -66,7 +66,14 @@ describe("Users", function() {
     it("should get populated user profile", function* () {
         var userId = (yield dbHelper.createUser()).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+        var appsIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, collectionId, appsIds)
+
         var appId = (yield dbHelper.createApp(userId)).result.id
+		yield dbHelper.favouriteApp(appId, userId)
+		yield dbHelper.favouriteCollection(collectionId, userId)
+
         var commentResponse = yield dbHelper.createComment(appId, userId)
 
         var today = new Date();
@@ -78,10 +85,12 @@ describe("Users", function() {
         }
 
         var result = (yield Server.injectThen(opts)).result
-        result.apps.should.eq(1)
+        result.apps.should.eq(5)
         result.collections.should.eq(1)
         result.comments.should.eq(1)
-        result.votes.should.eq(2)
+        result.votes.should.eq(6)
+		result.favouriteApps.should.eq(1)
+		result.favouriteCollections.should.eq(1)
     })
 
 	it("should get all users", function*() {

@@ -11,6 +11,14 @@ exports.update = update;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
+var _apps_handlerJs = require('./apps_handler.js');
+
+var AppsHandler = _interopRequireWildcard(_apps_handlerJs);
+
+var _apps_collections_handlerJs = require('./apps_collections_handler.js');
+
+var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
+
 var _authentication_handlerJs = require('./authentication_handler.js');
 
 var AuthHandler = _interopRequireWildcard(_authentication_handlerJs);
@@ -29,6 +37,7 @@ var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
 var User = require('../models').User;
 var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
+var CommentsHandler = require('./comments_handler');
 
 function* get(userId, email, loginType) {
     var where = {};
@@ -58,6 +67,8 @@ function* getUserProfile(userId, fromDate, toDate) {
     user.comments = details.comments;
     user.votes = details.votes;
     user.collections = details.collections;
+    user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId);
+    user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId);
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
 
     return user;

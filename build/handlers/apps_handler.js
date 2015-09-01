@@ -11,6 +11,7 @@ exports.getApps = getApps;
 exports.getAppsForUser = getAppsForUser;
 exports.filterApps = filterApps;
 exports.getApp = getApp;
+exports.getFavouriteAppsCount = getFavouriteAppsCount;
 exports.searchApps = searchApps;
 exports.favourite = favourite;
 exports.unfavourite = unfavourite;
@@ -411,6 +412,10 @@ function* getApp(appId, userId) {
     app.categories = categories;
 
     return app;
+}
+
+function* getFavouriteAppsCount(userId) {
+    return yield App.count({ favouritedBy: userId }).exec();
 }
 
 function* searchApps(q, platform, status, page, pageSize, userId) {

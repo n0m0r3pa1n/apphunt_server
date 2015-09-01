@@ -201,6 +201,10 @@ export function* getCollections(creatorId, userId, page, pageSize) {
     return result;
 }
 
+export function* getCollectionsCount(userId) {
+    return yield AppsCollection.count({favouritedBy: userId}).exec()
+}
+
 export function* search(q, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize)

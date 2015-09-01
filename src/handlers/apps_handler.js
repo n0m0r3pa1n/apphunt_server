@@ -332,6 +332,10 @@ export function* getApp(appId, userId) {
     return app
 }
 
+export function* getFavouriteAppsCount(userId) {
+    return yield App.count({favouritedBy: userId}).exec()
+}
+
 
 export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};

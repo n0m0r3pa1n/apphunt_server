@@ -9,6 +9,9 @@ var Vote = models.Vote;
 var Comment = models.Comment;
 var AppsCollection = models.AppsCollection;
 
+var CONFIG = require("../config/config");
+var COLLECTION_STATUS = CONFIG.COLLECTION_STATUSES;
+
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 var Points = {
@@ -29,10 +32,10 @@ function* getUserDetails(userId, fromDate, toDate) {
         score: 0
     };
 
-    var whereDatesRange = {};
+    var query = {};
     if (toDate !== undefined && fromDate !== undefined) {
         toDate.setDate(toDate.getUTCDate() + 1);
-        whereDatesRange = {
+        query = {
             createdAt: {
                 "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
                 "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
@@ -40,10 +43,12 @@ function* getUserDetails(userId, fromDate, toDate) {
         };
     }
 
-    userDetails.addedApps = yield App.count(_.extend({ createdBy: userId }, whereDatesRange)).exec();
-    userDetails.votes = yield Vote.count(_.extend({ user: userId }, whereDatesRange)).exec();
-    userDetails.comments = yield Comment.count(_.extend({ createdBy: userId }, whereDatesRange)).exec();
-    userDetails.collections = yield AppsCollection.count(_.extend({ createdBy: userId }, whereDatesRange)).exec();
+    userDetails.votes = yield Vote.count(_.extend({ user: userId }, query)).exec();
+
+    query.createdBy = userId;
+    userDetails.addedApps = yield App.count(query).exec();
+    userDetails.comments = yield Comment.count(query).exec();
+    userDetails.collections = yield AppsCollection.count(_.extend(query, { status: COLLECTION_STATUS.PUBLIC })).exec();
     userDetails.score = userDetails.votes * Points.vote + userDetails.comments * Points.comment + userDetails.addedApps * Points.app + userDetails.collections * Points.collection;
     return userDetails;
 }

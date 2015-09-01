@@ -1,3 +1,4 @@
+var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
@@ -22,18 +23,23 @@ describe("User Collections", function() {
 
     it("should add user in an empty collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var collectionId = (yield dbHelper.createUsersCollection(userId)).result.id
         var appId = (yield dbHelper.createApp(userId)).result.id
         yield dbHelper.createAppWithPackage(userId, "sasasa")
+
+        var appsCollectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, appsCollectionId, appIds)
+
         yield dbHelper.createComment(appId, userId)
-        yield dbHelper.createAppsCollection(userId)
+
+        var userCollectionId = (yield dbHelper.createUsersCollection(userId)).result.id
 
         var fromDate = new Date();
         var toDate = new Date();
 
         var opts = {
             method: 'PUT',
-            url: '/user-collections/' + collectionId,
+            url: '/user-collections/' + userCollectionId,
             payload: {
                 users: [userId],
                 fromDate: fromDate,
@@ -44,7 +50,7 @@ describe("User Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.usersDetails.length.should.equal(1)
         expect(response.result.usersDetails[0].score).to.be.above(0)
-        response.result.usersDetails[0].score.should.eq(Points.vote * 3 + Points.comment + Points.app * 2 + Points.collection)
+        response.result.usersDetails[0].score.should.eq(Points.vote * 7 + Points.comment + Points.app * 6 + Points.collection)
     });
 
     it("should add user in not empty collection", function*() {

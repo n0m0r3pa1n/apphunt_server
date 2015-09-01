@@ -506,7 +506,7 @@ describe("App Collections", function() {
         var user2Id = (yield dbHelper.createUserWithEmail("sas")).result.id
         var collection = (yield dbHelper.createAppsCollection(userId)).result
         var collection2 = (yield dbHelper.createAppsCollection(userId, "Test 2")).result
-        var appIds = yield dbHelper.createAppsIdsList(userId)
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
         yield dbHelper.makeCollectionPublic(userId, collection.id, appIds)
         yield dbHelper.makeCollectionPublic(userId, collection2.id, appIds)
         yield dbHelper.voteAppsCollection(collection2.id, user2Id)
@@ -537,7 +537,7 @@ describe("App Collections", function() {
         var collection1 = (yield dbHelper.createAppsCollection(userId)).result
         var collection3 = (yield dbHelper.createAppsCollectionWithParams(userId, "Blah")).result
         var collection2 = (yield dbHelper.createAppsCollection(user2Id)).result
-        var appIds = yield dbHelper.createAppsIdsList(userId)
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
 
         yield dbHelper.makeCollectionPublic(userId, collection1.id, appIds)
         yield dbHelper.makeCollectionPublic(userId, collection3.id, appIds)

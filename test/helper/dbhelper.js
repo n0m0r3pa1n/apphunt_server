@@ -307,7 +307,7 @@ function* makeCollectionPublic(userId, collectionId, appsIds) {
 }
 
 function* createAppsIdsList(userId) {
-    var appId = (yield createApp(userId)).result.id
+    var appId = (yield createAppWithPackage(userId, "com.test.4")).result.id
     var app2Id = (yield createAppWithPackage(userId, "com.test1")).result.id
     var app3Id = (yield createAppWithPackage(userId, "com.test2")).result.id
     var app4Id = (yield createAppWithPackage(userId, "com.test3")).result.id
@@ -339,7 +339,7 @@ module.exports.favouriteCollection = favouriteCollection
 module.exports.getCollection = getCollection
 module.exports.makeCollectionPublic = makeCollectionPublic
 module.exports.approveApp = approveApp
-module.exports.createAppsIdsList = createAppsIdsList
+module.exports.createFourAppsWithIds = createAppsIdsList
 module.exports.favouriteApp = favouriteApp
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1

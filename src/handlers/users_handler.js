@@ -8,6 +8,9 @@ var LOGIN_TYPES = CONFIG.LOGIN_TYPES
 var User = require('../models').User
 var Device = require('../models').Device
 var UserScoreHandler = require('./user_score_handler')
+var CommentsHandler = require('./comments_handler')
+import * as AppsHandler from './apps_handler.js'
+import * as AppsCollectionsHandler from './apps_collections_handler.js'
 
 import * as AuthHandler from './authentication_handler.js'
 import * as ScoresHandler from './user_score_handler.js'
@@ -41,6 +44,8 @@ export function* getUserProfile(userId, fromDate, toDate) {
     user.comments = details.comments
     user.votes = details.votes
     user.collections = details.collections
+    user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId)
+    user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId)
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score
 
     return user

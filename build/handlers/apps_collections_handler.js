@@ -12,6 +12,7 @@ exports.searchCollections = searchCollections;
 exports.getAvailableCollections = getAvailableCollections;
 exports.getFavouriteCollections = getFavouriteCollections;
 exports.getCollections = getCollections;
+exports.getCollectionsCount = getCollectionsCount;
 exports.search = search;
 exports.removeApp = removeApp;
 exports.removeCollection = removeCollection;
@@ -292,6 +293,10 @@ function* getCollections(creatorId, userId, page, pageSize) {
     }
 
     return result;
+}
+
+function* getCollectionsCount(userId) {
+    return yield AppsCollection.count({ favouritedBy: userId }).exec();
 }
 
 function* search(q, page, pageSize, userId) {
