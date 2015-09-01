@@ -508,6 +508,13 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         response.result.favouritedBy.length.should.eq(1)
+
+        var opts2 = {
+            method: 'GET',
+            url: '/apps/' + appId + "?userId=" + userId
+        }
+        var response2 = yield Server.injectThen(opts2);
+        response2.result.isFavourite.should.eq(true)
     });
 
     it("should unfavourite app for user", function*() {

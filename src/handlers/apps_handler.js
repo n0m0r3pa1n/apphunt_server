@@ -309,8 +309,15 @@ export function* getApp(appId, userId) {
         return Boom.notFound('App can not be found!')
     }
     app = app.toObject()
+    app.isFavourite = false;
     if(userId !== undefined) {
         app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId)
+        for(let favouritedBy of app.favouritedBy) {
+            if(String(favouritedBy) == String(userId)) {
+                app.isFavourite = true;
+                break;
+            }
+        }
     }
 
     let categories = []
@@ -320,6 +327,8 @@ export function* getApp(appId, userId) {
 
     app.tags = yield TagsHandler.getTagsForApp(app._id)
     app.categories = categories
+
+
     return app
 }
 
