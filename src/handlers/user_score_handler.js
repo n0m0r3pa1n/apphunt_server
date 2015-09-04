@@ -9,6 +9,7 @@ var AppsCollection = models.AppsCollection
 
 var CONFIG = require('../config/config')
 var COLLECTION_STATUS = CONFIG.COLLECTION_STATUSES
+var APP_STATUSES = CONFIG.APP_STATUSES
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -74,13 +75,13 @@ function* getUsersScore(fromDate, toDate) {
     })
     var votesUserIds = _.keys(votesResults)
 
-    var apps = yield App.find(whereDatesRange).exec()
+    var apps = yield App.find(_.extend(whereDatesRange, {status: APP_STATUSES.APPROVED})).exec()
     var appsResults = _.countBy(apps, function(app) {
         return app.createdBy
     })
     var appsUserIds = _.keys(appsResults)
 
-    var collections = yield AppsCollection.find(whereDatesRange).exec()
+    var collections = yield AppsCollection.find(_.extend(whereDatesRange, {status: COLLECTION_STATUS.PUBLIC})).exec()
     var collectionsResult = _.countBy(collections, function(collection) {
         return collection.createdBy
     })
