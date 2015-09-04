@@ -99,20 +99,21 @@ function* getUsersScore(fromDate, toDate) {
         user.votes = 0;
         user.collections = 0;
         user.score = 0;
+
         if (_.has(commentsResults, userId)) {
-            user.comments += 1;
+            user.comments = commentsResults[userId];
             user.score += commentsResults[userId] * Points.comment;
         }
         if (_.has(votesResults, userId)) {
-            user.votes++;
+            user.votes = votesResults[userId];
             user.score += votesResults[userId] * Points.vote;
         }
         if (_.has(appsResults, userId)) {
-            user.apps += 1;
+            user.apps = appsResults[userId];
             user.score += appsResults[userId] * Points.app;
         }
         if (_.has(collectionsResult, userId)) {
-            user.collections += 1;
+            user.collections = collectionsResult[userId];
             user.score += collectionsResult[userId] * Points.collection;
         }
         results.push(user);

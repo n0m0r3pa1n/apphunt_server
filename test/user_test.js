@@ -169,6 +169,7 @@ describe("Users", function() {
 		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
 		var appId = (yield dbHelper.createApp(user1Id)).result.id
 		var app2Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")).result.id
+		var app2Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.kor")).result.id
 		//yield dbHelper.createComment(appId, user2Id)
 		//yield dbHelper.createComment(appId, user1Id)
 
@@ -189,6 +190,7 @@ describe("Users", function() {
 		response.result.length.should.equal(2)
 		response.result[0]._id.toString().should.equal(String(user2Id))
 		expect(response.result[0].apps).to.exist()
+		response.result[0].apps.should.eq(2)
 	});
 
 	it("should get favourite apps collection for user", function*() {
