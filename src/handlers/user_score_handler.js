@@ -93,17 +93,26 @@ function* getUsersScore(fromDate, toDate) {
         var userId = userIds[i]
         var user = yield User.findById(userId).exec()
         user = user.toObject()
+
+        user.comments = 0
+        user.apps = 0
+        user.votes= 0
+        user.collections= 0
         user.score = 0
         if(_.has(commentsResults, userId)) {
+            user.comments+=1;
             user.score += commentsResults[userId] * Points.comment
         }
         if(_.has(votesResults, userId)) {
+            user.votes++;
             user.score += votesResults[userId] * Points.vote
         }
         if(_.has(appsResults, userId)) {
+            user.apps += 1;
             user.score += appsResults[userId] * Points.app
         }
         if(_.has(collectionsResult, userId)) {
+            user.collections += 1;
             user.score += collectionsResult[userId] * Points.collection
         }
         results.push(user)

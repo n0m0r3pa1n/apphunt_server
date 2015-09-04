@@ -1,4 +1,5 @@
 var should = require('chai').should()
+var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
@@ -187,6 +188,7 @@ describe("Users", function() {
 		var response = yield Server.injectThen(opts)
 		response.result.length.should.equal(2)
 		response.result[0]._id.toString().should.equal(String(user2Id))
+		expect(response.result[0].apps).to.exist()
 	});
 
 	it("should get favourite apps collection for user", function*() {
