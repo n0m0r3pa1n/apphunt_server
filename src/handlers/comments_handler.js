@@ -11,13 +11,14 @@ var Comment = require('../models').Comment
 var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
-var NotificationsHandler = require('./notifications_handler')
+
 import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as NotificationsHandler  from './notifications_handler.js'
 
 import * as AppsHandler from './apps_handler.js'
 
 function* create(comment, appId, userId, parentId) {
-    var app = yield App.findById(appId).populate('createdBy').exec()
+    var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec()
     if (!app) {
         return Boom.notFound("Non-existing app")
     }
@@ -51,18 +52,18 @@ function* create(comment, appId, userId, parentId) {
     if(isConversationComment(comment.text)) {
         var userName = getCommentedUserName(comment.text)
         if(userName !== '') {
-            var mentionedUser = yield User.findOne({username: userName}).exec()
+            var mentionedUser = yield User.findOne({username: userName}).populate('devices').exec()
             if(mentionedUser !== null) {
                 var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username)
                 var message = comment.text
-                yield NotificationsHandler.sendNotificationToUser(mentionedUser, title, message, user.profilePicture,
+                NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED)
             }
         }
     } else {
             var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name)
             var message = comment.text
-            yield NotificationsHandler.sendNotificationToUser(app.createdBy, title, message, user.profilePicture,
+            NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture,
                 NOTIFICATION_TYPES.USER_COMMENT)
     }
 

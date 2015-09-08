@@ -178,6 +178,7 @@ appsCollectionSchema.plugin(Timestamps)
 usersCollectionSchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate)
+userSchema.plugin(DeepPopulate)
 commentSchema.plugin(DeepPopulate)
 appsCollectionSchema.plugin(DeepPopulate)
 usersCollectionSchema.plugin(DeepPopulate)

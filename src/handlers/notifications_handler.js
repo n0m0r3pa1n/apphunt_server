@@ -1,50 +1,58 @@
 var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
-var User = require('../models').User
-var boltAppId = require('../config/config').BOLT_APP_ID
+var Config = require('../config/config')
+var _ = require('underscore')
+var Boom = require('boom')
 
-function* create(notification) {
+import * as UsersHandler from './users_handler.js'
+
+export function* create(notification) {
     return yield Notification.create(notification);
 }
 
-function* get(type) {
+export function* get(type) {
     return yield Notification.findOne({type: type}).exec();
 }
 
-function* getAll() {
+export function* getAll() {
     return yield Notification.find({}).exec();
 }
 
-function* sendNotificationToUser(user, title, message, image, type) {
-    if(user.populated('devices') == undefined) {
-        try {
-            user = yield User.findOne(user).populate('devices').exec();
-            if(user.populated('devices') == undefined) {
-                console.log('Could not populate user devices!');
-                return;
-            }
+export function* sendNotificationsToUsers(userIds, title, message, image, type) {
+    let devices = []
+    if(userIds.length == 0) {
+        devices = yield UsersHandler.getDevicesForAllUsers()
+    } else {
+        for(let userId of userIds) {
+            let userDevices = yield UsersHandler.getUserDevices(userId)
+            devices = devices.concat(userDevices)
         }
-        catch (e) {
-            console.log(e)
-            console.log('Devices for users are not populated!');
-            return;
-        }
+    }
 
-    }
-    var deviceIds = []
-    for(var i=0; i<user.devices.length; i++) {
-        var device = user.devices[i];
-        deviceIds.push(device.notificationId)
-    }
-    if(deviceIds.length > 0) {
-        sendNotification(deviceIds, title, message, image, type)
-    }
+    sendNotifications(devices, title, message, image, type)
+
+    return Boom.OK()
 }
 
-function sendNotification(deviceIds, title, message, image, type) {
-    var bolt = new Bolt(boltAppId)
-    var notification = {
+export function sendNotifications(devices, title, message, image, type) {
+    if(devices == undefined || devices == null || devices.length == 0) {
+        return
+    }
+
+    var deviceIds = []
+    for(var i=0; i<devices.length; i++) {
+        var device = devices[i];
+        deviceIds.push(device.notificationId)
+    }
+
+    var bolt = new Bolt(Config.BOLT_APP_ID)
+    var notification = createNotification(deviceIds, title, message, image, type);
+    bolt.sendNotification(notification)
+}
+
+function createNotification(deviceIds, title, message, image, type) {
+    return {
         deviceIds: deviceIds,
         data: {
             title: title,
@@ -53,14 +61,8 @@ function sendNotification(deviceIds, title, message, image, type) {
             type: type
         }
     }
-
-    if(deviceIds.length > 0 && deviceIds !== null) {
-        bolt.sendNotification(notification)
-    }
 }
 
-module.exports.create = create
-module.exports.get = get
-module.exports.getAll = getAll
-module.exports.sendNotification = sendNotification
-module.exports.sendNotificationToUser = sendNotificationToUser
+export function getNotificationTypes() {
+    return _.values(Config.NOTIFICATION_TYPES)
+}

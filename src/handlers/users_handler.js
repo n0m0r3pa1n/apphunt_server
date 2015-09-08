@@ -33,6 +33,20 @@ export function* find(userId) {
     return yield User.findById(userId).exec()
 }
 
+export function* getUserDevices(userId) {
+    let user = yield User.findById(userId).populate('devices').exec()
+    if(user == null) {
+        return []
+    }
+
+    return user.devices
+}
+
+
+export function* getDevicesForAllUsers() {
+    return yield Device.find({}).exec()
+}
+
 export function* getUserProfile(userId, fromDate, toDate) {
     let user = yield find(userId)
     if(user == null) {

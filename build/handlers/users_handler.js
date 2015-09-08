@@ -5,6 +5,8 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.get = get;
 exports.find = find;
+exports.getUserDevices = getUserDevices;
+exports.getDevicesForAllUsers = getDevicesForAllUsers;
 exports.getUserProfile = getUserProfile;
 exports.create = create;
 exports.update = update;
@@ -54,6 +56,19 @@ function* get(userId, email, loginType) {
 
 function* find(userId) {
     return yield User.findById(userId).exec();
+}
+
+function* getUserDevices(userId) {
+    var user = yield User.findById(userId).populate('devices').exec();
+    if (user == null) {
+        return [];
+    }
+
+    return user.devices;
+}
+
+function* getDevicesForAllUsers() {
+    return yield Device.find({}).exec();
 }
 
 function* getUserProfile(userId, fromDate, toDate) {
