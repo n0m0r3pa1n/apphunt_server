@@ -56,6 +56,31 @@ var routes = [{
         description: 'Create a new notification to be send to devices.',
         tags: ['api']
     }
+}, {
+    method: 'POST',
+    path: '/notifications/actions/send',
+    handler: function handler(req, reply) {
+        var message = req.payload.message;
+        var type = req.payload.type;
+        var title = req.payload.title;
+        var users = req.payload.users;
+        var image = req.payload.image;
+        reply.co(NotificationsHandler.sendNotificationsToUsers(users, title, message, image, type));
+    },
+    config: {
+        validate: {
+            payload: {
+                message: Joi.string().required(),
+                type: Joi.string().required(),
+                title: Joi.string().required(),
+                image: Joi.string().allow('').required(),
+                users: Joi.array().items(Joi.string()).required()
+            }
+        },
+        auth: false,
+        description: 'Create a new notification to be send to devices.',
+        tags: ['api']
+    }
 }];
 
 module.exports.notificationRoutes = routes;

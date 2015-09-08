@@ -195,7 +195,7 @@ export function* changeAppStatus(appPackage, status) {
     if(status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name)
         var message = MESSAGES.APP_REJECTED_MESSAGE
-        yield NotificationsHandler.sendNotifications(
+        NotificationsHandler.sendNotifications(
             devices, title, message, app.icon,
             NOTIFICATION_TYPES.APP_REJECTED)
 
@@ -222,7 +222,7 @@ export function* changeAppStatus(appPackage, status) {
             var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
 
-            yield NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
+            NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
         }
     }
 

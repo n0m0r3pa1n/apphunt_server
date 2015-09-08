@@ -54,4 +54,22 @@ describe("Notifications", function() {
         response.result.length.should.eq(_.keys(Config.NOTIFICATION_TYPES).length)
     });
 
+    it("should send notifications to users", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var opts = {
+            method: 'POST',
+            url: '/notifications/actions/send',
+            payload: {
+                users: [userId],
+                title: "Test",
+                message: "Notifications",
+                type: Config.NOTIFICATION_TYPES.USER_COMMENT,
+                image: ""
+            }
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.statusCode.should.eq(STATUS_CODES.OK)
+    });
+
 })

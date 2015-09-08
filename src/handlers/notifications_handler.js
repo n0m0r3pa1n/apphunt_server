@@ -1,9 +1,11 @@
 var Bolt = require("bolt-js")
 
 var Notification = require('../models').Notification
-var User = require('../models').User
 var Config = require('../config/config')
 var _ = require('underscore')
+var Boom = require('boom')
+
+import * as UsersHandler from './users_handler.js'
 
 export function* create(notification) {
     return yield Notification.create(notification);
@@ -17,7 +19,23 @@ export function* getAll() {
     return yield Notification.find({}).exec();
 }
 
-export function* sendNotifications(devices, title, message, image, type) {
+export function* sendNotificationsToUsers(userIds, title, message, image, type) {
+    let devices = []
+    if(userIds.length == 0) {
+        devices = yield UsersHandler.getDevicesForAllUsers()
+    } else {
+        for(let userId of userIds) {
+            let userDevices = yield UsersHandler.getUserDevices(userId)
+            devices.concat(userDevices)
+        }
+    }
+
+    sendNotifications(devices, title, message, image, type)
+
+    return Boom.OK()
+}
+
+export function sendNotifications(devices, title, message, image, type) {
     if(devices == undefined || devices == null || devices.length == 0) {
         return
     }
