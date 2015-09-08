@@ -1,4 +1,4 @@
-var NotificationsHandler = require('../handlers/notifications_handler')
+import * as NotificationsHandler from "../handlers/notifications_handler.js"
 var Notification = require('../models').Notification
 var Joi = require('joi')
 
@@ -17,6 +17,18 @@ var routes = [
             },
             auth: false,
             description: 'Get all available notifications.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
+        path: "/notifications/types",
+        handler: function(req,reply) {
+            reply.co(NotificationsHandler.getNotificationTypes())
+        },
+        config: {
+            auth: false,
+            description: 'Get all notification types.',
             tags: ['api']
         }
     },

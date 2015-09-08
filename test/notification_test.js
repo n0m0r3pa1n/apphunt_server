@@ -1,9 +1,11 @@
 var should = require('chai').should()
 var dbHelper = require('./helper/dbhelper')
 var Bolt = require('bolt-js')
-var boltAppId = require('../build/config/config').BOLT_APP_ID
+var Config = require('../build/config/config');
+var boltAppId = Config.BOLT_APP_ID
 require('./spec_helper')
-var STATUS_CODES = require('../build/config/config').STATUS_CODES
+var STATUS_CODES = Config.STATUS_CODES
+var _ = require("underscore")
 
 describe("Notifications", function() {
 
@@ -42,5 +44,14 @@ describe("Notifications", function() {
         approvedResponse.result.statusCode.should.equal(200)
     });
 
+    it("should get notification types", function*() {
+        var opts = {
+            method: 'GET',
+            url: '/notifications/types'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.length.should.eq(_.keys(Config.NOTIFICATION_TYPES).length)
+    });
 
 })

@@ -1,6 +1,11 @@
 'use strict';
 
-var NotificationsHandler = require('../handlers/notifications_handler');
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _handlersNotifications_handlerJs = require('../handlers/notifications_handler.js');
+
+var NotificationsHandler = _interopRequireWildcard(_handlersNotifications_handlerJs);
+
 var Notification = require('../models').Notification;
 var Joi = require('joi');
 
@@ -18,6 +23,17 @@ var routes = [{
         },
         auth: false,
         description: 'Get all available notifications.',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
+    path: '/notifications/types',
+    handler: function handler(req, reply) {
+        reply.co(NotificationsHandler.getNotificationTypes());
+    },
+    config: {
+        auth: false,
+        description: 'Get all notification types.',
         tags: ['api']
     }
 }, {
