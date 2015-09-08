@@ -17,11 +17,11 @@ var _users_handlerJs = require('./users_handler.js');
 var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 
 var Bolt = require('bolt-js');
+var _ = require('underscore');
+var Boom = require('boom');
 
 var Notification = require('../models').Notification;
 var Config = require('../config/config');
-var _ = require('underscore');
-var Boom = require('boom');
 
 function* create(notification) {
     return yield Notification.create(notification);

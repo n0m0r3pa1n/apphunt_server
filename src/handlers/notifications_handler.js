@@ -1,9 +1,9 @@
 var Bolt = require("bolt-js")
+var _ = require('underscore')
+var Boom = require('boom')
 
 var Notification = require('../models').Notification
 var Config = require('../config/config')
-var _ = require('underscore')
-var Boom = require('boom')
 
 import * as UsersHandler from './users_handler.js'
 
