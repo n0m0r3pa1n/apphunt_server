@@ -26,7 +26,7 @@ export function* sendNotificationsToUsers(userIds, title, message, image, type) 
     } else {
         for(let userId of userIds) {
             let userDevices = yield UsersHandler.getUserDevices(userId)
-            devices.concat(userDevices)
+            devices = devices.concat(userDevices)
         }
     }
 

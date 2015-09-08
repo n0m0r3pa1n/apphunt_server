@@ -49,7 +49,7 @@ function* sendNotificationsToUsers(userIds, title, message, image, type) {
                 var userId = _step.value;
 
                 var userDevices = yield UsersHandler.getUserDevices(userId);
-                devices.concat(userDevices);
+                devices = devices.concat(userDevices);
             }
         } catch (err) {
             _didIteratorError = true;
