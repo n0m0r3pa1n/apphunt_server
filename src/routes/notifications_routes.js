@@ -40,7 +40,8 @@ var routes = [
             description: 'Create a new notification to be send to devices.',
             tags: ['api']
         }
-    }
+    },
+
 ]
 
 module.exports.notificationRoutes = routes

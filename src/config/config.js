@@ -45,7 +45,10 @@ var notificationTypes = {
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
     USER_COMMENT: "userComment",
-    USER_MENTIONED: "userMentioned"
+    USER_MENTIONED: "userMentioned",
+    TOP_HUNTERS: "topHunters",
+    TOP_APPS: "topApps",
+    GENERIC: "generic"
 }
 
 var bitly =  {

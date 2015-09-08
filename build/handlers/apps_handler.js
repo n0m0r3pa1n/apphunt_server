@@ -27,6 +27,10 @@ var _tags_handlerJs = require('./tags_handler.js');
 
 var TagsHandler = _interopRequireWildcard(_tags_handlerJs);
 
+var _notifications_handlerJs = require('./notifications_handler.js');
+
+var NotificationsHandler = _interopRequireWildcard(_notifications_handlerJs);
+
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
 var _ = require('underscore');
@@ -51,7 +55,6 @@ var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
 var VotesHandler = require('./votes_handler');
 var UrlsHandler = require('./utils/urls_handler');
 var CommentsHandler = require('./comments_handler');
-var NotificationsHandler = require('./notifications_handler');
 var EmailsHandler = require('./utils/emails_handler');
 
 var DateUtils = require('../utils/date_utils');
@@ -212,10 +215,11 @@ function* changeAppStatus(appPackage, status) {
         return Boom.notFound('Non-existing app');
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec();
+    var devices = createdBy.devices;
     if (status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name);
         var message = MESSAGES.APP_REJECTED_MESSAGE;
-        yield NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED);
+        yield NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED);
 
         yield deleteApp(appPackage);
     } else if (status == APP_STATUSES.APPROVED) {
@@ -240,7 +244,7 @@ function* changeAppStatus(appPackage, status) {
             var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
             var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
 
-            yield NotificationsHandler.sendNotificationToUser(createdBy, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
+            yield NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
         }
     }
 
