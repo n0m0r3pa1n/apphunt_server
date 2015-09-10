@@ -25,9 +25,9 @@ var _handlersTags_handlerJs = require("../handlers/tags_handler.js");
 
 var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
 
-var _statsPagination_stats_handlerJs = require("./stats/pagination_stats_handler.js");
+var _pagination_handlerJs = require("./pagination_handler.js");
 
-var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
 var _users_handlerJs = require("./users_handler.js");
 

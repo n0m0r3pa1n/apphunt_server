@@ -10,7 +10,7 @@ var Tag = Models.Tag
 
 import * as AppsHandler from './apps_handler.js'
 import * as AppsCollectionsHandler from './apps_collections_handler.js'
-import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as PaginationHandler from './pagination_handler.js'
 
 export function* saveTagsForApp(tags, appId, appName, categories) {
     if(tags == undefined) {

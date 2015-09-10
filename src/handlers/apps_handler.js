@@ -24,7 +24,7 @@ var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./utils/urls_handler')
 var CommentsHandler = require('./comments_handler')
 var EmailsHandler = require('./utils/emails_handler')
-import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as PaginationHandler from './pagination_handler.js'
 import * as TagsHandler from './tags_handler.js'
 import * as NotificationsHandler from './notifications_handler.js'
 var DateUtils = require('../utils/date_utils')

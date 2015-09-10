@@ -11,22 +11,27 @@ var UserScoreHandler = require('./user_score_handler')
 var CommentsHandler = require('./comments_handler')
 import * as AppsHandler from './apps_handler.js'
 import * as AppsCollectionsHandler from './apps_collections_handler.js'
+import * as PaginationHandler from "./pagination_handler.js"
 
 import * as AuthHandler from './authentication_handler.js'
 import * as ScoresHandler from './user_score_handler.js'
 
 
-export function* get(userId, email, loginType) {
+export function* get(q, loginType, page, pageSize) {
     var where = {}
+    if(q !== undefined) {
+        where = {$or: [{email: {$regex: q, $options: 'i'}},
+            {name: {$regex: q, $options: 'i'}},
+            {username: {$regex: q, $options: 'i'}}]}
+    }
+
     if(loginType !== undefined){
         where.loginType = loginType
     }
 
-    if(email !== undefined) {
-        where.email = email;
-    }
+    var query = User.find(where)
 
-    return yield User.find(where).exec();
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "users", page, pageSize);
 }
 
 export function* find(userId) {

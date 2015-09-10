@@ -2,9 +2,9 @@
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var _pagination_stats_handler = require('./pagination_stats_handler');
+var _pagination_handler = require('./../pagination_handler');
 
-var PaginationHandler = _interopRequireWildcard(_pagination_stats_handler);
+var PaginationHandler = _interopRequireWildcard(_pagination_handler);
 
 var Models = require('../../models');
 var User = Models.User;

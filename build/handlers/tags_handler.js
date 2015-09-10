@@ -23,9 +23,9 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
-var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler.js');
+var _pagination_handlerJs = require('./pagination_handler.js');
 
-var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
 var _ = require('underscore');
 

@@ -60,7 +60,7 @@ describe("Users", function() {
 
 		var response2 = yield dbHelper.createUser()
 		var usersResponse = yield dbHelper.getUsers()
-		var users = usersResponse.result
+		var users = usersResponse.result.users
 		users.length.should.equal(1)
 	})
 
@@ -98,7 +98,7 @@ describe("Users", function() {
 		var response = yield dbHelper.createUserWithEmail("poli@abv.bg")
 		var response2 = yield dbHelper.createUserWithEmail("lqwqwqoli@abv.bg")
 		var usersResponse = yield dbHelper.getUsers()
-		var users = usersResponse.result
+		var users = usersResponse.result.users
 		users.length.should.equal(2)
 	})
 
@@ -108,11 +108,11 @@ describe("Users", function() {
 
 		var opts = {
 			method: 'GET',
-			url: '/users?email=poli@abv.bg'
+			url: '/users?q=poli@abv.bg'
 		}
 
 		var usersResponse =  yield Server.injectThen(opts);
-		var users = usersResponse.result
+		var users = usersResponse.result.users
 		users.length.should.equal(1)
 		users[0].email.should.equal("poli@abv.bg")
 	})
@@ -127,7 +127,7 @@ describe("Users", function() {
 		}
 
 		var usersResponse =  yield Server.injectThen(opts);
-		var users = usersResponse.result
+		var users = usersResponse.result.users
 		users.length.should.equal(1)
 		users[0].email.should.equal("poli@abv.bg")
 	})
@@ -214,5 +214,26 @@ describe("Users", function() {
 		var response = yield Server.injectThen(opts)
 		response.result.collections.length.should.eq(2)
 		response.result.collections[0].hasVoted.should.exist()
+	});
+
+	it("should search for users", function*() {
+		var userId = (yield dbHelper.createUser()).result.id
+		var user2Id = (yield dbHelper.createUserWithEmail("tyga@abv.bg")).result.id
+
+		var opts = {
+			method: 'GET',
+			url: "/users?page=1&pageSize=2&q=tyga",
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result.users.length.should.eq(1)
+
+        opts = {
+            method: 'GET',
+            url: "/users?page=1&pageSize=2&q=dumm",
+        }
+
+        var response2 = yield Server.injectThen(opts)
+        response2.result.users.length.should.eq(2)
 	});
 })

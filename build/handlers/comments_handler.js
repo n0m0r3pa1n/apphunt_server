@@ -7,9 +7,9 @@ exports.getCommentsForUser = getCommentsForUser;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var _statsPagination_stats_handlerJs = require('./stats/pagination_stats_handler.js');
+var _pagination_handlerJs = require('./pagination_handler.js');
 
-var PaginationHandler = _interopRequireWildcard(_statsPagination_stats_handlerJs);
+var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
 var _notifications_handlerJs = require('./notifications_handler.js');
 

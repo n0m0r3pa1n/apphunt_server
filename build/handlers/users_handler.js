@@ -21,6 +21,10 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
+var _pagination_handlerJs = require('./pagination_handler.js');
+
+var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
+
 var _authentication_handlerJs = require('./authentication_handler.js');
 
 var AuthHandler = _interopRequireWildcard(_authentication_handlerJs);
@@ -41,17 +45,19 @@ var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
 var CommentsHandler = require('./comments_handler');
 
-function* get(userId, email, loginType) {
+function* get(q, loginType, page, pageSize) {
     var where = {};
+    if (q !== undefined) {
+        where = { $or: [{ email: { $regex: q, $options: 'i' } }, { name: { $regex: q, $options: 'i' } }, { username: { $regex: q, $options: 'i' } }] };
+    }
+
     if (loginType !== undefined) {
         where.loginType = loginType;
     }
 
-    if (email !== undefined) {
-        where.email = email;
-    }
+    var query = User.find(where);
 
-    return yield User.find(where).exec();
+    return yield PaginationHandler.getPaginatedResultsWithName(query, 'users', page, pageSize);
 }
 
 function* find(userId) {

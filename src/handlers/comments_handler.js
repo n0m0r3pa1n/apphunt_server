@@ -12,7 +12,7 @@ var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
 
-import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as PaginationHandler from './pagination_handler.js'
 import * as NotificationsHandler  from './notifications_handler.js'
 
 import * as AppsHandler from './apps_handler.js'

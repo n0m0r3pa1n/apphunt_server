@@ -15,17 +15,21 @@ var routes = [
         method: "GET",
         path: "/users",
         handler: function(req,reply) {
-            reply.co(UsersHandler.get(req.query.userId, req.query.email, req.query.loginType))
+            var page = req.query.page === undefined  ? 0 : req.query.page
+            var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
+            reply.co(UsersHandler.get(req.query.q, req.query.loginType, page, pageSize))
         },
         config: {
             validate: {
                 query: {
-                    email: Joi.string().optional(),
+                    q: Joi.string().optional(),
                     loginType:  Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional(),
+                    page: Joi.number().integer().min(1).optional(),
+                    pageSize: Joi.number().integer().min(1).optional()
                 }
             },
             auth: false,
-            description: 'Get a list of all registered users.',
+            description: 'Search users by query and login type',
             tags: ['api']
         }
     },

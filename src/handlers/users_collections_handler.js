@@ -9,7 +9,7 @@ var Comment = models.Comment
 
 var UserScoreHandler = require('./user_score_handler')
 var VotesHandler = require('./votes_handler')
-import * as PaginationHandler from './stats/pagination_stats_handler.js'
+import * as PaginationHandler from './pagination_handler.js'
 
 function* create(usersCollection, userId) {
     usersCollection.createdBy = yield User.findById(userId).exec()
