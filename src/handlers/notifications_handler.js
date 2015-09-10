@@ -35,7 +35,7 @@ export function* sendNotificationsToUsers(userIds, title, message, image, type) 
     return Boom.OK()
 }
 
-export function sendNotifications(devices, title, message, image, type) {
+export function sendNotifications(devices, title, message, image, type, data) {
     if(devices == undefined || devices == null || devices.length == 0) {
         return
     }
@@ -47,18 +47,22 @@ export function sendNotifications(devices, title, message, image, type) {
     }
 
     var bolt = new Bolt(Config.BOLT_APP_ID)
-    var notification = createNotification(deviceIds, title, message, image, type);
+    var notification = createNotification(deviceIds, title, message, image, type, data);
     bolt.sendNotification(notification)
 }
 
-function createNotification(deviceIds, title, message, image, type) {
+function createNotification(deviceIds, title, message, image, type, data) {
+    if(data == undefined) {
+        data = {}
+    }
     return {
         deviceIds: deviceIds,
         data: {
             title: title,
             message: message,
             image: image,
-            type: type
+            type: type,
+            data: data
         }
     }
 }

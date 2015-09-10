@@ -195,9 +195,7 @@ export function* changeAppStatus(appPackage, status) {
     if(status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name)
         var message = MESSAGES.APP_REJECTED_MESSAGE
-        NotificationsHandler.sendNotifications(
-            devices, title, message, app.icon,
-            NOTIFICATION_TYPES.APP_REJECTED)
+        NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED)
 
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){

@@ -72,13 +72,13 @@ function* create(comment, appId, userId, parentId) {
             if (mentionedUser !== null) {
                 var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username);
                 var message = comment.text;
-                NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_MENTIONED);
+                NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_MENTIONED, { appId: appId });
             }
         }
     } else {
         var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name);
         var message = comment.text;
-        NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_COMMENT);
+        NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_COMMENT, { appId: appId });
     }
 
     return createdCommentObject;
