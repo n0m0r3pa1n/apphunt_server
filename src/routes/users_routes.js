@@ -5,7 +5,7 @@ import * as UsersHandler from '../handlers/users_handler.js'
 var UserScoreHandler = require('../handlers/user_score_handler')
 var CommentsHandler = require('../handlers/comments_handler')
 var User = require('../models').User
-var loginTypes = require('../config/config').LOGIN_TYPES
+var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER
 
 import * as AppsHandler from '../handlers/apps_handler.js'
 import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
@@ -23,7 +23,7 @@ var routes = [
             validate: {
                 query: {
                     q: Joi.string().optional(),
-                    loginType:  Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional(),
+                    loginType:  Joi.array().items(Joi.string()).valid(_.values(LOGIN_TYPES_FILTER)).optional(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional()
                 }
@@ -210,7 +210,7 @@ var routes = [
                     email: Joi.string().required(),
                     profilePicture: Joi.string().optional(),
                     notificationId: Joi.string().optional(),
-                    loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
+                    loginType: Joi.array().items(Joi.string()).valid(_.values(LOGIN_TYPES_FILTER)).required(),
                     locale: Joi.string().optional(),
                     coverPicture: Joi.string().optional(),
                     appVersion: Joi.string().optional(),

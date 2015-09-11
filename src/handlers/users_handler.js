@@ -3,7 +3,7 @@ var Boom = require('boom')
 var Bolt = require("bolt-js")
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
-var LOGIN_TYPES = CONFIG.LOGIN_TYPES
+var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
 
 var User = require('../models').User
 var Device = require('../models').Device
@@ -26,7 +26,12 @@ export function* get(q, loginType, page, pageSize) {
     }
 
     if(loginType !== undefined){
-        where.loginType = loginType
+        if(loginType == LOGIN_TYPES_FILTER.Real) {
+            where.loginType = {$ne: LOGIN_TYPES_FILTER.Fake}
+        } else {
+            where.loginType = loginType
+        }
+
     }
 
     var query = User.find(where)
@@ -74,7 +79,7 @@ export function* create(user, notificationId) {
     var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
     if (!currUser) {
         currUser = yield User.create(user)
-        if(currUser.loginType == LOGIN_TYPES.Twitter) {
+        if(currUser.loginType == LOGIN_TYPES_FILTER.Twitter) {
             postTweet(currUser)
             followUser(currUser)
         }

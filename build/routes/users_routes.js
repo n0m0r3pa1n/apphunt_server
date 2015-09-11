@@ -21,7 +21,7 @@ Joi.objectId = require('joi-objectid');
 var UserScoreHandler = require('../handlers/user_score_handler');
 var CommentsHandler = require('../handlers/comments_handler');
 var User = require('../models').User;
-var loginTypes = require('../config/config').LOGIN_TYPES;
+var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER;
 
 var routes = [{
     method: 'GET',
@@ -35,7 +35,7 @@ var routes = [{
         validate: {
             query: {
                 q: Joi.string().optional(),
-                loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).optional(),
+                loginType: Joi.array().items(Joi.string()).valid(_.values(LOGIN_TYPES_FILTER)).optional(),
                 page: Joi.number().integer().min(1).optional(),
                 pageSize: Joi.number().integer().min(1).optional()
             }
@@ -214,7 +214,7 @@ var routes = [{
                 email: Joi.string().required(),
                 profilePicture: Joi.string().optional(),
                 notificationId: Joi.string().optional(),
-                loginType: Joi.array().items(Joi.string()).valid(_.values(loginTypes)).required(),
+                loginType: Joi.array().items(Joi.string()).valid(_.values(LOGIN_TYPES_FILTER)).required(),
                 locale: Joi.string().optional(),
                 coverPicture: Joi.string().optional(),
                 appVersion: Joi.string().optional(),

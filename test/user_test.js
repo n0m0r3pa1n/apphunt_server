@@ -132,6 +132,21 @@ describe("Users", function() {
 		users[0].email.should.equal("poli@abv.bg")
 	})
 
+	it("should get only real users", function*() {
+		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", loginTypes.Fake)
+		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Custom)
+
+		var opts = {
+			method: 'GET',
+			url: '/users?loginType=real'
+		}
+
+		var usersResponse =  yield Server.injectThen(opts);
+		var users = usersResponse.result.users
+		users.length.should.equal(1)
+		users[0].email.should.equal("loli@abv.bg")
+	})
+
 	it("should create user with device", function*() {
 		var opts = {
 			method: 'POST',

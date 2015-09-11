@@ -46,6 +46,15 @@ var loginTypes = {
     Fake: "fake"
 };
 
+var loginTypesFilter = {
+    Facebook: "facebook",
+    GooglePlus: "google-plus",
+    Twitter: "twitter",
+    Custom: "custom",
+    Fake: "fake",
+    Real: "real"
+};
+
 var notificationTypes = {
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
@@ -86,6 +95,7 @@ module.exports.COLLECTION_STATUSES = collectionStatuses;
 module.exports.APP_STATUSES_FILTER = appStatusesFilter;
 module.exports.NOTIFICATION_TYPES = notificationTypes;
 module.exports.LOGIN_TYPES = loginTypes;
+module.exports.LOGIN_TYPES_FILTER = loginTypesFilter;
 module.exports.BITLY = bitly;
 module.exports.BOLT_APP_ID = boltAppId;
 module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH;
