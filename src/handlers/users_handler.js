@@ -39,6 +39,10 @@ export function* get(q, loginType, page, pageSize) {
     return yield PaginationHandler.getPaginatedResultsWithName(query, "users", page, pageSize);
 }
 
+export function getLoginTypes() {
+    return _.values(LOGIN_TYPES_FILTER)
+}
+
 export function* find(userId) {
     return yield User.findById(userId).exec()
 }

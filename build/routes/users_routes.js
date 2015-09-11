@@ -46,6 +46,18 @@ var routes = [{
     }
 }, {
     method: 'GET',
+    path: '/users/logintypes',
+    handler: function handler(req, reply) {
+        reply.co(UsersHandler.getLoginTypes());
+    },
+    config: {
+        validate: {},
+        auth: false,
+        description: 'Get users login types',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
     path: '/users/{userId}',
     handler: function handler(req, reply) {
         reply.co(UsersHandler.getUserProfile(req.params.userId, req.query.fromDate, req.query.toDate));

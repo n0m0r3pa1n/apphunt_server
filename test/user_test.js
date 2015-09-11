@@ -1,9 +1,10 @@
 var should = require('chai').should()
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
+var _ = require('underscore')
 require('./spec_helper')
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
-var loginTypes = require('../build/config/config').LOGIN_TYPES
+var LOGIN_TYPES_FILTER = require('../build/config/config').LOGIN_TYPES_FILTER
 
 describe("Users", function() {
 
@@ -118,8 +119,8 @@ describe("Users", function() {
 	})
 
 	it("should get user by login type", function*() {
-		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", loginTypes.Fake)
-		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Custom)
+		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", LOGIN_TYPES_FILTER.Fake)
+		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", LOGIN_TYPES_FILTER.Custom)
 
 		var opts = {
 			method: 'GET',
@@ -133,8 +134,8 @@ describe("Users", function() {
 	})
 
 	it("should get only real users", function*() {
-		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", loginTypes.Fake)
-		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Custom)
+		var response = yield dbHelper.createUserWithLoginType("poli@abv.bg", LOGIN_TYPES_FILTER.Fake)
+		var response2 = yield dbHelper.createUserWithEmail("loli@abv.bg", LOGIN_TYPES_FILTER.Custom)
 
 		var opts = {
 			method: 'GET',
@@ -165,7 +166,7 @@ describe("Users", function() {
 	});
 
 	it("should update user device id", function*() {
-		var userResponse = yield dbHelper.createUserWithEmail("loli@abv.bg", loginTypes.Twitter)
+		var userResponse = yield dbHelper.createUserWithEmail("loli@abv.bg", LOGIN_TYPES_FILTER.Twitter)
 
 		var opts = {
 			method: 'PUT',
@@ -179,9 +180,21 @@ describe("Users", function() {
 		response.statusCode.should.equal(STATUS_CODES.OK)
 	});
 
+    it("should get available user login types", function*() {
+        var opts = {
+            method: 'GET',
+            url: '/v1/users/logintypes',
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        var loginFilterValues= _.values(LOGIN_TYPES_FILTER)
+        _.isEmpty(_.difference(loginFilterValues, response.result)).should.eq(true)
+    });
+
 	it("should get users with score", function*() {
-		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", loginTypes.Twitter)).result.id
-		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", loginTypes.Fake)).result.id
+		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", LOGIN_TYPES_FILTER.Twitter)).result.id
+		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", LOGIN_TYPES_FILTER.Fake)).result.id
 		var appId = (yield dbHelper.createApp(user1Id)).result.id
 		var app2Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.ds")).result.id
 		var app3Id = (yield dbHelper.createAppWithPackage(user2Id, "dsdzfsd.kor")).result.id

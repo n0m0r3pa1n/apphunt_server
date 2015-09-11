@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 exports.get = get;
+exports.getLoginTypes = getLoginTypes;
 exports.find = find;
 exports.getUserDevices = getUserDevices;
 exports.getDevicesForAllUsers = getDevicesForAllUsers;
@@ -62,6 +63,10 @@ function* get(q, loginType, page, pageSize) {
     var query = User.find(where);
 
     return yield PaginationHandler.getPaginatedResultsWithName(query, 'users', page, pageSize);
+}
+
+function getLoginTypes() {
+    return _.values(LOGIN_TYPES_FILTER);
 }
 
 function* find(userId) {
