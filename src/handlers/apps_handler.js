@@ -143,6 +143,37 @@ function getFormattedCategory(category) {
     return finalCategory;
 }
 
+function* getPopulatedApp(app, userId) {
+    app = app.toObject()
+    app.isFavourite = false;
+    if (userId !== undefined) {
+        app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId)
+        for (let favouritedBy of app.favouritedBy) {
+            if (String(favouritedBy) == String(userId)) {
+                app.isFavourite = true;
+                break;
+            }
+        }
+    }
+
+    let categories = []
+    for (let category of app.categories) {
+        categories.push(category.name)
+    }
+
+    app.tags = yield TagsHandler.getTagsForApp(app._id)
+    app.categories = categories
+
+    return app;
+}
+export function* getRandomApp(userId) {
+    let count = yield App.count()
+    let rand = Math.floor(Math.random() * count);
+
+    let app = yield App.findOne().skip(rand).exec()
+    return yield getPopulatedApp(app, userId);
+}
+
 export function* update(app) {
     var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
     if(!existingApp) {
@@ -308,28 +339,8 @@ export function* getApp(appId, userId) {
     if(!app) {
         return Boom.notFound('App can not be found!')
     }
-    app = app.toObject()
-    app.isFavourite = false;
-    if(userId !== undefined) {
-        app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId)
-        for(let favouritedBy of app.favouritedBy) {
-            if(String(favouritedBy) == String(userId)) {
-                app.isFavourite = true;
-                break;
-            }
-        }
-    }
 
-    let categories = []
-    for(let category of app.categories) {
-        categories.push(category.name)
-    }
-
-    app.tags = yield TagsHandler.getTagsForApp(app._id)
-    app.categories = categories
-
-
-    return app
+    return yield getPopulatedApp(app, userId)
 }
 
 export function* getFavouriteAppsCount(userId) {

@@ -152,6 +152,22 @@ var routes = [{
         tags: ['api']
     }
 }, {
+    method: 'GET',
+    path: '/apps/random',
+    handler: function handler(req, reply) {
+        reply.co(AppsHandler.getRandomApp(req.query.userId));
+    },
+    config: {
+        validate: {
+            query: {
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false,
+        description: 'Get random app',
+        tags: ['api']
+    }
+}, {
     method: 'POST',
     path: '/apps/actions/filter',
     handler: function handler(req, reply) {

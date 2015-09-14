@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 exports.create = create;
+exports.getRandomApp = getRandomApp;
 exports.update = update;
 exports.deleteApp = deleteApp;
 exports.changeAppStatus = changeAppStatus;
@@ -169,6 +170,80 @@ function getFormattedCategory(category) {
     return finalCategory;
 }
 
+function* getPopulatedApp(app, userId) {
+    app = app.toObject();
+    app.isFavourite = false;
+    if (userId !== undefined) {
+        app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId);
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = app.favouritedBy[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var favouritedBy = _step.value;
+
+                if (String(favouritedBy) == String(userId)) {
+                    app.isFavourite = true;
+                    break;
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator['return']) {
+                    _iterator['return']();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+    }
+
+    var categories = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = app.categories[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var category = _step2.value;
+
+            categories.push(category.name);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    app.tags = yield TagsHandler.getTagsForApp(app._id);
+    app.categories = categories;
+
+    return app;
+}
+
+function* getRandomApp(userId) {
+    var count = yield App.count();
+    var rand = Math.floor(Math.random() * count);
+
+    var app = yield App.findOne().skip(rand).exec();
+    return yield getPopulatedApp(app, userId);
+}
+
 function* update(app) {
     var existingApp = yield App.findOne({ 'package': app['package'] }).populate('developer createdBy').exec();
     if (!existingApp) {
@@ -311,13 +386,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
 
     try {
-        for (var _iterator = appsToBeAdded[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var app = _step.value;
+        for (var _iterator3 = appsToBeAdded[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var app = _step3.value;
 
             var parsedApp = null;
             try {
@@ -329,73 +404,6 @@ function* filterApps(packages, platform) {
             if (parsedApp != null) {
                 packagesResult.push(app);
             }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return { 'availablePackages': packagesResult, 'existingPackages': existingAppsPackages };
-}
-
-function* getApp(appId, userId) {
-    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec();
-    if (!app) {
-        return Boom.notFound('App can not be found!');
-    }
-    app = app.toObject();
-    app.isFavourite = false;
-    if (userId !== undefined) {
-        app.hasVoted = VotesHandler.hasUserVotedForApp(app, userId);
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-            for (var _iterator2 = app.favouritedBy[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                var favouritedBy = _step2.value;
-
-                if (String(favouritedBy) == String(userId)) {
-                    app.isFavourite = true;
-                    break;
-                }
-            }
-        } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-                    _iterator2['return']();
-                }
-            } finally {
-                if (_didIteratorError2) {
-                    throw _iteratorError2;
-                }
-            }
-        }
-    }
-
-    var categories = [];
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
-
-    try {
-        for (var _iterator3 = app.categories[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var category = _step3.value;
-
-            categories.push(category.name);
         }
     } catch (err) {
         _didIteratorError3 = true;
@@ -412,10 +420,16 @@ function* getApp(appId, userId) {
         }
     }
 
-    app.tags = yield TagsHandler.getTagsForApp(app._id);
-    app.categories = categories;
+    return { 'availablePackages': packagesResult, 'existingPackages': existingAppsPackages };
+}
 
-    return app;
+function* getApp(appId, userId) {
+    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec();
+    if (!app) {
+        return Boom.notFound('App can not be found!');
+    }
+
+    return yield getPopulatedApp(app, userId);
 }
 
 function* getFavouriteAppsCount(userId) {

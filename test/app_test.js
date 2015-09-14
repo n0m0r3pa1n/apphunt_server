@@ -154,6 +154,23 @@ describe("Apps", function () {
         paginatedResult.totalPages.should.eq(2)
     });
 
+    it("should get random app", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createApp(userResponse.result.id)
+        yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps/random'
+        }
+
+        var response = yield Server.injectThen(opts);
+        expect(response.result._id).to.exist()
+
+
+
+    })
+
     it("should get apps by date", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createApp(userResponse.result.id)
