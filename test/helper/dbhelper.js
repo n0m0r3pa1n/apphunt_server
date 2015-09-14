@@ -273,6 +273,28 @@ function getCollection(collectionId) {
     return Server.injectThen(opts)
 }
 
+function followUser(followingId, followerId) {
+    var opts = {
+        method: "POST",
+        url: '/users/' + followingId + "/followers",
+        payload: {
+            followerId: followerId
+        }
+    }
+    return Server.injectThen(opts)
+}
+
+function unfollowUser(followingId, followerId) {
+    var opts = {
+        method: "DELETE",
+        url: '/users/' + followingId + "/followers",
+        payload: {
+            followerId: followerId
+        }
+    }
+    return Server.injectThen(opts)
+}
+
 function createBanner(url) {
     var opts = {
         method: 'POST',
@@ -341,6 +363,8 @@ module.exports.makeCollectionPublic = makeCollectionPublic
 module.exports.approveApp = approveApp
 module.exports.createFourAppsWithIds = createAppsIdsList
 module.exports.favouriteApp = favouriteApp
+module.exports.followUser = followUser
+module.exports.unfollowUser = unfollowUser
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

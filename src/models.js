@@ -46,6 +46,13 @@ var userSchema = new Schema(
     }
 )
 
+var  followerSchema = new  Schema(
+    {
+        following: {type: Schema.Types.ObjectId, ref: 'User'},
+        follower: {type: Schema.Types.ObjectId, ref: 'User'}
+    }
+)
+
 var deviceSchema = new Schema({
     notificationsEnabled: { type:Boolean, default: true},
     notificationId: String
@@ -176,6 +183,7 @@ appCategorySchema.plugin(Timestamps)
 developerSchema.plugin(Timestamps)
 appsCollectionSchema.plugin(Timestamps)
 usersCollectionSchema.plugin(Timestamps)
+followerSchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate)
 userSchema.plugin(DeepPopulate)
@@ -184,6 +192,7 @@ appsCollectionSchema.plugin(DeepPopulate)
 usersCollectionSchema.plugin(DeepPopulate)
 
 module.exports.User = Mongoose.model('User', userSchema)
+module.exports.Follower = Mongoose.model('Follower', followerSchema)
 module.exports.App = Mongoose.model('App', appSchema)
 module.exports.Vote = Mongoose.model('Vote', voteSchema)
 module.exports.Comment = Mongoose.model('Comment', commentSchema)

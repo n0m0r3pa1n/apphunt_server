@@ -1,6 +1,6 @@
 var _ = require("underscore")
 var Joi = require('joi')
-Joi.objectId = require('joi-objectid');
+Joi.objectId = require('joi-objectid')
 import * as UsersHandler from '../handlers/users_handler.js'
 var UserScoreHandler = require('../handlers/user_score_handler')
 var CommentsHandler = require('../handlers/comments_handler')
