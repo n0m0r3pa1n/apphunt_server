@@ -7,6 +7,7 @@ exports.get = get;
 exports.getLoginTypes = getLoginTypes;
 exports.find = find;
 exports.getUserDevices = getUserDevices;
+exports.filterExistingUsers = filterExistingUsers;
 exports.getDevicesForAllUsers = getDevicesForAllUsers;
 exports.getUserProfile = getUserProfile;
 exports.create = create;
@@ -80,6 +81,12 @@ function* getUserDevices(userId) {
     }
 
     return user.devices;
+}
+
+function* filterExistingUsers(_ref) {
+    var emails = _ref.emails;
+
+    return yield User.find({ email: { $in: emails } }).exec();
 }
 
 function* getDevicesForAllUsers() {

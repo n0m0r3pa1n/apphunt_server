@@ -46,6 +46,22 @@ var routes = [{
     }
 }, {
     method: 'GET',
+    path: '/users/actions/filter',
+    handler: function handler(req, reply) {
+        reply.co(UsersHandler.filterExistingUsers(req.query));
+    },
+    config: {
+        validate: {
+            query: {
+                emails: Joi.array().items(Joi.string()).required()
+            }
+        },
+        auth: false,
+        description: 'Filter only existing user emails',
+        tags: ['api']
+    }
+}, {
+    method: 'GET',
     path: '/users/logintypes',
     handler: function handler(req, reply) {
         reply.co(UsersHandler.getLoginTypes());

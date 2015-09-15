@@ -192,6 +192,19 @@ describe("Users", function() {
         _.isEmpty(_.difference(loginFilterValues, response.result)).should.eq(true)
     });
 
+	it("should return only existing users by email", function*() {
+        yield dbHelper.createUser()
+        var testId = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
+        yield dbHelper.createUser("test@test.com")
+		var opts = {
+			method: 'GET',
+			url: '/v1/users/actions/filter?emails[]=test@test.co'
+		}
+
+		var response = yield Server.injectThen(opts)
+		response.result[0].id.should.eq(String(testId))
+	});
+
 	it("should get users with score", function*() {
 		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", LOGIN_TYPES_FILTER.Twitter)).result.id
 		var user2Id = (yield dbHelper.createUserWithLoginType("lolisdss@abv.bg", LOGIN_TYPES_FILTER.Fake)).result.id

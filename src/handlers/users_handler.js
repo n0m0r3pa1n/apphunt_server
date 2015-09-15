@@ -56,6 +56,10 @@ export function* getUserDevices(userId) {
     return user.devices
 }
 
+export function* filterExistingUsers({emails}) {
+    return yield User.find({ email: { $in: emails } } ).exec()
+}
+
 
 export function* getDevicesForAllUsers() {
     return yield Device.find({}).exec()
