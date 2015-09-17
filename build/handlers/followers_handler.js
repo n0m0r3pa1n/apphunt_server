@@ -18,11 +18,17 @@ var _users_handlerJs = require('./users_handler.js');
 
 var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 
+var _history_handlerJs = require('./history_handler.js');
+
+var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
+
 var Boom = require('boom');
 
 var Mongoose = require('mongoose');
 var User = require('../models').User;
 var Follower = require('../models').Follower;
+
+var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
 
 function* getFollowers(userId, page, pageSize) {
     var query = Follower.find({ following: userId }).select('-_id follower').populate('follower');
@@ -102,6 +108,7 @@ function* followUser(followingId, followerId) {
     }
 
     yield Follower.findOneOrCreate({ following: followingId, follower: followerId }, { following: followingId, follower: followerId });
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId });
     return Boom.OK();
 }
 

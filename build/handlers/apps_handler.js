@@ -20,6 +20,10 @@ exports.getFavouriteApps = getFavouriteApps;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
+var _history_handlerJs = require('./history_handler.js');
+
+var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
+
 var _pagination_handlerJs = require('./pagination_handler.js');
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
@@ -50,6 +54,7 @@ var APP_STATUSES = CONFIG.APP_STATUSES;
 var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER;
 var APP_HUNT_TWITTER_HANDLE = CONFIG.APP_HUNT_TWITTER_HANDLE;
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
 
@@ -295,7 +300,7 @@ function* changeAppStatus(appPackage, status) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name);
         var message = MESSAGES.APP_REJECTED_MESSAGE;
         NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED);
-
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_REJECTED, createdBy._id);
         yield deleteApp(appPackage);
     } else if (status == APP_STATUSES.APPROVED) {
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
@@ -320,6 +325,7 @@ function* changeAppStatus(appPackage, status) {
             var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
 
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, { appId: app._id });
         }
     }
 
@@ -467,6 +473,8 @@ function* favourite(appId, userId) {
     }
     app.favouritedBy.push(userId);
     yield app.save();
+
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: appId });
 
     return Boom.OK();
 }

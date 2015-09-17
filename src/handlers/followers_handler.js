@@ -6,6 +6,9 @@ var Follower = require('../models').Follower
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as UsersHandler from './users_handler.js'
+import * as HistoryHandler from './history_handler.js'
+
+var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES
 
 
 export function* getFollowers(userId, page, pageSize) {
@@ -44,6 +47,7 @@ export function* followUser(followingId, followerId) {
     }
 
     yield Follower.findOneOrCreate({following: followingId, follower: followerId},{following: followingId, follower: followerId})
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, {followingId: followingId})
     return Boom.OK()
 }
 

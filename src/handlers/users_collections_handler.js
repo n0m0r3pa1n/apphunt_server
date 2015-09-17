@@ -7,9 +7,12 @@ var App = models.App
 var Vote = models.Vote
 var Comment = models.Comment
 
+var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES
+
 var UserScoreHandler = require('./user_score_handler')
 var VotesHandler = require('./votes_handler')
 import * as PaginationHandler from './pagination_handler.js'
+import * as HistoryHandler from './history_handler.js'
 
 function* create(usersCollection, userId) {
     usersCollection.createdBy = yield User.findById(userId).exec()
@@ -28,6 +31,7 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
         if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
             let result = yield UserScoreHandler.getUserDetails(userId, fromDate, toDate)
             collection.usersDetails.push(result)
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId, {collectionId: collectionId})
         }
     }
     return yield collection.save()

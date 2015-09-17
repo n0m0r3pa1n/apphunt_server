@@ -9,6 +9,8 @@ var appStatuses = Config.APP_STATUSES
 var tagTypes = Config.TAG_TYPES
 var collectionStatuses = Config.COLLECTION_STATUSES
 var loginTypes = Config.LOGIN_TYPES
+var historyEventTypes = Config.HISTORY_EVENT_TYPES
+
 var _ = require("underscore")
 
 Mongoose.plugin(function(schema) {
@@ -168,10 +170,16 @@ var appVersionSchema = new Schema(
     }
 )
 
-var tagsSchema = new Schema({
+var tagSchema = new Schema({
     name: {type: String},
     type: {type: String, enum: _.values(tagTypes), default: tagTypes.APPLICATION},
     itemIds: [{type: Schema.Types.ObjectId}]
+})
+
+var historySchema = new Schema({
+    type: {type: String, enum: _.values(historyEventTypes)},
+    user: {type: Schema.Types.ObjectId, ref: 'User'},
+    params: {type: Schema.Types.Mixed}
 })
 
 userSchema.plugin(Timestamps)
@@ -184,6 +192,7 @@ developerSchema.plugin(Timestamps)
 appsCollectionSchema.plugin(Timestamps)
 usersCollectionSchema.plugin(Timestamps)
 followerSchema.plugin(Timestamps)
+historySchema.plugin(Timestamps)
 
 appSchema.plugin(DeepPopulate)
 userSchema.plugin(DeepPopulate)
@@ -204,4 +213,5 @@ module.exports.AppsCollection = Mongoose.model('AppsCollection', appsCollectionS
 module.exports.UsersCollection = Mongoose.model('UsersCollection', usersCollectionSchema)
 module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionBannerSchema)
 module.exports.AppVersion = Mongoose.model('AppVersion', appVersionSchema)
-module.exports.Tag = Mongoose.model('Tag', tagsSchema)
+module.exports.Tag = Mongoose.model('Tag', tagSchema)
+module.exports.History = Mongoose.model('History', historySchema)

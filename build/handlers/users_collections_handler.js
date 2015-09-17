@@ -6,6 +6,10 @@ var _pagination_handlerJs = require("./pagination_handler.js");
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
+var _history_handlerJs = require("./history_handler.js");
+
+var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
+
 var _ = require("underscore");
 var Boom = require("boom");
 var models = require("../models");
@@ -14,6 +18,8 @@ var User = models.User;
 var App = models.App;
 var Vote = models.Vote;
 var Comment = models.Comment;
+
+var HISTORY_EVENT_TYPES = require("../config/config").HISTORY_EVENT_TYPES;
 
 var UserScoreHandler = require("./user_score_handler");
 var VotesHandler = require("./votes_handler");
@@ -34,6 +40,7 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
         if (!isUserAlreadyAdded(collection.usersDetails, userId)) {
             var result = yield UserScoreHandler.getUserDetails(userId, fromDate, toDate);
             collection.usersDetails.push(result);
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId, { collectionId: collectionId });
         }
     }
     return yield collection.save();

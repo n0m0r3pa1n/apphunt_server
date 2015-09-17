@@ -60,6 +60,21 @@ var notificationTypes = {
     GENERIC: "generic"
 }
 
+var historyEventTypes = {
+    APP_APPROVED: "appApproved",
+    APP_REJECTED: "appRejected",
+    APP_FAVOURITED: "appFavourited",
+
+    USER_MENTIONED: "userMentioned",
+    USER_FOLLOWED: "userFollowed",
+    USER_COMMENT: "userComment",
+    USER_IN_TOP_HUNTERS: "userInTopHunters",
+
+    COLLECTION_CREATED: "collectionCreated",
+    COLLECTION_FAVOURITED: "collectionFavourited",
+    COLLECTION_UPDATED: "collectionUpdated"
+}
+
 var bitly =  {
         url: "https://api-ssl.BITLY.com/v3/user/link_save?",
         user: "naughtyspirit",
@@ -87,6 +102,7 @@ module.exports.TAG_TYPES = tagTypes
 module.exports.COLLECTION_STATUSES = collectionStatuses
 module.exports.APP_STATUSES_FILTER = appStatusesFilter
 module.exports.NOTIFICATION_TYPES = notificationTypes
+module.exports.HISTORY_EVENT_TYPES = historyEventTypes
 module.exports.LOGIN_TYPES = loginTypes
 module.exports.LOGIN_TYPES_FILTER = loginTypesFilter
 module.exports.BITLY = bitly

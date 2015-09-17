@@ -25,6 +25,10 @@ var _handlersTags_handlerJs = require("../handlers/tags_handler.js");
 
 var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
 
+var _history_handlerJs = require("./history_handler.js");
+
+var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
+
 var _pagination_handlerJs = require("./pagination_handler.js");
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
@@ -46,6 +50,7 @@ var VotesHandler = require("./votes_handler");
 var Config = require("../config/config");
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES;
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION;
+var HISTORY_EVENT_TYPES = Config.HISTORY_EVENT_TYPES;
 
 function* create(appsCollection, tags, userId) {
     var user = yield User.findById(userId).exec();
@@ -103,6 +108,12 @@ function* update(collectionId, newCollection, userId) {
 
     collection.apps = newCollection.apps;
     if (collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
+        //TODO: Check if logic is correct
+        if (collection.status == COLLECTION_STATUSES.DRAFT) {
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, { collectionId: collectionId });
+        } else {
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, { collectionId: collectionId });
+        }
         collection.status = COLLECTION_STATUSES.PUBLIC;
     } else {
         collection.status = COLLECTION_STATUSES.DRAFT;
@@ -136,6 +147,8 @@ function* favourite(collectionId, userId) {
     }
     collection.favouritedBy.push(userId);
     yield collection.save();
+
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, userId, { collectionId: collection._id });
 
     return Boom.OK();
 }

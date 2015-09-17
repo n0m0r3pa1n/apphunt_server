@@ -8,10 +8,12 @@ var CollectionBanner = models.CollectionBanner
 
 var VotesHandler = require('./votes_handler')
 import * as TagsHandler from '../handlers/tags_handler.js'
+import * as HistoryHandler from './history_handler.js'
 
 var Config = require('../config/config')
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
+var HISTORY_EVENT_TYPES = Config.HISTORY_EVENT_TYPES
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as UserHandler from './users_handler.js'
@@ -51,6 +53,12 @@ export function* update(collectionId, newCollection, userId) {
 
     collection.apps = newCollection.apps
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
+        //TODO: Check if logic is correct
+        if(collection.status == COLLECTION_STATUSES.DRAFT) {
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, {collectionId: collectionId})
+        } else {
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, {collectionId: collectionId})
+        }
         collection.status = COLLECTION_STATUSES.PUBLIC
     } else {
         collection.status = COLLECTION_STATUSES.DRAFT
@@ -84,6 +92,8 @@ export function* favourite(collectionId, userId) {
     }
     collection.favouritedBy.push(userId);
     yield collection.save()
+
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, userId, {collectionId: collection._id})
 
     return Boom.OK();
 }

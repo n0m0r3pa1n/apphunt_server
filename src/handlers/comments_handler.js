@@ -14,8 +14,10 @@ var VotesHandler = require('./votes_handler')
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as NotificationsHandler  from './notifications_handler.js'
-
 import * as AppsHandler from './apps_handler.js'
+import * as HistoryHandler from './history_handler.js'
+
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec()
@@ -58,6 +60,7 @@ function* create(comment, appId, userId, parentId) {
                 var message = comment.text
                 NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED, {appId: appId})
+                yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, {mentionedUserId: mentionedUser._id, appId: appId})
             }
         }
     } else {
@@ -65,6 +68,7 @@ function* create(comment, appId, userId, parentId) {
             var message = comment.text
             NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture,
                 NOTIFICATION_TYPES.USER_COMMENT, {appId: appId})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, userId, {appId: appId})
     }
 
     return createdCommentObject
