@@ -14,6 +14,7 @@ var VotesHandler = require('./votes_handler')
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as NotificationsHandler  from './notifications_handler.js'
+import * as FollowersHandler from './followers_handler.js'
 import * as AppsHandler from './apps_handler.js'
 import * as HistoryHandler from './history_handler.js'
 
@@ -40,15 +41,15 @@ function* create(comment, appId, userId, parentId) {
     comment.parent = parentComment
 
     var createdComment = yield Comment.create(comment)
-	var createdCommentObject = createdComment.toObject();
-	createdCommentObject.id = String(createdCommentObject._id);
-	createdCommentObject.hasVoted = false;
+    var createdCommentObject = createdComment.toObject();
+    createdCommentObject.id = String(createdCommentObject._id);
+    createdCommentObject.hasVoted = false;
 
     if(parentComment != null) {
         parentComment.children.push(createdComment)
         parentComment.save()
 
-		createdCommentObject.parent.id = String(createdCommentObject.parent._id);
+        createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
     if(isConversationComment(comment.text)) {
@@ -64,11 +65,16 @@ function* create(comment, appId, userId, parentId) {
             }
         }
     } else {
-            var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name)
-            var message = comment.text
+        var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name)
+        var message = comment.text
+        let isFollowing = yield FollowersHandler.isFollowing(app.createdBy._id, userId)
+        if(isFollowing) {
             NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture,
-                NOTIFICATION_TYPES.USER_COMMENT, {appId: appId})
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, userId, {appId: appId})
+                NOTIFICATION_TYPES.FOLLOWING_COMMENTED_APP, {appId: appId})
+        }
+
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, userId, {appId: appId})
+
     }
 
     return createdCommentObject
@@ -111,8 +117,8 @@ function* get(appId, userId, page,  pageSize) {
 }
 
 function* getCount(appId) {
-	var where = {app: appId}
-	return yield Comment.count(where).exec()
+    var where = {app: appId}
+    return yield Comment.count(where).exec()
 }
 
 function removeVotesField(comments) {

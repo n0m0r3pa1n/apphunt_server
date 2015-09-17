@@ -63,7 +63,7 @@ describe("Notifications", function() {
                 users: [userId],
                 title: "Test",
                 message: "Notifications",
-                type: Config.NOTIFICATION_TYPES.USER_COMMENT,
+                type: Config.NOTIFICATION_TYPES.USER_MENTIONED,
                 image: ""
             }
         }

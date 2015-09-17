@@ -36,6 +36,14 @@ var _notifications_handlerJs = require('./notifications_handler.js');
 
 var NotificationsHandler = _interopRequireWildcard(_notifications_handlerJs);
 
+var _followers_handlerJs = require('./followers_handler.js');
+
+var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
+
+var _users_handlerJs = require('./users_handler.js');
+
+var UsersHandler = _interopRequireWildcard(_users_handlerJs);
+
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
 var _ = require('underscore');
@@ -102,6 +110,9 @@ function* create(app, tags, userId) {
     }
 
     var user = yield User.findOne({ _id: userId }).exec();
+    if (user == null) {
+        return Boom.notFound('Non-existing user');
+    }
 
     app.status = APP_STATUSES.WAITING;
     app.createdBy = user;
@@ -254,7 +265,6 @@ function* update(app) {
     if (!existingApp) {
         return Boom.notFound('Non-existing app');
     }
-    var isAppApproved = existingApp.status == APP_STATUSES.WAITING && app.status == APP_STATUSES.APPROVED;
 
     existingApp.createdAt = app.createdAt;
     existingApp.description = app.description;
@@ -296,6 +306,7 @@ function* changeAppStatus(appPackage, status) {
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec();
     var devices = createdBy.devices;
+
     if (status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name);
         var message = MESSAGES.APP_REJECTED_MESSAGE;
@@ -304,28 +315,19 @@ function* changeAppStatus(appPackage, status) {
         yield deleteApp(appPackage);
     } else if (status == APP_STATUSES.APPROVED) {
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
-        var links = [];
+
         if (isAppApproved) {
-            links = [{
-                url: app.url, platform: 'default'
-            }];
-
-            if (app.platform == PLATFORMS.Android) {
-                links.push({
-                    url: 'market://details?id=' + app['package'],
-                    platform: 'android'
-                });
-            }
-            app.shortUrl = yield UrlsHandler.getShortLink(links);
-
+            yield setAppShortUrl(app);
             postTweet(app, createdBy);
             EmailsHandler.sendEmailToDeveloper(app);
 
-            var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
-            var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
+            var _title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
+            var _message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
 
-            NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
+            NotificationsHandler.sendNotifications(devices, _title, _message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, { appId: app._id });
+
+            yield sendNotificationsToFollowers(createdBy);
         }
     }
 
@@ -333,6 +335,51 @@ function* changeAppStatus(appPackage, status) {
     yield app.save();
 
     return Boom.OK();
+}
+
+function* sendNotificationsToFollowers(createdBy) {
+    var followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers;
+    var devices = [];
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = followers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var follower = _step3.value;
+
+            devices = devices.concat((yield UsersHandler.getDevicesForUser(follower)));
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                _iterator3['return']();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
+            }
+        }
+    }
+
+    NotificationsHandler.sendNotifications(devices, 'Test', 'Test', '', NOTIFICATION_TYPES.FOLLOWING_ADDED_APP);
+}
+
+function* setAppShortUrl(app) {
+    var links = [{
+        url: app.url, platform: 'default'
+    }];
+
+    if (app.platform == PLATFORMS.Android) {
+        links.push({
+            url: 'market://details?id=' + app['package'],
+            platform: 'android'
+        });
+    }
+    app.shortUrl = yield UrlsHandler.getShortLink(links);
 }
 
 function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
@@ -392,13 +439,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
 
     try {
-        for (var _iterator3 = appsToBeAdded[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var app = _step3.value;
+        for (var _iterator4 = appsToBeAdded[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var app = _step4.value;
 
             var parsedApp = null;
             try {
@@ -412,16 +459,16 @@ function* filterApps(packages, platform) {
             }
         }
     } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-                _iterator3['return']();
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                _iterator4['return']();
             }
         } finally {
-            if (_didIteratorError3) {
-                throw _iteratorError3;
+            if (_didIteratorError4) {
+                throw _iteratorError4;
             }
         }
     }
@@ -475,6 +522,12 @@ function* favourite(appId, userId) {
     yield app.save();
 
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: appId });
+    var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
+    if (isFollowing) {
+        NotificationsHandler.sendNotificationsToUsers([app.createdBy], '', '', '', NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
+            appId: appId
+        });
+    }
 
     return Boom.OK();
 }
@@ -541,27 +594,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
 
         try {
-            for (var _iterator4 = apps[i].categories[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                var category = _step4.value;
+            for (var _iterator5 = apps[i].categories[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                var category = _step5.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
+            _didIteratorError5 = true;
+            _iteratorError5 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-                    _iterator4['return']();
+                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                    _iterator5['return']();
                 }
             } finally {
-                if (_didIteratorError4) {
-                    throw _iteratorError4;
+                if (_didIteratorError5) {
+                    throw _iteratorError5;
                 }
             }
         }

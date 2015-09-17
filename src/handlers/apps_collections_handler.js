@@ -10,13 +10,16 @@ var VotesHandler = require('./votes_handler')
 import * as TagsHandler from '../handlers/tags_handler.js'
 import * as HistoryHandler from './history_handler.js'
 
-var Config = require('../config/config')
-var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
-var MIN_APPS_LENGTH_FOR_COLLECTION = Config.MIN_APPS_LENGTH_FOR_COLLECTION
-var HISTORY_EVENT_TYPES = Config.HISTORY_EVENT_TYPES
+var CONFIG = require('../config/config')
+var COLLECTION_STATUSES = CONFIG.COLLECTION_STATUSES
+var MIN_APPS_LENGTH_FOR_COLLECTION = CONFIG.MIN_APPS_LENGTH_FOR_COLLECTION
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as UserHandler from './users_handler.js'
+import * as NotificationsHandler from './notifications_handler.js'
+import * as FollowersHandler from './followers_handler.js'
 
 export function* create(appsCollection, tags, userId) {
     var user = yield User.findById(userId).exec()
@@ -94,6 +97,12 @@ export function* favourite(collectionId, userId) {
     yield collection.save()
 
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, userId, {collectionId: collection._id})
+    let isFollowing = yield FollowersHandler.isFollowing(collection.createdBy, userId)
+    if(isFollowing) {
+        NotificationsHandler.sendNotificationsToUsers([collection.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
+            collectionId: collectionId
+        })
+    }
 
     return Boom.OK();
 }

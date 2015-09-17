@@ -35,7 +35,7 @@ function* getAll() {
     return yield Notification.find({}).exec();
 }
 
-function* sendNotificationsToUsers(userIds, title, message, image, type) {
+function* sendNotificationsToUsers(userIds, title, message, image, type, data) {
     var devices = [];
     if (userIds.length == 0) {
         devices = yield UsersHandler.getDevicesForAllUsers();
@@ -67,7 +67,7 @@ function* sendNotificationsToUsers(userIds, title, message, image, type) {
         }
     }
 
-    sendNotifications(devices, title, message, image, type);
+    sendNotifications(devices, title, message, image, type, data);
 
     return Boom.OK();
 }

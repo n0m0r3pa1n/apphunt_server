@@ -58,11 +58,15 @@ var loginTypesFilter = {
 var notificationTypes = {
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
-    USER_COMMENT: "userComment",
     USER_MENTIONED: "userMentioned",
     TOP_HUNTERS: "topHunters",
     TOP_APPS: "topApps",
-    GENERIC: "generic"
+    GENERIC: "generic",
+    FOLLOWING_ADDED_APP: "followingAddedApp",
+    FOLLOWING_FAVOURITED_APP: "followingFavouritedApp",
+    FOLLOWING_FAVOURITED_COLLECTION: "followingFavouritedCollection",
+    FOLLOWING_COMMENTED_APP: "followingCommentedApp",
+    USER_FOLLOWED: "userFollowed"
 };
 
 var historyEventTypes = {

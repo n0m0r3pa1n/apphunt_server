@@ -29,6 +29,8 @@ import * as HistoryHandler from './history_handler.js'
 import * as PaginationHandler from './pagination_handler.js'
 import * as TagsHandler from './tags_handler.js'
 import * as NotificationsHandler from './notifications_handler.js'
+import * as FollowersHandler from './followers_handler.js'
+import * as UsersHandler from './users_handler.js'
 var DateUtils = require('../utils/date_utils')
 
 var Models = require('../models')
@@ -68,6 +70,9 @@ export function* create(app, tags, userId) {
     }
 
     var user = yield User.findOne({_id: userId}).exec()
+    if(user == null) {
+        return Boom.notFound("Non-existing user")
+    }
 
     app.status = APP_STATUSES.WAITING
     app.createdBy = user
@@ -181,7 +186,6 @@ export function* update(app) {
     if(!existingApp) {
         return Boom.notFound("Non-existing app")
     }
-    var isAppApproved = existingApp.status == APP_STATUSES.WAITING && app.status == APP_STATUSES.APPROVED;
 
     existingApp.createdAt = app.createdAt
     existingApp.description = app.description
@@ -225,6 +229,7 @@ export function* changeAppStatus(appPackage, status) {
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     var devices = createdBy.devices
+
     if(status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name)
         var message = MESSAGES.APP_REJECTED_MESSAGE
@@ -233,28 +238,19 @@ export function* changeAppStatus(appPackage, status) {
         yield deleteApp(appPackage)
     } else if(status == APP_STATUSES.APPROVED){
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
-        var links = []
+
         if(isAppApproved) {
-            links = [{
-                url: app.url, platform: "default"
-            }]
-
-            if(app.platform == PLATFORMS.Android) {
-                links.push({
-                    url: "market://details?id=" + app.package,
-                    platform: "android"
-                })
-            }
-            app.shortUrl = yield UrlsHandler.getShortLink(links)
-
+            yield setAppShortUrl(app);
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
 
-            var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
-            var message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
+            let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
+            let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
 
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id})
+
+            yield sendNotificationsToFollowers(createdBy);
         }
     }
 
@@ -263,6 +259,30 @@ export function* changeAppStatus(appPackage, status) {
     yield app.save()
 
     return Boom.OK()
+}
+
+function* sendNotificationsToFollowers(createdBy) {
+    let followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers
+    let devices = []
+    for (let follower of followers) {
+        devices = devices.concat(yield UsersHandler.getDevicesForUser(follower))
+    }
+
+    NotificationsHandler.sendNotifications(devices, "Test", "Test", "", NOTIFICATION_TYPES.FOLLOWING_ADDED_APP)
+}
+
+function* setAppShortUrl(app) {
+    var links = [{
+        url: app.url, platform: "default"
+    }]
+
+    if (app.platform == PLATFORMS.Android) {
+        links.push({
+            url: "market://details?id=" + app.package,
+            platform: "android"
+        })
+    }
+    app.shortUrl = yield UrlsHandler.getShortLink(links)
 }
 
 export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
@@ -384,6 +404,12 @@ export function* favourite(appId, userId) {
     yield app.save()
 
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {appId: appId})
+    let isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId)
+    if(isFollowing) {
+        NotificationsHandler.sendNotificationsToUsers([app.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
+            appId: appId
+        })
+    }
 
     return Boom.OK();
 }

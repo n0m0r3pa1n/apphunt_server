@@ -60,6 +60,27 @@ export function* filterExistingUsers({emails}) {
     return yield User.find({ email: { $in: emails } } ).exec()
 }
 
+export function* getDeviceIdsForUser(user) {
+    if(user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices')
+    }
+
+    let notificationIds = []
+    for(let device of user.devices) {
+        notificationIds = notificationIds.concat(device.notificationId)
+    }
+
+    return notificationIds
+}
+
+export function* getDevicesForUser(user) {
+    if(user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices')
+    }
+
+    return user.devices
+}
+
 
 export function* getDevicesForAllUsers() {
     return yield Device.find({}).exec()

@@ -15,6 +15,10 @@ var _notifications_handlerJs = require('./notifications_handler.js');
 
 var NotificationsHandler = _interopRequireWildcard(_notifications_handlerJs);
 
+var _followers_handlerJs = require('./followers_handler.js');
+
+var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
+
 var _apps_handlerJs = require('./apps_handler.js');
 
 var AppsHandler = _interopRequireWildcard(_apps_handlerJs);
@@ -85,7 +89,11 @@ function* create(comment, appId, userId, parentId) {
     } else {
         var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name);
         var message = comment.text;
-        NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_COMMENT, { appId: appId });
+        var isFollowing = yield FollowersHandler.isFollowing(app.createdBy._id, userId);
+        if (isFollowing) {
+            NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_COMMENTED_APP, { appId: appId });
+        }
+
         yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, userId, { appId: appId });
     }
 

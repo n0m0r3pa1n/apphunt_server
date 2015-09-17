@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
+exports.isFollowing = isFollowing;
 exports.followUser = followUser;
 exports.unfollowUser = unfollowUser;
 
@@ -22,15 +23,24 @@ var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
+var _notifications_handlerJs = require('./notifications_handler.js');
+
+var NotificationsHandler = _interopRequireWildcard(_notifications_handlerJs);
+
 var Boom = require('boom');
 
 var Mongoose = require('mongoose');
 var User = require('../models').User;
 var Follower = require('../models').Follower;
 
-var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
+var CONFIG = require('../config/config');
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
+var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
 
-function* getFollowers(userId, page, pageSize) {
+function* getFollowers(userId) {
+    var page = arguments[1] === undefined ? 0 : arguments[1];
+    var pageSize = arguments[2] === undefined ? 0 : arguments[2];
+
     var query = Follower.find({ following: userId }).select('-_id follower').populate('follower');
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'followers', page, pageSize);
     var followers = [];
@@ -96,6 +106,10 @@ function* getFollowing(userId, page, pageSize) {
     return result;
 }
 
+function* isFollowing(user1Id, user2Id) {
+    return (yield Follower.count({ following: user2Id, follower: user1Id }).exec()) > 0;
+}
+
 function* followUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
@@ -108,6 +122,7 @@ function* followUser(followingId, followerId) {
     }
 
     yield Follower.findOneOrCreate({ following: followingId, follower: followerId }, { following: followingId, follower: followerId });
+    NotificationsHandler.sendNotificationsToUsers([followingId], '', '', '', NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId });
     return Boom.OK();
 }

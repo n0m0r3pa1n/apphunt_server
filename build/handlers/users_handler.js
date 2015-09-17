@@ -8,6 +8,8 @@ exports.getLoginTypes = getLoginTypes;
 exports.find = find;
 exports.getUserDevices = getUserDevices;
 exports.filterExistingUsers = filterExistingUsers;
+exports.getDeviceIdsForUser = getDeviceIdsForUser;
+exports.getDevicesForUser = getDevicesForUser;
 exports.getDevicesForAllUsers = getDevicesForAllUsers;
 exports.getUserProfile = getUserProfile;
 exports.create = create;
@@ -87,6 +89,48 @@ function* filterExistingUsers(_ref) {
     var emails = _ref.emails;
 
     return yield User.find({ email: { $in: emails } }).exec();
+}
+
+function* getDeviceIdsForUser(user) {
+    if (user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices');
+    }
+
+    var notificationIds = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = user.devices[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var device = _step.value;
+
+            notificationIds = notificationIds.concat(device.notificationId);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return notificationIds;
+}
+
+function* getDevicesForUser(user) {
+    if (user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices');
+    }
+
+    return user.devices;
 }
 
 function* getDevicesForAllUsers() {
