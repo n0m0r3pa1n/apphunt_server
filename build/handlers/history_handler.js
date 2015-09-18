@@ -59,7 +59,7 @@ function* getHistory(userId, date) {
         $in: [HISTORY_EVENT_TYPES.APP_APPROVED, HISTORY_EVENT_TYPES.APP_REJECTED]
     };
 
-    var userEvents = yield History.find(where).exec();
+    var userEvents = yield History.find(where).populate('user').exec();
     var results = [].concat(_toConsumableArray(userEvents));
     results = results.concat((yield getEventsForApps(where.createdAt, userId)));
     results = results.concat((yield getEventsForCollections(where.createdAt, userId)));
@@ -67,58 +67,26 @@ function* getHistory(userId, date) {
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_MENTIONED,
         'params.mentionedUserId': userId
-    }).exec()));
+    }).populate('user').exec()));
     results = results.concat((yield getEventsForFavouriteCollections(where.createdAt, userId)));
     results = results.concat((yield getEventsForFollowings(where.createdAt, userId)));
     results = results.concat((yield History.find({
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
         params: { followingId: userId }
-    }).exec()));
+    }).populate('user').exec()));
 
-    //TODO add isFollowing param
-    //TODO populate user id because Polq says so
-    return results;
-}
-
-function* getEventsForApps(createdAt, userId) {
-    var results = [];
-    var apps = (yield AppsHandler.getAppsForUser(userId)).apps;
+    var followings = (yield FollowersHandler.getFollowing(userId)).following;
+    var followingIds = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var app = _step.value;
+        for (var _iterator = followings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var following = _step.value;
 
-            var appEvents = yield History.find({ createdAt: createdAt, user: { $ne: userId }, params: { appId: app._id } }).exec();
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = appEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var _event = _step2.value;
-
-                    if (_event.type == HISTORY_EVENT_TYPES.APP_FAVOURITED || _event.type == HISTORY_EVENT_TYPES.USER_COMMENT) {
-                        results.push(_event);
-                    }
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-                        _iterator2['return']();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
-            }
+            followingIds.push(String(following._id));
         }
     } catch (err) {
         _didIteratorError = true;
@@ -135,27 +103,78 @@ function* getEventsForApps(createdAt, userId) {
         }
     }
 
-    return results;
+    var response = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = results[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var result = _step2.value;
+
+            result = result.toObject();
+            result.user.isFollowing = false;
+            if (_.contains(followingIds, String(result.user._id))) {
+                result.user.isFollowing = true;
+            }
+            response.push(result);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    return response;
 }
 
-function* getEventsForFollowings(createdAt, userId) {
+function* getEventsForApps(createdAt, userId) {
     var results = [];
-    var where = {};
-    where.createdAt = createdAt;
-    var followings = (yield FollowersHandler.getFollowing(userId)).following;
+    var apps = (yield AppsHandler.getAppsForUser(userId)).apps;
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
     var _iteratorError3 = undefined;
 
     try {
-        for (var _iterator3 = followings[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var following = _step3.value;
+        for (var _iterator3 = apps[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var app = _step3.value;
 
-            where.user = following.id;
-            where.type = {
-                $in: [HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, HISTORY_EVENT_TYPES.COLLECTION_CREATED, HISTORY_EVENT_TYPES.APP_APPROVED, HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, HISTORY_EVENT_TYPES.APP_FAVOURITED]
-            };
-            results = results.concat((yield History.find(where).exec()));
+            var appEvents = yield History.find({ createdAt: createdAt, user: { $ne: userId }, params: { appId: app._id } }).populate('user').exec();
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = appEvents[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var _event = _step4.value;
+
+                    if (_event.type == HISTORY_EVENT_TYPES.APP_FAVOURITED || _event.type == HISTORY_EVENT_TYPES.USER_COMMENT) {
+                        results.push(_event);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                        _iterator4['return']();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
         }
     } catch (err) {
         _didIteratorError3 = true;
@@ -175,61 +194,36 @@ function* getEventsForFollowings(createdAt, userId) {
     return results;
 }
 
-function* getEventsForCollections(createdAt, userId) {
+function* getEventsForFollowings(createdAt, userId) {
     var results = [];
-    var collections = (yield CollectionsHandler.getCollections(userId)).collections;
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
+    var where = {};
+    where.createdAt = createdAt;
+    var followings = (yield FollowersHandler.getFollowing(userId)).following;
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
 
     try {
-        for (var _iterator4 = collections[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var collection = _step4.value;
+        for (var _iterator5 = followings[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var following = _step5.value;
 
-            var collectionEvents = yield History.find({
-                createdAt: createdAt,
-                user: { $ne: userId },
-                params: { collectionId: collection._id }
-            }).exec();
-
-            var _iteratorNormalCompletion5 = true;
-            var _didIteratorError5 = false;
-            var _iteratorError5 = undefined;
-
-            try {
-                for (var _iterator5 = collectionEvents[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                    var _event2 = _step5.value;
-
-                    if (_event2.type == HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED) {
-                        results.push(_event2);
-                    }
-                }
-            } catch (err) {
-                _didIteratorError5 = true;
-                _iteratorError5 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-                        _iterator5['return']();
-                    }
-                } finally {
-                    if (_didIteratorError5) {
-                        throw _iteratorError5;
-                    }
-                }
-            }
+            where.user = following.id;
+            where.type = {
+                $in: [HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, HISTORY_EVENT_TYPES.COLLECTION_CREATED, HISTORY_EVENT_TYPES.APP_APPROVED, HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, HISTORY_EVENT_TYPES.APP_FAVOURITED]
+            };
+            results = results.concat((yield History.find(where).populate('user').exec()));
         }
     } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-                _iterator4['return']();
+            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                _iterator5['return']();
             }
         } finally {
-            if (_didIteratorError4) {
-                throw _iteratorError4;
+            if (_didIteratorError5) {
+                throw _iteratorError5;
             }
         }
     }
@@ -237,9 +231,9 @@ function* getEventsForCollections(createdAt, userId) {
     return results;
 }
 
-function* getEventsForFavouriteCollections(createdAt, userId) {
+function* getEventsForCollections(createdAt, userId) {
     var results = [];
-    var collections = (yield CollectionsHandler.getFavouriteCollections(userId)).collections;
+    var collections = (yield CollectionsHandler.getCollections(userId)).collections;
     var _iteratorNormalCompletion6 = true;
     var _didIteratorError6 = false;
     var _iteratorError6 = undefined;
@@ -248,17 +242,22 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
         for (var _iterator6 = collections[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
             var collection = _step6.value;
 
-            var collectionEvents = yield History.find({ createdAt: createdAt, params: { collectionId: collection._id } }).exec();
+            var collectionEvents = yield History.find({
+                createdAt: createdAt,
+                user: { $ne: userId },
+                params: { collectionId: collection._id }
+            }).populate('user').exec();
+
             var _iteratorNormalCompletion7 = true;
             var _didIteratorError7 = false;
             var _iteratorError7 = undefined;
 
             try {
                 for (var _iterator7 = collectionEvents[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                    var _event3 = _step7.value;
+                    var _event2 = _step7.value;
 
-                    if (_event3.type == HISTORY_EVENT_TYPES.COLLECTION_UPDATED) {
-                        results.push(_event3);
+                    if (_event2.type == HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED) {
+                        results.push(_event2);
                     }
                 }
             } catch (err) {
@@ -287,6 +286,63 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
         } finally {
             if (_didIteratorError6) {
                 throw _iteratorError6;
+            }
+        }
+    }
+
+    return results;
+}
+
+function* getEventsForFavouriteCollections(createdAt, userId) {
+    var results = [];
+    var collections = (yield CollectionsHandler.getFavouriteCollections(userId)).collections;
+    var _iteratorNormalCompletion8 = true;
+    var _didIteratorError8 = false;
+    var _iteratorError8 = undefined;
+
+    try {
+        for (var _iterator8 = collections[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var collection = _step8.value;
+
+            var collectionEvents = yield History.find({ createdAt: createdAt, params: { collectionId: collection._id } }).populate('user').exec();
+            var _iteratorNormalCompletion9 = true;
+            var _didIteratorError9 = false;
+            var _iteratorError9 = undefined;
+
+            try {
+                for (var _iterator9 = collectionEvents[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                    var _event3 = _step9.value;
+
+                    if (_event3.type == HISTORY_EVENT_TYPES.COLLECTION_UPDATED) {
+                        results.push(_event3);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError9 = true;
+                _iteratorError9 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+                        _iterator9['return']();
+                    }
+                } finally {
+                    if (_didIteratorError9) {
+                        throw _iteratorError9;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError8 = true;
+        _iteratorError8 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+                _iterator8['return']();
+            }
+        } finally {
+            if (_didIteratorError8) {
+                throw _iteratorError8;
             }
         }
     }

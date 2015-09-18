@@ -36,7 +36,7 @@ export function* getHistory(userId, date) {
             HISTORY_EVENT_TYPES.APP_REJECTED]
     }
 
-    let userEvents = yield History.find(where).exec()
+    let userEvents = yield History.find(where).populate('user').exec()
     let results = [...userEvents]
     results = results.concat((yield getEventsForApps(where.createdAt, userId)))
     results = results.concat((yield getEventsForCollections(where.createdAt, userId)))
@@ -44,25 +44,39 @@ export function* getHistory(userId, date) {
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_MENTIONED,
         'params.mentionedUserId': userId
-    }).exec()))
+    }).populate('user').exec()))
     results = results.concat((yield getEventsForFavouriteCollections(where.createdAt, userId)))
     results = results.concat((yield getEventsForFollowings(where.createdAt, userId)))
     results = results.concat(yield History.find({
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
         params: {followingId: userId}
-    }).exec())
+    }).populate('user').exec())
 
-    //TODO add isFollowing param
-    //TODO populate user id because Polq says so
-    return results
+    let followings = (yield FollowersHandler.getFollowing(userId)).following
+    let followingIds = []
+    for(let following of followings) {
+        followingIds.push(String(following._id))
+    }
+
+    var response = []
+    for(let result of results) {
+        result = result.toObject()
+        result.user.isFollowing = false
+        if(_.contains(followingIds, String(result.user._id))) {
+            result.user.isFollowing = true
+        }
+        response.push(result)
+    }
+
+    return response
 }
 
 function* getEventsForApps(createdAt, userId) {
     let results = []
     let apps = (yield AppsHandler.getAppsForUser(userId)).apps
     for (let app of apps) {
-        let appEvents = yield History.find({createdAt: createdAt, user: {$ne: userId}, params: {appId: app._id}}).exec()
+        let appEvents = yield History.find({createdAt: createdAt, user: {$ne: userId}, params: {appId: app._id}}).populate('user').exec()
         for (let event of appEvents) {
             if (event.type == HISTORY_EVENT_TYPES.APP_FAVOURITED || event.type == HISTORY_EVENT_TYPES.USER_COMMENT) {
                 results.push(event)
@@ -86,7 +100,7 @@ function* getEventsForFollowings(createdAt, userId) {
                 HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED,
                 HISTORY_EVENT_TYPES.APP_FAVOURITED]
         }
-        results = results.concat(yield History.find(where).exec())
+        results = results.concat(yield History.find(where).populate('user').exec())
     }
 
     return results
@@ -100,7 +114,7 @@ function* getEventsForCollections(createdAt, userId) {
             createdAt: createdAt,
             user: {$ne: userId},
             params: {collectionId: collection._id}
-        }).exec()
+        }).populate('user').exec()
 
         for (let event of collectionEvents) {
             if (event.type == HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED) {
@@ -115,7 +129,8 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
     let results = []
     let collections = (yield CollectionsHandler.getFavouriteCollections(userId)).collections
     for (let collection of collections) {
-        let collectionEvents = yield History.find({createdAt: createdAt, params: {collectionId: collection._id}}).exec()
+        let collectionEvents = yield History.find({createdAt: createdAt, params: {collectionId: collection._id}})
+            .populate('user').exec()
         for (let event of collectionEvents) {
             if (event.type == HISTORY_EVENT_TYPES.COLLECTION_UPDATED) {
                 results.push(event)
