@@ -56,8 +56,14 @@ export function* getUserDevices(userId) {
     return user.devices
 }
 
-export function* filterExistingUsers({emails}) {
-    return yield User.find({ email: { $in: emails } } ).exec()
+export function* filterExistingUsers({names}) {
+    let results = []
+    for(let name of names) {
+        let users = yield User.find({name: {$regex: name, $options: 'i'}}).exec()
+        results = results.concat(users)
+    }
+
+    return results
 }
 
 export function* getDeviceIdsForUser(user) {

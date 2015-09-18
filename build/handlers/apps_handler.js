@@ -311,7 +311,7 @@ function* changeAppStatus(appPackage, status) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name);
         var message = MESSAGES.APP_REJECTED_MESSAGE;
         NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED);
-        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_REJECTED, createdBy._id);
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_REJECTED, createdBy._id, { appName: app.name });
         yield deleteApp(appPackage);
     } else if (status == APP_STATUSES.APPROVED) {
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
@@ -419,15 +419,20 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     return result;
 }
 
-function* getAppsForUser(creatorId, userId, page, pageSize) {
+function* getAppsForUser(creatorId) {
+    var userId = arguments[1] === undefined ? creatorId : arguments[1];
+    var page = arguments[2] === undefined ? 0 : arguments[2];
+    var pageSize = arguments[3] === undefined ? 0 : arguments[3];
+    return yield* (function* () {
 
-    var query = App.find({ createdBy: creatorId, status: APP_STATUSES.APPROVED }).deepPopulate('votes.user').populate('categories').populate('createdBy');
-    query.sort({ votesCount: 'desc', createdAt: 'desc' });
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
-    result.apps = convertToArray(result.apps);
-    yield formatApps(userId, result.apps);
+        var query = App.find({ createdBy: creatorId, status: APP_STATUSES.APPROVED }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+        query.sort({ votesCount: 'desc', createdAt: 'desc' });
+        var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+        result.apps = convertToArray(result.apps);
+        yield formatApps(userId, result.apps);
 
-    return result;
+        return result;
+    })();
 }
 
 function* filterApps(packages, platform) {
@@ -521,11 +526,11 @@ function* favourite(appId, userId) {
     app.favouritedBy.push(userId);
     yield app.save();
 
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: appId });
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: app._id });
     var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
     if (isFollowing) {
         NotificationsHandler.sendNotificationsToUsers([app.createdBy], '', '', '', NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
-            appId: appId
+            appId: app._id
         });
     }
 

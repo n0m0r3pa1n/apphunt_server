@@ -42,7 +42,7 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    emails: Joi.array().items(Joi.string()).required()
+                    names: Joi.array().items(Joi.string()).required()
                 }
             },
             auth: false,

@@ -56,11 +56,10 @@ export function* update(collectionId, newCollection, userId) {
 
     collection.apps = newCollection.apps
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
-        //TODO: Check if logic is correct
         if(collection.status == COLLECTION_STATUSES.DRAFT) {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, {collectionId: collectionId})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, {collectionId: collection._id})
         } else {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, {collectionId: collectionId})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, {collectionId: collection._id})
         }
         collection.status = COLLECTION_STATUSES.PUBLIC
     } else {
@@ -179,7 +178,7 @@ function isFavourite(collectionObj, userId) {
     return false
 }
 
-export function* getFavouriteCollections(favouritedBy, userId, page, pageSize) {
+export function* getFavouriteCollections(favouritedBy, userId = favouritedBy, page = 0, pageSize = 0) {
     let result = yield getPagedCollectionsResult({favouritedBy: favouritedBy}, {}, page, pageSize)
     if(result.collections !== undefined && result.collections.length > 0) {
         result.collections = yield getPopulatedCollections(result.collections, userId);
@@ -206,7 +205,7 @@ function* getPopulatedCollection(collection, userId) {
     return collectionObj;
 }
 
-export function* getCollections(creatorId, userId, page, pageSize) {
+export function* getCollections(creatorId, userId = creatorId, page = 0, pageSize = 0) {
     let where = {}
     where.createdBy = creatorId
     if(String(creatorId) != String(userId)) {

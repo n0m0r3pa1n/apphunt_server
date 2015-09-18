@@ -50,6 +50,9 @@ function* create(comment, appId, userId, parentId) {
     }
 
     var user = yield User.findById(userId).exec();
+    if (user == null) {
+        return Boom.notFound('Non-existing user');
+    }
 
     var parentComment = null;
     if (parentId !== undefined) {
@@ -83,7 +86,8 @@ function* create(comment, appId, userId, parentId) {
                 var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username);
                 var message = comment.text;
                 NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_MENTIONED, { appId: appId });
-                yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, { mentionedUserId: mentionedUser._id, appId: appId });
+                yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, { mentionedUserId: String(mentionedUser._id),
+                    appId: String(app._id) });
             }
         }
     } else {
@@ -94,7 +98,7 @@ function* create(comment, appId, userId, parentId) {
             NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_COMMENTED_APP, { appId: appId });
         }
 
-        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, userId, { appId: appId });
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, user._id, { appId: app._id });
     }
 
     return createdCommentObject;

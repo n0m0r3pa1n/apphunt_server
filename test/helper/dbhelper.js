@@ -74,12 +74,18 @@ function createUserWithEmail(email) {
     return createUserWithParams(email, null, null, null, null)
 }
 
+function createUserWithName(email, name) {
+    return createUserWithParams(email, null, null, null, null, name)
+}
+
 function createUserWithPictures(email, profilePicture, coverPicture) {
     return createUserWithParams(email, null, profilePicture, coverPicture, null)
 }
 
-function createUserWithParams(email, loginType, profilePicture, coverPicture, locale) {
-    var name = "dummy"
+function createUserWithParams(email, loginType, profilePicture, coverPicture, locale, name) {
+    if(name == undefined || name == null) {
+        name = "dummy"
+    }
     if(email == null) {
         email = dummyEmail
     }
@@ -307,7 +313,7 @@ function createBanner(url) {
     return Server.injectThen(opts)
 }
 
-var updateCollection = {
+var collectionForUpdate = {
     name: "Top apps for march june july",
     description: "Desc",
     picture: "Pic",
@@ -315,13 +321,28 @@ var updateCollection = {
 }
 
 function* makeCollectionPublic(userId, collectionId, appsIds) {
-    updateCollection.apps = appsIds
+    collectionForUpdate.apps = appsIds
 
     var opts3 = {
         method: 'PUT',
         url: '/app-collections/' + collectionId + "?userId=" + userId,
         payload: {
-            collection: updateCollection
+            collection: collectionForUpdate
+        }
+    }
+
+    return (yield Server.injectThen(opts3)).result
+}
+
+function* updateCollection(collectionId, userId, name, appsIds) {
+    collectionForUpdate.name = name
+    collectionForUpdate.apps = appsIds
+
+    var opts3 = {
+        method: 'PUT',
+        url: '/app-collections/' + collectionId + "?userId=" + userId,
+        payload: {
+            collection: collectionForUpdate
         }
     }
 
@@ -329,10 +350,15 @@ function* makeCollectionPublic(userId, collectionId, appsIds) {
 }
 
 function* createAppsIdsList(userId) {
-    var appId = (yield createAppWithPackage(userId, "com.test.4")).result.id
+    var appId = (yield createAppWithPackage(userId, "com.test4")).result.id
     var app2Id = (yield createAppWithPackage(userId, "com.test1")).result.id
     var app3Id = (yield createAppWithPackage(userId, "com.test2")).result.id
     var app4Id = (yield createAppWithPackage(userId, "com.test3")).result.id
+
+    yield approveApp("com.test4")
+    yield approveApp("com.test1")
+    yield approveApp("com.test2")
+    yield approveApp("com.test3")
 
     return [appId, app2Id, app3Id, app4Id];
 }
@@ -345,6 +371,7 @@ module.exports.createAppWithParams = createAppWithParams
 module.exports.createBanner = createBanner
 module.exports.createUser = createUser
 module.exports.createUserWithEmail = createUserWithEmail
+module.exports.createUserWithName = createUserWithName
 module.exports.createUserWithLoginType = createUserWithLoginType
 module.exports.createUserWithPictures = createUserWithPictures
 module.exports.createNotification = createNotification
@@ -360,6 +387,7 @@ module.exports.createUsersCollection = createUsersCollection
 module.exports.favouriteCollection = favouriteCollection
 module.exports.getCollection = getCollection
 module.exports.makeCollectionPublic = makeCollectionPublic
+module.exports.updateCollection = updateCollection
 module.exports.approveApp = approveApp
 module.exports.createFourAppsWithIds = createAppsIdsList
 module.exports.favouriteApp = favouriteApp

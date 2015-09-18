@@ -14,7 +14,7 @@ describe("Apps", function () {
         var response = yield dbHelper.createApp(userResponse.result.id)
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
-        response.result.description.should.exist();
+        response.result.description.should.exist;
         response.result.averageScore.should.eq(4.22)
     });
 
@@ -37,7 +37,7 @@ describe("Apps", function () {
 
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
-        response.result.description.should.exist();
+        response.result.description.should.exist;
     });
 
     it("should not create app", function*() {
@@ -119,7 +119,7 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(1)
-        response.result.apps[0].categories.length.should.exist()
+        response.result.apps[0].categories.length.should.exist
     });
 
     it("should get apps per user", function*() {
@@ -165,7 +165,7 @@ describe("Apps", function () {
         }
 
         var response = yield Server.injectThen(opts);
-        expect(response.result._id).to.exist()
+        expect(response.result._id).to.exist
 
 
 
@@ -187,9 +187,9 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
-        expect(response.result.totalCount).to.exist()
+        expect(response.result.totalCount).to.exist
         response.result.totalCount.should.equal(2)
-        expect(response.result.totalPages).to.exist()
+        expect(response.result.totalPages).to.exist
         response.result.page.should.equal(1)
 
     });
@@ -210,8 +210,8 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
-        expect(response.result.totalCount).to.exist()
-        expect(response.result.totalPages).to.not.exist()
+        expect(response.result.totalCount).to.exist
+        expect(response.result.totalPages).to.not.exist
         response.result.page.should.equal(0)
     });
 
@@ -236,7 +236,7 @@ describe("Apps", function () {
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.apps.length.should.equal(2)
-        expect(response.result.totalCount).to.exist()
+        expect(response.result.totalCount).to.exist
         response.result.totalCount.should.equal(2)
     });
 
@@ -465,7 +465,7 @@ describe("Apps", function () {
 
         response.statusCode.should.equal(STATUS_CODES.OK)
         response.result.categories.length.should.equal(1)
-        response.result.description.should.exist();
+        response.result.description.should.exist;
 
         var opts = {
             method: 'POST',
@@ -573,7 +573,7 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         response.result.apps.length.should.eq(2)
-        expect(response.result.apps[0].hasVoted).to.exist()
+        expect(response.result.apps[0].hasVoted).to.exist
         for(var i=0; i < response.result.apps.length; i++) {
             var app = response.result.apps[i]
             if(app.id == app2Id) {

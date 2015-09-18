@@ -50,7 +50,7 @@ describe("App Collections", function() {
             }
         }
         var response = yield Server.injectThen(opts)
-        response.result.picture.should.exist()
+        response.result.picture.should.exist
     });
 
     it("should update apps collection", function*() {
@@ -481,7 +481,7 @@ describe("App Collections", function() {
 
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.eq(2)
-        response.result.collections[0].hasVoted.should.exist()
+        response.result.collections[0].hasVoted.should.exist
     });
 
     it("should get apps collection for user", function*() {

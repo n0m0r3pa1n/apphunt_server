@@ -15,7 +15,7 @@ describe("Votes", function() {
 
         var response1 =  yield dbHelper.voteApp(response.result.id, user2Id);
         response1.statusCode.should.equal(STATUS_CODES.OK)
-        expect(response1.result.votesCount).to.exist()
+        expect(response1.result.votesCount).to.exist
     });
 
     it("should not vote app", function*() {
@@ -83,11 +83,11 @@ describe("Votes", function() {
         }
 
         var response =  yield Server.injectThen(opts1);
-        expect(response.result.apps[0].hasVoted).to.exist()
+        expect(response.result.apps[0].hasVoted).to.exist
         response.result.apps[0].hasVoted.should.equal(true)
-        expect(response.result.apps[0].votesCount).to.exist()
+        expect(response.result.apps[0].votesCount).to.exist
         response.result.apps[0].votesCount.should.equal(1)
-        expect(response.result.apps[0].votes).to.not.exist()
+        expect(response.result.apps[0].votes).to.not.exist
     });
 
     it("should vote apps collection", function*() {

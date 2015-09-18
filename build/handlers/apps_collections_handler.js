@@ -117,11 +117,10 @@ function* update(collectionId, newCollection, userId) {
 
     collection.apps = newCollection.apps;
     if (collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
-        //TODO: Check if logic is correct
         if (collection.status == COLLECTION_STATUSES.DRAFT) {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, { collectionId: collectionId });
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, { collectionId: collection._id });
         } else {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, { collectionId: collectionId });
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, { collectionId: collection._id });
         }
         collection.status = COLLECTION_STATUSES.PUBLIC;
     } else {
@@ -261,13 +260,18 @@ function isFavourite(collectionObj, userId) {
     return false;
 }
 
-function* getFavouriteCollections(favouritedBy, userId, page, pageSize) {
-    var result = yield getPagedCollectionsResult({ favouritedBy: favouritedBy }, {}, page, pageSize);
-    if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = yield getPopulatedCollections(result.collections, userId);
-    }
+function* getFavouriteCollections(favouritedBy) {
+    var userId = arguments[1] === undefined ? favouritedBy : arguments[1];
+    var page = arguments[2] === undefined ? 0 : arguments[2];
+    var pageSize = arguments[3] === undefined ? 0 : arguments[3];
+    return yield* (function* () {
+        var result = yield getPagedCollectionsResult({ favouritedBy: favouritedBy }, {}, page, pageSize);
+        if (result.collections !== undefined && result.collections.length > 0) {
+            result.collections = yield getPopulatedCollections(result.collections, userId);
+        }
 
-    return result;
+        return result;
+    })();
 }
 
 function* getPopulatedCollections(collections, userId) {
@@ -309,18 +313,23 @@ function* getPopulatedCollection(collection, userId) {
     return collectionObj;
 }
 
-function* getCollections(creatorId, userId, page, pageSize) {
-    var where = {};
-    where.createdBy = creatorId;
-    if (String(creatorId) != String(userId)) {
-        where.status = COLLECTION_STATUSES.PUBLIC;
-    }
-    var result = yield getPagedCollectionsResult(where, {}, page, pageSize);
-    if (result.collections !== undefined && result.collections.length > 0) {
-        result.collections = yield getPopulatedCollections(result.collections, userId);
-    }
+function* getCollections(creatorId) {
+    var userId = arguments[1] === undefined ? creatorId : arguments[1];
+    var page = arguments[2] === undefined ? 0 : arguments[2];
+    var pageSize = arguments[3] === undefined ? 0 : arguments[3];
+    return yield* (function* () {
+        var where = {};
+        where.createdBy = creatorId;
+        if (String(creatorId) != String(userId)) {
+            where.status = COLLECTION_STATUSES.PUBLIC;
+        }
+        var result = yield getPagedCollectionsResult(where, {}, page, pageSize);
+        if (result.collections !== undefined && result.collections.length > 0) {
+            result.collections = yield getPopulatedCollections(result.collections, userId);
+        }
 
-    return result;
+        return result;
+    })();
 }
 
 function* getCollectionsCount(userId) {

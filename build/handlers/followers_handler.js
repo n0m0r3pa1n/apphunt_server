@@ -73,7 +73,10 @@ function* getFollowers(userId) {
     return result;
 }
 
-function* getFollowing(userId, page, pageSize) {
+function* getFollowing(userId) {
+    var page = arguments[1] === undefined ? 0 : arguments[1];
+    var pageSize = arguments[2] === undefined ? 0 : arguments[2];
+
     var query = Follower.find({ follower: userId }).select('-_id following').populate('following');
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'following', page, pageSize);
     var following = [];

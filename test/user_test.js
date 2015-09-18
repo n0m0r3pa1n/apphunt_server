@@ -192,13 +192,13 @@ describe("Users", function() {
         _.isEmpty(_.difference(loginFilterValues, response.result)).should.eq(true)
     });
 
-	it("should return only existing users by email", function*() {
+	it("should return only existing users by name", function*() {
         yield dbHelper.createUser()
-        var testId = (yield dbHelper.createUserWithEmail("test@test.co")).result.id
+        var testId = (yield dbHelper.createUserWithName("test@test.co", "Georgi Mirchev")).result.id
         yield dbHelper.createUser("test@test.com")
 		var opts = {
 			method: 'GET',
-			url: '/v1/users/actions/filter?emails[]=test@test.co'
+			url: '/v1/users/actions/filter?names[]=Georgi'
 		}
 
 		var response = yield Server.injectThen(opts)
@@ -232,7 +232,7 @@ describe("Users", function() {
 		var response = yield Server.injectThen(opts)
 		response.result.length.should.equal(2)
 		response.result[0]._id.toString().should.equal(String(user2Id))
-		expect(response.result[0].apps).to.exist()
+		expect(response.result[0].apps).to.exist
 		response.result[0].apps.should.eq(2)
 	});
 
@@ -254,7 +254,7 @@ describe("Users", function() {
 
 		var response = yield Server.injectThen(opts)
 		response.result.collections.length.should.eq(2)
-		response.result.collections[0].hasVoted.should.exist()
+		response.result.collections[0].hasVoted.should.exist
 	});
 
 	it("should search for users", function*() {

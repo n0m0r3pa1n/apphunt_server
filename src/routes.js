@@ -6,6 +6,7 @@ var commentRoutes = require('./routes/comments_routes').commentRoutes
 var voteRoutes = require('./routes/votes_routes').voteRoutes
 var collectionsRoutes = require('./routes/collections_routes').collectionsRoutes
 var versionRoutes = require('./routes/version_routes').versionRoutes
+var historyRoutes = require('./routes/history_routes').historyRoutes
 import {tagRoutes} from "./routes/tags_routes.js"
 var statsRoutes = require('./routes/stats_routes').userStatsRoutes
 
@@ -20,4 +21,5 @@ routes = routes.concat(statsRoutes)
 routes = routes.concat(collectionsRoutes)
 routes = routes.concat(versionRoutes)
 routes = routes.concat(tagRoutes)
+routes = routes.concat(historyRoutes)
 module.exports.routes = routes

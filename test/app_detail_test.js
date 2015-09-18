@@ -26,10 +26,10 @@ describe("App details", function () {
         var appResponse = yield Server.injectThen(opts)
         var app = appResponse.result
 
-        expect(app.votesCount).to.exist()
-        expect(app.hasVoted).to.exist()
-        expect(app.votes[0].user.profilePicture).to.exist()
-        expect(app.createdBy.profilePicture).to.exist()
+        expect(app.votesCount).to.exist
+        expect(app.hasVoted).to.exist
+        expect(app.votes[0].user.profilePicture).to.exist
+        expect(app.createdBy.profilePicture).to.exist
     });
 })
 

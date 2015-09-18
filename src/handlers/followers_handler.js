@@ -26,7 +26,7 @@ export function* getFollowers(userId, page = 0, pageSize = 0) {
     return result
 }
 
-export function* getFollowing(userId, page, pageSize) {
+export function* getFollowing(userId, page = 0, pageSize = 0) {
     let query = Follower.find({follower: userId}).select("-_id following").populate("following")
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize)
     let following = []

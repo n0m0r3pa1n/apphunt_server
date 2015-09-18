@@ -86,26 +86,19 @@ function* getUserDevices(userId) {
 }
 
 function* filterExistingUsers(_ref) {
-    var emails = _ref.emails;
+    var names = _ref.names;
 
-    return yield User.find({ email: { $in: emails } }).exec();
-}
-
-function* getDeviceIdsForUser(user) {
-    if (user.populated('devices')) {
-        user = yield User.findOne(user).populate('devices');
-    }
-
-    var notificationIds = [];
+    var results = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = user.devices[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var device = _step.value;
+        for (var _iterator = names[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _name = _step.value;
 
-            notificationIds = notificationIds.concat(device.notificationId);
+            var users = yield User.find({ name: { $regex: _name, $options: 'i' } }).exec();
+            results = results.concat(users);
         }
     } catch (err) {
         _didIteratorError = true;
@@ -118,6 +111,40 @@ function* getDeviceIdsForUser(user) {
         } finally {
             if (_didIteratorError) {
                 throw _iteratorError;
+            }
+        }
+    }
+
+    return results;
+}
+
+function* getDeviceIdsForUser(user) {
+    if (user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices');
+    }
+
+    var notificationIds = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = user.devices[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var device = _step2.value;
+
+            notificationIds = notificationIds.concat(device.notificationId);
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
             }
         }
     }
