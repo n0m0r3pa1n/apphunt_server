@@ -76,6 +76,10 @@ function* getHistory(userId, date) {
         params: { followingId: userId }
     }).populate('user').exec()));
 
+    return yield getPopulatedResponseWithIsFollowing(userId, results);
+}
+
+function* getPopulatedResponseWithIsFollowing(userId, results) {
     var followings = (yield FollowersHandler.getFollowing(userId)).following;
     var followingIds = [];
     var _iteratorNormalCompletion = true;
@@ -113,10 +117,7 @@ function* getHistory(userId, date) {
             var result = _step2.value;
 
             result = result.toObject();
-            result.user.isFollowing = false;
-            if (_.contains(followingIds, String(result.user._id))) {
-                result.user.isFollowing = true;
-            }
+            result.user.isFollowing = _.contains(followingIds, String(result.user._id));
             response.push(result);
         }
     } catch (err) {

@@ -53,6 +53,12 @@ export function* getHistory(userId, date) {
         params: {followingId: userId}
     }).populate('user').exec())
 
+
+
+    return yield getPopulatedResponseWithIsFollowing(userId, results)
+}
+
+function* getPopulatedResponseWithIsFollowing(userId, results) {
     let followings = (yield FollowersHandler.getFollowing(userId)).following
     let followingIds = []
     for(let following of followings) {
@@ -62,10 +68,7 @@ export function* getHistory(userId, date) {
     var response = []
     for(let result of results) {
         result = result.toObject()
-        result.user.isFollowing = false
-        if(_.contains(followingIds, String(result.user._id))) {
-            result.user.isFollowing = true
-        }
+        result.user.isFollowing = _.contains(followingIds, String(result.user._id));
         response.push(result)
     }
 
