@@ -7,6 +7,7 @@ exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
 exports.isFollowing = isFollowing;
 exports.followUser = followUser;
+exports.followUserWithMany = followUserWithMany;
 exports.unfollowUser = unfollowUser;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -124,10 +125,58 @@ function* followUser(followingId, followerId) {
         return Boom.notFound('User is not existing!');
     }
 
-    yield Follower.findOneOrCreate({ following: followingId, follower: followerId }, { following: followingId, follower: followerId });
+    yield followSingleUser(followingId, followerId);
     NotificationsHandler.sendNotificationsToUsers([followingId], '', '', '', NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId });
     return Boom.OK();
+}
+
+function* followUserWithMany(followingId, followerIds) {
+    var following = yield UsersHandler.find(followingId);
+    if (following == null) {
+        return Boom.notFound('User is not existing!');
+    }
+
+    if (followerIds == undefined || followerIds.length == 0) {
+        return Boom.badRequest('Follower ids are required');
+    }
+
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = followerIds[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var userId = _step3.value;
+
+            var follower = yield UsersHandler.find(userId);
+            if (follower == null) {
+                continue;
+            }
+
+            yield followSingleUser(followingId, userId);
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                _iterator3['return']();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
+            }
+        }
+    }
+
+    NotificationsHandler.sendNotificationsToUsers([followingId], 'Many users followed you!', '', '', NOTIFICATION_TYPES.USER_FOLLOWED);
+    return Boom.OK();
+}
+
+function* followSingleUser(followingId, followerId) {
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId });
+    yield Follower.findOneOrCreate({ following: followingId, follower: followerId }, { following: followingId, follower: followerId });
 }
 
 function* unfollowUser(followingId, followerId) {

@@ -52,7 +52,7 @@ export function* getHistory(userId, date) {
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
         params: {followingId: userId}
     }).populate('user').exec())
-    
+
     return yield getPopulatedResponseWithIsFollowing(userId, results)
 }
 

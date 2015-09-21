@@ -19,7 +19,7 @@ var historyRoutes = [
                 }
             },
             auth: false,
-            description: 'Get history for user.',
+            description: "Get history for user.",
             tags: ['api']
         }
     }

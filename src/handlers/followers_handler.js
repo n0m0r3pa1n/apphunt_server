@@ -53,10 +53,38 @@ export function* followUser(followingId, followerId) {
         return Boom.notFound("User is not existing!")
     }
 
-    yield Follower.findOneOrCreate({following: followingId, follower: followerId},{following: followingId, follower: followerId})
+    yield followSingleUser(followingId, followerId)
     NotificationsHandler.sendNotificationsToUsers([followingId], "", "", "", NOTIFICATION_TYPES.USER_FOLLOWED, {followerId: followerId})
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, {followingId: followingId})
     return Boom.OK()
+}
+
+export function* followUserWithMany(followingId, followerIds) {
+    let following = yield UsersHandler.find(followingId)
+    if(following == null) {
+        return Boom.notFound("User is not existing!")
+    }
+
+    if(followerIds == undefined || followerIds.length == 0) {
+        return Boom.badRequest("Follower ids are required")
+    }
+
+    for(let userId of followerIds) {
+        let follower = yield UsersHandler.find(userId)
+        if(follower == null) {
+            continue;
+        }
+
+        yield followSingleUser(followingId, userId)
+    }
+
+    NotificationsHandler.sendNotificationsToUsers([followingId], "Many users followed you!", "", "",
+        NOTIFICATION_TYPES.USER_FOLLOWED)
+    return Boom.OK()
+}
+
+function* followSingleUser(followingId, followerId) {
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, {followingId: followingId})
+    yield Follower.findOneOrCreate({following: followingId, follower: followerId},{following: followingId, follower: followerId})
 }
 
 export function* unfollowUser(followingId, followerId) {

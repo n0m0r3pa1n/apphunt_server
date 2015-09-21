@@ -16,6 +16,23 @@ describe("Followers", function () {
         response.result.statusCode.should.eq(STATUS_CODES.OK)
     });
 
+    it("many users should follow user", function*() {
+        var followingId = (yield dbHelper.createUser()).result.id
+        var follower1Id = (yield dbHelper.createUserWithEmail("sdasdsad")).result.id
+        var follower2Id = (yield dbHelper.createUserWithEmail("sdasdsad2")).result.id
+        var follower3Id = (yield dbHelper.createUserWithEmail("sdasdsad3")).result.id
+        var response = yield dbHelper.followManyUsers(followingId, [follower1Id, follower2Id, follower3Id])
+        response.result.statusCode.should.eq(STATUS_CODES.OK)
+
+        var opts = {
+            method: "GET",
+            url: '/users/' + followingId + "/followers?page=1&pageSize=3"
+        }
+
+        var response2 = yield Server.injectThen(opts)
+        response2.result.followers.length.should.eq(3)
+    });
+
     it("should unfollow user", function*() {
         var followingId = (yield dbHelper.createUser()).result.id
         var followerId = (yield dbHelper.createUserWithEmail("sdasdsad")).result.id

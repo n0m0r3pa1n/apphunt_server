@@ -282,9 +282,20 @@ function getCollection(collectionId) {
 function followUser(followingId, followerId) {
     var opts = {
         method: "POST",
-        url: '/users/' + followingId + "/followers",
+        url: '/users/' + followingId + "/followers/" + followerId,
         payload: {
             followerId: followerId
+        }
+    }
+    return Server.injectThen(opts)
+}
+
+function followManyUsers(followingId, followerIds) {
+    var opts = {
+        method: "POST",
+        url: '/users/' + followingId + "/followers",
+        payload: {
+            followerIds: followerIds
         }
     }
     return Server.injectThen(opts)
@@ -392,6 +403,7 @@ module.exports.approveApp = approveApp
 module.exports.createFourAppsWithIds = createAppsIdsList
 module.exports.favouriteApp = favouriteApp
 module.exports.followUser = followUser
+module.exports.followManyUsers = followManyUsers
 module.exports.unfollowUser = unfollowUser
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1

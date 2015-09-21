@@ -74,19 +74,37 @@ var routes = [
         method: "POST",
         path: "/users/{followingId}/followers",
         handler: function(req,reply) {
-            reply.co(FollowersHandler.followUser(req.params.followingId, req.payload.followerId))
+            reply.co(FollowersHandler.followUserWithMany(req.params.followingId, req.payload.followerIds))
         },
         config: {
             validate: {
                 payload: {
-                    followerId: Joi.objectId().required()
+                    followerIds: Joi.array().items(Joi.string()).required()
                 },
                 params: {
                     followingId: Joi.objectId().required()
                 }
             },
             auth: false,
-            description: 'Follow user',
+            description: 'Follow many users',
+            tags: ['api']
+        }
+    },
+    {
+        method: "POST",
+        path: "/users/{followingId}/followers/{followerId}",
+        handler: function (req, reply) {
+            reply.co(FollowersHandler.followUser(req.params.followingId, req.payload.followerId))
+        },
+        config: {
+            validate: {
+                params: {
+                    followingId: Joi.objectId().required(),
+                    followerId: Joi.objectId().required()
+                }
+            },
+            auth: false,
+            description: 'Follow single user',
             tags: ['api']
         }
     }
