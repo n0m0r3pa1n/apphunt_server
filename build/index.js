@@ -9,7 +9,12 @@ var AuthenticationHandler = _interopRequireWildcard(_handlersAuthentication_hand
 var _configConfigJs = require('./config/config.js');
 
 var Mongoose = require('mongoose');
-var Hapi = require('hapi');
+var Hapi = require('hapi'),
+    Inert = require('inert'),
+    Vision = require('vision'),
+    HapiSwagger = require('hapi-swagger'),
+    Pack = require('../package');
+
 var Co = require('co');
 var Routes = require('./routes').routes;
 var User = require('./models').User;
@@ -22,10 +27,9 @@ var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt';
 Mongoose.connect(dbURI);
 var serverPort = process.env.PORT || 8080;
 
-var pack = require('../package'),
-    swaggerOptions = {
-    basePath: dbURI.contains('localhost') ? 'http://localhost:' + serverPort : 'http://apphunt.herokuapp.com',
-    apiVersion: pack.version
+var swaggerOptions = {
+    basePath: dbURI.indexOf('localhost') > 0 ? 'http://localhost:' + serverPort : 'http://apphunt-dev.herokuapp.com',
+    apiVersion: Pack.version
 };
 
 var server = new Hapi.Server();
@@ -37,16 +41,10 @@ server.connection({
     }
 });
 
-server.register({
-    register: require('hapi-swagger'),
+server.register([Inert, Vision, {
+    register: HapiSwagger,
     options: swaggerOptions
-}, function (err) {
-    if (err) {
-        server.log(['error'], 'hapi-swagger load error: ' + err);
-    } else {
-        server.log(['start'], 'hapi-swagger interface loaded');
-    }
-});
+}], function (err) {});
 
 server.register(require('hapi-auth-jwt2'), function (err) {
     if (err) {
@@ -100,11 +98,8 @@ server.ext('onPreResponse', function (request, reply) {
 });
 
 server.route(Routes);
-
-if (!module.parent) {
-    server.start(function () {
-        console.log('AppHunt is rocking your world at port %s', serverPort);
-    });
-}
+server.start(function () {
+    console.log('AppHunt is rocking your world at port %s', serverPort);
+});
 
 module.exports = server;

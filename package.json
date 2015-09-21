@@ -12,10 +12,11 @@
     "cartesian-product": "^2.1.2",
     "co": "^4.5.4",
     "deck": "0.0.4",
-    "hapi": "^8.6.1",
+    "hapi": "^10.0.0",
     "hapi-auth-jwt2": "^4.4.1",
-    "hapi-swagger": "^0.7.3",
+    "hapi-swagger": "^2.0.0",
     "huntme": "latest",
+    "inert": "^3.0.1",
     "joi": "^6.4.3",
     "joi-objectid": "^1.1.0",
     "jsonwebtoken": "^5.0.2",
@@ -24,7 +25,8 @@
     "mongoose-timestamp": "~0.2.0",
     "randomstring": "^1.0.3",
     "request-promise": "^0.3.3",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "vision": "^3.0.0"
   },
   "devDependencies": {
     "casual": "^1.4.6",
@@ -36,7 +38,7 @@
     "gulp-concat": "2.5.2",
     "gulp-sourcemaps": "1.5.2",
     "gulp-util": "3.0.4",
-    "inject-then": "^2.0.0",
+    "inject-then": "^2.0.2",
     "mocha": "^2.0.1",
     "mocha-mongoose": "^1.0.3",
     "require-dir": "0.3.0",
@@ -47,6 +49,6 @@
     "test": "node_modules/mocha/bin/mocha --harmony -w"
   },
   "engines": {
-    "node": "0.12.x"
+    "node": "4.1.0"
   }
 }
