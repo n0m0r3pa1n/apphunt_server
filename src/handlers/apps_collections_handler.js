@@ -130,13 +130,6 @@ export function* get(collectionId, userId) {
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
     }
-
-    //TODO: uncomment when consider votes
-    //if(userId !== undefined) {
-    //    collection = collection.toObject()
-    //    collection.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
-    //}
-
     return yield getPopulatedCollection(collection, userId)
 }
 

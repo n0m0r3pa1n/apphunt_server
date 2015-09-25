@@ -1,21 +1,75 @@
 var _ = require("underscore")
+
 var Boom = require('boom')
 var CONFIG = require('../config/config')
-
 var History = require('../models').History
 
 import * as UsersHandler from './users_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 import * as AppsHandler from './apps_handler.js'
 import * as CollectionsHandler from './apps_collections_handler.js'
+import {EventEmitter} from './utils/event_emitter.js'
 
-let HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+var NOTIFICATIONS_TYPES = CONFIG.NOTIFICATION_TYPES
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 
 export function* createEvent(type, userId, params = {}) {
     yield History.create({type: type, user: userId, params: params})
+    let interestedUsers = []
+    switch(type) {
+        case HISTORY_EVENT_TYPES.APP_APPROVED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(String(userId))
+            interestedUsers.push(userId)
+            break;
+        case HISTORY_EVENT_TYPES.APP_REJECTED:
+            interestedUsers.push(userId)
+            break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId)
+            let app = yield AppsHandler.getApp(params.appId)
+            if(userId != app.createdBy._id) {
+                interestedUsers.push(app.createdBy._id)
+            }
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId)
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId)
+            let collection = yield CollectionsHandler.get(params.collectionId)
+            if(userId != collection.createdBy._id) {
+                interestedUsers.push(collection.createdBy._id)
+            }
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
+            interestedUsers = (yield CollectionsHandler.get(params.collectionId)).favouritedBy
+            break;
+        case HISTORY_EVENT_TYPES.USER_COMMENT:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId)
+            interestedUsers.push((yield AppsHandler.getApp(params.appId)).createdBy._id)
+            break;
+        case HISTORY_EVENT_TYPES.USER_MENTIONED:
+            interestedUsers.push(params.mentionedUserId)
+            break;
+        case HISTORY_EVENT_TYPES.USER_FOLLOWED:
+            interestedUsers.push(params.followingId)
+            break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
+            //TODO
+            break;
+        default:
+            return;
+    }
+
+    EventEmitter.emit('refresh', {interestedUsers: interestedUsers})
+}
+
+export function* postRefreshEvent(userId) {
+    EventEmitter.emit('refresh', {userId: userId})
+    return Boom.OK()
 }
 
 export function* getHistory(userId, date) {

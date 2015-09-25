@@ -1,7 +1,7 @@
 'use strict';
 
 var APP_REJECTED_TITLE = '{0} is rejected';
-var APP_REJECTED_MESSAGE = 'Your submission does not meet AppHunt\'s criteria. The app should be new and with description in English.';
+var APP_REJECTED_MESSAGE = "Your submission does not meet AppHunt's criteria. The app should be new and with description in English.";
 
 var APP_APPROVED_TITLE = '{0} is approved';
 var APP_APPROVED_MESSAGE = '{0} will be featured on AppHunt on {1}';

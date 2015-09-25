@@ -102,3 +102,13 @@ export function* unfollowUser(followingId, followerId) {
 
     return Boom.OK()
 }
+
+export function* getFollowersIds(userId) {
+    let followers = (yield getFollowers(userId)).followers
+    let userIds = []
+    for(let follower of followers) {
+        userIds.push(follower._id)
+    }
+
+    return userIds
+}

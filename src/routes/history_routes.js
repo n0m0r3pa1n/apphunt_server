@@ -22,6 +22,24 @@ var historyRoutes = [
             description: "Get history for user.",
             tags: ['api']
         }
+    },
+    {
+        method: "GET",
+        path: "/users/{userId}/history/refresh",
+        handler: function(req, reply) {
+            //TODO: Remove route
+            reply.co(HistoryHandler.postRefreshEvent(req.params.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    userId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: "Make user id history refresh.",
+            tags: ['api']
+        }
     }
 ]
 

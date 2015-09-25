@@ -17,8 +17,8 @@ import * as NotificationsHandler  from './notifications_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 import * as AppsHandler from './apps_handler.js'
 import * as HistoryHandler from './history_handler.js'
-
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+
 
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec()
@@ -41,17 +41,17 @@ function* create(comment, appId, userId, parentId) {
 
     comment.app = app
     comment.createdBy = user
-    comment.parent = parentComment
 
+    comment.parent = parentComment
     var createdComment = yield Comment.create(comment)
     var createdCommentObject = createdComment.toObject();
     createdCommentObject.id = String(createdCommentObject._id);
-    createdCommentObject.hasVoted = false;
 
+    createdCommentObject.hasVoted = false;
     if(parentComment != null) {
         parentComment.children.push(createdComment)
-        parentComment.save()
 
+        parentComment.save()
         createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 

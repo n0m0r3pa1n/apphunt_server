@@ -27,7 +27,7 @@ var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
-var _ = require('underscore');
+var _ = require("underscore");
 var Boom = require('boom');
 var CONFIG = require('../config/config');
 var MESSAGES = require('../config/messages');
@@ -46,35 +46,35 @@ var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec();
     if (!app) {
-        return Boom.notFound('Non-existing app');
+        return Boom.notFound("Non-existing app");
     }
 
     var user = yield User.findById(userId).exec();
     if (user == null) {
-        return Boom.notFound('Non-existing user');
+        return Boom.notFound("Non-existing user");
     }
 
     var parentComment = null;
     if (parentId !== undefined) {
         parentComment = yield Comment.findById(parentId).exec();
         if (!parentComment) {
-            return Boom.notFound('Non-existing parent comment');
+            return Boom.notFound("Non-existing parent comment");
         }
     }
 
     comment.app = app;
     comment.createdBy = user;
-    comment.parent = parentComment;
 
+    comment.parent = parentComment;
     var createdComment = yield Comment.create(comment);
     var createdCommentObject = createdComment.toObject();
     createdCommentObject.id = String(createdCommentObject._id);
-    createdCommentObject.hasVoted = false;
 
+    createdCommentObject.hasVoted = false;
     if (parentComment != null) {
         parentComment.children.push(createdComment);
-        parentComment.save();
 
+        parentComment.save();
         createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
@@ -109,9 +109,9 @@ function isConversationComment(commentText) {
 }
 
 function getCommentedUserName(commentText) {
-    var userName = '';
+    var userName = "";
     var conversationSymbolPosition = commentText.search(CONVERSATION_SYMBOL);
-    var usernameMatches = commentText.match('@[a-zA-Z0-9_]+');
+    var usernameMatches = commentText.match("\@[a-zA-Z0-9_]+");
     if (usernameMatches.length === 0) {
         return userName;
     }
@@ -123,14 +123,14 @@ function getCommentedUserName(commentText) {
 
 function* get(appId, userId, page, pageSize) {
     var where = { app: appId, parent: null };
-    var query = Comment.find(where).deepPopulate('children.createdBy children.votes').populate('votes').populate('createdBy');
+    var query = Comment.find(where).deepPopulate("children.createdBy children.votes").populate('votes').populate("createdBy");
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
 
     if (page != 0 && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize);
     }
 
-    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, 'comments', Comment.count({ app: appId }), page, pageSize);
+    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, "comments", Comment.count({ app: appId }), page, pageSize);
     if (userId !== undefined) {
         resultComments.comments = yield VotesHandler.setHasUserVotedForCommentField(resultComments.comments, userId);
     }
@@ -197,9 +197,9 @@ function* clearAppComments(appId) {
 }
 
 function* getCommentsForUser(creatorId, userId, page, pageSize) {
-    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes').populate('createdBy votes');
+    var query = Comment.find({ createdBy: creatorId }).deepPopulate("children.createdBy children.votes").populate('createdBy votes');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'comments', page, pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize);
     if (userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId);
     }

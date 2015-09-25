@@ -208,6 +208,7 @@ function postTweet(app, user) {
     if(user.loginType == LOGIN_TYPES.Twitter) {
         tweetOptions.user = user.username
     }
+
     bolt.postTweet(tweetComposer.compose(tweetOptions))
 }
 
@@ -246,6 +247,7 @@ export function* changeAppStatus(appPackage, status) {
 
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
+
 
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id})

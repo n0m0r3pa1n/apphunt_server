@@ -14,7 +14,7 @@ var _handlersApps_collections_handlerJs = require('../handlers/apps_collections_
 
 var AppsCollectionsHandler = _interopRequireWildcard(_handlersApps_collections_handlerJs);
 
-var _ = require('underscore');
+var _ = require("underscore");
 var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
@@ -24,8 +24,8 @@ var User = require('../models').User;
 var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER;
 
 var routes = [{
-    method: 'GET',
-    path: '/users',
+    method: "GET",
+    path: "/users",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -45,8 +45,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/actions/filter',
+    method: "GET",
+    path: "/users/actions/filter",
     handler: function handler(req, reply) {
         reply.co(UsersHandler.filterExistingUsers(req.query));
     },
@@ -61,8 +61,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/logintypes',
+    method: "GET",
+    path: "/users/logintypes",
     handler: function handler(req, reply) {
         reply.co(UsersHandler.getLoginTypes());
     },
@@ -73,8 +73,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{userId}',
+    method: "GET",
+    path: "/users/{userId}",
     handler: function handler(req, reply) {
         reply.co(UsersHandler.getUserProfile(req.params.userId, req.query.fromDate, req.query.toDate));
     },
@@ -93,8 +93,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/scores',
+    method: "GET",
+    path: "/users/scores",
     handler: function handler(req, reply) {
         var fromDate = req.query.fromDate;
         var toDate = req.query.toDate;
@@ -112,8 +112,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{creatorId}/apps',
+    method: "GET",
+    path: "/users/{creatorId}/apps",
     handler: function handler(req, reply) {
         var query = req.query;
         var params = req.params;
@@ -137,8 +137,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{creatorId}/comments',
+    method: "GET",
+    path: "/users/{creatorId}/comments",
     handler: function handler(req, reply) {
         reply.co(CommentsHandler.getCommentsForUser(req.params.creatorId, req.query.userId, req.query.page, req.query.pageSize));
     },
@@ -158,8 +158,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{creatorId}/collections',
+    method: "GET",
+    path: "/users/{creatorId}/collections",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -181,8 +181,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{favouritedBy}/favourite-collections',
+    method: "GET",
+    path: "/users/{favouritedBy}/favourite-collections",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -204,8 +204,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/users/{creatorId}/favourite-apps',
+    method: "GET",
+    path: "/users/{creatorId}/favourite-apps",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -227,8 +227,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'POST',
-    path: '/users',
+    method: "POST",
+    path: "/users",
     handler: function handler(req, reply) {
         var user = new User(req.payload);
         var notificationId = req.payload.notificationId;
@@ -254,8 +254,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: 'PUT',
-    path: '/users/{userId}',
+    method: "PUT",
+    path: "/users/{userId}",
     handler: function handler(req, reply) {
         var userId = req.params.userId;
         var notificationId = req.payload.notificationId;

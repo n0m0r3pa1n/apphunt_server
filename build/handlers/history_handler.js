@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 exports.createEvent = createEvent;
+exports.postRefreshEvent = postRefreshEvent;
 exports.getHistory = getHistory;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -26,33 +27,88 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var CollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
-var _ = require('underscore');
+var _utilsEvent_emitterJs = require('./utils/event_emitter.js');
+
+var _ = require("underscore");
+
 var Boom = require('boom');
 var CONFIG = require('../config/config');
-
 var History = require('../models').History;
 
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
+var NOTIFICATIONS_TYPES = CONFIG.NOTIFICATION_TYPES;
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 function* createEvent(type, userId) {
-    var params = arguments[2] === undefined ? {} : arguments[2];
+    var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     yield History.create({ type: type, user: userId, params: params });
+    var interestedUsers = [];
+    switch (type) {
+        case HISTORY_EVENT_TYPES.APP_APPROVED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(String(userId));
+            interestedUsers.push(userId);
+            break;
+        case HISTORY_EVENT_TYPES.APP_REJECTED:
+            interestedUsers.push(userId);
+            break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId);
+            var app = yield AppsHandler.getApp(params.appId);
+            if (userId != app.createdBy._id) {
+                interestedUsers.push(app.createdBy._id);
+            }
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId);
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId);
+            var collection = yield CollectionsHandler.get(params.collectionId);
+            if (userId != collection.createdBy._id) {
+                interestedUsers.push(collection.createdBy._id);
+            }
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
+            interestedUsers = (yield CollectionsHandler.get(params.collectionId)).favouritedBy;
+            break;
+        case HISTORY_EVENT_TYPES.USER_COMMENT:
+            interestedUsers = yield FollowersHandler.getFollowersIds(userId);
+            interestedUsers.push((yield AppsHandler.getApp(params.appId)).createdBy._id);
+            break;
+        case HISTORY_EVENT_TYPES.USER_MENTIONED:
+            interestedUsers.push(params.mentionedUserId);
+            break;
+        case HISTORY_EVENT_TYPES.USER_FOLLOWED:
+            interestedUsers.push(params.followingId);
+            break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
+            //TODO
+            break;
+        default:
+            return;
+    }
+
+    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { interestedUsers: interestedUsers });
+}
+
+function* postRefreshEvent(userId) {
+    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { userId: userId });
+    return Boom.OK();
 }
 
 function* getHistory(userId, date) {
     var user = yield UsersHandler.find(userId);
     if (user == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
     var where = {};
     where.createdAt = {
-        '$gte': new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-        '$lt': toDate.toISOString()
+        "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+        "$lt": toDate.toISOString()
     };
     where.user = userId;
     where.type = {

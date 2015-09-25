@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var DEVS_HUNTER_URL = "http://devs-hunter.herokuapp.com";
+var DEVS_HUNTER_URL = 'http://devs-hunter.herokuapp.com';
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs";
 var API_VERSION = 1.0;
 var MIN_APPS_LENGTH_FOR_COLLECTION = 4;
@@ -56,6 +56,7 @@ var loginTypesFilter = {
 };
 
 var notificationTypes = {
+    USER_FOLLOWED: "userFollowed",
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
     USER_MENTIONED: "userMentioned",
@@ -65,8 +66,7 @@ var notificationTypes = {
     FOLLOWING_ADDED_APP: "followingAddedApp",
     FOLLOWING_FAVOURITED_APP: "followingFavouritedApp",
     FOLLOWING_FAVOURITED_COLLECTION: "followingFavouritedCollection",
-    FOLLOWING_COMMENTED_APP: "followingCommentedApp",
-    USER_FOLLOWED: "userFollowed"
+    FOLLOWING_COMMENTED_APP: "followingCommentedApp"
 };
 
 var historyEventTypes = {

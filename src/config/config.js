@@ -51,6 +51,7 @@ var loginTypesFilter = {
 }
 
 var notificationTypes = {
+    USER_FOLLOWED: "userFollowed",
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
     USER_MENTIONED: "userMentioned",
@@ -61,7 +62,6 @@ var notificationTypes = {
     FOLLOWING_FAVOURITED_APP: "followingFavouritedApp",
     FOLLOWING_FAVOURITED_COLLECTION: "followingFavouritedCollection",
     FOLLOWING_COMMENTED_APP: "followingCommentedApp",
-    USER_FOLLOWED: "userFollowed"
 }
 
 var historyEventTypes = {

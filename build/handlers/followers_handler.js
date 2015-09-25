@@ -9,6 +9,7 @@ exports.isFollowing = isFollowing;
 exports.followUser = followUser;
 exports.followUserWithMany = followUserWithMany;
 exports.unfollowUser = unfollowUser;
+exports.getFollowersIds = getFollowersIds;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -39,11 +40,11 @@ var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
 
 function* getFollowers(userId) {
-    var page = arguments[1] === undefined ? 0 : arguments[1];
-    var pageSize = arguments[2] === undefined ? 0 : arguments[2];
+    var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+    var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
-    var query = Follower.find({ following: userId }).select('-_id follower').populate('follower');
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'followers', page, pageSize);
+    var query = Follower.find({ following: userId }).select("-_id follower").populate("follower");
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize);
     var followers = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -75,11 +76,11 @@ function* getFollowers(userId) {
 }
 
 function* getFollowing(userId) {
-    var page = arguments[1] === undefined ? 0 : arguments[1];
-    var pageSize = arguments[2] === undefined ? 0 : arguments[2];
+    var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+    var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
-    var query = Follower.find({ follower: userId }).select('-_id following').populate('following');
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'following', page, pageSize);
+    var query = Follower.find({ follower: userId }).select("-_id following").populate("following");
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize);
     var following = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
@@ -117,27 +118,27 @@ function* isFollowing(user1Id, user2Id) {
 function* followUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     yield followSingleUser(followingId, followerId);
-    NotificationsHandler.sendNotificationsToUsers([followingId], '', '', '', NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
+    NotificationsHandler.sendNotificationsToUsers([followingId], "", "", "", NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     return Boom.OK();
 }
 
 function* followUserWithMany(followingId, followerIds) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     if (followerIds == undefined || followerIds.length == 0) {
-        return Boom.badRequest('Follower ids are required');
+        return Boom.badRequest("Follower ids are required");
     }
 
     var _iteratorNormalCompletion3 = true;
@@ -170,7 +171,7 @@ function* followUserWithMany(followingId, followerIds) {
         }
     }
 
-    NotificationsHandler.sendNotificationsToUsers([followingId], 'Many users followed you!', '', '', NOTIFICATION_TYPES.USER_FOLLOWED);
+    NotificationsHandler.sendNotificationsToUsers([followingId], "Many users followed you!", "", "", NOTIFICATION_TYPES.USER_FOLLOWED);
     return Boom.OK();
 }
 
@@ -182,15 +183,46 @@ function* followSingleUser(followingId, followerId) {
 function* unfollowUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     yield Follower.remove({ following: followingId, follower: followerId }).exec();
 
     return Boom.OK();
+}
+
+function* getFollowersIds(userId) {
+    var followers = (yield getFollowers(userId)).followers;
+    var userIds = [];
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+        for (var _iterator4 = followers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var follower = _step4.value;
+
+            userIds.push(follower._id);
+        }
+    } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                _iterator4['return']();
+            }
+        } finally {
+            if (_didIteratorError4) {
+                throw _iteratorError4;
+            }
+        }
+    }
+
+    return userIds;
 }

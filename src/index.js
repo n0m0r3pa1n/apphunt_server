@@ -10,6 +10,8 @@ var Routes = require('./routes').routes
 var User = require('./models').User
 
 import * as AuthenticationHandler from './handlers/authentication_handler.js'
+import {EventEmitter} from './handlers/utils/event_emitter.js'
+import * as History from './io/history_socket.js'
 import {PRIVATE_KEY} from './config/config.js'
 
 var STATUS_CODES = require('./config/config').STATUS_CODES
@@ -35,6 +37,8 @@ server.connection({
     }
 })
 
+History.setup(server, EventEmitter)
+
 server.register([
     Inert,
     Vision,
@@ -54,7 +58,7 @@ server.register(require('hapi-auth-jwt2'), function (err) {
             key: PRIVATE_KEY, // Never Share your secret key
             validateFunc: AuthenticationHandler.validate       // validate function defined above
         });
-});
+})
 
 server.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
@@ -102,5 +106,5 @@ server.start(function() {
     console.log('AppHunt is rocking your world at port %s', serverPort)
 })
 
-
 module.exports = server
+

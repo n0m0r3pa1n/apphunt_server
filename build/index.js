@@ -6,6 +6,12 @@ var _handlersAuthentication_handlerJs = require('./handlers/authentication_handl
 
 var AuthenticationHandler = _interopRequireWildcard(_handlersAuthentication_handlerJs);
 
+var _handlersUtilsEvent_emitterJs = require('./handlers/utils/event_emitter.js');
+
+var _ioHistory_socketJs = require('./io/history_socket.js');
+
+var History = _interopRequireWildcard(_ioHistory_socketJs);
+
 var _configConfigJs = require('./config/config.js');
 
 var Mongoose = require('mongoose');
@@ -40,6 +46,8 @@ server.connection({
         cors: true
     }
 });
+
+History.setup(server, _handlersUtilsEvent_emitterJs.EventEmitter);
 
 server.register([Inert, Vision, {
     register: HapiSwagger,
