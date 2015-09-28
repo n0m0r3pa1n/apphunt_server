@@ -213,6 +213,7 @@ function* getUserProfile(userId, fromDate, toDate) {
     user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId);
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId);
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
+    user.following = (yield FollowersHandler.getFollowing(userId)).following;
 
     return user;
 }

@@ -67,7 +67,10 @@ describe("Users", function() {
 
     it("should get populated user profile", function* () {
         var userId = (yield dbHelper.createUser()).result.id
+		var followingId = (yield dbHelper.createUserWithEmail("poli@abv.bg")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+
+		yield dbHelper.followUser(followingId, userId)
 
         var appsIds = yield dbHelper.createFourAppsWithIds(userId)
         yield dbHelper.makeCollectionPublic(userId, collectionId, appsIds)
@@ -93,6 +96,7 @@ describe("Users", function() {
         result.votes.should.eq(6)
 		result.favouriteApps.should.eq(1)
 		result.favouriteCollections.should.eq(1)
+		result.following.length.should.eq(1)
     })
 
 	it("should get all users", function*() {
