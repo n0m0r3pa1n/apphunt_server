@@ -15,6 +15,7 @@ import * as PaginationHandler from "./pagination_handler.js"
 
 import * as AuthHandler from './authentication_handler.js'
 import * as ScoresHandler from './user_score_handler.js'
+import * as FollowersHandler from './followers_handler.js'
 
 
 export function* get(q, loginType, page, pageSize) {
@@ -56,14 +57,26 @@ export function* getUserDevices(userId) {
     return user.devices
 }
 
-export function* filterExistingUsers({names}) {
-    let results = []
-    for(let name of names) {
-        let users = yield User.find({name: {$regex: name, $options: 'i'}}).exec()
-        results = results.concat(users)
+export function* filterExistingUsers(userId, names) {
+    let user = yield find(userId)
+    if(user == null) {
+        return Boom.notFound("User is not existing!")
     }
 
-    return results
+    let matchingUsers = []
+    for(let name of names) {
+        let users = yield User.find({name: {$regex: name, $options: 'i'}}).exec()
+        matchingUsers = matchingUsers.concat(users)
+    }
+
+    let result = []
+    for(let matchingUser of matchingUsers) {
+        matchingUser = matchingUser.toObject()
+        matchingUser.isFollowing = yield FollowersHandler.isFollowing(userId, matchingUser._id)
+        result.push(matchingUser)
+    }
+
+    return {users: result}
 }
 
 export function* getDeviceIdsForUser(user) {

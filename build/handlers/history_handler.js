@@ -132,7 +132,8 @@ function* getHistory(userId, date) {
         params: { followingId: userId }
     }).populate('user').exec()));
 
-    return yield getPopulatedResponseWithIsFollowing(userId, results);
+    var events = yield getPopulatedResponseWithIsFollowing(userId, results);
+    return { events: events };
 }
 
 function* getPopulatedResponseWithIsFollowing(userId, results) {

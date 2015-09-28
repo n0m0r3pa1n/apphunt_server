@@ -196,14 +196,23 @@ describe("Users", function() {
         yield dbHelper.createUser()
         var testId = (yield dbHelper.createUserWithName("test@test.co", "Georgi Mirchev")).result.id
         yield dbHelper.createUser("test@test.com")
+
+        var followingId = (yield dbHelper.createUserWithName("test@test2.com", "Georgi Mirchev2")).result.id
+        yield dbHelper.followUser(followingId, testId)
+
 		var opts = {
-			method: 'GET',
-			url: '/v1/users/actions/filter?names[]=Georgi'
+			method: 'POST',
+			url: '/v1/users/actions/filter?userId=' + testId,
+            payload: {
+                names: ['Georgi']
+            }
 		}
 
 		var response = yield Server.injectThen(opts)
-		response.result[0].id.should.eq(String(testId))
-	});
+        String(response.result.users[0]._id).should.eq(String(testId))
+        expect(response.result.users[0].isFollowing).to.exist
+        response.result.users[1].isFollowing.should.eq(true)
+    });
 
 	it("should get users with score", function*() {
 		var user1Id = (yield dbHelper.createUserWithLoginType("loli@abv.bg", LOGIN_TYPES_FILTER.Twitter)).result.id

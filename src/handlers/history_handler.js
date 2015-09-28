@@ -107,7 +107,8 @@ export function* getHistory(userId, date) {
         params: {followingId: userId}
     }).populate('user').exec())
 
-    return yield getPopulatedResponseWithIsFollowing(userId, results)
+    let events = yield getPopulatedResponseWithIsFollowing(userId, results)
+    return {events: events}
 }
 
 function* getPopulatedResponseWithIsFollowing(userId, results) {

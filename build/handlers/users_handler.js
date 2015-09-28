@@ -37,6 +37,10 @@ var _user_score_handlerJs = require('./user_score_handler.js');
 
 var ScoresHandler = _interopRequireWildcard(_user_score_handlerJs);
 
+var _followers_handlerJs = require('./followers_handler.js');
+
+var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
+
 var _ = require('underscore');
 var Boom = require('boom');
 var Bolt = require("bolt-js");
@@ -85,10 +89,13 @@ function* getUserDevices(userId) {
     return user.devices;
 }
 
-function* filterExistingUsers(_ref) {
-    var names = _ref.names;
+function* filterExistingUsers(userId, names) {
+    var user = yield find(userId);
+    if (user == null) {
+        return Boom.notFound("User is not existing!");
+    }
 
-    var results = [];
+    var matchingUsers = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -98,7 +105,7 @@ function* filterExistingUsers(_ref) {
             var _name = _step.value;
 
             var users = yield User.find({ name: { $regex: _name, $options: 'i' } }).exec();
-            results = results.concat(users);
+            matchingUsers = matchingUsers.concat(users);
         }
     } catch (err) {
         _didIteratorError = true;
@@ -115,24 +122,18 @@ function* filterExistingUsers(_ref) {
         }
     }
 
-    return results;
-}
-
-function* getDeviceIdsForUser(user) {
-    if (user.populated('devices')) {
-        user = yield User.findOne(user).populate('devices');
-    }
-
-    var notificationIds = [];
+    var result = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator2 = user.devices[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var device = _step2.value;
+        for (var _iterator2 = matchingUsers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var matchingUser = _step2.value;
 
-            notificationIds = notificationIds.concat(device.notificationId);
+            matchingUser = matchingUser.toObject();
+            matchingUser.isFollowing = yield FollowersHandler.isFollowing(userId, matchingUser._id);
+            result.push(matchingUser);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -145,6 +146,40 @@ function* getDeviceIdsForUser(user) {
         } finally {
             if (_didIteratorError2) {
                 throw _iteratorError2;
+            }
+        }
+    }
+
+    return { users: result };
+}
+
+function* getDeviceIdsForUser(user) {
+    if (user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices');
+    }
+
+    var notificationIds = [];
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = user.devices[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var device = _step3.value;
+
+            notificationIds = notificationIds.concat(device.notificationId);
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                _iterator3['return']();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
             }
         }
     }

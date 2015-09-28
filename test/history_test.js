@@ -34,11 +34,11 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
-        response.result.length.should.eq(1)
-        String(response.result[0].user._id).should.eq(String(userId))
-        expect(response.result[0].user.isFollowing).to.exist
-        expect(response.result[0].user.isFollowing).to.eq(true)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
+        response.result.events.length.should.eq(1)
+        String(response.result.events[0].user._id).should.eq(String(userId))
+        expect(response.result.events[0].user.isFollowing).to.exist
+        expect(response.result.events[0].user.isFollowing).to.eq(true)
     })
 
     it("should get following collection create history", function* () {
@@ -58,9 +58,9 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_CREATED)
-        response.result.length.should.eq(5)
-        String(_.filter(response.result, function (element) {
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_CREATED)
+        response.result.events.length.should.eq(5)
+        String(_.filter(response.result.events, function (element) {
             return element.type == HISTORY_EVENT_TYPES.COLLECTION_CREATED;
         })[0].user._id).should.eq(String(userId));
     })
@@ -80,9 +80,9 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
-        response.result.length.should.eq(1)
-        String(response.result[0].user._id).should.eq(String(userId))
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
+        response.result.events.length.should.eq(1)
+        String(response.result.events[0].user._id).should.eq(String(userId))
     })
 
     it("should get following app favourite history", function* () {
@@ -104,9 +104,9 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_FAVOURITED)
-        response.result.length.should.eq(1)
-        String(response.result[0].user._id).should.eq(String(userId))
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_FAVOURITED)
+        response.result.events.length.should.eq(1)
+        String(response.result.events[0].user._id).should.eq(String(userId))
     })
 
 
@@ -140,9 +140,9 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS)
-        String(response.result[0].user._id).should.eq(String(userId))
-        response.result.length.should.eq(1)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS)
+        String(response.result.events[0].user._id).should.eq(String(userId))
+        response.result.events.length.should.eq(1)
     })
 
     it("should get someone followed history", function* () {
@@ -157,8 +157,8 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_FOLLOWED)
-        response.result.length.should.eq(1)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_FOLLOWED)
+        response.result.events.length.should.eq(1)
     })
 
 
@@ -182,10 +182,10 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_UPDATED)
-        var appApprovedEvents = _.filter(response.result, function(element){ return element.type == HISTORY_EVENT_TYPES.APP_APPROVED; });
-        expect(response.result[0].user.isFollowing).to.exist
-        expect(response.result[0].user.isFollowing).to.eq(false)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_UPDATED)
+        var appApprovedEvents = _.filter(response.result.events, function(element){ return element.type == HISTORY_EVENT_TYPES.APP_APPROVED; });
+        expect(response.result.events[0].user.isFollowing).to.exist
+        expect(response.result.events[0].user.isFollowing).to.eq(false)
         appApprovedEvents.length.should.eq(4)
     });
 
@@ -208,8 +208,8 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
-        response.result.length.should.eq(1)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
+        response.result.events.length.should.eq(1)
     });
 
     it("should get user comments history", function*() {
@@ -230,9 +230,9 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_COMMENT)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_MENTIONED)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_COMMENT)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_MENTIONED)
     });
 
     it("should get user history events for favourite app", function*() {
@@ -252,7 +252,7 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.length.should.eq(2)
+        response.result.events.length.should.eq(2)
     })
 
     it("should get approved and rejected user history ", function*() {
@@ -280,8 +280,8 @@ describe("History", function () {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_REJECTED)
-        response.result.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_REJECTED)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
     })
 
 })

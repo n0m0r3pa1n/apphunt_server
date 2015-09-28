@@ -34,14 +34,17 @@ var routes = [
         }
     },
     {
-        method: "GET",
+        method: "POST",
         path: "/users/actions/filter",
         handler: function(req, reply) {
-            reply.co(UsersHandler.filterExistingUsers(req.query))
+            reply.co(UsersHandler.filterExistingUsers(req.query.userId, req.payload.names))
         },
         config: {
             validate: {
                 query: {
+                    userId: Joi.string().required()
+                },
+                payload: {
                     names: Joi.array().items(Joi.string()).required()
                 }
             },
