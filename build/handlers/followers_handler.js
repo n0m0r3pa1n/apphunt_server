@@ -7,7 +7,8 @@ exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
 exports.isFollowing = isFollowing;
 exports.followUser = followUser;
-exports.followUserWithMany = followUserWithMany;
+exports.addFollowings = addFollowings;
+exports.addFollowers = addFollowers;
 exports.unfollowUser = unfollowUser;
 exports.getFollowersIds = getFollowersIds;
 
@@ -131,14 +132,14 @@ function* followUser(followingId, followerId) {
     return Boom.OK();
 }
 
-function* followUserWithMany(followingId, followerIds) {
-    var following = yield UsersHandler.find(followingId);
-    if (following == null) {
+function* addFollowings(userId, followingIds) {
+    var user = yield UsersHandler.find(userId);
+    if (user == null) {
         return Boom.notFound("User is not existing!");
     }
 
-    if (followerIds == undefined || followerIds.length == 0) {
-        return Boom.badRequest("Follower ids are required");
+    if (followingIds == undefined || followingIds.length == 0) {
+        return Boom.badRequest("Following ids are required");
     }
 
     var _iteratorNormalCompletion3 = true;
@@ -146,11 +147,11 @@ function* followUserWithMany(followingId, followerIds) {
     var _iteratorError3 = undefined;
 
     try {
-        for (var _iterator3 = followerIds[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var userId = _step3.value;
+        for (var _iterator3 = followingIds[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var followingId = _step3.value;
 
-            var follower = yield UsersHandler.find(userId);
-            if (follower == null) {
+            var following = yield UsersHandler.find(followingId);
+            if (following == null) {
                 continue;
             }
 
@@ -167,6 +168,49 @@ function* followUserWithMany(followingId, followerIds) {
         } finally {
             if (_didIteratorError3) {
                 throw _iteratorError3;
+            }
+        }
+    }
+
+    return Boom.OK();
+}
+
+function* addFollowers(followingId, followerIds) {
+    var following = yield UsersHandler.find(followingId);
+    if (following == null) {
+        return Boom.notFound("User is not existing!");
+    }
+
+    if (followerIds == undefined || followerIds.length == 0) {
+        return Boom.badRequest("Follower ids are required");
+    }
+
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+        for (var _iterator4 = followerIds[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var userId = _step4.value;
+
+            var follower = yield UsersHandler.find(userId);
+            if (follower == null) {
+                continue;
+            }
+
+            yield followSingleUser(followingId, userId);
+        }
+    } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                _iterator4['return']();
+            }
+        } finally {
+            if (_didIteratorError4) {
+                throw _iteratorError4;
             }
         }
     }
@@ -199,27 +243,27 @@ function* unfollowUser(followingId, followerId) {
 function* getFollowersIds(userId) {
     var followers = (yield getFollowers(userId)).followers;
     var userIds = [];
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
 
     try {
-        for (var _iterator4 = followers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var follower = _step4.value;
+        for (var _iterator5 = followers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var follower = _step5.value;
 
             userIds.push(follower._id);
         }
     } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-                _iterator4['return']();
+            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                _iterator5['return']();
             }
         } finally {
-            if (_didIteratorError4) {
-                throw _iteratorError4;
+            if (_didIteratorError5) {
+                throw _iteratorError5;
             }
         }
     }

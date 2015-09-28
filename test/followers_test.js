@@ -21,7 +21,7 @@ describe("Followers", function () {
         var follower1Id = (yield dbHelper.createUserWithEmail("sdasdsad")).result.id
         var follower2Id = (yield dbHelper.createUserWithEmail("sdasdsad2")).result.id
         var follower3Id = (yield dbHelper.createUserWithEmail("sdasdsad3")).result.id
-        var response = yield dbHelper.followManyUsers(followingId, [follower1Id, follower2Id, follower3Id])
+        var response = yield dbHelper.addFollowers(followingId, [follower1Id, follower2Id, follower3Id])
         response.result.statusCode.should.eq(STATUS_CODES.OK)
 
         var opts = {
@@ -31,6 +31,23 @@ describe("Followers", function () {
 
         var response2 = yield Server.injectThen(opts)
         response2.result.followers.length.should.eq(3)
+    });
+
+    it("user should follow many users", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var follower1Id = (yield dbHelper.createUserWithEmail("sdasdsad")).result.id
+        var follower2Id = (yield dbHelper.createUserWithEmail("sdasdsad2")).result.id
+        var follower3Id = (yield dbHelper.createUserWithEmail("sdasdsad3")).result.id
+
+        yield dbHelper.addFollowings(userId, [follower1Id, follower2Id, follower3Id])
+
+        var opts2 = {
+            method: "GET",
+            url: '/users/' + userId + "/following?page=1&pageSize=3"
+        }
+
+        var response3 = yield Server.injectThen(opts2)
+        response3.result.following.length.should.eq(3)
     });
 
     it("should unfollow user", function*() {

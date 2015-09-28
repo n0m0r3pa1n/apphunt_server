@@ -50,7 +50,7 @@ var routes = [{
             }
         },
         auth: false,
-        description: 'Search users by query and login type',
+        description: 'Get the following for userId',
         tags: ['api']
     }
 }, {
@@ -74,17 +74,36 @@ var routes = [{
     }
 }, {
     method: "POST",
-    path: "/users/{followingId}/followers",
+    path: "/users/{userId}/followers",
     handler: function handler(req, reply) {
-        reply.co(FollowersHandler.followUserWithMany(req.params.followingId, req.payload.followerIds));
+        reply.co(FollowersHandler.addFollowers(req.params.userId, req.payload.followerIds));
     },
     config: {
         validate: {
+            params: {
+                userId: Joi.objectId().required()
+            },
             payload: {
                 followerIds: Joi.array().items(Joi.string()).required()
-            },
+            }
+        },
+        auth: false,
+        description: 'Follow many users',
+        tags: ['api']
+    }
+}, {
+    method: "POST",
+    path: "/users/{userId}/following",
+    handler: function handler(req, reply) {
+        reply.co(FollowersHandler.addFollowings(req.params.userId, req.payload.followingIds));
+    },
+    config: {
+        validate: {
             params: {
-                followingId: Joi.objectId().required()
+                userId: Joi.objectId().required()
+            },
+            payload: {
+                followingIds: Joi.array().items(Joi.string()).required()
             }
         },
         auth: false,

@@ -290,7 +290,7 @@ function followUser(followingId, followerId) {
     return Server.injectThen(opts)
 }
 
-function followManyUsers(followingId, followerIds) {
+function addFollowers(followingId, followerIds) {
     var opts = {
         method: "POST",
         url: '/users/' + followingId + "/followers",
@@ -298,6 +298,18 @@ function followManyUsers(followingId, followerIds) {
             followerIds: followerIds
         }
     }
+    return Server.injectThen(opts)
+}
+
+function addFollowings(userId, followingIds) {
+    var opts = {
+        method: "POST",
+        url: '/users/' + userId + "/following",
+        payload: {
+            followingIds: followingIds
+        }
+    }
+
     return Server.injectThen(opts)
 }
 
@@ -403,7 +415,8 @@ module.exports.approveApp = approveApp
 module.exports.createFourAppsWithIds = createAppsIdsList
 module.exports.favouriteApp = favouriteApp
 module.exports.followUser = followUser
-module.exports.followManyUsers = followManyUsers
+module.exports.addFollowers = addFollowers
+module.exports.addFollowings = addFollowings
 module.exports.unfollowUser = unfollowUser
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1

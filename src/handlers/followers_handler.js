@@ -58,7 +58,29 @@ export function* followUser(followingId, followerId) {
     return Boom.OK()
 }
 
-export function* followUserWithMany(followingId, followerIds) {
+export function* addFollowings(userId, followingIds) {
+    let user = yield UsersHandler.find(userId)
+    if(user == null) {
+        return Boom.notFound("User is not existing!")
+    }
+
+    if(followingIds == undefined || followingIds.length == 0) {
+        return Boom.badRequest("Following ids are required")
+    }
+
+    for(let followingId of followingIds) {
+        let following = yield UsersHandler.find(followingId)
+        if(following == null) {
+            continue;
+        }
+
+        yield followSingleUser(followingId, userId)
+    }
+
+    return Boom.OK()
+}
+
+export function* addFollowers(followingId, followerIds) {
     let following = yield UsersHandler.find(followingId)
     if(following == null) {
         return Boom.notFound("User is not existing!")
