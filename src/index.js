@@ -31,19 +31,23 @@ var server = new Hapi.Server()
 
 server.connection({
     port: serverPort,
+    labels: ['api'],
     routes: {
         cors: true
     }
 })
 
 server.connection({
-    port: serverPort,
-    labels: ['history']
+    port: 8081,
+    labels: ['ws']
 })
+var apiServer = server.select('api')
+var wsServer = server.select('ws')
 
-History.setup(server, serverPort)
 
-server.register([
+History.setup(wsServer, 8081)
+
+apiServer.register([
     Inert,
     Vision,
     {
@@ -52,23 +56,23 @@ server.register([
     }], function (err) {
 });
 
-server.register(require('hapi-auth-jwt2'), function (err) {
+apiServer.register(require('hapi-auth-jwt2'), function (err) {
     if (err) {
         console.log(err);
     }
 
-    server.auth.strategy('jwt', 'jwt', true,
+    apiServer.auth.strategy('jwt', 'jwt', true,
         {
             key: PRIVATE_KEY, // Never Share your secret key
             validateFunc: AuthenticationHandler.validate       // validate function defined above
         });
 })
 
-server.decorate('reply', 'co', function (handler) {
+apiServer.decorate('reply', 'co', function (handler) {
     this.response(Co(handler))
 })
 
-server.ext('onRequest', function (request, reply) {
+apiServer.ext('onRequest', function (request, reply) {
     var path = request.path
     var query = request.query
     path = path.replace('/v1','')
@@ -77,7 +81,7 @@ server.ext('onRequest', function (request, reply) {
     return reply.continue();
 });
 
-server.ext('onPreHandler', function (request, reply) {
+apiServer.ext('onPreHandler', function (request, reply) {
     var userId = request.payload !== null ? request.payload.userId : request.query.userId
     if(userId) {
         var user = User.findOne({_id: userId}).exec()
@@ -93,7 +97,7 @@ server.ext('onPreHandler', function (request, reply) {
     }
 });
 
-server.ext('onPreResponse', function (request, reply) {
+apiServer.ext('onPreResponse', function (request, reply) {
 
     var source = request.response.source
     if(source && source.statusCode) {
@@ -105,7 +109,7 @@ server.ext('onPreResponse', function (request, reply) {
 
 });
 
-server.route(Routes)
+apiServer.route(Routes)
 server.start(function() {
     console.log('AppHunt is rocking your world at port %s', serverPort)
 })
