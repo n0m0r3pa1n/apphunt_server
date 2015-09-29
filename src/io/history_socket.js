@@ -5,7 +5,10 @@ export function setup(server, port) {
         labels: ['history']
     })
 
-    var io = require('socket.io')(server.select('history').listener)
+    var io = require('socket.io')(server.select('history').listener, {
+        path: '/socket.io-client'
+    })
+    io.set('transports', ['websocket']);
     var users = [];
     let room = "UserHistory"
     let socket = {}
