@@ -37,7 +37,7 @@ server.connection({
     }
 })
 
-History.setup(server, EventEmitter)
+History.setup(server, serverPort)
 
 server.register([
     Inert,

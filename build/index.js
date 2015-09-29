@@ -47,7 +47,7 @@ server.connection({
     }
 });
 
-History.setup(server, _handlersUtilsEvent_emitterJs.EventEmitter);
+History.setup(server, serverPort);
 
 server.register([Inert, Vision, {
     register: HapiSwagger,

@@ -7,9 +7,9 @@ exports.setup = setup;
 
 var _handlersUtilsEvent_emitterJs = require('../handlers/utils/event_emitter.js');
 
-function setup(server) {
+function setup(server, port) {
     server.connection({
-        port: 8081,
+        port: port,
         labels: ['history']
     });
 
