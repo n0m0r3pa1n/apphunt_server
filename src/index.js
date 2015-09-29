@@ -20,7 +20,7 @@ var JSExtensions = require('./utils/extension_utils')
 var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 
 Mongoose.connect(dbURI)
-var serverPort = process.env.PORT || 8080
+var serverPort = 8080 //process.env.PORT ||
 
 
 var swaggerOptions = {
