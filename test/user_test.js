@@ -68,9 +68,11 @@ describe("Users", function() {
     it("should get populated user profile", function* () {
         var userId = (yield dbHelper.createUser()).result.id
 		var followingId = (yield dbHelper.createUserWithEmail("poli@abv.bg")).result.id
+        var followerId = (yield dbHelper.createUserWithEmail("df")).result.id
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
 
 		yield dbHelper.followUser(followingId, userId)
+		yield dbHelper.followUser(userId, followerId)
 
         var appsIds = yield dbHelper.createFourAppsWithIds(userId)
         yield dbHelper.makeCollectionPublic(userId, collectionId, appsIds)
@@ -79,7 +81,7 @@ describe("Users", function() {
 		yield dbHelper.favouriteApp(appId, userId)
 		yield dbHelper.favouriteCollection(collectionId, userId)
 
-        var commentResponse = yield dbHelper.createComment(appId, userId)
+        yield dbHelper.createComment(appId, userId)
 
         var today = new Date();
         var todayStr = today.toString("yyyy-MMM-dd")
@@ -97,6 +99,43 @@ describe("Users", function() {
 		result.favouriteApps.should.eq(1)
 		result.favouriteCollections.should.eq(1)
 		result.following.length.should.eq(1)
+		result.followingCount.should.eq(1)
+        result.followers.length.should.eq(1)
+		result.followersCount.should.eq(1)
+    })
+
+    it("should get populated user profile for current user", function* () {
+        var currentUserId = (yield dbHelper.createUser()).result.id
+        var profileId = (yield dbHelper.createUserWithEmail("asdasd")).result.id
+
+        var following1Id = (yield dbHelper.createUserWithEmail("sdsa")).result.id
+        var following2Id = (yield dbHelper.createUserWithEmail("sdsazxzx")).result.id
+
+
+        yield dbHelper.followUser(following1Id, currentUserId)
+        yield dbHelper.followUser(following1Id, profileId)
+        yield dbHelper.followUser(following2Id, profileId)
+        yield dbHelper.followUser(profileId, currentUserId)
+
+        var today = new Date();
+        var todayStr = today.toString("yyyy-MMM-dd")
+
+        var opts = {
+            method: 'GET',
+            url: '/users/' + profileId + "?fromDate=" + todayStr + "&toDate=" + todayStr + "&currentUserId=" + currentUserId
+        }
+
+        var result = (yield Server.injectThen(opts)).result
+        result.following.length.should.eq(2)
+        result.followingCount.should.eq(2)
+        result.followersCount.should.eq(1)
+        _.filter(result.following, function (element) {
+            return String(element._id) == String(following1Id);
+        })[0].isFollowing.should.eq(true);
+        _.filter(result.following, function (element) {
+            return String(element._id) == String(following2Id);
+        })[0].isFollowing.should.eq(false);
+        result.followers[0].isFollowing.should.eq(false)
     })
 
 	it("should get all users", function*() {
@@ -228,7 +267,7 @@ describe("Users", function() {
 		//yield dbHelper.createComment(appId, user1Id)
 		yield dbHelper.approveApp("dsdzfsd.ds")
 		yield dbHelper.approveApp("dsdzfsd.kor")
-		
+
 		yield dbHelper.voteApp(app2Id, user1Id)
 
 		yield dbHelper.createAppsCollection(user2Id)

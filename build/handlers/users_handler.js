@@ -122,18 +122,22 @@ function* filterExistingUsers(userId, names) {
         }
     }
 
+    return { users: yield getPopulatedIsFollowing(user.id, matchingUsers) };
+}
+
+function* getPopulatedIsFollowing(followerId, users) {
     var result = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator2 = matchingUsers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var matchingUser = _step2.value;
+        for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var user = _step2.value;
 
-            matchingUser = matchingUser.toObject();
-            matchingUser.isFollowing = yield FollowersHandler.isFollowing(userId, matchingUser._id);
-            result.push(matchingUser);
+            user = user.toObject();
+            user.isFollowing = yield FollowersHandler.isFollowing(followerId, user._id);
+            result.push(user);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -150,7 +154,7 @@ function* filterExistingUsers(userId, names) {
         }
     }
 
-    return { users: result };
+    return result;
 }
 
 function* getDeviceIdsForUser(user) {
@@ -199,11 +203,18 @@ function* getDevicesForAllUsers() {
     return yield Device.find({}).exec();
 }
 
-function* getUserProfile(userId, fromDate, toDate) {
+function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     var user = yield find(userId);
     if (user == null) {
         return Boom.notFound("User is not existing!");
     }
+    if (currentUserId != undefined) {
+        var currentUser = yield find(currentUserId);
+        if (currentUser == null) {
+            return Boom.notFound("Current user is not existing!");
+        }
+    }
+
     user = user.toObject();
     var details = yield ScoresHandler.getUserDetails(userId);
     user.apps = details.addedApps;
@@ -213,8 +224,14 @@ function* getUserProfile(userId, fromDate, toDate) {
     user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId);
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId);
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
-    user.following = (yield FollowersHandler.getFollowing(userId)).following;
 
+    var followings = currentUserId != undefined ? (yield FollowersHandler.getPopulatedFollowing(userId, currentUserId)) : (yield FollowersHandler.getFollowing(userId)).following;
+    user.following = followings;
+    user.followingCount = followings.length;
+
+    var followers = currentUserId != undefined ? (yield FollowersHandler.getPopulatedFollowers(userId, currentUserId)) : (yield FollowersHandler.getFollowers(userId)).followers;
+    user.followers = followers;
+    user.followersCount = followers.length;
     return user;
 }
 

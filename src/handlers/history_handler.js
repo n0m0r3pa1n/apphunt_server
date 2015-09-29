@@ -122,6 +122,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     for(let result of results) {
         result = result.toObject()
         result.user.isFollowing = _.contains(followingIds, String(result.user._id));
+        result.text = "Test"
         response.push(result)
     }
 

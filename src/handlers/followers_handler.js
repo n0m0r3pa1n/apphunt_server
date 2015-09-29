@@ -19,12 +19,34 @@ export function* getFollowers(userId, page = 0, pageSize = 0) {
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize)
     let followers = []
     for(let item of result.followers) {
-        followers.push(item.follower)
+        let follower = item.follower
+        follower.isFollowing = false
+        followers.push(follower)
     }
-
     result.followers = followers
     return result
 }
+
+export function* getPopulatedFollowers(userProfileId, currentUserId) {
+    let followers = (yield getFollowers(userProfileId)).followers
+    return yield getPopulatedIsFollowing(currentUserId, followers)
+}
+
+export function* getPopulatedFollowing(userProfileId, currentUserId) {
+    let followings = (yield getFollowing(userProfileId)).following
+    return yield getPopulatedIsFollowing(currentUserId, followings)
+}
+
+function* getPopulatedIsFollowing(followerId, users) {
+    let result = []
+    for(let user of users) {
+        user = user.toObject()
+        user.isFollowing = yield isFollowing(followerId, user._id)
+        result.push(user)
+    }
+    return result;
+}
+
 
 export function* getFollowing(userId, page = 0, pageSize = 0) {
     let query = Follower.find({follower: userId}).select("-_id following").populate("following")
@@ -38,8 +60,8 @@ export function* getFollowing(userId, page = 0, pageSize = 0) {
     return result
 }
 
-export function* isFollowing(user1Id, user2Id) {
-    return (yield Follower.count({following: user2Id, follower: user1Id}).exec()) > 0
+export function* isFollowing(followerId, followingId) {
+    return (yield Follower.count({following: followingId, follower: followerId}).exec()) > 0
 }
 
 export function* followUser(followingId, followerId) {

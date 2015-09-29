@@ -69,14 +69,17 @@ export function* filterExistingUsers(userId, names) {
         matchingUsers = matchingUsers.concat(users)
     }
 
-    let result = []
-    for(let matchingUser of matchingUsers) {
-        matchingUser = matchingUser.toObject()
-        matchingUser.isFollowing = yield FollowersHandler.isFollowing(userId, matchingUser._id)
-        result.push(matchingUser)
-    }
+    return {users: (yield getPopulatedIsFollowing(user.id, matchingUsers))}
+}
 
-    return {users: result}
+function* getPopulatedIsFollowing(followerId, users) {
+    let result = []
+    for(let user of users) {
+        user = user.toObject()
+        user.isFollowing = yield FollowersHandler.isFollowing(followerId, user._id)
+        result.push(user)
+    }
+    return result;
 }
 
 export function* getDeviceIdsForUser(user) {
@@ -105,11 +108,18 @@ export function* getDevicesForAllUsers() {
     return yield Device.find({}).exec()
 }
 
-export function* getUserProfile(userId, fromDate, toDate) {
+export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     let user = yield find(userId)
     if(user == null) {
         return Boom.notFound("User is not existing!")
     }
+    if(currentUserId != undefined) {
+        let currentUser = yield find(currentUserId)
+        if(currentUser == null) {
+            return Boom.notFound("Current user is not existing!")
+        }
+    }
+
     user = user.toObject()
     let details = yield ScoresHandler.getUserDetails(userId)
     user.apps = details.addedApps
@@ -119,8 +129,16 @@ export function* getUserProfile(userId, fromDate, toDate) {
     user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId)
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId)
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score
-    user.following = (yield FollowersHandler.getFollowing(userId)).following
 
+    let followings = currentUserId != undefined ? yield FollowersHandler.getPopulatedFollowing(userId, currentUserId) :
+        (yield FollowersHandler.getFollowing(userId)).following;
+    user.following = followings
+    user.followingCount = followings.length
+
+    let followers = currentUserId != undefined ? yield FollowersHandler.getPopulatedFollowers(userId, currentUserId) :
+        (yield FollowersHandler.getFollowers(userId)).followers;
+    user.followers = followers
+    user.followersCount = followers.length
     return user
 }
 

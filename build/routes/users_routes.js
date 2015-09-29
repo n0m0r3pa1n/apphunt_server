@@ -77,18 +77,19 @@ var routes = [{
     }
 }, {
     method: "GET",
-    path: "/users/{userId}",
+    path: "/users/{profileId}",
     handler: function handler(req, reply) {
-        reply.co(UsersHandler.getUserProfile(req.params.userId, req.query.fromDate, req.query.toDate));
+        reply.co(UsersHandler.getUserProfile(req.params.profileId, req.query.fromDate, req.query.toDate, req.query.currentUserId));
     },
     config: {
         validate: {
             params: {
-                userId: Joi.string().required()
+                profileId: Joi.string().required()
             },
             query: {
                 fromDate: Joi.date().required(),
-                toDate: Joi.date().required()
+                toDate: Joi.date().required(),
+                currentUserId: Joi.string().optional()
             }
         },
         auth: false,
