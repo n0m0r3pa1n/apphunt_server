@@ -1,7 +1,6 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
-export function setup(server, port) {
+export function setup(server) {
     var io = require('socket.io')(server.listener)
-    io.listen(port)
     var users = [];
     let room = "UserHistory"
     let socket = {}

@@ -31,21 +31,20 @@ var server = new Hapi.Server()
 
 server.connection({
     port: serverPort,
-    labels: ['api'],
+    labels: ['api', 'ws'],
     routes: {
         cors: true
     }
 })
 
-server.connection({
-    port: 8081,
-    labels: ['ws']
-})
+//server.connection({
+//    labels: ['ws']
+//})
+
 var apiServer = server.select('api')
 var wsServer = server.select('ws')
 
-
-History.setup(wsServer, 8081)
+History.setup(wsServer)
 
 apiServer.register([
     Inert,

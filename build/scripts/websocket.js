@@ -10,7 +10,11 @@ var options = {
 };
 
 var client1 = io.connect(socketURL, options);
+client1.on('disconnect', function (data, error) {
+    console.log('AAAAA');
+});
 client1.on('connect', function (data, error) {
+    console.log(error);
     client1.emit('add user', "test");
 });
 client1.on('refresh', function (data, error) {
@@ -19,6 +23,7 @@ client1.on('refresh', function (data, error) {
 
 var client2 = io.connect(socketURL, options);
 client2.on('connect', function (data, error) {
+    console.log(error);
     client2.emit('add user', "test2");
 });
 

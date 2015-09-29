@@ -7,9 +7,8 @@ exports.setup = setup;
 
 var _handlersUtilsEvent_emitterJs = require('../handlers/utils/event_emitter.js');
 
-function setup(server, port) {
+function setup(server) {
     var io = require('socket.io')(server.listener);
-    io.listen(port);
     var users = [];
     var room = "UserHistory";
     var socket = {};
