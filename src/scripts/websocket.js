@@ -1,6 +1,6 @@
 var io = require('socket.io-client');
 
-var socketURL = 'http://localhost:8081';
+var socketURL = 'http://apphunt-dev.herokuapp.com';
 
 var options = {
     transports: ['websocket'],

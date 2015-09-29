@@ -8,15 +8,9 @@ exports.setup = setup;
 var _handlersUtilsEvent_emitterJs = require('../handlers/utils/event_emitter.js');
 
 function setup(server, port) {
-    server.connection({
-        port: Number(port),
-        labels: ['history']
-    });
+    var io = require('socket.io')(server.select('history').listener);
+    io.listen(port);
 
-    var io = require('socket.io')(server.select('history').listener, {
-        path: '/socket.io-client'
-    });
-    io.set('transports', ['websocket']);
     var users = [];
     var room = "UserHistory";
     var socket = {};

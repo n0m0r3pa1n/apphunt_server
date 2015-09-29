@@ -15,7 +15,7 @@ var STATUS_CODES = CONFIG.STATUS_CODES
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
-var socketURL = 'http://localhost:8081';
+var socketURL = 'http://localhost:8080';
 
 var options = {
     transports: ['websocket'],

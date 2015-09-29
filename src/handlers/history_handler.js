@@ -68,7 +68,7 @@ export function* createEvent(type, userId, params = {}) {
 }
 
 export function* postRefreshEvent(userId) {
-    EventEmitter.emit('refresh', {userId: userId})
+    EventEmitter.emit('refresh', {interestedUsers: [userId]})
     return Boom.OK()
 }
 

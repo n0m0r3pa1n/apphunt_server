@@ -47,6 +47,11 @@ server.connection({
     }
 });
 
+server.connection({
+    port: serverPort,
+    labels: ['history']
+});
+
 History.setup(server, serverPort);
 
 server.register([Inert, Vision, {

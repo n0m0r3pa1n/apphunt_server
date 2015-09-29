@@ -94,7 +94,7 @@ function* createEvent(type, userId) {
 }
 
 function* postRefreshEvent(userId) {
-    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { userId: userId });
+    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { interestedUsers: [userId] });
     return Boom.OK();
 }
 

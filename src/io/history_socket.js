@@ -1,14 +1,8 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
 export function setup(server, port) {
-    server.connection({
-        port: Number(port),
-        labels: ['history']
-    })
+    var io = require('socket.io')(server.select('history').listener)
+    io.listen(port)
 
-    var io = require('socket.io')(server.select('history').listener, {
-        path: '/socket.io-client'
-    })
-    io.set('transports', ['websocket']);
     var users = [];
     let room = "UserHistory"
     let socket = {}
