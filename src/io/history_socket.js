@@ -1,7 +1,7 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
 export function setup(server, port) {
     server.connection({
-        port: 27016,
+        port: Number(port),
         labels: ['history']
     })
 
