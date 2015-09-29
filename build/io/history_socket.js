@@ -9,7 +9,7 @@ var _handlersUtilsEvent_emitterJs = require('../handlers/utils/event_emitter.js'
 
 function setup(server, port) {
     server.connection({
-        port: port,
+        port: 27016,
         labels: ['history']
     });
 
@@ -19,6 +19,7 @@ function setup(server, port) {
     var socket = {};
 
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data) {
+        console.log('refresh', data.interestedUsers);
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             var _iteratorNormalCompletion = true;
@@ -50,8 +51,10 @@ function setup(server, port) {
         }
     });
     io.on('connection', function (socket) {
+        console.log('connection');
         var addedUser = false;
         socket.on('add user', function (userId) {
+            console.log('add user', userId);
             socket.userId = userId;
             socket.join(room);
 
@@ -65,7 +68,7 @@ function setup(server, port) {
             if (addedUser) {
                 delete users[socket.userId];
             }
-            //console.log("Removed", users)
+            console.log("disconnect", socket.userId);
         });
     });
 }

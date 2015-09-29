@@ -1,7 +1,7 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
 export function setup(server, port) {
     server.connection({
-        port: port,
+        port: 27016,
         labels: ['history']
     })
 
@@ -11,6 +11,7 @@ export function setup(server, port) {
     let socket = {}
 
     EventEmitter.on('refresh', function (data) {
+        console.log('refresh', data.interestedUsers)
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             for(let userId of data.interestedUsers) {
@@ -21,8 +22,10 @@ export function setup(server, port) {
         }
     })
     io.on('connection', function (socket) {
+        console.log('connection')
         var addedUser = false;
         socket.on('add user', function (userId) {
+            console.log('add user', userId)
             socket.userId = userId;
             socket.join(room)
 
@@ -36,7 +39,7 @@ export function setup(server, port) {
             if (addedUser) {
                 delete users[socket.userId];
             }
-            //console.log("Removed", users)
+            console.log("disconnect", socket.userId)
         });
     });
 }
