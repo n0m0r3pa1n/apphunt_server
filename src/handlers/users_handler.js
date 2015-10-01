@@ -20,14 +20,16 @@ import * as FollowersHandler from './followers_handler.js'
 
 export function* get(q, loginType, page, pageSize) {
     var where = {}
-    if(q !== undefined) {
-        where = {$or: [{email: {$regex: q, $options: 'i'}},
-            {name: {$regex: q, $options: 'i'}},
-            {username: {$regex: q, $options: 'i'}}]}
+    if (q !== undefined) {
+        where = {
+            $or: [{email: {$regex: q, $options: 'i'}},
+                {name: {$regex: q, $options: 'i'}},
+                {username: {$regex: q, $options: 'i'}}]
+        }
     }
 
-    if(loginType !== undefined){
-        if(loginType == LOGIN_TYPES_FILTER.Real) {
+    if (loginType !== undefined) {
+        if (loginType == LOGIN_TYPES_FILTER.Real) {
             where.loginType = {$ne: LOGIN_TYPES_FILTER.Fake}
         } else {
             where.loginType = loginType
@@ -50,7 +52,7 @@ export function* find(userId) {
 
 export function* getUserDevices(userId) {
     let user = yield User.findById(userId).populate('devices').exec()
-    if(user == null) {
+    if (user == null) {
         return []
     }
 
@@ -59,12 +61,12 @@ export function* getUserDevices(userId) {
 
 export function* filterExistingUsers(userId, names) {
     let user = yield find(userId)
-    if(user == null) {
+    if (user == null) {
         return Boom.notFound("User is not existing!")
     }
 
     let matchingUsers = []
-    for(let name of names) {
+    for (let name of names) {
         let users = yield User.find({name: {$regex: name, $options: 'i'}}).exec()
         matchingUsers = matchingUsers.concat(users)
     }
@@ -74,7 +76,7 @@ export function* filterExistingUsers(userId, names) {
 
 function* getPopulatedIsFollowing(followerId, users) {
     let result = []
-    for(let user of users) {
+    for (let user of users) {
         user = user.toObject()
         user.isFollowing = yield FollowersHandler.isFollowing(followerId, user._id)
         result.push(user)
@@ -83,12 +85,12 @@ function* getPopulatedIsFollowing(followerId, users) {
 }
 
 export function* getDeviceIdsForUser(user) {
-    if(user.populated('devices')) {
+    if (user.populated('devices')) {
         user = yield User.findOne(user).populate('devices')
     }
 
     let notificationIds = []
-    for(let device of user.devices) {
+    for (let device of user.devices) {
         notificationIds = notificationIds.concat(device.notificationId)
     }
 
@@ -96,7 +98,7 @@ export function* getDeviceIdsForUser(user) {
 }
 
 export function* getDevicesForUser(user) {
-    if(user.populated('devices')) {
+    if (user.populated('devices')) {
         user = yield User.findOne(user).populate('devices')
     }
 
@@ -110,12 +112,12 @@ export function* getDevicesForAllUsers() {
 
 export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     let user = yield find(userId)
-    if(user == null) {
+    if (user == null) {
         return Boom.notFound("User is not existing!")
     }
-    if(currentUserId != undefined) {
+    if (currentUserId != undefined) {
         let currentUser = yield find(currentUserId)
-        if(currentUser == null) {
+        if (currentUser == null) {
             return Boom.notFound("Current user is not existing!")
         }
     }
@@ -129,6 +131,9 @@ export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId)
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId)
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score
+    if (currentUserId != undefined) {
+        user.isFollowing = yield FollowersHandler.isFollowing(currentUserId, userId)
+    }
 
     let followings = currentUserId != undefined ? yield FollowersHandler.getPopulatedFollowing(userId, currentUserId) :
         (yield FollowersHandler.getFollowing(userId)).following;
@@ -146,7 +151,7 @@ export function* create(user, notificationId) {
     var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
     if (!currUser) {
         currUser = yield User.create(user)
-        if(currUser.loginType == LOGIN_TYPES_FILTER.Twitter) {
+        if (currUser.loginType == LOGIN_TYPES_FILTER.Twitter) {
             postTweet(currUser)
             followUser(currUser)
         }
@@ -160,13 +165,16 @@ export function* create(user, notificationId) {
         currUser.appVersion = user.appVersion
     }
 
-    if(notificationId) {
+    if (notificationId) {
         if (currUser.devices == undefined || currUser.devices == null) {
             currUser.devices = []
         }
 
-        if(isUserDeviceExisting(currUser.devices, notificationId) == false) {
-            var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true});
+        if (isUserDeviceExisting(currUser.devices, notificationId) == false) {
+            var device = yield Device.findOneOrCreate({notificationId: notificationId}, {
+                notificationId: notificationId,
+                notificationsEnabled: true
+            });
             currUser.devices.push(device)
         }
     }
@@ -196,19 +204,22 @@ function followUser(user) {
 
 export function* update(userId, notificationId) {
     var user = yield User.findById(userId).populate('devices').exec();
-    if(user == null) {
+    if (user == null) {
         return Boom.notFound('User not found!')
     }
 
-    if(isUserDeviceExisting(user.devices, notificationId) == false) {
-        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {notificationId: notificationId, notificationsEnabled: true})
+    if (isUserDeviceExisting(user.devices, notificationId) == false) {
+        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {
+            notificationId: notificationId,
+            notificationsEnabled: true
+        })
         user.devices.push(device)
     } else {
         return Boom.conflict('Existing user device!')
     }
     user.loginType = user.loginType.toLowerCase()
-    user.save(function(err) {
-        if(err) {
+    user.save(function (err) {
+        if (err) {
             console.log(err)
         }
     })
@@ -217,9 +228,9 @@ export function* update(userId, notificationId) {
 
 function isUserDeviceExisting(devices, notificationId) {
     var isDeviceIdExisting = false;
-    for(var i=0; i < devices.length; i++) {
+    for (var i = 0; i < devices.length; i++) {
         var currentDevice = devices[i]
-        if(currentDevice.notificationId == notificationId) {
+        if (currentDevice.notificationId == notificationId) {
             isDeviceIdExisting = true;
             break;
         }

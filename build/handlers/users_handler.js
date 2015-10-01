@@ -56,7 +56,9 @@ var CommentsHandler = require('./comments_handler');
 function* get(q, loginType, page, pageSize) {
     var where = {};
     if (q !== undefined) {
-        where = { $or: [{ email: { $regex: q, $options: 'i' } }, { name: { $regex: q, $options: 'i' } }, { username: { $regex: q, $options: 'i' } }] };
+        where = {
+            $or: [{ email: { $regex: q, $options: 'i' } }, { name: { $regex: q, $options: 'i' } }, { username: { $regex: q, $options: 'i' } }]
+        };
     }
 
     if (loginType !== undefined) {
@@ -224,9 +226,8 @@ function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     user.favouriteApps = yield AppsHandler.getFavouriteAppsCount(userId);
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId);
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
-
-    if(currentUserId != undefined) {
-        user.isFollowing = yield FollowersHandler.isFollowing(currentUserId, userId)
+    if (currentUserId != undefined) {
+        user.isFollowing = yield FollowersHandler.isFollowing(currentUserId, userId);
     }
 
     var followings = currentUserId != undefined ? (yield FollowersHandler.getPopulatedFollowing(userId, currentUserId)) : (yield FollowersHandler.getFollowing(userId)).following;
@@ -263,7 +264,10 @@ function* create(user, notificationId) {
         }
 
         if (isUserDeviceExisting(currUser.devices, notificationId) == false) {
-            var device = yield Device.findOneOrCreate({ notificationId: notificationId }, { notificationId: notificationId, notificationsEnabled: true });
+            var device = yield Device.findOneOrCreate({ notificationId: notificationId }, {
+                notificationId: notificationId,
+                notificationsEnabled: true
+            });
             currUser.devices.push(device);
         }
     }
@@ -298,7 +302,10 @@ function* update(userId, notificationId) {
     }
 
     if (isUserDeviceExisting(user.devices, notificationId) == false) {
-        var device = yield Device.findOneOrCreate({ notificationId: notificationId }, { notificationId: notificationId, notificationsEnabled: true });
+        var device = yield Device.findOneOrCreate({ notificationId: notificationId }, {
+            notificationId: notificationId,
+            notificationsEnabled: true
+        });
         user.devices.push(device);
     } else {
         return Boom.conflict('Existing user device!');

@@ -282,10 +282,7 @@ function getCollection(collectionId) {
 function followUser(followingId, followerId) {
     var opts = {
         method: "POST",
-        url: '/users/' + followingId + "/followers/" + followerId,
-        payload: {
-            followerId: followerId
-        }
+        url: '/users/' + followingId + "/followers/" + followerId
     }
     return Server.injectThen(opts)
 }
@@ -316,10 +313,7 @@ function addFollowings(userId, followingIds) {
 function unfollowUser(followingId, followerId) {
     var opts = {
         method: "DELETE",
-        url: '/users/' + followingId + "/followers",
-        payload: {
-            followerId: followerId
-        }
+        url: '/users/' + followingId + "/followers/" +followerId
     }
     return Server.injectThen(opts)
 }

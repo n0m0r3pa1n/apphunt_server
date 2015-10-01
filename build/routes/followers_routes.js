@@ -55,16 +55,14 @@ var routes = [{
     }
 }, {
     method: "DELETE",
-    path: "/users/{followingId}/followers",
+    path: "/users/{followingId}/followers/{followerId}",
     handler: function handler(req, reply) {
-        reply.co(FollowersHandler.unfollowUser(req.params.followingId, req.payload.followerId));
+        reply.co(FollowersHandler.unfollowUser(req.params.followingId, req.params.followerId));
     },
     config: {
         validate: {
-            payload: {
-                followerId: Joi.objectId().required()
-            },
             params: {
+                followerId: Joi.objectId().required(),
                 followingId: Joi.objectId().required()
             }
         },
@@ -114,7 +112,7 @@ var routes = [{
     method: "POST",
     path: "/users/{followingId}/followers/{followerId}",
     handler: function handler(req, reply) {
-        reply.co(FollowersHandler.followUser(req.params.followingId, req.payload.followerId));
+        reply.co(FollowersHandler.followUser(req.params.followingId, req.params.followerId));
     },
     config: {
         validate: {
