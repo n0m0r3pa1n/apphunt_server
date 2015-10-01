@@ -48,10 +48,6 @@ server.connection({
     }
 });
 
-//server.connection({
-//    labels: ['ws']
-//})
-
 var apiServer = server.select('api');
 var wsServer = server.select('ws');
 

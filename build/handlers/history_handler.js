@@ -133,7 +133,8 @@ function* getHistory(userId, date) {
     }).populate('user').exec()));
 
     var events = yield getPopulatedResponseWithIsFollowing(userId, results);
-    return { events: events };
+    var dateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
+    return { events: events, date: dateStr };
 }
 
 function* getPopulatedResponseWithIsFollowing(userId, results) {

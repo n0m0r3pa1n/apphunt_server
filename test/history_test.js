@@ -14,6 +14,32 @@ var HISTORY_EVENT_TYPES = require('../build/config/config').HISTORY_EVENT_TYPES
 
 describe("History", function () {
 
+    it("should get history events with date", function* () {
+        var user = (yield dbHelper.createUser()).result
+        var userId = user.id
+        var followerId = (yield dbHelper.createUserWithEmail("poli_biva@abv.bg")).result.id
+        var collectionCreatorId = (yield dbHelper.createUserWithEmail("poli_ne_biva@abv.bg")).result.id
+        yield dbHelper.followUser(userId, followerId)
+
+        var collection = (yield dbHelper.createAppsCollection(collectionCreatorId)).result
+        var appIds = yield dbHelper.createFourAppsWithIds(collectionCreatorId)
+        yield dbHelper.makeCollectionPublic(collectionCreatorId, collection._id, appIds)
+
+        yield dbHelper.favouriteCollection(collection._id, userId)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/v1/users/' + followerId + '/history?date=' + new Date().toISOString()
+        }
+
+        var date = new Date()
+        var response = yield Server.injectThen(opts)
+        response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
+        response.result.events.length.should.eq(1)
+        response.result.date.should.eq(date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate());
+    })
+
     it("should get following collection favourite history", function* () {
         var user = (yield dbHelper.createUser()).result
         var userId = user.id

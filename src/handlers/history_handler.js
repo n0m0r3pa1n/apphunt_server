@@ -108,7 +108,8 @@ export function* getHistory(userId, date) {
     }).populate('user').exec())
 
     let events = yield getPopulatedResponseWithIsFollowing(userId, results)
-    return {events: events}
+    let dateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate()
+    return {events: events, date: dateStr}
 }
 
 function* getPopulatedResponseWithIsFollowing(userId, results) {
