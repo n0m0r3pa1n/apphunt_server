@@ -225,6 +225,10 @@ function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     user.favouriteCollections = yield AppsCollectionsHandler.getCollectionsCount(userId);
     user.score = (yield ScoresHandler.getUserDetails(userId, fromDate, toDate)).score;
 
+    if(currentUserId != undefined) {
+        user.isFollowing = yield FollowersHandler.isFollowing(currentUserId, userId)
+    }
+
     var followings = currentUserId != undefined ? (yield FollowersHandler.getPopulatedFollowing(userId, currentUserId)) : (yield FollowersHandler.getFollowing(userId)).following;
     user.following = followings;
     user.followingCount = followings.length;

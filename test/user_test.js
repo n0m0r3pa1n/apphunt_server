@@ -102,6 +102,7 @@ describe("Users", function() {
 		result.followingCount.should.eq(1)
         result.followers.length.should.eq(1)
 		result.followersCount.should.eq(1)
+		expect(result.isFollowing).to.not.exist
     })
 
     it("should get populated user profile for current user", function* () {
@@ -136,6 +137,7 @@ describe("Users", function() {
             return String(element._id) == String(following2Id);
         })[0].isFollowing.should.eq(false);
         result.followers[0].isFollowing.should.eq(false)
+		result.isFollowing.should.eq(true)
     })
 
 	it("should get all users", function*() {
