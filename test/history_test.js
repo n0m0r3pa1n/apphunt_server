@@ -37,7 +37,7 @@ describe("History", function () {
         var response = yield Server.injectThen(opts)
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
         response.result.events.length.should.eq(1)
-        response.result.date.should.eq(date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate());
+        response.result.fromDate.should.eq(date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate());
     })
 
     it("should get following collection favourite history", function* () {

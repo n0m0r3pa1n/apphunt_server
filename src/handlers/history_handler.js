@@ -73,24 +73,23 @@ export function* postRefreshEvent(userId) {
     return Boom.OK()
 }
 
-export function* getHistory(userId, date) {
+export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY_MILLISECONDS)) {
     let user = yield UsersHandler.find(userId)
     if (user == null) {
         return Boom.notFound("User is not existing!")
     }
-
-    var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
     var where = {}
+
     where.createdAt = {
         "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
         "$lt": toDate.toISOString()
     };
     where.user = userId
+
     where.type = {
         $in: [HISTORY_EVENT_TYPES.APP_APPROVED,
             HISTORY_EVENT_TYPES.APP_REJECTED]
     }
-
     let userEvents = yield History.find(where).populate('user').exec()
     let results = [...userEvents]
     results = results.concat((yield getEventsForApps(where.createdAt, userId)))
@@ -102,15 +101,32 @@ export function* getHistory(userId, date) {
     }).populate('user').exec()))
     results = results.concat((yield getEventsForFavouriteCollections(where.createdAt, userId)))
     results = results.concat((yield getEventsForFollowings(where.createdAt, userId)))
+
     results = results.concat(yield History.find({
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
         params: {followingId: userId}
     }).populate('user').exec())
-
     let events = yield getPopulatedResponseWithIsFollowing(userId, results)
-    let dateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate()
-    return {events: events, date: dateStr}
+    events = _.sortBy(events, function(event) {
+        return event.createdAt
+    })
+    let fromDateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate()
+    let toDateStr = toDate.getUTCFullYear() + '-' + (toDate.getUTCMonth() + 1) + '-' + toDate.getUTCDate()
+    return {events: events.reverse(), fromDate: fromDateStr, toDate: toDateStr}
+}
+
+export function* getUnseenHistory(userId, eventId, dateStr) {
+    var tomorrow = new Date(new Date().getTime() + DAY_MILLISECONDS)
+    var historyEvents = (yield getHistory(userId, new Date(dateStr), tomorrow)).events
+    let newEventsIds = []
+    for(let event of historyEvents) {
+        if(event._id == eventId) {
+            break
+        }
+        newEventsIds.push(event._id)
+    }
+    return newEventsIds
 }
 
 function* getPopulatedResponseWithIsFollowing(userId, results) {
@@ -124,7 +140,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     for(let result of results) {
         result = result.toObject()
         result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-        result.text = "Test"
+        result.text = "Test" + Math.random()
         response.push(result)
     }
 

@@ -1,4 +1,7 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
+import * as HistoryHandler from '../handlers/history_handler.js'
+var Co = require('co')
+
 export function setup(server) {
     var io = require('socket.io')(server.listener)
     var users = [];
@@ -11,7 +14,7 @@ export function setup(server) {
         for (var clientId in clients) {
             for(let userId of data.interestedUsers) {
                 if(userId == io.sockets.connected[clientId].userId) {
-                    io.sockets.connected[clientId].emit('refresh', event)
+                    io.sockets.connected[clientId].emit('refresh', {event: event})
                 }
             }
         }
@@ -26,8 +29,14 @@ export function setup(server) {
 
             users[userId] = userId;
             addedUser = true;
-            //console.log("Added", users)
         });
+
+        socket.on('last seen event', function (userId, eventId, date) {
+            Co.wrap(function* (socket) {
+                let unseenEventIds = yield HistoryHandler.getUnseenHistory(userId, eventId, date)
+                socket.emit('unseen events', {events: unseenEventIds})
+            })(socket)
+        })
 
         socket.on('disconnect', function () {
             // remove the username from global usernames list

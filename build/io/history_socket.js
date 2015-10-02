@@ -5,7 +5,15 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.setup = setup;
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
 var _handlersUtilsEvent_emitterJs = require('../handlers/utils/event_emitter.js');
+
+var _handlersHistory_handlerJs = require('../handlers/history_handler.js');
+
+var HistoryHandler = _interopRequireWildcard(_handlersHistory_handlerJs);
+
+var Co = require('co');
 
 function setup(server) {
     var io = require('socket.io')(server.listener);
@@ -26,7 +34,7 @@ function setup(server) {
                     var userId = _step.value;
 
                     if (userId == io.sockets.connected[clientId].userId) {
-                        io.sockets.connected[clientId].emit('refresh', event);
+                        io.sockets.connected[clientId].emit('refresh', { event: event });
                     }
                 }
             } catch (err) {
@@ -55,7 +63,13 @@ function setup(server) {
 
             users[userId] = userId;
             addedUser = true;
-            //console.log("Added", users)
+        });
+
+        socket.on('last seen event', function (userId, eventId, date) {
+            Co.wrap(function* (socket) {
+                var unseenEventIds = yield HistoryHandler.getUnseenHistory(userId, eventId, date);
+                socket.emit('unseen events', { events: unseenEventIds });
+            })(socket);
         });
 
         socket.on('disconnect', function () {
