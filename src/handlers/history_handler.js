@@ -17,7 +17,7 @@ var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 
 export function* createEvent(type, userId, params = {}) {
-    yield History.create({type: type, user: userId, params: params})
+    let historyEvent = yield History.create({type: type, user: userId, params: params})
     let interestedUsers = []
     switch(type) {
         case HISTORY_EVENT_TYPES.APP_APPROVED:
@@ -64,7 +64,8 @@ export function* createEvent(type, userId, params = {}) {
             return;
     }
 
-    EventEmitter.emit('refresh', {interestedUsers: interestedUsers})
+    historyEvent = yield History.findOne(historyEvent).populate('user')
+    EventEmitter.emit('refresh', {interestedUsers: interestedUsers}, historyEvent)
 }
 
 export function* postRefreshEvent(userId) {

@@ -43,7 +43,7 @@ var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 function* createEvent(type, userId) {
     var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    yield History.create({ type: type, user: userId, params: params });
+    var historyEvent = yield History.create({ type: type, user: userId, params: params });
     var interestedUsers = [];
     switch (type) {
         case HISTORY_EVENT_TYPES.APP_APPROVED:
@@ -90,7 +90,8 @@ function* createEvent(type, userId) {
             return;
     }
 
-    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { interestedUsers: interestedUsers });
+    historyEvent = yield History.findOne(historyEvent).populate('user');
+    _utilsEvent_emitterJs.EventEmitter.emit('refresh', { interestedUsers: interestedUsers }, historyEvent);
 }
 
 function* postRefreshEvent(userId) {

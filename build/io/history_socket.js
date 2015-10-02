@@ -13,7 +13,7 @@ function setup(server) {
     var room = "UserHistory";
     var socket = {};
 
-    _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data) {
+    _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
         console.log('refresh', data.interestedUsers);
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
@@ -26,7 +26,7 @@ function setup(server) {
                     var userId = _step.value;
 
                     if (userId == io.sockets.connected[clientId].userId) {
-                        io.sockets.connected[clientId].emit('refresh');
+                        io.sockets.connected[clientId].emit('refresh', event);
                     }
                 }
             } catch (err) {

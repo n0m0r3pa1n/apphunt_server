@@ -5,13 +5,13 @@ export function setup(server) {
     let room = "UserHistory"
     let socket = {}
 
-    EventEmitter.on('refresh', function (data) {
+    EventEmitter.on('refresh', function (data, event) {
         console.log('refresh', data.interestedUsers)
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             for(let userId of data.interestedUsers) {
                 if(userId == io.sockets.connected[clientId].userId) {
-                    io.sockets.connected[clientId].emit('refresh')
+                    io.sockets.connected[clientId].emit('refresh', event)
                 }
             }
         }

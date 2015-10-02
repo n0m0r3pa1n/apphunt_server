@@ -43,6 +43,8 @@ describe("History Socket", function () {
 
         client1.on('refresh', function(data, error) {
             assert(true)
+            expect(data).to.exist
+            data.user._id.should.eq(String(user2Id))
             client1.disconnect()
             client2.disconnect()
             done()
