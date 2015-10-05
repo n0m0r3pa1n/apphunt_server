@@ -17,9 +17,7 @@ var Co = require('co');
 
 function setup(server) {
     var io = require('socket.io')(server.listener);
-    var users = [];
     var room = "UserHistory";
-    var socket = {};
 
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
         console.log('refresh', data.interestedUsers);
@@ -55,17 +53,15 @@ function setup(server) {
     });
     io.on('connection', function (socket) {
         console.log('connection');
-        var addedUser = false;
         socket.on('add user', function (userId) {
             console.log('add user', userId);
             socket.userId = userId;
             socket.join(room);
-
-            users[userId] = userId;
-            addedUser = true;
         });
 
         socket.on('last seen event', function (userId, eventId, date) {
+            console.log("AAA id", eventId);
+            console.log("AAA date", date);
             Co.wrap(function* (socket) {
                 var unseenEventIds = yield HistoryHandler.getUnseenHistory(userId, eventId, date);
                 socket.emit('unseen events', { events: unseenEventIds });
@@ -73,10 +69,6 @@ function setup(server) {
         });
 
         socket.on('disconnect', function () {
-            // remove the username from global usernames list
-            if (addedUser) {
-                delete users[socket.userId];
-            }
             console.log("disconnect", socket.userId);
         });
     });
