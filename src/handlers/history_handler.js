@@ -2,6 +2,7 @@ var _ = require("underscore")
 
 var Boom = require('boom')
 var CONFIG = require('../config/config')
+var HISTORY_MESSAGES = require('../config/messages').HISTORY_MESSAGES
 var History = require('../models').History
 
 import * as UsersHandler from './users_handler.js'
@@ -145,6 +146,38 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     }
 
     return response
+}
+
+function getText(type, params) {
+    let message = HISTORY_MESSAGES[type]
+    let text = ""
+    switch (type) {
+        case HISTORY_EVENT_TYPES.APP_APPROVED:
+            text = String.format(message, params.appName)
+            break;
+        case HISTORY_EVENT_TYPES.APP_REJECTED:
+            break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED:
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
+            break;
+        case HISTORY_EVENT_TYPES.USER_COMMENT:
+            break;
+        case HISTORY_EVENT_TYPES.USER_MENTIONED:
+            break;
+        case HISTORY_EVENT_TYPES.USER_FOLLOWED:
+            break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
+            //TODO
+            break;
+        default:
+            return;
+    }
+
 }
 
 function* getEventsForApps(createdAt, userId) {

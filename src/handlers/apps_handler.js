@@ -250,7 +250,7 @@ export function* changeAppStatus(appPackage, status) {
 
 
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id, appName: app.name})
 
             yield sendNotificationsToFollowers(createdBy);
         }

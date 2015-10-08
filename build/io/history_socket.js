@@ -20,7 +20,7 @@ function setup(server) {
     var room = "UserHistory";
 
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
-        console.log('refresh', data.interestedUsers);
+        //console.log('refresh', data.interestedUsers)
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             var _iteratorNormalCompletion = true;
