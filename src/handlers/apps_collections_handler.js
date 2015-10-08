@@ -43,6 +43,11 @@ export function* update(collectionId, newCollection, userId) {
         return Boom.notFound('Collection cannot be found!')
     }
 
+    let user = yield UserHandler.find(userId)
+    if(user == null) {
+        return Boom.notFound('User cannot be found!')
+    }
+
     if(!(collection.createdBy.id === userId)) {
         return Boom.methodNotAllowed("Created by is different from user id.")
     }
@@ -57,9 +62,11 @@ export function* update(collectionId, newCollection, userId) {
     collection.apps = newCollection.apps
     if(collection.apps.length >= MIN_APPS_LENGTH_FOR_COLLECTION) {
         if(collection.status == COLLECTION_STATUSES.DRAFT) {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, {collectionId: collection._id})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_CREATED, userId, {collectionId: collection._id,
+                collectionName: newCollection.name, userName: user.name})
         } else {
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, {collectionId: collection._id})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_UPDATED, userId, {collectionId: collection._id,
+                collectionName: newCollection.name})
         }
         collection.status = COLLECTION_STATUSES.PUBLIC
     } else {
@@ -87,6 +94,11 @@ export function* favourite(collectionId, userId) {
         return Boom.notFound('Collection cannot be found!')
     }
 
+    let user = yield User.findById(userId)
+    if(user == null) {
+        return Boom.notFound('User cannot be found!')
+    }
+
     for(let favouritedBy in collection.favouritedBy) {
         if(favouritedBy == userId) {
             return Boom.conflict("User has already favourited collection!");
@@ -95,7 +107,8 @@ export function* favourite(collectionId, userId) {
     collection.favouritedBy.push(userId);
     yield collection.save()
 
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, userId, {collectionId: collection._id})
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, userId, {collectionId: collection._id,
+        collectionName: collection.name, userName: user.name})
     let isFollowing = yield FollowersHandler.isFollowing(collection.createdBy, userId)
     if(isFollowing) {
         NotificationsHandler.sendNotificationsToUsers([collection.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {

@@ -65,7 +65,7 @@ function* create(comment, appId, userId, parentId) {
                 NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED, {appId: appId})
                 yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, {mentionedUserId: String(mentionedUser._id),
-                    appId: String(app._id)})
+                    appId: String(app._id), appName: app.name, userName: user.name})
             }
         }
     } else {
@@ -77,7 +77,8 @@ function* create(comment, appId, userId, parentId) {
                 NOTIFICATION_TYPES.FOLLOWING_COMMENTED_APP, {appId: appId})
         }
 
-        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, user._id, {appId: app._id})
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, user._id, {appId: app._id,
+            appName: app.name, userName: user.name})
     }
 
     return createdCommentObject

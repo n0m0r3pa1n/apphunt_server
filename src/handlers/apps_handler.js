@@ -397,6 +397,11 @@ export function* favourite(appId, userId) {
         return Boom.notFound('App cannot be found!')
     }
 
+    let user = yield User.findById(userId)
+    if(user == null) {
+        return Boom.notFound('User cannot be found!')
+    }
+
     for(let favouritedBy in app.favouritedBy) {
         if(favouritedBy == userId) {
             return Boom.conflict("User has already favourited app!");
@@ -405,7 +410,7 @@ export function* favourite(appId, userId) {
     app.favouritedBy.push(userId);
     yield app.save()
 
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {appId: app._id})
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {appId: app._id, appName: app.name, userName: user.name})
     let isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId)
     if(isFollowing) {
         NotificationsHandler.sendNotificationsToUsers([app.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {

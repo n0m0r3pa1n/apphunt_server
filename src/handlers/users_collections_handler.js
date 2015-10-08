@@ -13,6 +13,7 @@ var UserScoreHandler = require('./user_score_handler')
 var VotesHandler = require('./votes_handler')
 import * as PaginationHandler from './pagination_handler.js'
 import * as HistoryHandler from './history_handler.js'
+import * as UsersHandler from './users_handler.js'
 
 function* create(usersCollection, userId) {
     usersCollection.createdBy = yield User.findById(userId).exec()
@@ -29,9 +30,16 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
     for(var i=0; i<usersIds.length; i++) {
         var userId = usersIds[i];
         if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
+            let user = yield UsersHandler.find(userId)
+            if(user == null) {
+                console.log('User cannot be found!')
+                continue;
+            }
+
             let result = yield UserScoreHandler.getUserDetails(userId, fromDate, toDate)
             collection.usersDetails.push(result)
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId, {collectionId: collectionId})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId,
+                {collectionId: collectionId, userName: user.name})
         }
     }
     return yield collection.save()

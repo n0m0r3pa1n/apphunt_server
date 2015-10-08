@@ -127,7 +127,12 @@ export function* addFollowers(followingId, followerIds) {
 }
 
 function* followSingleUser(followingId, followerId) {
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, {followingId: followingId})
+    let user = yield UsersHandler.find(followerId)
+    if(user == null) {
+        return Boom.notFound('Follower cannot be found!')
+    }
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, {followingId: followingId,
+        userName: user.name})
     yield Follower.findOneOrCreate({following: followingId, follower: followerId},{following: followingId, follower: followerId})
 }
 

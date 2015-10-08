@@ -156,23 +156,31 @@ function getText(type, params) {
             text = String.format(message, params.appName)
             break;
         case HISTORY_EVENT_TYPES.APP_REJECTED:
+            text = String.format(message, params.appName)
             break;
         case HISTORY_EVENT_TYPES.APP_FAVOURITED:
+            text = String.format(message, params.appName, params.userName)
             break;
         case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
+            text = String.format(message, params.userName, params.collectionName)
             break;
         case HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED:
+            text = String.format(message, params.collectionName, params.userName)
             break;
         case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
+            text = String.format(message, params.collectionName)
             break;
         case HISTORY_EVENT_TYPES.USER_COMMENT:
+            text = String.format(message, params.appName, params.userName)
             break;
         case HISTORY_EVENT_TYPES.USER_MENTIONED:
+            text = String.format(message, params.appName, params.userName)
             break;
         case HISTORY_EVENT_TYPES.USER_FOLLOWED:
+            text = String.format(message, params.userName)
             break;
         case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
-            //TODO
+            text = String.format(message, params.userName)
             break;
         default:
             return;
