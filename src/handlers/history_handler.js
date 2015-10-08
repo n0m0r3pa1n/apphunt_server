@@ -106,7 +106,7 @@ export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY
     results = results.concat(yield History.find({
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
-        params: {followingId: userId}
+        'params.followingId': userId
     }).populate('user').exec())
     let events = yield getPopulatedResponseWithIsFollowing(userId, results)
     events = _.sortBy(events, function(event) {
@@ -141,7 +141,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     for(let result of results) {
         result = result.toObject()
         result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-        result.text = "Test" + Math.random()
+        result.text = "Test"
         response.push(result)
     }
 
@@ -192,7 +192,7 @@ function* getEventsForApps(createdAt, userId) {
     let results = []
     let apps = (yield AppsHandler.getAppsForUser(userId)).apps
     for (let app of apps) {
-        let appEvents = yield History.find({createdAt: createdAt, user: {$ne: userId}, params: {appId: app._id}}).populate('user').exec()
+        let appEvents = yield History.find({createdAt: createdAt, user: {$ne: userId}, 'params.appId': app._id}).populate('user').exec()
         for (let event of appEvents) {
             if (event.type == HISTORY_EVENT_TYPES.APP_FAVOURITED || event.type == HISTORY_EVENT_TYPES.USER_COMMENT) {
                 results.push(event)
@@ -229,7 +229,7 @@ function* getEventsForCollections(createdAt, userId) {
         let collectionEvents = yield History.find({
             createdAt: createdAt,
             user: {$ne: userId},
-            params: {collectionId: collection._id}
+            'params.collectionId': collection._id
         }).populate('user').exec()
 
         for (let event of collectionEvents) {
@@ -245,7 +245,7 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
     let results = []
     let collections = (yield CollectionsHandler.getFavouriteCollections(userId)).collections
     for (let collection of collections) {
-        let collectionEvents = yield History.find({createdAt: createdAt, params: {collectionId: collection._id}})
+        let collectionEvents = yield History.find({createdAt: createdAt, 'params.collectionId': collection._id})
             .populate('user').exec()
         for (let event of collectionEvents) {
             if (event.type == HISTORY_EVENT_TYPES.COLLECTION_UPDATED) {

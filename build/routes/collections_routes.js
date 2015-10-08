@@ -2,15 +2,15 @@
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
-var _handlersApps_collections_handlerJs = require('../handlers/apps_collections_handler.js');
+var _handlersApps_collections_handlerJs = require("../handlers/apps_collections_handler.js");
 
 var AppsCollectionsHandler = _interopRequireWildcard(_handlersApps_collections_handlerJs);
 
-var Joi = require('joi');
+var Joi = require("joi");
 var AppsCollection = require("../models").AppsCollection;
 var UsersCollection = require("../models").UsersCollection;
-var UsersCollectionsHandler = require('../handlers/users_collections_handler');
-var COLLECTION_STATUSES = require('../config/config').COLLECTION_STATUSES;
+var UsersCollectionsHandler = require("../handlers/users_collections_handler");
+var COLLECTION_STATUSES = require("../config/config").COLLECTION_STATUSES;
 
 var collectionsRoutes = [{
     method: "GET",
@@ -31,8 +31,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get all apps collections.',
-        tags: ['api']
+        description: "Get all apps collections.",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -51,8 +51,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get all apps collections.',
-        tags: ['api']
+        description: "Get all apps collections.",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -70,8 +70,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get apps collection',
-        tags: ['api']
+        description: "Get apps collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -93,8 +93,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get apps collection',
-        tags: ['api']
+        description: "Get apps collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -113,8 +113,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get favourite apps collections for user.',
-        tags: ['api']
+        description: "Get favourite apps collections for user.",
+        tags: ["api"]
     }
 }, {
     method: "PUT",
@@ -132,8 +132,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Favourite collection for user',
-        tags: ['api']
+        description: "Favourite collection for user",
+        tags: ["api"]
     }
 }, {
     method: "DELETE",
@@ -151,8 +151,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Delete collections from favourites for user',
-        tags: ['api']
+        description: "Delete collections from favourites for user",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -175,8 +175,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Search app collection by name. UserId is optional if you want to know if the user has voted for each app.',
-        tags: ['api']
+        description: "Search app collection by name. UserId is optional if you want to know if the user has voted for each app.",
+        tags: ["api"]
     }
 }, {
     method: "POST",
@@ -196,8 +196,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Create new apps collection',
-        tags: ['api']
+        description: "Create new apps collection",
+        tags: ["api"]
     }
 }, {
     method: "PUT",
@@ -225,8 +225,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Update apps collection',
-        tags: ['api']
+        description: "Update apps collection",
+        tags: ["api"]
     }
 }, {
     method: "DELETE",
@@ -241,8 +241,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Remove app collection',
-        tags: ['api']
+        description: "Remove app collection",
+        tags: ["api"]
     }
 }, {
     method: "DELETE",
@@ -258,8 +258,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Remove app from a collection',
-        tags: ['api']
+        description: "Remove app from a collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -277,8 +277,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get all users collections.',
-        tags: ['api']
+        description: "Get all users collections.",
+        tags: ["api"]
     }
 }, {
     method: "POST",
@@ -297,8 +297,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Create new users collection',
-        tags: ['api']
+        description: "Create new users collection",
+        tags: ["api"]
     }
 }, {
     method: "PUT",
@@ -320,8 +320,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Add user(s) to collection',
-        tags: ['api']
+        description: "Add user(s) to collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -339,8 +339,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get users collection',
-        tags: ['api']
+        description: "Get users collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -360,8 +360,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Search user collection by name.',
-        tags: ['api']
+        description: "Search user collection by name.",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -376,8 +376,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Get collections in which the user does not exist.',
-        tags: ['api']
+        description: "Get collections in which the user does not exist.",
+        tags: ["api"]
     }
 }, {
     method: "DELETE",
@@ -393,8 +393,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Remove user from a collection',
-        tags: ['api']
+        description: "Remove user from a collection",
+        tags: ["api"]
     }
 }, {
     method: "DELETE",
@@ -409,8 +409,8 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Remove users collection',
-        tags: ['api']
+        description: "Remove users collection",
+        tags: ["api"]
     }
 }, {
     method: "GET",
@@ -421,7 +421,7 @@ var collectionsRoutes = [{
     config: {
         auth: false,
         description: "Get collection banners",
-        tags: ['api']
+        tags: ["api"]
     }
 }, {
     method: "POST",
@@ -437,7 +437,7 @@ var collectionsRoutes = [{
         },
         auth: false,
         description: "Create collection banner",
-        tags: ['api']
+        tags: ["api"]
     }
 }];
 

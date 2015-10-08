@@ -46,8 +46,8 @@ function* getFollowers(userId) {
     var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
     var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
-    var query = Follower.find({ following: userId }).select("-_id follower").populate("follower");
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize);
+    var query = Follower.find({ following: userId }).select('-_id follower').populate('follower');
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'followers', page, pageSize);
     var followers = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -126,8 +126,8 @@ function* getFollowing(userId) {
     var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
     var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
 
-    var query = Follower.find({ follower: userId }).select("-_id following").populate("following");
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize);
+    var query = Follower.find({ follower: userId }).select('-_id following').populate('following');
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'following', page, pageSize);
     var following = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
@@ -165,27 +165,27 @@ function* isFollowing(followerId, followingId) {
 function* followUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     yield followSingleUser(followingId, followerId);
-    NotificationsHandler.sendNotificationsToUsers([followingId], "", "", "", NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
+    NotificationsHandler.sendNotificationsToUsers([followingId], '', '', '', NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     return Boom.OK();
 }
 
 function* addFollowings(userId, followingIds) {
     var user = yield UsersHandler.find(userId);
     if (user == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     if (followingIds == undefined || followingIds.length == 0) {
-        return Boom.badRequest("Following ids are required");
+        return Boom.badRequest('Following ids are required');
     }
 
     var _iteratorNormalCompletion4 = true;
@@ -224,11 +224,11 @@ function* addFollowings(userId, followingIds) {
 function* addFollowers(followingId, followerIds) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     if (followerIds == undefined || followerIds.length == 0) {
-        return Boom.badRequest("Follower ids are required");
+        return Boom.badRequest('Follower ids are required');
     }
 
     var _iteratorNormalCompletion5 = true;
@@ -261,24 +261,28 @@ function* addFollowers(followingId, followerIds) {
         }
     }
 
-    NotificationsHandler.sendNotificationsToUsers([followingId], "Many users followed you!", "", "", NOTIFICATION_TYPES.USER_FOLLOWED);
+    NotificationsHandler.sendNotificationsToUsers([followingId], 'Many users followed you!', '', '', NOTIFICATION_TYPES.USER_FOLLOWED);
     return Boom.OK();
 }
 
 function* followSingleUser(followingId, followerId) {
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId });
+    var user = yield UsersHandler.find(followerId);
+    if (user == null) {
+        return Boom.notFound('Follower cannot be found!');
+    }
+    var test = yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_FOLLOWED, followerId, { followingId: followingId, userName: user.name });
     yield Follower.findOneOrCreate({ following: followingId, follower: followerId }, { following: followingId, follower: followerId });
 }
 
 function* unfollowUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     yield Follower.remove({ following: followingId, follower: followerId }).exec();

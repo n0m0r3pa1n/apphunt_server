@@ -25,7 +25,7 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
-var _pagination_handlerJs = require("./pagination_handler.js");
+var _pagination_handlerJs = require('./pagination_handler.js');
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
@@ -43,7 +43,7 @@ var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
 
 var _ = require('underscore');
 var Boom = require('boom');
-var Bolt = require("bolt-js");
+var Bolt = require('bolt-js');
 var TweetComposer = require('../utils/tweet_composer');
 var CONFIG = require('../config/config');
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
@@ -71,7 +71,7 @@ function* get(q, loginType, page, pageSize) {
 
     var query = User.find(where);
 
-    return yield PaginationHandler.getPaginatedResultsWithName(query, "users", page, pageSize);
+    return yield PaginationHandler.getPaginatedResultsWithName(query, 'users', page, pageSize);
 }
 
 function getLoginTypes() {
@@ -94,7 +94,7 @@ function* getUserDevices(userId) {
 function* filterExistingUsers(userId, names) {
     var user = yield find(userId);
     if (user == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
 
     var matchingUsers = [];
@@ -208,12 +208,12 @@ function* getDevicesForAllUsers() {
 function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     var user = yield find(userId);
     if (user == null) {
-        return Boom.notFound("User is not existing!");
+        return Boom.notFound('User is not existing!');
     }
     if (currentUserId != undefined) {
         var currentUser = yield find(currentUserId);
         if (currentUser == null) {
-            return Boom.notFound("Current user is not existing!");
+            return Boom.notFound('Current user is not existing!');
         }
     }
 
@@ -284,7 +284,7 @@ function postTweet(user) {
     var tweetComposer = new TweetComposer(CONFIG.APP_HUNT_TWITTER_HANDLE);
     var tweetOptions = {
         username: user.username,
-        hashTags: ["app"]
+        hashTags: ['app']
     };
 
     bolt.postTweet(tweetComposer.composeWelcomeTweet(tweetOptions));

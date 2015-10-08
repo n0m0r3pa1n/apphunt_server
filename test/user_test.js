@@ -137,7 +137,6 @@ describe("Users", function() {
             return String(element._id) == String(following2Id);
         })[0].isFollowing.should.eq(false);
         result.followers[0].isFollowing.should.eq(false)
-		console.log(result.isFollowing)
 		result.isFollowing.should.eq(true)
     })
 

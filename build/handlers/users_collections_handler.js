@@ -2,16 +2,20 @@
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
-var _pagination_handlerJs = require('./pagination_handler.js');
+var _pagination_handlerJs = require("./pagination_handler.js");
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
-var _history_handlerJs = require('./history_handler.js');
+var _history_handlerJs = require("./history_handler.js");
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
+var _users_handlerJs = require("./users_handler.js");
+
+var UsersHandler = _interopRequireWildcard(_users_handlerJs);
+
 var _ = require("underscore");
-var Boom = require('boom');
+var Boom = require("boom");
 var models = require("../models");
 var UsersCollection = models.UsersCollection;
 var User = models.User;
@@ -19,10 +23,10 @@ var App = models.App;
 var Vote = models.Vote;
 var Comment = models.Comment;
 
-var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
+var HISTORY_EVENT_TYPES = require("../config/config").HISTORY_EVENT_TYPES;
 
-var UserScoreHandler = require('./user_score_handler');
-var VotesHandler = require('./votes_handler');
+var UserScoreHandler = require("./user_score_handler");
+var VotesHandler = require("./votes_handler");
 
 function* create(usersCollection, userId) {
     usersCollection.createdBy = yield User.findById(userId).exec();
@@ -38,9 +42,15 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
     for (var i = 0; i < usersIds.length; i++) {
         var userId = usersIds[i];
         if (!isUserAlreadyAdded(collection.usersDetails, userId)) {
+            var user = yield UsersHandler.find(userId);
+            if (user == null) {
+                console.log("User cannot be found!");
+                continue;
+            }
+
             var result = yield UserScoreHandler.getUserDetails(userId, fromDate, toDate);
             collection.usersDetails.push(result);
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId, { collectionId: collectionId });
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS, userId, { collectionId: collectionId, userName: user.name });
         }
     }
     return yield collection.save();
@@ -74,14 +84,14 @@ function* getCollections(page, pageSize) {
 }
 
 function* findPagedCollections(where, page, pageSize) {
-    var query = UsersCollection.find(where).deepPopulate('usersDetails.user').populate("createdBy").populate("usersDetails");
-    query.sort({ createdAt: 'desc' });
+    var query = UsersCollection.find(where).deepPopulate("usersDetails.user").populate("createdBy").populate("usersDetails");
+    query.sort({ createdAt: "desc" });
 
     return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
 }
 
 function* search(q, page, pageSize) {
-    var where = { name: { $regex: q, $options: 'i' } };
+    var where = { name: { $regex: q, $options: "i" } };
     var response = yield findPagedCollections(where, page, pageSize);
     var collections = [];
     for (var i = 0; i < response.collections.length; i++) {

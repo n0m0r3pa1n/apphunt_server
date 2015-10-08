@@ -397,7 +397,7 @@ export function* favourite(appId, userId) {
         return Boom.notFound('App cannot be found!')
     }
 
-    let user = yield User.findById(userId)
+    let user = yield User.findById(userId).exec()
     if(user == null) {
         return Boom.notFound('User cannot be found!')
     }

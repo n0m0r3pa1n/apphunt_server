@@ -30,10 +30,11 @@ var CollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
 var _utilsEvent_emitterJs = require('./utils/event_emitter.js');
 
-var _ = require("underscore");
+var _ = require('underscore');
 
 var Boom = require('boom');
 var CONFIG = require('../config/config');
+var HISTORY_MESSAGES = require('../config/messages').HISTORY_MESSAGES;
 var History = require('../models').History;
 
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
@@ -105,13 +106,13 @@ function* getHistory(userId, date) {
     return yield* (function* () {
         var user = yield UsersHandler.find(userId);
         if (user == null) {
-            return Boom.notFound("User is not existing!");
+            return Boom.notFound('User is not existing!');
         }
         var where = {};
 
         where.createdAt = {
-            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-            "$lt": toDate.toISOString()
+            '$gte': new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            '$lt': toDate.toISOString()
         };
         where.user = userId;
 
@@ -133,7 +134,7 @@ function* getHistory(userId, date) {
         results = results.concat((yield History.find({
             createdAt: where.createdAt,
             type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
-            params: { followingId: userId }
+            'params.followingId': userId
         }).populate('user').exec()));
         var events = yield getPopulatedResponseWithIsFollowing(userId, results);
         events = _.sortBy(events, function (event) {
@@ -219,7 +220,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
 
             result = result.toObject();
             result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-            result.text = "Test" + Math.random();
+            result.text = 'Test';
             response.push(result);
         }
     } catch (err) {
@@ -240,6 +241,45 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     return response;
 }
 
+function getText(type, params) {
+    var message = HISTORY_MESSAGES[type];
+    var text = '';
+    switch (type) {
+        case HISTORY_EVENT_TYPES.APP_APPROVED:
+            text = String.format(message, params.appName);
+            break;
+        case HISTORY_EVENT_TYPES.APP_REJECTED:
+            text = String.format(message, params.appName);
+            break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
+            text = String.format(message, params.appName, params.userName);
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
+            text = String.format(message, params.userName, params.collectionName);
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED:
+            text = String.format(message, params.collectionName, params.userName);
+            break;
+        case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
+            text = String.format(message, params.collectionName);
+            break;
+        case HISTORY_EVENT_TYPES.USER_COMMENT:
+            text = String.format(message, params.appName, params.userName);
+            break;
+        case HISTORY_EVENT_TYPES.USER_MENTIONED:
+            text = String.format(message, params.appName, params.userName);
+            break;
+        case HISTORY_EVENT_TYPES.USER_FOLLOWED:
+            text = String.format(message, params.userName);
+            break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
+            text = String.format(message, params.userName);
+            break;
+        default:
+            return;
+    }
+}
+
 function* getEventsForApps(createdAt, userId) {
     var results = [];
     var apps = (yield AppsHandler.getAppsForUser(userId)).apps;
@@ -251,7 +291,7 @@ function* getEventsForApps(createdAt, userId) {
         for (var _iterator4 = apps[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
             var app = _step4.value;
 
-            var appEvents = yield History.find({ createdAt: createdAt, user: { $ne: userId }, params: { appId: app._id } }).populate('user').exec();
+            var appEvents = yield History.find({ createdAt: createdAt, user: { $ne: userId }, 'params.appId': app._id }).populate('user').exec();
             var _iteratorNormalCompletion5 = true;
             var _didIteratorError5 = false;
             var _iteratorError5 = undefined;
@@ -348,7 +388,7 @@ function* getEventsForCollections(createdAt, userId) {
             var collectionEvents = yield History.find({
                 createdAt: createdAt,
                 user: { $ne: userId },
-                params: { collectionId: collection._id }
+                'params.collectionId': collection._id
             }).populate('user').exec();
 
             var _iteratorNormalCompletion8 = true;
@@ -407,7 +447,7 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
         for (var _iterator9 = collections[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
             var collection = _step9.value;
 
-            var collectionEvents = yield History.find({ createdAt: createdAt, params: { collectionId: collection._id } }).populate('user').exec();
+            var collectionEvents = yield History.find({ createdAt: createdAt, 'params.collectionId': collection._id }).populate('user').exec();
             var _iteratorNormalCompletion10 = true;
             var _didIteratorError10 = false;
             var _iteratorError10 = undefined;

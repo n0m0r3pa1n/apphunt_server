@@ -10,8 +10,8 @@ var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
 var routes = [{
-    method: "GET",
-    path: "/users/{userId}/followers",
+    method: 'GET',
+    path: '/users/{userId}/followers',
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -32,8 +32,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/users/{userId}/following",
+    method: 'GET',
+    path: '/users/{userId}/following',
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -54,8 +54,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/users/{followingId}/followers/{followerId}",
+    method: 'DELETE',
+    path: '/users/{followingId}/followers/{followerId}',
     handler: function handler(req, reply) {
         reply.co(FollowersHandler.unfollowUser(req.params.followingId, req.params.followerId));
     },
@@ -71,8 +71,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/users/{userId}/followers",
+    method: 'POST',
+    path: '/users/{userId}/followers',
     handler: function handler(req, reply) {
         reply.co(FollowersHandler.addFollowers(req.params.userId, req.payload.followerIds));
     },
@@ -90,8 +90,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/users/{userId}/following",
+    method: 'POST',
+    path: '/users/{userId}/following',
     handler: function handler(req, reply) {
         reply.co(FollowersHandler.addFollowings(req.params.userId, req.payload.followingIds));
     },
@@ -109,8 +109,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/users/{followingId}/followers/{followerId}",
+    method: 'POST',
+    path: '/users/{followingId}/followers/{followerId}',
     handler: function handler(req, reply) {
         reply.co(FollowersHandler.followUser(req.params.followingId, req.params.followerId));
     },
