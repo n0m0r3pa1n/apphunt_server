@@ -7,103 +7,103 @@ var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var LOGIN_TYPES_FILTER = require('../build/config/config').LOGIN_TYPES_FILTER
 
 describe("Users", function() {
-
-	it("should create user", function*() {
-		var response = yield dbHelper.createUser()
-		response.statusCode.should.equal(STATUS_CODES.OK)
-	});
-
-	it("should create user with locale", function*() {
-		var response = yield dbHelper.createUser("USA-en")
-		response.statusCode.should.equal(STATUS_CODES.OK)
-		response.result.locale.should.equals("USA-en")
-	});
-
-	it("should update user profile", function*() {
-        var email = "dummy"
-		var userId = (yield dbHelper.createUserWithEmail(email)).result.id
-        var profilePicture = "New profile pic"
-        var coverPicture = "New cover pic"
-        yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)
-        var today = new Date();
-        var todayStr = today.toString("yyyy-MMM-dd")
-
-        var opts = {
-            method: 'GET',
-            url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
-        }
-
-        var result = (yield Server.injectThen(opts)).result
-        result.profilePicture.should.eq(profilePicture)
-        result.coverPicture.should.eq(coverPicture)
-        result._id.toString().should.eq(String(userId))
-	});
-
-	it("should get user by id", function* () {
-		var response = yield dbHelper.createUser("USA-en")
-		response.statusCode.should.equal(STATUS_CODES.OK)
-
-        var today = new Date();
-        var todayStr = today.toString("yyyy-MMM-dd")
-
-		var opts = {
-			method: 'GET',
-			url: '/users/' + response.result._id + "?fromDate=" + todayStr + "&toDate=" + todayStr
-		}
-
-		var resp = yield Server.injectThen(opts)
-		String(resp.result._id).should.eq(String(response.result._id))
-	})
-
-	it("should not create user", function*() {
-		var response = yield dbHelper.createUser()
-		response.statusCode.should.equal(STATUS_CODES.OK)
-
-		var response2 = yield dbHelper.createUser()
-		var usersResponse = yield dbHelper.getUsers()
-		var users = usersResponse.result.users
-		users.length.should.equal(1)
-	})
-
-    it("should get populated user profile", function* () {
-        var userId = (yield dbHelper.createUser()).result.id
-		var followingId = (yield dbHelper.createUserWithEmail("poli@abv.bg")).result.id
-        var followerId = (yield dbHelper.createUserWithEmail("df")).result.id
-        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
-
-		yield dbHelper.followUser(followingId, userId)
-		yield dbHelper.followUser(userId, followerId)
-
-        var appsIds = yield dbHelper.createFourAppsWithIds(userId)
-        yield dbHelper.makeCollectionPublic(userId, collectionId, appsIds)
-
-        var appId = (yield dbHelper.createApp(userId)).result.id
-		yield dbHelper.favouriteApp(appId, userId)
-		yield dbHelper.favouriteCollection(collectionId, userId)
-
-        yield dbHelper.createComment(appId, userId)
-
-        var today = new Date();
-        var todayStr = today.toString("yyyy-MMM-dd")
-
-        var opts = {
-            method: 'GET',
-            url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
-        }
-
-        var result = (yield Server.injectThen(opts)).result
-        result.apps.should.eq(5)
-        result.collections.should.eq(1)
-        result.comments.should.eq(1)
-        result.votes.should.eq(6)
-		result.favouriteApps.should.eq(1)
-		result.favouriteCollections.should.eq(1)
-		result.following.length.should.eq(1)
-		result.followingCount.should.eq(1)
-        result.followers.length.should.eq(1)
-		result.followersCount.should.eq(1)
-		expect(result.isFollowing).to.not.exist
-    })
+    //
+    //it("should create user", function*() {
+		//var response = yield dbHelper.createUser()
+		//response.statusCode.should.equal(STATUS_CODES.OK)
+    //});
+    //
+    //it("should create user with locale", function*() {
+		//var response = yield dbHelper.createUser("USA-en")
+		//response.statusCode.should.equal(STATUS_CODES.OK)
+		//response.result.locale.should.equals("USA-en")
+    //});
+    //
+    //it("should update user profile", function*() {
+    //    var email = "dummy"
+		//var userId = (yield dbHelper.createUserWithEmail(email)).result.id
+    //    var profilePicture = "New profile pic"
+    //    var coverPicture = "New cover pic"
+    //    yield dbHelper.createUserWithPictures(email, profilePicture, coverPicture)
+    //    var today = new Date();
+    //    var todayStr = today.toString("yyyy-MMM-dd")
+    //
+    //    var opts = {
+    //        method: 'GET',
+    //        url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
+    //    }
+    //
+    //    var result = (yield Server.injectThen(opts)).result
+    //    result.profilePicture.should.eq(profilePicture)
+    //    result.coverPicture.should.eq(coverPicture)
+    //    result._id.toString().should.eq(String(userId))
+    //});
+    //
+    //it("should get user by id", function* () {
+		//var response = yield dbHelper.createUser("USA-en")
+		//response.statusCode.should.equal(STATUS_CODES.OK)
+    //
+    //    var today = new Date();
+    //    var todayStr = today.toString("yyyy-MMM-dd")
+    //
+		//var opts = {
+		//	method: 'GET',
+		//	url: '/users/' + response.result._id + "?fromDate=" + todayStr + "&toDate=" + todayStr
+		//}
+    //
+		//var resp = yield Server.injectThen(opts)
+		//String(resp.result._id).should.eq(String(response.result._id))
+    //})
+    //
+    //it("should not create user", function*() {
+		//var response = yield dbHelper.createUser()
+		//response.statusCode.should.equal(STATUS_CODES.OK)
+    //
+		//var response2 = yield dbHelper.createUser()
+		//var usersResponse = yield dbHelper.getUsers()
+		//var users = usersResponse.result.users
+		//users.length.should.equal(1)
+    //})
+    //
+    //it("should get populated user profile", function* () {
+    //    var userId = (yield dbHelper.createUser()).result.id
+		//var followingId = (yield dbHelper.createUserWithEmail("poli@abv.bg")).result.id
+    //    var followerId = (yield dbHelper.createUserWithEmail("df")).result.id
+    //    var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+    //
+		//yield dbHelper.followUser(followingId, userId)
+		//yield dbHelper.followUser(userId, followerId)
+    //
+    //    var appsIds = yield dbHelper.createFourAppsWithIds(userId)
+    //    yield dbHelper.makeCollectionPublic(userId, collectionId, appsIds)
+    //
+    //    var appId = (yield dbHelper.createApp(userId)).result.id
+		//yield dbHelper.favouriteApp(appId, userId)
+		//yield dbHelper.favouriteCollection(collectionId, userId)
+    //
+    //    yield dbHelper.createComment(appId, userId)
+    //
+    //    var today = new Date();
+    //    var todayStr = today.toString("yyyy-MMM-dd")
+    //
+    //    var opts = {
+    //        method: 'GET',
+    //        url: '/users/' + userId + "?fromDate=" + todayStr + "&toDate=" + todayStr
+    //    }
+    //
+    //    var result = (yield Server.injectThen(opts)).result
+    //    result.apps.should.eq(5)
+    //    result.collections.should.eq(1)
+    //    result.comments.should.eq(1)
+    //    result.votes.should.eq(6)
+		//result.favouriteApps.should.eq(1)
+		//result.favouriteCollections.should.eq(1)
+		//result.following.length.should.eq(1)
+		//result.followingCount.should.eq(1)
+    //    result.followers.length.should.eq(1)
+		//result.followersCount.should.eq(1)
+		//expect(result.isFollowing).to.not.exist
+    //})
 
     it("should get populated user profile for current user", function* () {
         var currentUserId = (yield dbHelper.createUser()).result.id

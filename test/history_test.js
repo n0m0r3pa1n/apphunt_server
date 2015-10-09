@@ -317,7 +317,6 @@ describe("History", function () {
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_REJECTED)
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.APP_APPROVED)
     })
-
 })
 
 

@@ -57,7 +57,8 @@ function* getFollowers(profileId, userId) {
         for (var _iterator = result.followers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
 
-            var follower = item.follower;
+            var follower = item.follower.toObject();
+            follower.id = item.follower._id;
             follower.isFollowing = yield isFollowing(userId, follower._id);
             followers.push(follower);
         }
@@ -100,7 +101,9 @@ function* getPopulatedIsFollowing(followerId, users) {
         for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var user = _step2.value;
 
-            user = user.toObject();
+            if (user instanceof User) {
+                user = user.toObject();
+            }
             user.isFollowing = yield isFollowing(followerId, user._id);
             result.push(user);
         }
@@ -122,7 +125,8 @@ function* getPopulatedIsFollowing(followerId, users) {
     return result;
 }
 
-function* getFollowing(profileId, userId) {
+function* getFollowing(profileId) {
+    var userId = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
     var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
     var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
@@ -137,7 +141,8 @@ function* getFollowing(profileId, userId) {
         for (var _iterator3 = result.following[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var item = _step3.value;
 
-            var following = item.following;
+            var following = item.following.toObject();
+            following.id = item.following._id;
             following.isFollowing = yield isFollowing(userId, following._id);
             followings.push(following);
         }

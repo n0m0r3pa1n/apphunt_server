@@ -84,12 +84,12 @@ var routes = [{
     config: {
         validate: {
             params: {
-                profileId: Joi.string().required()
+                profileId: Joi.objectId().required()
             },
             query: {
                 fromDate: Joi.date().required(),
                 toDate: Joi.date().required(),
-                currentUserId: Joi.string().optional()
+                currentUserId: Joi.objectId().optional()
             }
         },
         auth: false,

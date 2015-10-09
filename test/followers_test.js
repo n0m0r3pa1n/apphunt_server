@@ -103,7 +103,8 @@ describe("Followers", function () {
 
         var response = yield Server.injectThen(opts)
         response.result.following.length.should.eq(1)
-        response.result.following[0].id.should.eq(String(followingId))
+        String(response.result.following[0]._id).should.eq(String(followingId))
+        expect(response.result.following[0].isFollowing).to.exist
         response.result.following[0].isFollowing.should.eq(true)
     });
 })
