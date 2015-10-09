@@ -14,7 +14,7 @@ function* createAppVote(userId, appId) {
     var user = yield User.findById(userId).exec();
 
     var query = App.findById(appId);
-    var app = yield query.populate('votes').exec();
+    var app = yield query.populate("votes").exec();
     if (!app) {
         return Boom.notFound('App not found');
     }
@@ -42,7 +42,7 @@ function* deleteAppVote(userId, appId) {
     var user = yield User.findById(userId).exec();
 
     var query = App.findById(appId);
-    var app = yield query.populate('votes').exec();
+    var app = yield query.populate("votes").exec();
     if (!app) {
         return Boom.notFound('App not found');
     }
@@ -93,7 +93,7 @@ function* deleteCommentVote(userId, commentId) {
     var user = yield User.findById(userId).exec();
 
     var query = Comment.findById(commentId);
-    var comment = yield query.populate('votes').exec();
+    var comment = yield query.populate("votes").exec();
     if (!comment) {
         return Boom.notFound('Non-existing comment');
     }
@@ -217,7 +217,7 @@ function* deleteCollectionVote(collectionId, userId) {
     var user = yield User.findById(userId).exec();
 
     var query = AppsCollection.findById(collectionId);
-    var collection = yield query.populate('votes').exec();
+    var collection = yield query.populate("votes").exec();
     if (!collection) {
         return Boom.notFound('Non-existing apps collection');
     }

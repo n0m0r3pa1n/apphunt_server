@@ -30,7 +30,7 @@ var CollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
 var _utilsEvent_emitterJs = require('./utils/event_emitter.js');
 
-var _ = require('underscore');
+var _ = require("underscore");
 
 var Boom = require('boom');
 var CONFIG = require('../config/config');
@@ -106,13 +106,13 @@ function* getHistory(userId, date) {
     return yield* (function* () {
         var user = yield UsersHandler.find(userId);
         if (user == null) {
-            return Boom.notFound('User is not existing!');
+            return Boom.notFound("User is not existing!");
         }
         var where = {};
 
         where.createdAt = {
-            '$gte': new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-            '$lt': toDate.toISOString()
+            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            "$lt": toDate.toISOString()
         };
         where.user = userId;
 
@@ -220,7 +220,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
 
             result = result.toObject();
             result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-            result.text = 'Test';
+            result.text = getText(result.type, result.params);
             response.push(result);
         }
     } catch (err) {
@@ -243,16 +243,11 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
 
 function getText(type, params) {
     var message = HISTORY_MESSAGES[type];
-    var text = '';
+    var text = "";
     switch (type) {
         case HISTORY_EVENT_TYPES.APP_APPROVED:
-            text = String.format(message, params.appName);
-            break;
         case HISTORY_EVENT_TYPES.APP_REJECTED:
             text = String.format(message, params.appName);
-            break;
-        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
-            text = String.format(message, params.appName, params.userName);
             break;
         case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
             text = String.format(message, params.userName, params.collectionName);
@@ -263,21 +258,20 @@ function getText(type, params) {
         case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
             text = String.format(message, params.collectionName);
             break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
         case HISTORY_EVENT_TYPES.USER_COMMENT:
-            text = String.format(message, params.appName, params.userName);
-            break;
         case HISTORY_EVENT_TYPES.USER_MENTIONED:
             text = String.format(message, params.appName, params.userName);
             break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
         case HISTORY_EVENT_TYPES.USER_FOLLOWED:
             text = String.format(message, params.userName);
             break;
-        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
-            text = String.format(message, params.userName);
-            break;
         default:
-            return;
+            return "";
     }
+
+    return text;
 }
 
 function* getEventsForApps(createdAt, userId) {

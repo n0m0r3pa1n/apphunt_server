@@ -36,7 +36,7 @@ Co(function* () {
     var appps2 = yield App.findOne();
     console.log(appps2);
     var i = 0;
-    var result = yield AppsHandler.getApps(undefined, undefined, 'Android', APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined);
+    var result = yield AppsHandler.getApps(undefined, undefined, "Android", APP_STATUS_FILTER.ALL, 0, 0, undefined, undefined);
     console.log(result.apps.length);
     var appLength = result.apps.length;
 
@@ -54,7 +54,7 @@ Co(function* () {
             }
             i++;
             yield TagsHandler.saveTagsForApp([], app._id, app.name, app.categories == undefined ? [] : app.categories);
-            console.log('Updating ' + i + ' of ' + appLength);
+            console.log("Updating " + i + " of " + appLength);
         }
     } catch (err) {
         _didIteratorError = true;
@@ -71,8 +71,8 @@ Co(function* () {
         }
     }
 
-    console.log('==================================');
-    console.log('Collections');
+    console.log("==================================");
+    console.log("Collections");
     var collectionsResult = yield AppCollectionsHandler.searchCollections(undefined, undefined, undefined, 0, 0);
     var collectionsLength = collectionsResult.collections.length;
     var _iteratorNormalCompletion2 = true;
@@ -89,7 +89,7 @@ Co(function* () {
             }
             i++;
             yield TagsHandler.saveTagsForCollection([], collection._id, collection.name);
-            console.log('Updating ' + i + ' of ' + collectionsLength);
+            console.log("Updating " + i + " of " + collectionsLength);
         }
     } catch (err) {
         _didIteratorError2 = true;

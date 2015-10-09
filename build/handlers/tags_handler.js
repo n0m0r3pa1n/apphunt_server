@@ -398,7 +398,7 @@ function* getTagsForItem(itemId, tagType) {
 
 function getTagsFromName(appName) {
     appName = replaceSpecialCharacters(appName);
-    var split = appName.split(' ');
+    var split = appName.split(" ");
     var tags = [];
     var _iteratorNormalCompletion10 = true;
     var _didIteratorError10 = false;

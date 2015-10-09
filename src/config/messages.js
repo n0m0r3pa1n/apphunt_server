@@ -10,7 +10,7 @@ var USER_MENTIONED_TITLE = '{0} mentioned you on AppHunt'
 
 var historyMessages = {}
 
-historyMessages[HISTORY_EVENT_TYPES.APP_APPROVED] = APP_APPROVED_MESSAGE
+historyMessages[HISTORY_EVENT_TYPES.APP_APPROVED] = APP_APPROVED_TITLE
 historyMessages[HISTORY_EVENT_TYPES.APP_REJECTED] = APP_REJECTED_TITLE
 historyMessages[HISTORY_EVENT_TYPES.APP_FAVOURITED] = '{0} is favourited by {1}'
 

@@ -13,8 +13,8 @@ var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
 var Joi = require('joi');
 
 var tagRoutes = [{
-    method: 'GET',
-    path: '/tags/suggest',
+    method: "GET",
+    path: "/tags/suggest",
     handler: function handler(req, reply) {
         reply.co(TagsHandler.getTagSuggestions(req.query.name));
     },
@@ -27,8 +27,8 @@ var tagRoutes = [{
         auth: false
     }
 }, {
-    method: 'GET',
-    path: '/tags',
+    method: "GET",
+    path: "/tags",
     handler: function handler(req, reply) {
         reply.co(TagsHandler.getItemsForTag(req.query.names, req.query.userId));
     },
@@ -42,8 +42,8 @@ var tagRoutes = [{
         auth: false
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/tags',
+    method: "GET",
+    path: "/app-collections/tags",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -61,8 +61,8 @@ var tagRoutes = [{
         auth: false
     }
 }, {
-    method: 'GET',
-    path: '/apps/tags',
+    method: "GET",
+    path: "/apps/tags",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;

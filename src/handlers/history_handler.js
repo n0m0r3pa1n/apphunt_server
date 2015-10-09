@@ -141,7 +141,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     for(let result of results) {
         result = result.toObject()
         result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-        result.text = "Test"
+        result.text = getText(result.type, result.params)
         response.push(result)
     }
 
@@ -153,13 +153,8 @@ function getText(type, params) {
     let text = ""
     switch (type) {
         case HISTORY_EVENT_TYPES.APP_APPROVED:
-            text = String.format(message, params.appName)
-            break;
         case HISTORY_EVENT_TYPES.APP_REJECTED:
             text = String.format(message, params.appName)
-            break;
-        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
-            text = String.format(message, params.appName, params.userName)
             break;
         case HISTORY_EVENT_TYPES.COLLECTION_CREATED:
             text = String.format(message, params.userName, params.collectionName)
@@ -170,21 +165,20 @@ function getText(type, params) {
         case HISTORY_EVENT_TYPES.COLLECTION_UPDATED:
             text = String.format(message, params.collectionName)
             break;
+        case HISTORY_EVENT_TYPES.APP_FAVOURITED:
         case HISTORY_EVENT_TYPES.USER_COMMENT:
-            text = String.format(message, params.appName, params.userName)
-            break;
         case HISTORY_EVENT_TYPES.USER_MENTIONED:
             text = String.format(message, params.appName, params.userName)
             break;
+        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
         case HISTORY_EVENT_TYPES.USER_FOLLOWED:
             text = String.format(message, params.userName)
             break;
-        case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
-            text = String.format(message, params.userName)
-            break;
         default:
-            return;
+            return "";
     }
+
+    return text
 
 }
 

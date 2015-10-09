@@ -2,7 +2,7 @@
 
 var HISTORY_EVENT_TYPES = require('./config').HISTORY_EVENT_TYPES;
 var APP_REJECTED_TITLE = '{0} is rejected';
-var APP_REJECTED_MESSAGE = 'Your submission does not meet AppHunt\'s criteria. The app should be new and with description in English.';
+var APP_REJECTED_MESSAGE = "Your submission does not meet AppHunt's criteria. The app should be new and with description in English.";
 
 var APP_APPROVED_TITLE = '{0} is approved';
 var APP_APPROVED_MESSAGE = '{0} will be featured on AppHunt on {1}';
@@ -12,7 +12,7 @@ var USER_MENTIONED_TITLE = '{0} mentioned you on AppHunt';
 
 var historyMessages = {};
 
-historyMessages[HISTORY_EVENT_TYPES.APP_APPROVED] = APP_APPROVED_MESSAGE;
+historyMessages[HISTORY_EVENT_TYPES.APP_APPROVED] = APP_APPROVED_TITLE;
 historyMessages[HISTORY_EVENT_TYPES.APP_REJECTED] = APP_REJECTED_TITLE;
 historyMessages[HISTORY_EVENT_TYPES.APP_FAVOURITED] = '{0} is favourited by {1}';
 

@@ -11,6 +11,7 @@ var _ = require('underscore')
 require('./spec_helper')
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var HISTORY_EVENT_TYPES = require('../build/config/config').HISTORY_EVENT_TYPES
+var HISTORY_MESSAGES = require('../build/config/messages').HISTORY_MESSAGES
 
 describe("History", function () {
 
@@ -49,7 +50,7 @@ describe("History", function () {
 
         var collection = (yield dbHelper.createAppsCollection(collectionCreatorId)).result
         var appIds = yield dbHelper.createFourAppsWithIds(collectionCreatorId)
-        yield dbHelper.makeCollectionPublic(collectionCreatorId, collection._id, appIds)
+        var updatedCollection = yield dbHelper.makeCollectionPublic(collectionCreatorId, collection._id, appIds)
 
         yield dbHelper.favouriteCollection(collection._id, userId)
 
@@ -62,9 +63,12 @@ describe("History", function () {
         var response = yield Server.injectThen(opts)
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED)
         response.result.events.length.should.eq(1)
-        String(response.result.events[0].user._id).should.eq(String(userId))
-        expect(response.result.events[0].user.isFollowing).to.exist
-        expect(response.result.events[0].user.isFollowing).to.eq(true)
+
+        var event = response.result.events[0];
+        String(event.user._id).should.eq(String(userId))
+        event.text.should.eq(String.format(HISTORY_MESSAGES[event.type], updatedCollection.name, user.name))
+        expect(event.user.isFollowing).to.exist
+        expect(event.user.isFollowing).to.eq(true)
     })
 
     it("should get following collection create history", function* () {
@@ -75,7 +79,7 @@ describe("History", function () {
 
         var collection = (yield dbHelper.createAppsCollection(userId)).result
         var appIds = yield dbHelper.createFourAppsWithIds(userId)
-        yield dbHelper.makeCollectionPublic(userId, collection._id, appIds)
+        var updatedCollection = yield dbHelper.makeCollectionPublic(userId, collection._id, appIds)
 
 
         var opts = {
@@ -86,9 +90,11 @@ describe("History", function () {
         var response = yield Server.injectThen(opts)
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.COLLECTION_CREATED)
         response.result.events.length.should.eq(5)
-        String(_.filter(response.result.events, function (element) {
+        var element = _.filter(response.result.events, function (element) {
             return element.type == HISTORY_EVENT_TYPES.COLLECTION_CREATED;
-        })[0].user._id).should.eq(String(userId));
+        })[0];
+        String(element.user._id).should.eq(String(userId));
+        element.text.should.eq(String.format(HISTORY_MESSAGES[element.type], user.name, updatedCollection.name))
     })
 
     it("should get following app create history", function* () {
@@ -167,7 +173,9 @@ describe("History", function () {
 
         var response = yield Server.injectThen(opts)
         response.result.events.should.contain.a.thing.with.property('type', HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS)
-        String(response.result.events[0].user._id).should.eq(String(userId))
+        var event = response.result.events[0];
+        String(event.user._id).should.eq(String(userId))
+        event.text.should.eq(String.format(HISTORY_MESSAGES[event.type], event.user.name))
         response.result.events.length.should.eq(1)
     })
 

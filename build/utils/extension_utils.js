@@ -13,7 +13,7 @@ String.prototype.capitalizeFirstLetter = function () {
 
 String.prototype.replaceAll = function (find, replace) {
     var str = this;
-    return str.replace(new RegExp(find, "g"), replace);
+    return str.replace(new RegExp(find, 'g'), replace);
 };
 
 String.format = function () {
