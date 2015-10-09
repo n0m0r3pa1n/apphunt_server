@@ -6,47 +6,49 @@ import * as FollowersHandler from '../handlers/followers_handler.js'
 var routes = [
     {
         method: "GET",
-        path: "/users/{userId}/followers",
+        path: "/users/{profileId}/followers",
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            reply.co(FollowersHandler.getFollowers(req.params.userId, page, pageSize))
+            reply.co(FollowersHandler.getFollowers(req.params.profileId, req.query.userId, page, pageSize))
         },
         config: {
             validate: {
                 query: {
+                    userId: Joi.objectId().optional(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional()
                 },
                 params: {
-                    userId: Joi.objectId().required()
+                    profileId: Joi.objectId().required()
                 }
             },
             auth: false,
-            description: 'Search users by query and login type',
+            description: 'Get the followers for user profile id',
             tags: ['api']
         }
     },
     {
         method: "GET",
-        path: "/users/{userId}/following",
+        path: "/users/{profileId}/following",
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
-            reply.co(FollowersHandler.getFollowing(req.params.userId, page, pageSize))
+            reply.co(FollowersHandler.getFollowing(req.params.profileId, req.query.userId, page, pageSize))
         },
         config: {
             validate: {
                 query: {
+                    userId: Joi.objectId().optional(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional()
                 },
                 params: {
-                    userId: Joi.objectId().required()
+                    profileId: Joi.objectId().required()
                 }
             },
             auth: false,
-            description: 'Get the following for userId',
+            description: 'Get the following for user profile id',
             tags: ['api']
         }
     },

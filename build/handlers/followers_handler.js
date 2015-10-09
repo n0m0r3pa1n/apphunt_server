@@ -42,11 +42,11 @@ var CONFIG = require('../config/config');
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
 
-function* getFollowers(userId) {
-    var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-    var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+function* getFollowers(profileId, userId) {
+    var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+    var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
-    var query = Follower.find({ following: userId }).select("-_id follower").populate("follower");
+    var query = Follower.find({ following: profileId }).select("-_id follower").populate("follower");
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize);
     var followers = [];
     var _iteratorNormalCompletion = true;
@@ -58,7 +58,7 @@ function* getFollowers(userId) {
             var item = _step.value;
 
             var follower = item.follower;
-            follower.isFollowing = false;
+            follower.isFollowing = yield isFollowing(userId, follower._id);
             followers.push(follower);
         }
     } catch (err) {
@@ -122,13 +122,13 @@ function* getPopulatedIsFollowing(followerId, users) {
     return result;
 }
 
-function* getFollowing(userId) {
-    var page = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-    var pageSize = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+function* getFollowing(profileId, userId) {
+    var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+    var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
-    var query = Follower.find({ follower: userId }).select("-_id following").populate("following");
+    var query = Follower.find({ follower: profileId }).select("-_id following").populate("following");
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize);
-    var following = [];
+    var followings = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
     var _iteratorError3 = undefined;
@@ -137,7 +137,9 @@ function* getFollowing(userId) {
         for (var _iterator3 = result.following[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var item = _step3.value;
 
-            following.push(item.following);
+            var following = item.following;
+            following.isFollowing = yield isFollowing(userId, following._id);
+            followings.push(following);
         }
     } catch (err) {
         _didIteratorError3 = true;
@@ -154,11 +156,14 @@ function* getFollowing(userId) {
         }
     }
 
-    result.following = following;
+    result.following = followings;
     return result;
 }
 
 function* isFollowing(followerId, followingId) {
+    if (followerId == undefined || followingId == undefined) {
+        return false;
+    }
     return (yield Follower.count({ following: followingId, follower: followerId }).exec()) > 0;
 }
 

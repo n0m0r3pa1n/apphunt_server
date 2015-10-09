@@ -14,13 +14,13 @@ var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 
 
-export function* getFollowers(userId, page = 0, pageSize = 0) {
-    let query = Follower.find({following: userId}).select("-_id follower").populate("follower")
+export function* getFollowers(profileId, userId, page = 0, pageSize = 0) {
+    let query = Follower.find({following: profileId}).select("-_id follower").populate("follower")
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize)
     let followers = []
     for(let item of result.followers) {
         let follower = item.follower
-        follower.isFollowing = false
+        follower.isFollowing = yield isFollowing(userId, follower._id)
         followers.push(follower)
     }
     result.followers = followers
@@ -48,19 +48,24 @@ function* getPopulatedIsFollowing(followerId, users) {
 }
 
 
-export function* getFollowing(userId, page = 0, pageSize = 0) {
-    let query = Follower.find({follower: userId}).select("-_id following").populate("following")
+export function* getFollowing(profileId, userId, page = 0, pageSize = 0) {
+    let query = Follower.find({follower: profileId}).select("-_id following").populate("following")
     let result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize)
-    let following = []
+    let followings = []
     for(let item of result.following) {
-        following.push(item.following)
+        let following = item.following
+        following.isFollowing = yield isFollowing(userId, following._id)
+        followings.push(following)
     }
 
-    result.following = following
+    result.following = followings
     return result
 }
 
 export function* isFollowing(followerId, followingId) {
+    if(followerId == undefined || followingId == undefined) {
+        return false
+    }
     return (yield Follower.count({following: followingId, follower: followerId}).exec()) > 0
 }
 

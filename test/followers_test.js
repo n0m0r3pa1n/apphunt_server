@@ -2,7 +2,7 @@ var Mongoose = require("mongoose")
 var should = require('chai').should()
 var assert = require('chai').assert
 var expect = require('chai').expect
-
+var _ = require("underscore")
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
@@ -74,29 +74,36 @@ describe("Followers", function () {
 
         yield dbHelper.followUser(followingId, followerId)
         yield dbHelper.followUser(followingId, follower2Id)
+        yield dbHelper.followUser(follower2Id, followerId)
 
         var opts = {
             method: "GET",
-            url: '/users/' + followingId + "/followers?page=1&pageSize=2"
+            url: '/users/' + followingId + "/followers?page=1&pageSize=2&userId=" + followerId
         }
 
         var response = yield Server.injectThen(opts)
         response.result.followers.length.should.eq(2)
+        _.filter(response.result.followers, function (element) {
+            return String(element._id) == String(follower2Id);
+        })[0].isFollowing.should.eq(true);
     });
 
     it("should get following", function*() {
         var followingId = (yield dbHelper.createUser()).result.id
         var followerId = (yield dbHelper.createUserWithEmail("sdasdsad")).result.id
+        var userId = (yield dbHelper.createUserWithEmail("dsffdsg")).result.id
 
         yield dbHelper.followUser(followingId, followerId)
+        yield dbHelper.followUser(followingId, userId)
 
         var opts = {
             method: "GET",
-            url: '/users/' + followerId + "/following?page=1&pageSize=2"
+            url: '/users/' + followerId + "/following?page=1&pageSize=2&userId=" + userId
         }
 
         var response = yield Server.injectThen(opts)
         response.result.following.length.should.eq(1)
         response.result.following[0].id.should.eq(String(followingId))
+        response.result.following[0].isFollowing.should.eq(true)
     });
 })
