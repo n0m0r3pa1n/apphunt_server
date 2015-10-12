@@ -12,6 +12,8 @@ export function setup(server) {
         for (var clientId in clients) {
             for(let userId of data.interestedUsers) {
                 if(userId == io.sockets.connected[clientId].userId) {
+                    event = event.toObject()
+                    event.text = HistoryHandler.getText(event.type, event.params)
                     io.sockets.connected[clientId].emit('refresh', {event: event})
                 }
             }

@@ -148,7 +148,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     return response
 }
 
-function getText(type, params) {
+export function getText(type, params) {
     let message = HISTORY_MESSAGES[type]
     let text = ""
     switch (type) {
