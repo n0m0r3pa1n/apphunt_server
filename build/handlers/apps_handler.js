@@ -100,6 +100,7 @@ function* create(app, tags, userId) {
             app.developer = developer;
         } else {
             parsedApp = yield Badboy.getiOSApp(app['package']);
+            parsedApp.category = parsedApp.categories == null || parsedApp.categories == undefined || parsedApp.categories.length == 0 ? "" : parsedApp.categories[0];
         }
     } catch (e) {
         parsedApp = null;
@@ -116,14 +117,17 @@ function* create(app, tags, userId) {
 
     app.status = APP_STATUSES.WAITING;
     app.createdBy = user;
-    app.categories = yield getAppCategories(parsedApp);
+    app.categories = yield getAppCategories(parsedApp.category);
     app.isFree = parsedApp.isFree;
     app.icon = parsedApp.icon;
     app.shortUrl = '';
     app.name = parsedApp.name;
     app.url = parsedApp.url;
-    app.screenshots = parsedApp.screenshots;
-    app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total;
+
+    if (app.platform == PLATFORMS.Android) {
+        app.screenshots = parsedApp.screenshots;
+        app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total;
+    }
 
     var parsedDescription = app.description;
     if (parsedDescription == '' || parsedDescription === undefined) {
@@ -148,8 +152,8 @@ function getClearedAppPackage(packageName) {
     return packageName;
 }
 
-function* getAppCategories(parsedApp) {
-    var categoryName = getFormattedCategory(parsedApp.category);
+function* getAppCategories(appCategories) {
+    var categoryName = getFormattedCategory(appCategories);
     var categories = [];
     var category = yield AppCategory.findOneOrCreate({ name: categoryName }, { name: categoryName });
     categories.push(category);
@@ -384,7 +388,6 @@ function* setAppShortUrl(app) {
 }
 
 function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
-
     var where = {};
 
     if (query !== undefined) {
