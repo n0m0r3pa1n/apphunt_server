@@ -1,5 +1,6 @@
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
 import * as HistoryHandler from '../handlers/history_handler.js'
+import * as FollowersHandler from '../handlers/followers_handler.js'
 var Co = require('co')
 
 export function setup(server) {
@@ -14,7 +15,11 @@ export function setup(server) {
                 if(userId == io.sockets.connected[clientId].userId) {
                     event = event.toObject()
                     event.text = HistoryHandler.getText(event.type, event.params)
-                    io.sockets.connected[clientId].emit('refresh', {event: event})
+                    Co.wrap(function*(event, clientId){
+                        event.user.isFollowing = yield FollowersHandler.isFollowing(userId, event.user._id)
+                        io.sockets.connected[clientId].emit('refresh', {event: event})
+                    })(event, clientId)
+
                 }
             }
         }

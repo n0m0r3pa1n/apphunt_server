@@ -13,6 +13,10 @@ var _handlersHistory_handlerJs = require('../handlers/history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_handlersHistory_handlerJs);
 
+var _handlersFollowers_handlerJs = require('../handlers/followers_handler.js');
+
+var FollowersHandler = _interopRequireWildcard(_handlersFollowers_handlerJs);
+
 var Co = require('co');
 
 function setup(server) {
@@ -28,14 +32,21 @@ function setup(server) {
             var _iteratorError = undefined;
 
             try {
-                for (var _iterator = data.interestedUsers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var _loop = function () {
                     var userId = _step.value;
 
                     if (userId == io.sockets.connected[clientId].userId) {
                         event = event.toObject();
                         event.text = HistoryHandler.getText(event.type, event.params);
-                        io.sockets.connected[clientId].emit('refresh', { event: event });
+                        Co.wrap(function* (event, clientId) {
+                            event.user.isFollowing = yield FollowersHandler.isFollowing(userId, event.user._id);
+                            io.sockets.connected[clientId].emit('refresh', { event: event });
+                        })(event, clientId);
                     }
+                };
+
+                for (var _iterator = data.interestedUsers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    _loop();
                 }
             } catch (err) {
                 _didIteratorError = true;
