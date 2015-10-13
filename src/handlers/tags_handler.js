@@ -119,17 +119,12 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
             tags.push(tag)
         }
     }
+
     if(tags.length == 0) {
         return response
     }
 
     var itemIds = getSortedItemIds(tags);
-    if(page != 0 && pageSize != 0) {
-        response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize)
-        itemIds = response.results;
-    } else {
-        response.totalCount = itemIds.length
-    }
     var collections = []
     for(let collectionId of itemIds) {
         var collection = yield AppsCollectionsHandler.get(collectionId, userId)
@@ -137,8 +132,13 @@ export function* getCollectionsForTags(names, userId, page, pageSize) {
             collections.push(collection)
         }
     }
-    delete response.results
-    response.collections = collections;
+
+    if(page != 0 && pageSize != 0) {
+        response = PaginationHandler.getPaginationWithResults(collections, page, pageSize)
+    } else {
+        response.totalCount = collections.length
+    }
+
     return response
 }
 

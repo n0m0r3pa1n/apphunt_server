@@ -275,12 +275,6 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
     }
 
     var itemIds = getSortedItemIds(tags);
-    if (page != 0 && pageSize != 0) {
-        response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);
-        itemIds = response.results;
-    } else {
-        response.totalCount = itemIds.length;
-    }
     var collections = [];
     var _iteratorNormalCompletion7 = true;
     var _didIteratorError7 = false;
@@ -310,8 +304,12 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
         }
     }
 
-    delete response.results;
-    response.collections = collections;
+    if (page != 0 && pageSize != 0) {
+        response = PaginationHandler.getPaginationWithResults(collections, page, pageSize);
+    } else {
+        response.totalCount = collections.length;
+    }
+
     return response;
 }
 
