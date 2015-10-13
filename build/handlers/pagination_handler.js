@@ -39,13 +39,15 @@ function* getPaginatedResults(query, currentPage, pageSize) {
 }
 
 function getPaginationWithResults(results, currentPage, pageSize) {
+    var name = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+
     var totalRecordsCount = results.length;
     var objects = results;
     if (currentPage != 0 && pageSize != 0) {
         objects = results.slice((currentPage - 1) * pageSize, currentPage * pageSize);
     }
 
-    return getResponse(objects, null, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
+    return getResponse(objects, name, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }
 
 function setupPaginatedQuery(query, currentPage, pageSize) {
