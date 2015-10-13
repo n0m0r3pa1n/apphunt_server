@@ -16,7 +16,6 @@ describe("Tags", function () {
         apps: []
     }
 
-
     it("should get apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
@@ -107,10 +106,10 @@ describe("Tags", function () {
         var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
         var collection2Response = yield dbHelper.createAppsCollectionWithParams(userResponse.result.id, "test march")
         var collection3Response = yield dbHelper.createAppsCollectionWithParams(userResponse.result.id, "test 2 march")
-        var appsIds = yield createAppsIdsList(userResponse.result.id)
-        yield makeCollectionPublic(userResponse.result.id, collectionResponse.result.id, appsIds)
-        yield makeCollectionPublic(userResponse.result.id, collection2Response.result.id, appsIds)
-        yield makeCollectionPublic(userResponse.result.id, collection3Response.result.id, appsIds)
+        var appsIds = yield dbHelper.createFourAppsWithIds(userResponse.result.id)
+        yield dbHelper.makeCollectionPublic(userResponse.result.id, collectionResponse.result.id, appsIds)
+        yield dbHelper.makeCollectionPublic(userResponse.result.id, collection2Response.result.id, appsIds)
+        yield dbHelper.makeCollectionPublic(userResponse.result.id, collection3Response.result.id, appsIds)
 
         collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
         collection2Response.statusCode.should.equal(STATUS_CODES.OK)
@@ -157,8 +156,8 @@ describe("Tags", function () {
         var collectionResponse = yield dbHelper.createAppsCollection(userResponse.result.id)
         var collectionId = collectionResponse.result.id
         collectionResponse.statusCode.should.equal(STATUS_CODES.OK)
-        var appIds = yield createAppsIdsList(userId)
-        yield makeCollectionPublic(userId, collectionId, appIds)
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, collectionId, appIds)
 
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["march", "test2"])
 
@@ -185,7 +184,7 @@ describe("Tags", function () {
     it("should delete tags for app", function* () {
         var userResponse = yield dbHelper.createUser()
         var appResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["nomnom", "test2"])
-        
+
         var opts = {
             method: 'DELETE',
             url: '/apps?package=' + appResponse.result.package
@@ -203,26 +202,4 @@ describe("Tags", function () {
         result2.apps.length.should.eq(0)
     })
 
-    function* makeCollectionPublic(userId, collectionId, appsIds) {
-        updateCollection.apps = appsIds
-
-        var opts3 = {
-            method: 'PUT',
-            url: '/app-collections/' + collectionId + "?userId=" + userId,
-            payload: {
-                collection: updateCollection
-            }
-        }
-
-        var resp = (yield Server.injectThen(opts3)).result
-    }
-
-    function* createAppsIdsList(userId) {
-        var appId = (yield dbHelper.createApp(userId)).result.id
-        var app2Id = (yield dbHelper.createAppWithPackage(userId, "com.test1")).result.id
-        var app3Id = (yield dbHelper.createAppWithPackage(userId, "com.test2")).result.id
-        var app4Id = (yield dbHelper.createAppWithPackage(userId, "com.test3")).result.id
-
-        return [appId, app2Id, app3Id, app4Id];
-    }
 })

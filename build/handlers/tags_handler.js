@@ -307,6 +307,7 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
     if (page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(collections, page, pageSize, "collections");
     } else {
+        response.collections = collections;
         response.totalCount = collections.length;
     }
 
