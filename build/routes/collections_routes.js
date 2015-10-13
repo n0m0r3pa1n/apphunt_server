@@ -1,12 +1,13 @@
-"use strict";
+'use strict';
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 var _handlersApps_collections_handlerJs = require('../handlers/apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_handlersApps_collections_handlerJs);
 
 var Joi = require('joi');
+Joi.objectId = require('joi-objectid');
 var AppsCollection = require("../models").AppsCollection;
 var UsersCollection = require("../models").UsersCollection;
 var UsersCollectionsHandler = require('../handlers/users_collections_handler');
@@ -211,17 +212,17 @@ var collectionsRoutes = [{
     config: {
         validate: {
             query: {
-                userId: Joi.string().required()
+                userId: Joi.objectId().required()
             },
             params: {
-                collectionId: Joi.string().required()
+                collectionId: Joi.objectId().required()
             },
             payload: {
                 collection: Joi.object({
                     name: Joi.string().required(),
                     picture: Joi.string().required(),
                     description: Joi.string().required(),
-                    apps: Joi.array().items(Joi.string()).unique().required() }).unknown()
+                    apps: Joi.array().items(Joi.objectId()).unique().required() }).unknown()
             }
         },
         auth: false,

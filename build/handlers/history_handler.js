@@ -142,11 +142,9 @@ function* getHistory(userId, date) {
         });
         var fromDateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
         var toDateStr = toDate.getUTCFullYear() + '-' + (toDate.getUTCMonth() + 1) + '-' + toDate.getUTCDate();
-        console.log(events.length);
         events = _.uniq(events, function (obj) {
             return String(obj._id);
         });
-        console.log(events.length);
         return { events: events.reverse(), fromDate: fromDateStr, toDate: toDateStr };
     })();
 }

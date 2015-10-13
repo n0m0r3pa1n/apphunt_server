@@ -33,8 +33,6 @@ export function setup(server) {
         });
 
         socket.on('last seen event', function (userId, eventId, date) {
-            console.log("AAA id", eventId)
-            console.log("AAA date", date)
             Co.wrap(function* (socket) {
                 let unseenEventIds = yield HistoryHandler.getUnseenHistory(userId, eventId, date)
                 socket.emit('unseen events', {events: unseenEventIds})

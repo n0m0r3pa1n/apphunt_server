@@ -1,4 +1,5 @@
 var Joi = require('joi')
+Joi.objectId = require('joi-objectid')
 var AppsCollection = require("../models").AppsCollection
 var UsersCollection = require("../models").UsersCollection
 var UsersCollectionsHandler = require('../handlers/users_collections_handler')
@@ -214,17 +215,17 @@ var collectionsRoutes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required()
+                    userId: Joi.objectId().required()
                 },
                 params: {
-                    collectionId: Joi.string().required()
+                    collectionId: Joi.objectId().required()
                 },
                 payload: {
                     collection: Joi.object({
                         name: Joi.string().required(),
                         picture: Joi.string().required(),
                         description: Joi.string().required(),
-                        apps: Joi.array().items(Joi.string()).unique().required()}).unknown()
+                        apps: Joi.array().items(Joi.objectId()).unique().required()}).unknown()
                 }
             },
             auth: false,
