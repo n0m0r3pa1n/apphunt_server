@@ -102,7 +102,6 @@ export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY
     }).populate('user').exec()))
     results = results.concat((yield getEventsForFavouriteCollections(where.createdAt, userId)))
     results = results.concat((yield getEventsForFollowings(where.createdAt, userId)))
-
     results = results.concat(yield History.find({
         createdAt: where.createdAt,
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
@@ -114,6 +113,9 @@ export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY
     })
     let fromDateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate()
     let toDateStr = toDate.getUTCFullYear() + '-' + (toDate.getUTCMonth() + 1) + '-' + toDate.getUTCDate()
+    console.log(events.length)
+    events = _.uniq(events, (obj) => {return String(obj._id)})
+    console.log(events.length)
     return {events: events.reverse(), fromDate: fromDateStr, toDate: toDateStr}
 }
 

@@ -131,7 +131,6 @@ function* getHistory(userId, date) {
         }).populate('user').exec()));
         results = results.concat((yield getEventsForFavouriteCollections(where.createdAt, userId)));
         results = results.concat((yield getEventsForFollowings(where.createdAt, userId)));
-
         results = results.concat((yield History.find({
             createdAt: where.createdAt,
             type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
@@ -143,6 +142,11 @@ function* getHistory(userId, date) {
         });
         var fromDateStr = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
         var toDateStr = toDate.getUTCFullYear() + '-' + (toDate.getUTCMonth() + 1) + '-' + toDate.getUTCDate();
+        console.log(events.length);
+        events = _.uniq(events, function (obj) {
+            return String(obj._id);
+        });
+        console.log(events.length);
         return { events: events.reverse(), fromDate: fromDateStr, toDate: toDateStr };
     })();
 }
