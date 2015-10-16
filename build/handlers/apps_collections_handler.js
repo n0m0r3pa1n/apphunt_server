@@ -175,7 +175,7 @@ function* favourite(collectionId, userId) {
     if (isFollowing) {
         var title = "Check this awesome collection";
         var message = HistoryHandler.getText(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, { collectionName: collection.name, userName: user.name });
-        NotificationsHandler.sendNotificationsToUsers([collection.createdBy], title, message, user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
+        yield NotificationsHandler.sendNotificationsToUsers([collection.createdBy], title, message, user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
             collectionId: collectionId
         });
     }

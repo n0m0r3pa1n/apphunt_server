@@ -420,7 +420,7 @@ export function* favourite(appId, userId) {
     if(isFollowing) {
         let title = "Check this cool app"
         let messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {appName: app.name, userName: user.name})
-        NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
+        yield NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         })
     }

@@ -114,7 +114,7 @@ export function* favourite(collectionId, userId) {
     if(isFollowing) {
         let title = "Check this awesome collection"
         let message = HistoryHandler.getText(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, {collectionName: collection.name, userName: user.name})
-        NotificationsHandler.sendNotificationsToUsers([collection.createdBy], title, message,
+        yield NotificationsHandler.sendNotificationsToUsers([collection.createdBy], title, message,
             user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
             collectionId: collectionId
         })
