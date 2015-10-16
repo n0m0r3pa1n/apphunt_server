@@ -184,7 +184,10 @@ function* followUser(followingId, followerId) {
     }
 
     yield followSingleUser(followingId, followerId);
-    NotificationsHandler.sendNotificationsToUsers([followingId], "", "", "", NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
+
+    var title = "App hunter followed you";
+    var message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.USER_FOLLOWED, { userName: follower.name });
+    NotificationsHandler.sendNotificationsToUsers([followingId], title, message, follower.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     return Boom.OK();
 }
 
@@ -271,7 +274,8 @@ function* addFollowers(followingId, followerIds) {
         }
     }
 
-    NotificationsHandler.sendNotificationsToUsers([followingId], "Many users followed you!", "", "", NOTIFICATION_TYPES.USER_FOLLOWED);
+    var title = "You are a followers dream";
+    NotificationsHandler.sendNotificationsToUsers([followingId], title, followerIds.length + " users followed you!", following.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED);
     return Boom.OK();
 }
 

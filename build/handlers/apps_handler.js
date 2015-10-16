@@ -332,7 +332,7 @@ function* changeAppStatus(appPackage, status) {
             NotificationsHandler.sendNotifications(devices, _title, _message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, { appId: app._id, appName: app.name });
 
-            yield sendNotificationsToFollowers(createdBy);
+            yield sendNotificationsToFollowers(createdBy, app.name, app.icon);
         }
     }
 
@@ -342,7 +342,7 @@ function* changeAppStatus(appPackage, status) {
     return Boom.OK();
 }
 
-function* sendNotificationsToFollowers(createdBy) {
+function* sendNotificationsToFollowers(createdBy, appName, icon) {
     var followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers;
     var devices = [];
     var _iteratorNormalCompletion3 = true;
@@ -370,7 +370,9 @@ function* sendNotificationsToFollowers(createdBy) {
         }
     }
 
-    NotificationsHandler.sendNotifications(devices, "Test", "Test", "", NOTIFICATION_TYPES.FOLLOWING_ADDED_APP);
+    var message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, { appName: appName });
+    var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
+    NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP);
 }
 
 function* setAppShortUrl(app) {
@@ -454,17 +456,17 @@ function* filterApps(packages, platform) {
 
     try {
         for (var _iterator4 = appsToBeAdded[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var app = _step4.value;
+            var _app = _step4.value;
 
             var parsedApp = null;
             try {
-                parsedApp = yield DevsHunter.getAndroidApp(app);
+                parsedApp = yield DevsHunter.getAndroidApp(_app);
             } catch (e) {
                 continue;
             }
 
             if (parsedApp != null) {
-                packagesResult.push(app);
+                packagesResult.push(_app);
             }
         }
     } catch (err) {
@@ -538,7 +540,9 @@ function* favourite(appId, userId) {
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: app._id, appName: app.name, userName: user.name });
     var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
     if (isFollowing) {
-        NotificationsHandler.sendNotificationsToUsers([app.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
+        var title = "Check this cool app";
+        var messages = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, { appName: app.name, userName: user.name });
+        NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         });
     }

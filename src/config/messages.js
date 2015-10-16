@@ -20,7 +20,7 @@ historyMessages[HISTORY_EVENT_TYPES.USER_COMMENT] = '{0} commented {1}'
 historyMessages[HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS] = '{0} is in Top Hunters'
 
 historyMessages[HISTORY_EVENT_TYPES.COLLECTION_CREATED] = '{0} created collection {1}'
-historyMessages[HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED] = '{0} is favourited by {1}'
+    historyMessages[HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED] = '{0} is favourited by {1}'
 historyMessages[HISTORY_EVENT_TYPES.COLLECTION_UPDATED] = '{0} is updated'
 
 

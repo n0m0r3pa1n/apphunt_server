@@ -253,11 +253,10 @@ export function* changeAppStatus(appPackage, status) {
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
 
-
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id, appName: app.name})
 
-            yield sendNotificationsToFollowers(createdBy);
+            yield sendNotificationsToFollowers(createdBy, app.name, app.icon);
         }
     }
 
@@ -268,14 +267,16 @@ export function* changeAppStatus(appPackage, status) {
     return Boom.OK()
 }
 
-function* sendNotificationsToFollowers(createdBy) {
+function* sendNotificationsToFollowers(createdBy, appName, icon) {
     let followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers
     let devices = []
     for (let follower of followers) {
         devices = devices.concat(yield UsersHandler.getDevicesForUser(follower))
     }
 
-    NotificationsHandler.sendNotifications(devices, "Test", "Test", "", NOTIFICATION_TYPES.FOLLOWING_ADDED_APP)
+    let message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, {appName: appName})
+    let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
+    NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP)
 }
 
 function* setAppShortUrl(app) {
@@ -417,7 +418,9 @@ export function* favourite(appId, userId) {
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {appId: app._id, appName: app.name, userName: user.name})
     let isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId)
     if(isFollowing) {
-        NotificationsHandler.sendNotificationsToUsers([app.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
+        let title = "Check this cool app"
+        let messages = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {appName: app.name, userName: user.name})
+        NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         })
     }

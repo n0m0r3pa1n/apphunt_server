@@ -85,7 +85,11 @@ export function* followUser(followingId, followerId) {
     }
 
     yield followSingleUser(followingId, followerId)
-    NotificationsHandler.sendNotificationsToUsers([followingId], "", "", "", NOTIFICATION_TYPES.USER_FOLLOWED, {followerId: followerId})
+
+    let title = "App hunter followed you"
+    let message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.USER_FOLLOWED, {userName: follower.name})
+    NotificationsHandler.sendNotificationsToUsers([followingId], title, message, follower.profilePicture,
+        NOTIFICATION_TYPES.USER_FOLLOWED, {followerId: followerId})
     return Boom.OK()
 }
 
@@ -130,8 +134,9 @@ export function* addFollowers(followingId, followerIds) {
         yield followSingleUser(followingId, userId)
     }
 
-    NotificationsHandler.sendNotificationsToUsers([followingId], "Many users followed you!", "", "",
-        NOTIFICATION_TYPES.USER_FOLLOWED)
+    let title = "You are a followers dream"
+    NotificationsHandler.sendNotificationsToUsers([followingId], title, followerIds.length + " users followed you!",
+        following.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED)
     return Boom.OK()
 }
 

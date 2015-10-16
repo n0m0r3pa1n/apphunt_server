@@ -15,6 +15,7 @@ var COLLECTION_STATUSES = CONFIG.COLLECTION_STATUSES
 var MIN_APPS_LENGTH_FOR_COLLECTION = CONFIG.MIN_APPS_LENGTH_FOR_COLLECTION
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
+var HISTORY_MESSAGES = require('../config/messages').HISTORY_MESSAGES
 
 import * as PaginationHandler from './pagination_handler.js'
 import * as UserHandler from './users_handler.js'
@@ -111,7 +112,10 @@ export function* favourite(collectionId, userId) {
         collectionName: collection.name, userName: user.name})
     let isFollowing = yield FollowersHandler.isFollowing(collection.createdBy, userId)
     if(isFollowing) {
-        NotificationsHandler.sendNotificationsToUsers([collection.createdBy], "", "", "", NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
+        let title = "Check this awesome collection"
+        let message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.COLLECTION_FAVOURITED, {collectionName: collection.name, userName: user.name})
+        NotificationsHandler.sendNotificationsToUsers([collection.createdBy], title, message,
+            user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_COLLECTION, {
             collectionId: collectionId
         })
     }
