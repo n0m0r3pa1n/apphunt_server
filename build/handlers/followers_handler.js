@@ -186,7 +186,7 @@ function* followUser(followingId, followerId) {
     yield followSingleUser(followingId, followerId);
 
     var title = "App hunter followed you";
-    var message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.USER_FOLLOWED, { userName: follower.name });
+    var message = HistoryHandler.getText(HISTORY_EVENT_TYPES.USER_FOLLOWED, { userName: follower.name });
     NotificationsHandler.sendNotificationsToUsers([followingId], title, message, follower.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     return Boom.OK();
 }

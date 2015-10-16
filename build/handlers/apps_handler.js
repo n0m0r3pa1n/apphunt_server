@@ -370,8 +370,8 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
         }
     }
 
-    var message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, { appName: appName });
-    var title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
+    var message = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, { appName: appName });
+    var title = String.format(MESSAGES.APP_APPROVED_TITLE, appName);
     NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP);
 }
 
@@ -456,17 +456,17 @@ function* filterApps(packages, platform) {
 
     try {
         for (var _iterator4 = appsToBeAdded[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var _app = _step4.value;
+            var app = _step4.value;
 
             var parsedApp = null;
             try {
-                parsedApp = yield DevsHunter.getAndroidApp(_app);
+                parsedApp = yield DevsHunter.getAndroidApp(app);
             } catch (e) {
                 continue;
             }
 
             if (parsedApp != null) {
-                packagesResult.push(_app);
+                packagesResult.push(app);
             }
         }
     } catch (err) {
@@ -541,7 +541,7 @@ function* favourite(appId, userId) {
     var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
     if (isFollowing) {
         var title = "Check this cool app";
-        var messages = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, { appName: app.name, userName: user.name });
+        var messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, { appName: app.name, userName: user.name });
         NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         });

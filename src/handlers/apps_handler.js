@@ -274,8 +274,8 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
         devices = devices.concat(yield UsersHandler.getDevicesForUser(follower))
     }
 
-    let message = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, {appName: appName})
-    let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
+    let message = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, {appName: appName})
+    let title = String.format(MESSAGES.APP_APPROVED_TITLE, appName)
     NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP)
 }
 
@@ -419,7 +419,7 @@ export function* favourite(appId, userId) {
     let isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId)
     if(isFollowing) {
         let title = "Check this cool app"
-        let messages = yield HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {appName: app.name, userName: user.name})
+        let messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {appName: app.name, userName: user.name})
         NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         })
