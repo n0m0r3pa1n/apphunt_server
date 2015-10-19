@@ -97,14 +97,10 @@ export function* getDeviceIdsForUser(user) {
     return notificationIds
 }
 
-export function* getDevicesForUser(user) {
-    if (user.populated('devices')) {
-        user = yield User.findOne(user).populate('devices')
-    }
-
+export function* getDevicesForUser(userId) {
+    let user = yield User.findById(userId).populate('devices').exec()
     return user.devices
 }
-
 
 export function* getDevicesForAllUsers() {
     return yield Device.find({}).exec()

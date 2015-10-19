@@ -193,11 +193,8 @@ function* getDeviceIdsForUser(user) {
     return notificationIds;
 }
 
-function* getDevicesForUser(user) {
-    if (user.populated('devices')) {
-        user = yield User.findOne(user).populate('devices');
-    }
-
+function* getDevicesForUser(userId) {
+    var user = yield User.findById(userId).populate('devices').exec();
     return user.devices;
 }
 

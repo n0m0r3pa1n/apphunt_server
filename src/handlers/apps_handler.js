@@ -252,7 +252,6 @@ export function* changeAppStatus(appPackage, status) {
 
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
-
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id, appName: app.name})
 
@@ -271,11 +270,11 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
     let followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers
     let devices = []
     for (let follower of followers) {
-        devices = devices.concat(yield UsersHandler.getDevicesForUser(follower))
+        devices = devices.concat(yield UsersHandler.getDevicesForUser(follower._id))
     }
 
-    let message = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, {appName: appName})
-    let title = String.format(MESSAGES.APP_APPROVED_TITLE, appName)
+    let message = String.format(MESSAGES.FOLLOWING_APP_APPROVED_MESSAGE, appName)
+    let title = String.format(MESSAGES.FOLLOWER_APP_APPROVED_TITLE, createdBy.name)
     NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP)
 }
 

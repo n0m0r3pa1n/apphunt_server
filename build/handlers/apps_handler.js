@@ -328,7 +328,6 @@ function* changeAppStatus(appPackage, status) {
 
             var _title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
             var _message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
-
             NotificationsHandler.sendNotifications(devices, _title, _message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
             yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, { appId: app._id, appName: app.name });
 
@@ -353,7 +352,7 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
         for (var _iterator3 = followers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var follower = _step3.value;
 
-            devices = devices.concat((yield UsersHandler.getDevicesForUser(follower)));
+            devices = devices.concat((yield UsersHandler.getDevicesForUser(follower._id)));
         }
     } catch (err) {
         _didIteratorError3 = true;
@@ -370,8 +369,8 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
         }
     }
 
-    var message = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_APPROVED, { appName: appName });
-    var title = String.format(MESSAGES.APP_APPROVED_TITLE, appName);
+    var message = String.format(MESSAGES.FOLLOWING_APP_APPROVED_MESSAGE, appName);
+    var title = String.format(MESSAGES.FOLLOWER_APP_APPROVED_TITLE, createdBy.name);
     NotificationsHandler.sendNotifications(devices, title, message, icon, NOTIFICATION_TYPES.FOLLOWING_ADDED_APP);
 }
 
