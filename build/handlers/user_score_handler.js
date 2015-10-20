@@ -9,7 +9,7 @@ var Vote = models.Vote;
 var Comment = models.Comment;
 var AppsCollection = models.AppsCollection;
 
-var CONFIG = require('../config/config');
+var CONFIG = require("../config/config");
 var COLLECTION_STATUS = CONFIG.COLLECTION_STATUSES;
 var APP_STATUSES = CONFIG.APP_STATUSES;
 

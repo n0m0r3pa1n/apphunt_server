@@ -31,7 +31,7 @@ var CollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
 var _utilsEvent_emitterJs = require('./utils/event_emitter.js');
 
-var _ = require("underscore");
+var _ = require('underscore');
 
 var Boom = require('boom');
 var CONFIG = require('../config/config');
@@ -107,13 +107,13 @@ function* getHistory(userId, date) {
     return yield* (function* () {
         var user = yield UsersHandler.find(userId);
         if (user == null) {
-            return Boom.notFound("User is not existing!");
+            return Boom.notFound('User is not existing!');
         }
         var where = {};
 
         where.createdAt = {
-            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-            "$lt": toDate.toISOString()
+            '$gte': new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            '$lt': toDate.toISOString()
         };
         where.user = userId;
 
@@ -246,7 +246,7 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
 
 function getText(type, params) {
     var message = HISTORY_MESSAGES[type];
-    var text = "";
+    var text = '';
     switch (type) {
         case HISTORY_EVENT_TYPES.APP_APPROVED:
         case HISTORY_EVENT_TYPES.APP_REJECTED:
@@ -271,7 +271,7 @@ function getText(type, params) {
             text = String.format(message, params.userName);
             break;
         default:
-            return "";
+            return '';
     }
 
     return text;

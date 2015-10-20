@@ -305,7 +305,7 @@ function* getCollectionsForTags(names, userId, page, pageSize) {
     }
 
     if (page != 0 && pageSize != 0) {
-        response = PaginationHandler.getPaginationWithResults(collections, page, pageSize, "collections");
+        response = PaginationHandler.getPaginationWithResults(collections, page, pageSize, 'collections');
     } else {
         response.collections = collections;
         response.totalCount = collections.length;
@@ -397,7 +397,7 @@ function* getTagsForItem(itemId, tagType) {
 
 function getTagsFromName(appName) {
     appName = replaceSpecialCharacters(appName);
-    var split = appName.split(" ");
+    var split = appName.split(' ');
     var tags = [];
     var _iteratorNormalCompletion10 = true;
     var _didIteratorError10 = false;
