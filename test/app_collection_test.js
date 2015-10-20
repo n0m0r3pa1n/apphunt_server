@@ -292,9 +292,13 @@ describe("App Collections", function() {
         }
         yield Server.injectThen(opts)
 
+        var opts2 = {
+            method: 'GET',
+            url: '/apps/' + appId
+        }
+        var category = (yield Server.injectThen(opts2)).result.categories[0]
 
         var name = collectionResponse.result.name
-
         var opts = {
             method: 'GET',
             url: '/app-collections/search?q=Top'
@@ -303,6 +307,7 @@ describe("App Collections", function() {
         var response = yield Server.injectThen(opts)
         response.result.collections.length.should.equal(1)
         var apps = response.result.collections[0].apps
+        apps[0].categories[0].should.eq(category)
         apps[0]._id.toString().should.equal(app2Id.toString())
         apps[1]._id.toString().should.equal(appId.toString())
 

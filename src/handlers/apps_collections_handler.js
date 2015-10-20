@@ -238,7 +238,16 @@ export function* search(q, page, pageSize, userId) {
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize)
     var collections = []
     for(var i=0; i<response.collections.length; i++) {
-        collections[i] = orderAppsInCollection(response.collections[i])
+        let collection = orderAppsInCollection(response.collections[i])
+        for(let app of collection.apps) {
+            let categories = []
+            for (let category of app.categories) {
+                categories.push(category.name)
+            }
+            app.categories = categories
+        }
+        collections[i] = collection
+
     }
     response.collections = collections
     //TODO: add to each collection field "hasUserVoted"
@@ -255,7 +264,7 @@ function orderAppsInCollection(collection) {
 
 function* getPagedCollectionsResult(where, sort, page, pageSize) {
     var query = AppsCollection.find(where)
-        .deepPopulate('votes.user apps.createdBy')
+        .deepPopulate('votes.user apps.createdBy apps.categories')
         .populate("createdBy")
         .populate("apps")
     query.sort(sort)

@@ -350,7 +350,59 @@ function* search(q, page, pageSize, userId) {
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize);
     var collections = [];
     for (var i = 0; i < response.collections.length; i++) {
-        collections[i] = orderAppsInCollection(response.collections[i]);
+        var collection = orderAppsInCollection(response.collections[i]);
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+            for (var _iterator4 = collection.apps[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                var app = _step4.value;
+
+                var categories = [];
+                var _iteratorNormalCompletion5 = true;
+                var _didIteratorError5 = false;
+                var _iteratorError5 = undefined;
+
+                try {
+                    for (var _iterator5 = app.categories[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                        var category = _step5.value;
+
+                        categories.push(category.name);
+                    }
+                } catch (err) {
+                    _didIteratorError5 = true;
+                    _iteratorError5 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
+                            _iterator5["return"]();
+                        }
+                    } finally {
+                        if (_didIteratorError5) {
+                            throw _iteratorError5;
+                        }
+                    }
+                }
+
+                app.categories = categories;
+            }
+        } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+                    _iterator4["return"]();
+                }
+            } finally {
+                if (_didIteratorError4) {
+                    throw _iteratorError4;
+                }
+            }
+        }
+
+        collections[i] = collection;
     }
     response.collections = collections;
     //TODO: add to each collection field "hasUserVoted"
@@ -366,7 +418,7 @@ function orderAppsInCollection(collection) {
 }
 
 function* getPagedCollectionsResult(where, sort, page, pageSize) {
-    var query = AppsCollection.find(where).deepPopulate('votes.user apps.createdBy').populate("createdBy").populate("apps");
+    var query = AppsCollection.find(where).deepPopulate('votes.user apps.createdBy apps.categories').populate("createdBy").populate("apps");
     query.sort(sort);
 
     return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
@@ -397,27 +449,27 @@ function* removeCollection(collectionId) {
 function* getBanners() {
     var banners = yield CollectionBanner.find({}).select({ "url": 1, "_id": 0 }).exec();
     var result = [];
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
 
     try {
-        for (var _iterator4 = banners[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var banner = _step4.value;
+        for (var _iterator6 = banners[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var banner = _step6.value;
 
             result.push(banner.url);
         }
     } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
-                _iterator4["return"]();
+            if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
+                _iterator6["return"]();
             }
         } finally {
-            if (_didIteratorError4) {
-                throw _iteratorError4;
+            if (_didIteratorError6) {
+                throw _iteratorError6;
             }
         }
     }
