@@ -16,7 +16,7 @@ var _users_handlerJs = require('./users_handler.js');
 
 var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 
-var Bolt = require('bolt-js');
+var Bolt = require("bolt-js");
 var _ = require('underscore');
 var Boom = require('boom');
 
