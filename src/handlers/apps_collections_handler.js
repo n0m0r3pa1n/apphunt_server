@@ -80,7 +80,8 @@ export function* update(collectionId, newCollection, userId) {
     collection.picture = newCollection.picture
 
     let savedCollection = yield collection.save()
-    let result = yield AppsCollection.findById(savedCollection.id).populate('createdBy apps votes').deepPopulate('apps.createdBy').exec()
+    let result = yield AppsCollection.findById(savedCollection.id)
+        .populate('createdBy apps votes').deepPopulate('apps.createdBy apps.categories').exec()
 
     return yield getPopulatedCollection(result, userId)
 }
@@ -142,17 +143,30 @@ export function* unfavourite(collectionId, userId) {
 }
 
 export function* get(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy')
+    var collection = yield AppsCollection.findById(collectionId)
+        .deepPopulate('votes.user apps.createdBy apps.categories')
         .populate("createdBy").populate("apps").exec()
     if(!collection) {
         return Boom.notFound('Collection cannot be found!')
     }
+
     return yield getPopulatedCollection(collection, userId)
+}
+
+function getCategoriesForApp(app) {
+    let categories = []
+    for(let category of app.categories) {
+        categories.push(category.name)
+    }
+
+    return categories
 }
 
 export function* searchCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : {status: status}
-    var sort = sortBy == "vote" ? {votesCount: 'desc', updatedAt: 'desc'} : {updatedAt: 'desc', votesCount: 'desc'}
+    var sort = sortBy == "vote" ?
+        {votesCount: 'desc', updatedAt: 'desc'} :
+        {updatedAt: 'desc', votesCount: 'desc'}
     let result = yield getPagedCollectionsResult(where, sort, page, pageSize)
 
     if(result.collections !== undefined && result.collections.length > 0) {
@@ -212,6 +226,9 @@ function* getPopulatedCollection(collection, userId) {
     collectionObj.hasVoted = VotesHandler.hasUserVotedForAppsCollection(collection, userId)
     collectionObj.isFavourite = isFavourite(collectionObj, userId)
     collectionObj.tags = yield TagsHandler.getTagsForCollection(collectionObj._id)
+    for(let app of collectionObj.apps) {
+        app.categories = getCategoriesForApp(app)
+    }
     return collectionObj;
 }
 

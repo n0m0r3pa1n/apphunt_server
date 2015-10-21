@@ -21,7 +21,7 @@ var Co = require('co');
 
 function setup(server) {
     var io = require('socket.io')(server.listener);
-    var room = "UserHistory";
+    var room = 'UserHistory';
 
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
         //console.log('refresh', data.interestedUsers)
@@ -80,7 +80,7 @@ function setup(server) {
         });
 
         socket.on('disconnect', function () {
-            console.log("disconnect", socket.userId);
+            console.log('disconnect', socket.userId);
         });
     });
 }

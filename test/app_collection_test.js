@@ -404,6 +404,7 @@ describe("App Collections", function() {
 
         var response = yield dbHelper.getCollection(collectionId)
         response.result.status.should.eq(COLLECTION_STATUSES.PUBLIC)
+        expect(response.result.apps[0].categories[0]).to.be.a('string')
     })
 
     it("should make app collection private", function* () {
@@ -593,6 +594,8 @@ describe("App Collections", function() {
         var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
         var collection2Id = (yield dbHelper.createAppsCollection(userId)).result.id
 
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, collectionId, appIds)
         yield dbHelper.favouriteCollection(collectionId, userId)
         yield dbHelper.favouriteCollection(collection2Id, userId)
 
@@ -607,6 +610,9 @@ describe("App Collections", function() {
         for(var i in response.result.collections) {
             var collection = response.result.collections[i]
             collection.isFavourite.should.eq(true)
+            if(collection.apps.length > 0) {
+                expect(collection.apps[0].categories[0]).to.be.a('string')
+            }
         }
     });
 

@@ -4,8 +4,8 @@ var Joi = require('joi');
 var UsersStatsHandler = require('../handlers/stats/users_stats_handler');
 var periodSchema = require('../schemas/stats_period_schema').periodSchema;
 var userStatsRoutes = [{
-    method: "GET",
-    path: "/stats/users",
+    method: 'GET',
+    path: '/stats/users',
     handler: function handler(req, reply) {
         var model = req.query;
         reply.co(UsersStatsHandler.getAllUsers(model.username, model.loginType, model.page, model.pageSize));
@@ -24,8 +24,8 @@ var userStatsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/stats/users/comments",
+    method: 'GET',
+    path: '/stats/users/comments',
     handler: function handler(req, reply) {
         var model = req.query;
         reply.co(UsersStatsHandler.getUserCommentsCount(model.fromDate, model.toDate));
@@ -38,8 +38,8 @@ var userStatsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/stats/users/login",
+    method: 'GET',
+    path: '/stats/users/login',
     handler: function handler(req, reply) {
         var model = req.query;
         reply.co(UsersStatsHandler.getLoggedInUsersCount(model.fromDate, model.toDate));
@@ -52,8 +52,8 @@ var userStatsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/stats/users/app/votes",
+    method: 'GET',
+    path: '/stats/users/app/votes',
     handler: function handler(req, reply) {
         var model = req.query;
         reply.co(UsersStatsHandler.getLoggedInUsersCount(model.fromDate, model.toDate));
