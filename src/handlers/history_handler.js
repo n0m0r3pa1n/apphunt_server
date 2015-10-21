@@ -2,7 +2,8 @@ var _ = require("underscore")
 
 var Boom = require('boom')
 var CONFIG = require('../config/config')
-var HISTORY_MESSAGES = require('../config/messages').HISTORY_MESSAGES
+var MESSAGES = require('../config/messages')
+var HISTORY_MESSAGES = MESSAGES.HISTORY_MESSAGES
 var History = require('../models').History
 
 import * as UsersHandler from './users_handler.js'
@@ -141,8 +142,12 @@ function* getPopulatedResponseWithIsFollowing(userId, results) {
     for(let result of results) {
         result = result.toObject()
         result.user.isFollowing = _.contains(followingIds, String(result.user._id));
-        result.text = getText(result.type, result.params)
         response.push(result)
+        if(result.user.isFollowing == true && result.type == HISTORY_EVENT_TYPES.APP_APPROVED) {
+            result.text = String.format(MESSAGES.FOLLOWING_APP_APPROVED_HISTORY_MESSAGE, result.user.name, result.params.appName)
+        } else {
+            result.text = getText(result.type, result.params)
+        }
     }
 
     return response
