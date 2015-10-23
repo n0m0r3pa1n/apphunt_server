@@ -63,7 +63,7 @@ var collectionsRoutes = [
                     collectionId: Joi.string().required()
                 },
                 query: {
-                    userId: Joi.string().optional()
+                    userId: Joi.objectId().optional()
                 }
             },
             auth: false,
@@ -108,7 +108,7 @@ var collectionsRoutes = [
                 query: {
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
-                    userId: Joi.string().required()
+                    userId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -125,10 +125,10 @@ var collectionsRoutes = [
         config: {
             validate: {
                 params: {
-                    collectionId: Joi.string().required()
+                    collectionId: Joi.objectId().required()
                 },
                 query: {
-                    userId: Joi.string().optional()
+                    userId: Joi.objectId().optional()
                 }
             },
             auth: false,
@@ -173,7 +173,7 @@ var collectionsRoutes = [
                     q: Joi.string().required(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
-                    userId: Joi.string().optional()
+                    userId: Joi.objectId().optional()
                 }
             },
             auth: false,

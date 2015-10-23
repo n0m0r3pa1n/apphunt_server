@@ -66,6 +66,7 @@ export function* createEvent(type, userId, params = {}) {
             return;
     }
 
+    interestedUsers = _.uniq(interestedUsers, (obj) => {return String(obj)})
     historyEvent = yield History.findOne(historyEvent).populate('user')
     EventEmitter.emit('refresh', {interestedUsers: interestedUsers}, historyEvent)
 }

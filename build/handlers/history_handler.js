@@ -94,6 +94,9 @@ function* createEvent(type, userId) {
             return;
     }
 
+    interestedUsers = _.uniq(interestedUsers, function (obj) {
+        return String(obj);
+    });
     historyEvent = yield History.findOne(historyEvent).populate('user');
     _utilsEvent_emitterJs.EventEmitter.emit('refresh', { interestedUsers: interestedUsers }, historyEvent);
 }

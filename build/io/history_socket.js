@@ -22,9 +22,8 @@ var Co = require('co');
 function setup(server) {
     var io = require('socket.io')(server.listener);
     var room = "UserHistory";
-
+    var clients = [];
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
-        //console.log('refresh', data.interestedUsers)
         var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             var _iteratorNormalCompletion = true;
@@ -35,7 +34,7 @@ function setup(server) {
                 var _loop = function () {
                     var userId = _step.value;
 
-                    if (userId == io.sockets.connected[clientId].userId) {
+                    if (String(userId) == String(io.sockets.connected[clientId].userId)) {
                         event = event.toObject();
                         event.text = HistoryHandler.getText(event.type, event.params);
                         Co.wrap(function* (event, clientId) {
@@ -68,6 +67,7 @@ function setup(server) {
         console.log('connection');
         socket.on('add user', function (userId) {
             console.log('add user', userId);
+            clients.push(userId);
             socket.userId = userId;
             socket.join(room);
         });
@@ -80,6 +80,7 @@ function setup(server) {
         });
 
         socket.on('disconnect', function () {
+            clients.splice(clients.indexOf(socket.userId), 1);
             console.log("disconnect", socket.userId);
         });
     });
