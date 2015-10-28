@@ -20,6 +20,7 @@ var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES
+var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./utils/urls_handler')
@@ -292,7 +293,7 @@ function* setAppShortUrl(app) {
     app.shortUrl = yield UrlsHandler.getShortLink(links)
 }
 
-export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
+export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, userType, query) {
     var where = {};
 
     if(query !== undefined) {
@@ -322,14 +323,43 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
     result.apps = convertToArray(result.apps)
+    if(userType != undefined) {
+        for(let app of result.apps) {
+            app.votes = getAppVotesForUserType(app.votes, userType)
+            app.votesCount = app.votes.length
+        }
+        result.apps = _.sortBy(result.apps, 'votesCount')
+        result.apps.reverse()
+    }
     yield formatApps(userId, result.apps);
 
     result.date = responseDate
+
     return result
 }
 
-export function* getAppsForUser(creatorId, userId = creatorId, page = 0, pageSize = 0) {
+function getAppVotesForUserType(userVotes, userType) {
+    let result = []
+    if(userType == LOGIN_TYPES_FILTER.Fake) {
+        for(let vote of userVotes) {
+            if(vote.user.loginType == LOGIN_TYPES.Fake) {
+                result.push(vote)
+            }
+        }
+    } else if(userType == LOGIN_TYPES_FILTER.Real) {
+        for(let vote of userVotes) {
+            if(vote.user.loginType != LOGIN_TYPES.Fake) {
+                result.push(vote)
+            }
+        }
+    } else {
+        result = userVotes;
+    }
 
+    return result;
+}
+
+export function* getAppsForUser(creatorId, userId = creatorId, page = 0, pageSize = 0) {
     var query = App.find({createdBy: creatorId, status: APP_STATUSES.APPROVED}).deepPopulate("votes.user").populate("categories").populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)

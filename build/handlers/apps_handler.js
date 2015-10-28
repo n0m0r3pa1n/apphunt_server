@@ -65,6 +65,7 @@ var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
+var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
 
 var VotesHandler = require('./votes_handler');
 var UrlsHandler = require('./utils/urls_handler');
@@ -388,7 +389,7 @@ function* setAppShortUrl(app) {
     app.shortUrl = yield UrlsHandler.getShortLink(links);
 }
 
-function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, query) {
+function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, userType, query) {
     var where = {};
 
     if (query !== undefined) {
@@ -418,9 +419,103 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
+    if (userType != undefined) {
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+            for (var _iterator4 = result.apps[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                var app = _step4.value;
+
+                app.votes = getAppVotesForUserType(app.votes, userType);
+                app.votesCount = app.votes.length;
+            }
+        } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                    _iterator4['return']();
+                }
+            } finally {
+                if (_didIteratorError4) {
+                    throw _iteratorError4;
+                }
+            }
+        }
+
+        result.apps = _.sortBy(result.apps, 'votesCount');
+        result.apps.reverse();
+    }
     yield formatApps(userId, result.apps);
 
     result.date = responseDate;
+
+    return result;
+}
+
+function getAppVotesForUserType(userVotes, userType) {
+    var result = [];
+    if (userType == LOGIN_TYPES_FILTER.Fake) {
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
+
+        try {
+            for (var _iterator5 = userVotes[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                var vote = _step5.value;
+
+                if (vote.user.loginType == LOGIN_TYPES.Fake) {
+                    result.push(vote);
+                }
+            }
+        } catch (err) {
+            _didIteratorError5 = true;
+            _iteratorError5 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                    _iterator5['return']();
+                }
+            } finally {
+                if (_didIteratorError5) {
+                    throw _iteratorError5;
+                }
+            }
+        }
+    } else if (userType == LOGIN_TYPES_FILTER.Real) {
+        var _iteratorNormalCompletion6 = true;
+        var _didIteratorError6 = false;
+        var _iteratorError6 = undefined;
+
+        try {
+            for (var _iterator6 = userVotes[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                var vote = _step6.value;
+
+                if (vote.user.loginType != LOGIN_TYPES.Fake) {
+                    result.push(vote);
+                }
+            }
+        } catch (err) {
+            _didIteratorError6 = true;
+            _iteratorError6 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                    _iterator6['return']();
+                }
+            } finally {
+                if (_didIteratorError6) {
+                    throw _iteratorError6;
+                }
+            }
+        }
+    } else {
+        result = userVotes;
+    }
+
     return result;
 }
 
@@ -429,7 +524,6 @@ function* getAppsForUser(creatorId) {
     var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
     var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
     return yield* (function* () {
-
         var query = App.find({ createdBy: creatorId, status: APP_STATUSES.APPROVED }).deepPopulate("votes.user").populate("categories").populate("createdBy");
         query.sort({ votesCount: 'desc', createdAt: 'desc' });
         var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
@@ -449,13 +543,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
+    var _iteratorNormalCompletion7 = true;
+    var _didIteratorError7 = false;
+    var _iteratorError7 = undefined;
 
     try {
-        for (var _iterator4 = appsToBeAdded[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var app = _step4.value;
+        for (var _iterator7 = appsToBeAdded[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+            var app = _step7.value;
 
             var parsedApp = null;
             try {
@@ -469,16 +563,16 @@ function* filterApps(packages, platform) {
             }
         }
     } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError7 = true;
+        _iteratorError7 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-                _iterator4['return']();
+            if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+                _iterator7['return']();
             }
         } finally {
-            if (_didIteratorError4) {
-                throw _iteratorError4;
+            if (_didIteratorError7) {
+                throw _iteratorError7;
             }
         }
     }
@@ -611,27 +705,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
+        var _iteratorNormalCompletion8 = true;
+        var _didIteratorError8 = false;
+        var _iteratorError8 = undefined;
 
         try {
-            for (var _iterator5 = apps[i].categories[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                var category = _step5.value;
+            for (var _iterator8 = apps[i].categories[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                var category = _step8.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError5 = true;
-            _iteratorError5 = err;
+            _didIteratorError8 = true;
+            _iteratorError8 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-                    _iterator5['return']();
+                if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+                    _iterator8['return']();
                 }
             } finally {
-                if (_didIteratorError5) {
-                    throw _iteratorError5;
+                if (_didIteratorError8) {
+                    throw _iteratorError8;
                 }
             }
         }

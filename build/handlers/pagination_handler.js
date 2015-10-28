@@ -22,7 +22,6 @@ function* getPaginatedResultsWithName(query, resultsName, currentPage, pageSize)
     var totalRecordsCount = yield query.count().exec();
 
     setupPaginatedQuery(query, currentPage, pageSize);
-
     var results = yield query.find().exec();
     return getResponse(results, resultsName, totalRecordsCount, currentPage, getTotalPages(totalRecordsCount, pageSize));
 }

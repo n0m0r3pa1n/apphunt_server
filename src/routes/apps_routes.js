@@ -4,6 +4,8 @@ var _ = require('underscore')
 var Config = require('../config/config')
 var PLATFORMS_ENUM = Config.PLATFORMS
 var APP_STATUSES_FILTER_ENUM = Config.APP_STATUSES_FILTER
+var LOGIN_TYPES_FILTER = Config.LOGIN_TYPES_FILTER
+var USER_TYPES = _.extend({}, LOGIN_TYPES_FILTER, {ALL: "all"})
 var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS]
 var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL]
 
@@ -25,7 +27,8 @@ var routes = [
             var toDate = req.query.toDate
             var platform = req.query.platform
             var query = req.query.query
-            reply.co(AppsHandler.getApps(date, toDate, platform, appStatus, page, pageSize, userId, query))
+            var userType = req.query.userType
+            reply.co(AppsHandler.getApps(date, toDate, platform, appStatus, page, pageSize, userId, userType, query))
         },
         config: {
             validate: {
@@ -36,6 +39,7 @@ var routes = [
                     userId: Joi.string().optional(),
                     date: Joi.date().optional(),
                     status: Joi.string().valid(APP_STATUSES).optional(),
+                    userType: Joi.string().valid(_.values(USER_TYPES)).optional(),
                     toDate: Joi.date().optional(),
                     query: Joi.string().optional()
                 }
