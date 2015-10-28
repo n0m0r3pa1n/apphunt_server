@@ -330,7 +330,10 @@ function* changeAppStatus(appPackage, status) {
             var _title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
             var _message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
             NotificationsHandler.sendNotifications(devices, _title, _message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, { appId: app._id, appName: app.name });
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {
+                appId: app._id,
+                appName: app.name
+            });
 
             yield sendNotificationsToFollowers(createdBy, app.name, app.icon);
         }
@@ -404,7 +407,10 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
             var toDateFromString = new Date(toDateStr);
             toDate = new Date(toDateFromString.getTime() + DAY_MILLISECONDS);
         }
-        where.createdAt = { "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString() };
+        where.createdAt = {
+            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            "$lt": toDate.toISOString()
+        };
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
@@ -457,66 +463,17 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
 }
 
 function getAppVotesForUserType(userVotes, userType) {
-    var result = [];
-    if (userType == LOGIN_TYPES_FILTER.Fake) {
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
-
-        try {
-            for (var _iterator5 = userVotes[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                var vote = _step5.value;
-
-                if (vote.user.loginType == LOGIN_TYPES.Fake) {
-                    result.push(vote);
-                }
-            }
-        } catch (err) {
-            _didIteratorError5 = true;
-            _iteratorError5 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-                    _iterator5['return']();
-                }
-            } finally {
-                if (_didIteratorError5) {
-                    throw _iteratorError5;
-                }
-            }
+    return _.filter(userVotes, function (vote) {
+        var pass = false;
+        if (userType == LOGIN_TYPES_FILTER.Fake) {
+            pass = vote.user.loginType == LOGIN_TYPES.Fake ? true : false;
+        } else if (userType == LOGIN_TYPES_FILTER.Real) {
+            pass = vote.user.loginType != LOGIN_TYPES.Fake ? true : false;
+        } else {
+            pass = true;
         }
-    } else if (userType == LOGIN_TYPES_FILTER.Real) {
-        var _iteratorNormalCompletion6 = true;
-        var _didIteratorError6 = false;
-        var _iteratorError6 = undefined;
-
-        try {
-            for (var _iterator6 = userVotes[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                var vote = _step6.value;
-
-                if (vote.user.loginType != LOGIN_TYPES.Fake) {
-                    result.push(vote);
-                }
-            }
-        } catch (err) {
-            _didIteratorError6 = true;
-            _iteratorError6 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-                    _iterator6['return']();
-                }
-            } finally {
-                if (_didIteratorError6) {
-                    throw _iteratorError6;
-                }
-            }
-        }
-    } else {
-        result = userVotes;
-    }
-
-    return result;
+        return pass;
+    });
 }
 
 function* getAppsForUser(creatorId) {
@@ -524,7 +481,10 @@ function* getAppsForUser(creatorId) {
     var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
     var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
     return yield* (function* () {
-        var query = App.find({ createdBy: creatorId, status: APP_STATUSES.APPROVED }).deepPopulate("votes.user").populate("categories").populate("createdBy");
+        var query = App.find({
+            createdBy: creatorId,
+            status: APP_STATUSES.APPROVED
+        }).deepPopulate("votes.user").populate("categories").populate("createdBy");
         query.sort({ votesCount: 'desc', createdAt: 'desc' });
         var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
         result.apps = convertToArray(result.apps);
@@ -543,13 +503,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion7 = true;
-    var _didIteratorError7 = false;
-    var _iteratorError7 = undefined;
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
 
     try {
-        for (var _iterator7 = appsToBeAdded[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-            var app = _step7.value;
+        for (var _iterator5 = appsToBeAdded[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var app = _step5.value;
 
             var parsedApp = null;
             try {
@@ -563,16 +523,16 @@ function* filterApps(packages, platform) {
             }
         }
     } catch (err) {
-        _didIteratorError7 = true;
-        _iteratorError7 = err;
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion7 && _iterator7['return']) {
-                _iterator7['return']();
+            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                _iterator5['return']();
             }
         } finally {
-            if (_didIteratorError7) {
-                throw _iteratorError7;
+            if (_didIteratorError5) {
+                throw _iteratorError5;
             }
         }
     }
@@ -630,11 +590,18 @@ function* favourite(appId, userId) {
     app.favouritedBy.push(userId);
     yield app.save();
 
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, { appId: app._id, appName: app.name, userName: user.name });
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {
+        appId: app._id,
+        appName: app.name,
+        userName: user.name
+    });
     var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
     if (isFollowing) {
         var title = "Check this cool app";
-        var messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, { appName: app.name, userName: user.name });
+        var messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {
+            appName: app.name,
+            userName: user.name
+        });
         yield NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         });
@@ -705,27 +672,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
+        var _iteratorNormalCompletion6 = true;
+        var _didIteratorError6 = false;
+        var _iteratorError6 = undefined;
 
         try {
-            for (var _iterator8 = apps[i].categories[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                var category = _step8.value;
+            for (var _iterator6 = apps[i].categories[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                var category = _step6.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError8 = true;
-            _iteratorError8 = err;
+            _didIteratorError6 = true;
+            _iteratorError6 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion8 && _iterator8['return']) {
-                    _iterator8['return']();
+                if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                    _iterator6['return']();
                 }
             } finally {
-                if (_didIteratorError8) {
-                    throw _iteratorError8;
+                if (_didIteratorError6) {
+                    throw _iteratorError6;
                 }
             }
         }

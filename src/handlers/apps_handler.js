@@ -43,37 +43,37 @@ var AppCategory = Models.AppCategory
 export function* create(app, tags, userId) {
     app.package = getClearedAppPackage(app.package)
 
-    var existingApp = yield App.findOne({package: app.package }).exec()
+    var existingApp = yield App.findOne({package: app.package}).exec()
     if (existingApp) {
         return Boom.conflict('App already exists')
     }
 
     var parsedApp = {}
     try {
-        if(app.platform == PLATFORMS.Android) {
+        if (app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.getAndroidApp(app.package)
-            if(parsedApp === null) {
+            if (parsedApp === null) {
                 return Boom.notFound("Non-existing app")
             }
 
             var d = parsedApp.developer
-            var developer = yield Developer.findOneOrCreate({email: d.email},{name: d.name, email: d.email})
+            var developer = yield Developer.findOneOrCreate({email: d.email}, {name: d.name, email: d.email})
             app.developer = developer
         } else {
             parsedApp = yield Badboy.getiOSApp(app.package)
             parsedApp.category = parsedApp.categories == null || parsedApp.categories == undefined
-                || parsedApp.categories.length == 0 ? "" : parsedApp.categories[0]
+            || parsedApp.categories.length == 0 ? "" : parsedApp.categories[0]
         }
     } catch (e) {
         parsedApp = null
     }
 
-    if(parsedApp == null) {
+    if (parsedApp == null) {
         return Boom.notFound("Non-existing app")
     }
 
     var user = yield User.findOne({_id: userId}).exec()
-    if(user == null) {
+    if (user == null) {
         return Boom.notFound("Non-existing user")
     }
 
@@ -86,17 +86,17 @@ export function* create(app, tags, userId) {
     app.name = parsedApp.name
     app.url = parsedApp.url
 
-    if(app.platform == PLATFORMS.Android) {
+    if (app.platform == PLATFORMS.Android) {
         app.screenshots = parsedApp.screenshots
         app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total
     }
 
 
     var parsedDescription = app.description;
-    if(parsedDescription == '' || parsedDescription === undefined) {
+    if (parsedDescription == '' || parsedDescription === undefined) {
         parsedDescription = parsedApp.description
         app.description = parsedDescription.length > 100 ?
-            parsedDescription.substring(0,10) :
+            parsedDescription.substring(0, 10) :
             parsedDescription;
     }
 
@@ -111,7 +111,7 @@ export function* create(app, tags, userId) {
 function getClearedAppPackage(packageName) {
     var splitByAmpersandRegEx = /^.*(?=(\&))/
     var appPackage = packageName.match(splitByAmpersandRegEx);
-    if(appPackage !== undefined && appPackage !== null && appPackage.length > 1) {
+    if (appPackage !== undefined && appPackage !== null && appPackage.length > 1) {
         packageName = appPackage[0]
     }
 
@@ -130,7 +130,7 @@ function* getAppCategories(appCategories) {
 function getFormattedCategory(category) {
     var res = category.split("/");
 
-    var newCategory = res[res.length-1].toLowerCase();
+    var newCategory = res[res.length - 1].toLowerCase();
     newCategory = newCategory.capitalizeFirstLetter()
     newCategory = newCategory.replace('and', '&')
     newCategory = newCategory.replaceAll('_', ' ')
@@ -138,14 +138,14 @@ function getFormattedCategory(category) {
     let finalCategory = newCategory;
 
     let split = newCategory.split(' ')
-    if(split.length > 1) {
+    if (split.length > 1) {
         finalCategory = "";
-        for(let i=0; i < split.length; i ++) {
+        for (let i = 0; i < split.length; i++) {
             let part = split[i]
-            if(i == split.length-1) {
+            if (i == split.length - 1) {
                 finalCategory += part.capitalizeFirstLetter();
             } else {
-                if(part === "Game") {
+                if (part === "Game") {
                     continue;
                 }
                 finalCategory += part.capitalizeFirstLetter() + " ";
@@ -188,8 +188,8 @@ export function* getRandomApp(userId) {
 }
 
 export function* update(app) {
-    var existingApp = yield App.findOne({package: app.package }).populate('developer createdBy').exec()
-    if(!existingApp) {
+    var existingApp = yield App.findOne({package: app.package}).populate('developer createdBy').exec()
+    if (!existingApp) {
         return Boom.notFound("Non-existing app")
     }
 
@@ -211,7 +211,7 @@ function postTweet(app, user) {
         url: app.shortUrl,
         hashTag: "app"
     }
-    if(user.loginType == LOGIN_TYPES.Twitter) {
+    if (user.loginType == LOGIN_TYPES.Twitter) {
         tweetOptions.user = user.username
     }
 
@@ -231,22 +231,22 @@ export function* deleteApp(packageName) {
 
 export function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({package: appPackage}).exec()
-    if(app == null) {
+    if (app == null) {
         return Boom.notFound("Non-existing app")
     }
     var createdBy = yield User.findOne(app.createdBy).populate('devices').exec()
     var devices = createdBy.devices
 
-    if(status === APP_STATUSES.REJECTED) {
+    if (status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name)
         var message = MESSAGES.APP_REJECTED_MESSAGE
         NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_REJECTED)
         yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_REJECTED, createdBy._id, {appName: app.name})
         yield deleteApp(appPackage)
-    } else if(status == APP_STATUSES.APPROVED){
+    } else if (status == APP_STATUSES.APPROVED) {
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
 
-        if(isAppApproved) {
+        if (isAppApproved) {
             yield setAppShortUrl(app);
             postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
@@ -254,7 +254,10 @@ export function* changeAppStatus(appPackage, status) {
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
-            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {appId: app._id, appName: app.name})
+            yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_APPROVED, createdBy._id, {
+                appId: app._id,
+                appName: app.name
+            })
 
             yield sendNotificationsToFollowers(createdBy, app.name, app.icon);
         }
@@ -296,35 +299,38 @@ function* setAppShortUrl(app) {
 export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, userType, query) {
     var where = {};
 
-    if(query !== undefined) {
+    if (query !== undefined) {
         where.name = {$regex: query, $options: 'i'};
     }
 
     var responseDate = ""
-    if(dateStr !== undefined) {
+    if (dateStr !== undefined) {
         var date = new Date(dateStr);
         var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
-        if(toDateStr !== undefined) {
+        if (toDateStr !== undefined) {
             var toDateFromString = new Date(toDateStr)
             toDate = new Date(toDateFromString.getTime() + DAY_MILLISECONDS)
         }
-        where.createdAt = {"$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), "$lt": toDate.toISOString()};
+        where.createdAt = {
+            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            "$lt": toDate.toISOString()
+        };
         responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
     where.platform = platform
 
-    if(appStatus !== APP_STATUS_FILTER.ALL) {
+    if (appStatus !== APP_STATUS_FILTER.ALL) {
         where.status = appStatus
     }
 
     var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
-    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+    query.sort({votesCount: 'desc', createdAt: 'desc'})
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
     result.apps = convertToArray(result.apps)
-    if(userType != undefined) {
-        for(let app of result.apps) {
+    if (userType != undefined) {
+        for (let app of result.apps) {
             app.votes = getAppVotesForUserType(app.votes, userType)
             app.votesCount = app.votes.length
         }
@@ -339,29 +345,25 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
 }
 
 function getAppVotesForUserType(userVotes, userType) {
-    let result = []
-    if(userType == LOGIN_TYPES_FILTER.Fake) {
-        for(let vote of userVotes) {
-            if(vote.user.loginType == LOGIN_TYPES.Fake) {
-                result.push(vote)
-            }
+    return _.filter(userVotes, function (vote) {
+        let pass = false;
+        if (userType == LOGIN_TYPES_FILTER.Fake) {
+            pass = vote.user.loginType == LOGIN_TYPES.Fake ? true : false
+        } else if (userType == LOGIN_TYPES_FILTER.Real) {
+            pass = vote.user.loginType != LOGIN_TYPES.Fake ? true : false
+        } else {
+            pass = true
         }
-    } else if(userType == LOGIN_TYPES_FILTER.Real) {
-        for(let vote of userVotes) {
-            if(vote.user.loginType != LOGIN_TYPES.Fake) {
-                result.push(vote)
-            }
-        }
-    } else {
-        result = userVotes;
-    }
-
-    return result;
+        return pass
+    })
 }
 
 export function* getAppsForUser(creatorId, userId = creatorId, page = 0, pageSize = 0) {
-    var query = App.find({createdBy: creatorId, status: APP_STATUSES.APPROVED}).deepPopulate("votes.user").populate("categories").populate("createdBy")
-    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+    var query = App.find({
+        createdBy: creatorId,
+        status: APP_STATUSES.APPROVED
+    }).deepPopulate("votes.user").populate("categories").populate("createdBy")
+    query.sort({votesCount: 'desc', createdAt: 'desc'})
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
     result.apps = convertToArray(result.apps)
     yield formatApps(userId, result.apps);
@@ -370,15 +372,15 @@ export function* getAppsForUser(creatorId, userId = creatorId, page = 0, pageSiz
 }
 
 export function* filterApps(packages, platform) {
-    var existingApps = yield App.find( { package: { $in: packages } } ).exec()
+    var existingApps = yield App.find({package: {$in: packages}}).exec()
     var existingAppsPackages = []
-    for(var i in existingApps) {
+    for (var i in existingApps) {
         existingAppsPackages.push(existingApps[i].package)
     }
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages)
     let packagesResult = []
-    for(let app of appsToBeAdded) {
+    for (let app of appsToBeAdded) {
         let parsedApp = null
         try {
             parsedApp = yield DevsHunter.getAndroidApp(app)
@@ -386,16 +388,16 @@ export function* filterApps(packages, platform) {
             continue;
         }
 
-        if(parsedApp != null) {
+        if (parsedApp != null) {
             packagesResult.push(app)
         }
     }
-    return {"availablePackages": packagesResult, "existingPackages": existingAppsPackages }
+    return {"availablePackages": packagesResult, "existingPackages": existingAppsPackages}
 }
 
 export function* getApp(appId, userId) {
     var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec()
-    if(!app) {
+    if (!app) {
         return Boom.notFound('App can not be found!')
     }
 
@@ -410,14 +412,14 @@ export function* getFavouriteAppsCount(userId) {
 export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};
     where.platform = platform;
-    if(status !== undefined) {
+    if (status !== undefined) {
         where.status = status;
     } else {
         where.status = APP_STATUSES.APPROVED;
     }
 
     var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy")
-    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+    query.sort({votesCount: 'desc', createdAt: 'desc'})
 
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps)
@@ -427,28 +429,35 @@ export function* searchApps(q, platform, status, page, pageSize, userId) {
 
 export function* favourite(appId, userId) {
     var app = yield App.findById(appId).exec()
-    if(!app) {
+    if (!app) {
         return Boom.notFound('App cannot be found!')
     }
 
     let user = yield User.findById(userId).exec()
-    if(user == null) {
+    if (user == null) {
         return Boom.notFound('User cannot be found!')
     }
 
-    for(let favouritedBy in app.favouritedBy) {
-        if(favouritedBy == userId) {
+    for (let favouritedBy in app.favouritedBy) {
+        if (favouritedBy == userId) {
             return Boom.conflict("User has already favourited app!");
         }
     }
     app.favouritedBy.push(userId);
     yield app.save()
 
-    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {appId: app._id, appName: app.name, userName: user.name})
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_FAVOURITED, userId, {
+        appId: app._id,
+        appName: app.name,
+        userName: user.name
+    })
     let isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId)
-    if(isFollowing) {
+    if (isFollowing) {
         let title = "Check this cool app"
-        let messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {appName: app.name, userName: user.name})
+        let messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {
+            appName: app.name,
+            userName: user.name
+        })
         yield NotificationsHandler.sendNotificationsToUsers([app.createdBy], title, messages, app.icon, NOTIFICATION_TYPES.FOLLOWING_FAVOURITED_APP, {
             appId: app._id
         })
@@ -459,14 +468,14 @@ export function* favourite(appId, userId) {
 
 export function* unfavourite(appId, userId) {
     var app = yield App.findById(appId).exec()
-    if(!app) {
+    if (!app) {
         return Boom.notFound('App cannot be found!')
     }
 
     var size = app.favouritedBy.length;
-    for(let i=0; i < size; i++) {
+    for (let i = 0; i < size; i++) {
         let currentFavouritedId = app.favouritedBy[i]
-        if(currentFavouritedId == userId) {
+        if (currentFavouritedId == userId) {
             app.favouritedBy.splice(i, 1);
             break;
         }
@@ -520,7 +529,7 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id)
         let categories = []
-        for(let category of apps[i].categories) {
+        for (let category of apps[i].categories) {
             categories.push(category.name)
         }
         apps[i].categories = categories

@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+var _ = require("underscore");
 var DEVS_HUNTER_URL = 'http://devs-hunter.herokuapp.com';
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs";
 var API_VERSION = 1.0;
@@ -54,6 +55,8 @@ var loginTypesFilter = {
     Fake: "fake",
     Real: "real"
 };
+
+var userTypes = _.extend({}, loginTypesFilter, { ALL: "all" });
 
 var notificationTypes = {
     USER_FOLLOWED: "userFollowed",
@@ -115,6 +118,7 @@ module.exports.APP_STATUSES_FILTER = appStatusesFilter;
 module.exports.NOTIFICATION_TYPES = notificationTypes;
 module.exports.HISTORY_EVENT_TYPES = historyEventTypes;
 module.exports.LOGIN_TYPES = loginTypes;
+module.exports.USER_TYPES = userTypes;
 module.exports.LOGIN_TYPES_FILTER = loginTypesFilter;
 module.exports.BITLY = bitly;
 module.exports.BOLT_APP_ID = boltAppId;

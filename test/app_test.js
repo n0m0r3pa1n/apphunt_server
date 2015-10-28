@@ -5,6 +5,8 @@ var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
+var USER_TYPES = require('../build/config/config').USER_TYPES
+var LOGIN_TYPES = require('../build/config/config').LOGIN_TYPES
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 describe("Apps", function () {
@@ -308,6 +310,23 @@ describe("Apps", function () {
         response.result.totalCount.should.equal(1)
     });
 
+    it("should get apps by platform", function*() {
+        var userResponse = yield dbHelper.createUser()
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.poli", "Android")
+        yield dbHelper.createAppWithParams(userResponse.result.id, "com.koli", "iOS")
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all'
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.statusCode.should.equal(STATUS_CODES.OK)
+        response.result.apps.length.should.equal(1)
+        response.result.totalCount.should.equal(1)
+    });
+
+
     it("should not get apps with invalid platform", function*() {
         var userResponse = yield dbHelper.createUser()
         yield dbHelper.createAppWithParams(userResponse.result.id, "com.poliiiii", "Android")
@@ -402,6 +421,46 @@ describe("Apps", function () {
 		var response = yield Server.injectThen(opts);
 		response.statusCode.should.equal(STATUS_CODES.OK)
 		response.result.apps[0].commentsCount.should.equal(2)
+    });
+
+
+
+    it("should get apps populated with real votes", function*() {
+        var user1Id = (yield dbHelper.createUserWithLoginType("Asasa", LOGIN_TYPES.Facebook)).result.id
+        var user2Id = (yield dbHelper.createUserWithLoginType("asdas", LOGIN_TYPES.Twitter)).result.id
+        var user3Id = (yield dbHelper.createUserWithLoginType("fdsf", LOGIN_TYPES.Fake)).result.id
+
+        var appId = (yield dbHelper.createApp(user1Id)).result.id
+        yield dbHelper.voteApp(appId, user2Id)
+        yield dbHelper.voteApp(appId, user3Id)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all&userType=' + USER_TYPES.Real
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.apps[0].votesCount.should.eq(2)
+    });
+
+    it("should get apps populated with fake votes", function*() {
+        var user1Id = (yield dbHelper.createUserWithLoginType("Asasa", LOGIN_TYPES.Facebook)).result.id
+        var user2Id = (yield dbHelper.createUserWithLoginType("asdas", LOGIN_TYPES.Twitter)).result.id
+        var user3Id = (yield dbHelper.createUserWithLoginType("fdsf", LOGIN_TYPES.Fake)).result.id
+
+        var appId = (yield dbHelper.createApp(user1Id)).result.id
+        yield dbHelper.voteApp(appId, user2Id)
+        yield dbHelper.voteApp(appId, user3Id)
+
+
+        var opts = {
+            method: 'GET',
+            url: '/apps?platform=Android&status=all&userType=' + USER_TYPES.Fake
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.apps[0].votesCount.should.eq(1)
     });
 
     it("should search app by name", function*() {
