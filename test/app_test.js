@@ -3,6 +3,7 @@ var should = require('chai').should()
 var assert = require('chai').assert
 var expect = require('chai').expect
 var dbHelper = require('./helper/dbhelper')
+var _ = require("underscore")
 require('./spec_helper')
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
 var USER_TYPES = require('../build/config/config').USER_TYPES
@@ -639,6 +640,30 @@ describe("Apps", function () {
                 app.hasVoted.should.eq(true)
             }
         }
+    });
+
+    it("should get apps by packages", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var app1Package = (yield dbHelper.createApp(userId)).result.package
+        var app2Package = (yield dbHelper.createAppWithPackage(userId, "asas")).result.package
+        yield dbHelper.createAppWithPackage(userId, "sdsadsad")
+
+        opts = {
+            method: 'POST',
+            url: '/apps/packages',
+            payload: {
+                packages: [app1Package, app2Package]
+            }
+        }
+
+        var response = yield Server.injectThen(opts);
+        response.result.length.should.eq(2)
+       expect(_.filter(response.result, function (element) {
+            return String(element.package) == app1Package;
+        })[0]).to.exist
+        expect(_.filter(response.result, function (element) {
+            return String(element.package) == app2Package;
+        })[0]).to.exist
     });
 })
 

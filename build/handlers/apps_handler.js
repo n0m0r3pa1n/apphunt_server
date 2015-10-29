@@ -13,6 +13,7 @@ exports.getAppsForUser = getAppsForUser;
 exports.filterApps = filterApps;
 exports.getApp = getApp;
 exports.getFavouriteAppsCount = getFavouriteAppsCount;
+exports.getAppsByPackages = getAppsByPackages;
 exports.searchApps = searchApps;
 exports.favourite = favourite;
 exports.unfavourite = unfavourite;
@@ -553,6 +554,37 @@ function* getFavouriteAppsCount(userId) {
     return yield App.count({ favouritedBy: userId }).exec();
 }
 
+function* getAppsByPackages(packages) {
+    var apps = [];
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
+
+    try {
+        for (var _iterator6 = packages[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var pack = _step6.value;
+
+            var app = yield App.findOne({ 'package': pack }).exec();
+            apps.push((yield getPopulatedApp(app)));
+        }
+    } catch (err) {
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                _iterator6['return']();
+            }
+        } finally {
+            if (_didIteratorError6) {
+                throw _iteratorError6;
+            }
+        }
+    }
+
+    return apps;
+}
+
 function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = { name: { $regex: q, $options: 'i' } };
     where.platform = platform;
@@ -672,27 +704,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion6 = true;
-        var _didIteratorError6 = false;
-        var _iteratorError6 = undefined;
+        var _iteratorNormalCompletion7 = true;
+        var _didIteratorError7 = false;
+        var _iteratorError7 = undefined;
 
         try {
-            for (var _iterator6 = apps[i].categories[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                var category = _step6.value;
+            for (var _iterator7 = apps[i].categories[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                var category = _step7.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError6 = true;
-            _iteratorError6 = err;
+            _didIteratorError7 = true;
+            _iteratorError7 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-                    _iterator6['return']();
+                if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+                    _iterator7['return']();
                 }
             } finally {
-                if (_didIteratorError6) {
-                    throw _iteratorError6;
+                if (_didIteratorError7) {
+                    throw _iteratorError7;
                 }
             }
         }

@@ -408,6 +408,15 @@ export function* getFavouriteAppsCount(userId) {
     return yield App.count({favouritedBy: userId}).exec()
 }
 
+export function* getAppsByPackages(packages) {
+    let apps = []
+    for(let pack of packages) {
+        let app = yield App.findOne({package: pack}).exec()
+        apps.push(yield getPopulatedApp(app))
+    }
+
+    return apps
+}
 
 export function* searchApps(q, platform, status, page, pageSize, userId) {
     var where = {name: {$regex: q, $options: 'i'}};

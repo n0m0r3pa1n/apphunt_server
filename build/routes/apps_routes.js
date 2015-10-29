@@ -137,6 +137,22 @@ var routes = [{
         tags: ['api']
     }
 }, {
+    method: "POST",
+    path: "/apps/packages",
+    handler: function handler(req, reply) {
+        reply.co(AppsHandler.getAppsByPackages(req.payload.packages));
+    },
+    config: {
+        validate: {
+            payload: {
+                packages: Joi.array().items(Joi.string()).required()
+            }
+        },
+        auth: false,
+        description: 'Get apps by packages',
+        tags: ['api']
+    }
+}, {
     method: "GET",
     path: "/apps/{appId}",
     handler: function handler(req, reply) {
