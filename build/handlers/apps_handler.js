@@ -564,7 +564,7 @@ function* getAppsByPackages(packages) {
         for (var _iterator6 = packages[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
             var pack = _step6.value;
 
-            var app = yield App.findOne({ 'package': pack }).exec();
+            var app = yield App.findOne({ 'package': pack }).populate('createdBy categories').exec();
             if (app != null) {
                 apps.push((yield getPopulatedApp(app)));
             }

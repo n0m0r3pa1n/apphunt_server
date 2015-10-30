@@ -411,7 +411,7 @@ export function* getFavouriteAppsCount(userId) {
 export function* getAppsByPackages(packages) {
     let apps = []
     for(let pack of packages) {
-        let app = yield App.findOne({package: pack}).exec()
+        let app = yield App.findOne({package: pack}).populate('createdBy categories').exec()
         if(app != null) {
             apps.push(yield getPopulatedApp(app))
         }
