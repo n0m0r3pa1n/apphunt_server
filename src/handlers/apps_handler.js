@@ -224,6 +224,7 @@ export function* deleteApp(packageName) {
     yield VotesHandler.clearAppVotes(app.votes)
     yield CommentsHandler.clearAppComments(app._id)
     yield TagsHandler.removeAppFromTags(app._id)
+    yield HistoryHandler.deleteEventsForApp(app._id)
     yield App.remove({package: packageName}).exec()
 
     return Boom.OK()

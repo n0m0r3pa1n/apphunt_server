@@ -82,8 +82,8 @@ describe("Apps", function () {
 
     it("should delete app", function*() {
         var userId = (yield dbHelper.createUser()).result.id
-        var appResponse = yield dbHelper.createApp(userId)
-        var appId = appResponse.result.id
+        var app = (yield dbHelper.createApp(userId)).result
+        var appId = app.id
         var commentId = (yield dbHelper.createComment(appId, userId)).result.id
         var childCommentId = (yield dbHelper.createComment(appId, userId, commentId)).result.id
 
@@ -92,14 +92,24 @@ describe("Apps", function () {
         var user2Id = (yield dbHelper.createUserWithEmail("asdsdsadas")).result.id
         yield  dbHelper.voteComment(commentId, user2Id)
         yield dbHelper.voteComment(childCommentId, user2Id)
+        dbHelper.favouriteApp(appId, user2Id)
+
+        var collectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        yield dbHelper.updateCollection(collectionId, userId, "Name", [appId])
+
+        yield dbHelper.approveApp(app.package)
+        yield dbHelper.favouriteApp(appId, user2Id)
 
         var opts = {
             method: 'DELETE',
-            url: '/apps?package=' + appResponse.result.package
+            url: '/apps?package=' + app.package
         }
 
         var response = yield Server.injectThen(opts);
         response.statusCode.should.equal(STATUS_CODES.OK)
+        var collection = (yield dbHelper.getCollection(collectionId)).result
+        collection.apps.length.should.eq(0)
+
 
         opts = {
             method: 'GET',
@@ -109,6 +119,13 @@ describe("Apps", function () {
         var getAppsResponse = yield Server.injectThen(opts);
         getAppsResponse.statusCode.should.equal(STATUS_CODES.OK)
         getAppsResponse.result.apps.length.should.equal(0)
+
+        var opts = {
+            method: 'GET',
+            url: '/v1/users/' + userId + '/history?date=' + new Date().toISOString()
+        }
+        response = yield Server.injectThen(opts)
+        response.result.events.length.should.eq(0)
     });
 
     it("should get all apps", function*() {

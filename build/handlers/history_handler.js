@@ -8,6 +8,7 @@ exports.postRefreshEvent = postRefreshEvent;
 exports.getHistory = getHistory;
 exports.getUnseenHistory = getUnseenHistory;
 exports.getText = getText;
+exports.deleteEventsForApp = deleteEventsForApp;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -496,4 +497,8 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
     }
 
     return results;
+}
+
+function* deleteEventsForApp(appId) {
+    yield History.remove({ 'params.appId': appId }).exec();
 }

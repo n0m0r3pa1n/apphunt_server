@@ -255,3 +255,7 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
     }
     return results
 }
+
+export function* deleteEventsForApp(appId) {
+    yield History.remove({'params.appId': appId}).exec()
+}
