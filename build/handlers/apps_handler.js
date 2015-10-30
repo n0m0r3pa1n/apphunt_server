@@ -565,7 +565,9 @@ function* getAppsByPackages(packages) {
             var pack = _step6.value;
 
             var app = yield App.findOne({ 'package': pack }).exec();
-            apps.push((yield getPopulatedApp(app)));
+            if (app != null) {
+                apps.push((yield getPopulatedApp(app)));
+            }
         }
     } catch (err) {
         _didIteratorError6 = true;

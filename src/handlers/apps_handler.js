@@ -412,7 +412,9 @@ export function* getAppsByPackages(packages) {
     let apps = []
     for(let pack of packages) {
         let app = yield App.findOne({package: pack}).exec()
-        apps.push(yield getPopulatedApp(app))
+        if(app != null) {
+            apps.push(yield getPopulatedApp(app))
+        }
     }
 
     return apps
