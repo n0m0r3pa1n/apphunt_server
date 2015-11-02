@@ -8,7 +8,7 @@ var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER
 
 import * as AppsHandler from '../handlers/apps_handler.js'
 import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
-import * as CommentsHandler from '../handlers/comments_handler'
+import * as CommentsHandler from '../handlers/comments_handler.js'
 
 var routes = [
     {

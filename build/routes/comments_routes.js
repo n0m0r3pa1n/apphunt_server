@@ -1,6 +1,11 @@
 'use strict';
 
-var CommentsHandler = require('../handlers/comments_handler');
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _handlersComments_handlerJs = require('../handlers/comments_handler.js');
+
+var CommentsHandler = _interopRequireWildcard(_handlersComments_handlerJs);
+
 var Comment = require('../models').Comment;
 var Joi = require('joi');
 

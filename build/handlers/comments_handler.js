@@ -3,6 +3,11 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+exports.create = create;
+exports.get = get;
+exports.getCount = getCount;
+exports.deleteComment = deleteComment;
+exports.clearAppComments = clearAppComments;
 exports.getCommentsForUser = getCommentsForUser;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -256,7 +261,6 @@ function* getCommentsForUser(creatorId, userId, page, pageSize) {
     return result;
 }
 
-module.exports.create = create;
 module.exports.get = get;
 module.exports.getCount = getCount;
 module.exports.deleteComment = deleteComment;

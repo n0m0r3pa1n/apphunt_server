@@ -45,6 +45,10 @@ var _users_handlerJs = require('./users_handler.js');
 
 var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 
+var _comments_handlerJs = require('./comments_handler.js');
+
+var CommentsHandler = _interopRequireWildcard(_comments_handlerJs);
+
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
 var _ = require("underscore");
@@ -70,7 +74,6 @@ var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
 
 var VotesHandler = require('./votes_handler');
 var UrlsHandler = require('./utils/urls_handler');
-var CommentsHandler = require('./comments_handler');
 var EmailsHandler = require('./utils/emails_handler');
 
 var DateUtils = require('../utils/date_utils');

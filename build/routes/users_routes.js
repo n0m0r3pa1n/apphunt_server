@@ -14,12 +14,15 @@ var _handlersApps_collections_handlerJs = require('../handlers/apps_collections_
 
 var AppsCollectionsHandler = _interopRequireWildcard(_handlersApps_collections_handlerJs);
 
+var _handlersComments_handlerJs = require('../handlers/comments_handler.js');
+
+var CommentsHandler = _interopRequireWildcard(_handlersComments_handlerJs);
+
 var _ = require("underscore");
 var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
 var UserScoreHandler = require('../handlers/user_score_handler');
-var CommentsHandler = require('../handlers/comments_handler');
 var User = require('../models').User;
 var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER;
 

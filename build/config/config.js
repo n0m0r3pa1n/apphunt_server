@@ -44,6 +44,7 @@ var loginTypes = {
     GooglePlus: "google-plus",
     Twitter: "twitter",
     Custom: "custom",
+    Anonymous: "anonymous",
     Fake: "fake"
 };
 
@@ -52,6 +53,7 @@ var loginTypesFilter = {
     GooglePlus: "google-plus",
     Twitter: "twitter",
     Custom: "custom",
+    Anonymous: "anonymous",
     Fake: "fake",
     Real: "real"
 };

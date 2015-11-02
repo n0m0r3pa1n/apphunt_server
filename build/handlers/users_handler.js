@@ -17,6 +17,10 @@ exports.update = update;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
+var _comments_handler = require('./comments_handler');
+
+var CommentsHandler = _interopRequireWildcard(_comments_handler);
+
 var _apps_handlerJs = require('./apps_handler.js');
 
 var AppsHandler = _interopRequireWildcard(_apps_handlerJs);
@@ -51,7 +55,6 @@ var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
 var User = require('../models').User;
 var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
-var CommentsHandler = require('./comments_handler');
 
 function* get(q, loginType, page, pageSize) {
     var where = {};
