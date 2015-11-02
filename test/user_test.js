@@ -42,6 +42,7 @@ describe("Users", function() {
 
         var result2 = (yield Server.injectThen(opts2)).result
         result2.users.length.should.eq(1)
+        result2.users[0].name.should.eq("Anonymous")
     });
 
     it("should update user profile", function*() {

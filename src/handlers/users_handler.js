@@ -146,6 +146,12 @@ export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
 export function* create(user, notificationId) {
     var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
     if (!currUser) {
+        if(user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+            user.name = "Anonymous"
+            user.username = "anonymous"
+            user.profilePicture = 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/10506738_10150004552801856_220367501106153455_o.jpg'
+        }
+
         currUser = yield User.create(user)
         if (currUser.loginType == LOGIN_TYPES_FILTER.Twitter) {
             postTweet(currUser)
