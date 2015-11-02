@@ -1,4 +1,4 @@
-var CommentsHandler = require('../handlers/comments_handler')
+import * as CommentsHandler from '../handlers/comments_handler.js'
 var Comment = require('../models').Comment
 var Joi = require('joi')
 

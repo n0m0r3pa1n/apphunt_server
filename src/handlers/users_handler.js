@@ -8,7 +8,7 @@ var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
 var User = require('../models').User
 var Device = require('../models').Device
 var UserScoreHandler = require('./user_score_handler')
-var CommentsHandler = require('./comments_handler')
+import * as CommentsHandler from './comments_handler'
 import * as AppsHandler from './apps_handler.js'
 import * as AppsCollectionsHandler from './apps_collections_handler.js'
 import * as PaginationHandler from "./pagination_handler.js"

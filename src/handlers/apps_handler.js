@@ -24,7 +24,6 @@ var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
 
 var VotesHandler = require('./votes_handler')
 var UrlsHandler = require('./utils/urls_handler')
-var CommentsHandler = require('./comments_handler')
 var EmailsHandler = require('./utils/emails_handler')
 import * as HistoryHandler from './history_handler.js'
 import * as PaginationHandler from './pagination_handler.js'
@@ -32,6 +31,7 @@ import * as TagsHandler from './tags_handler.js'
 import * as NotificationsHandler from './notifications_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 import * as UsersHandler from './users_handler.js'
+import * as CommentsHandler from './comments_handler.js'
 var DateUtils = require('../utils/date_utils')
 
 var Models = require('../models')
