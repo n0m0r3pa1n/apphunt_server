@@ -1,5 +1,6 @@
 var VotesHandler = require('../handlers/votes_handler')
 var Joi = require('joi')
+Joi.objectId = require('joi-objectid')
 
 var routes = [
     {
@@ -11,8 +12,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    appId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    appId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -29,8 +30,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    appId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    appId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -47,8 +48,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    commentId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    commentId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -65,8 +66,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    commentId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    commentId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -83,8 +84,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    collectionId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    collectionId: Joi.objectId().required()
                 }
             },
             auth: false,
@@ -101,8 +102,8 @@ var routes = [
         config: {
             validate: {
                 query: {
-                    userId: Joi.string().required(),
-                    collectionId: Joi.string().required()
+                    userId: Joi.objectId().required(),
+                    collectionId: Joi.objectId().required()
                 }
             },
             auth: false,
