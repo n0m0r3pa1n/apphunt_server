@@ -3,12 +3,12 @@ var Joi = require('joi')
 Joi.objectId = require('joi-objectid')
 import * as UsersHandler from '../handlers/users_handler.js'
 var UserScoreHandler = require('../handlers/user_score_handler')
-var CommentsHandler = require('../handlers/comments_handler')
 var User = require('../models').User
 var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER
 
 import * as AppsHandler from '../handlers/apps_handler.js'
 import * as AppsCollectionsHandler from '../handlers/apps_collections_handler.js'
+import * as CommentsHandler from '../handlers/comments_handler'
 
 var routes = [
     {

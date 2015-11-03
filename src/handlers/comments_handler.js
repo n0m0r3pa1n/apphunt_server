@@ -20,7 +20,7 @@ import * as HistoryHandler from './history_handler.js'
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 
-function* create(comment, appId, userId, parentId) {
+export function* create(comment, appId, userId, parentId) {
     var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec()
     if (!app) {
         return Boom.notFound("Non-existing app")
@@ -101,7 +101,7 @@ function getCommentedUserName(commentText) {
     return userName;
 }
 
-function* get(appId, userId, page,  pageSize) {
+export function* get(appId, userId, page,  pageSize) {
     var where = {app: appId, parent: null}
     var query = Comment.find(where).deepPopulate("children.createdBy children.votes").populate('votes').populate("createdBy")
     query.sort({ votesCount: 'desc', createdAt: 'desc' })
@@ -120,7 +120,7 @@ function* get(appId, userId, page,  pageSize) {
     return resultComments
 }
 
-function* getCount(appId) {
+export function* getCount(appId) {
     var where = {app: appId}
     return yield Comment.count(where).exec()
 }
@@ -139,7 +139,7 @@ function removeVotesField(comments) {
     }
 }
 
-function* deleteComment(commentId) {
+export function* deleteComment(commentId) {
     var comment = yield Comment.findById(commentId).exec()
     if(comment.children.length > 0) {
         var childrenIds = comment.children
@@ -168,7 +168,7 @@ function* deleteComment(commentId) {
     return Boom.OK()
 }
 
-function* clearAppComments(appId) {
+export function* clearAppComments(appId) {
     var comments = yield Comment.find({app: appId, parent: null}).exec()
     for(var i=0; i<comments.length; i++) {
         var comment = comments[i]
@@ -194,7 +194,6 @@ export function* getCommentsForUser(creatorId, userId, page, pageSize) {
     return result;
 }
 
-module.exports.create = create
 module.exports.get = get
 module.exports.getCount = getCount
 module.exports.deleteComment = deleteComment
