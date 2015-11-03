@@ -6,6 +6,7 @@ var CONFIG = require('../config/config')
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
 
 var User = require('../models').User
+var Anonymous = require('../models').Anonymous
 var Device = require('../models').Device
 var UserScoreHandler = require('./user_score_handler')
 import * as CommentsHandler from './comments_handler'
@@ -143,13 +144,37 @@ export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     return user
 }
 
-export function* create(user, notificationId) {
-    var currUser = yield User.findOne({email: user.email}).populate('devices').exec();
+export function* create(user, notificationId, advertisingId) {
+    var currUser;
+    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        if (!advertisingId) {
+            return Boom.badRequest("advertisingId is empty for anonymous user");
+        }
+        let anonymousUser = yield Anonymous.findOne({advertisingId: advertisingId})
+        if (!anonymousUser) {
+            currUser = null
+        } else {
+            currUser = yield User.findById(anonymousUser.user).populate('devices').exec()
+        }
+    } else {
+        if (!user.email) {
+            return Boom.badRequest("user email is empty for " + user.loginType + " user");
+        }
+        currUser = yield User.findOne({email: user.email}).populate('devices').exec();
+    }
     if (!currUser) {
-        if(user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
             user.name = "Anonymous"
             user.username = "anonymous"
             user.profilePicture = 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/10506738_10150004552801856_220367501106153455_o.jpg'
+            if (!user.email) {
+                user.email = yield getUniqueRandomEmail()
+            } else {
+                let isExistingEmail = yield User.findOne({email: user.email}).exec();
+                if (isExistingEmail) {
+                    user.email = yield getUniqueRandomEmail()
+                }
+            }
         }
 
         currUser = yield User.create(user)
@@ -181,11 +206,36 @@ export function* create(user, notificationId) {
         }
     }
     yield currUser.save()
+    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        yield Anonymous.create({advertisingId: advertisingId, user: currUser})
+    }
 
     let myUser = currUser.toObject()
     myUser.token = AuthHandler.generateToken(currUser._id)
     myUser.id = myUser._id;
     return myUser;
+}
+
+export function* getAnonymous() {
+    return yield Anonymous.find({}).exec()
+}
+
+function* getUniqueRandomEmail() {
+    let isExistingEmail = false
+    var text;
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    do {
+        text = "";
+        for (var i = 0; i < 9; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
+        text += "@anonymous.com"
+
+        isExistingEmail = yield User.findOne({email: text}).exec()
+    } while (isExistingEmail)
+
+    return text;
 }
 
 function postTweet(user) {

@@ -48,6 +48,15 @@ var routes = [{
         tags: ['api']
     }
 }, {
+    method: "GET",
+    path: "/users/anonymous",
+    handler: function handler(req, reply) {
+        reply.co(UsersHandler.getAnonymous());
+    },
+    config: {
+        auth: false
+    }
+}, {
     method: "POST",
     path: "/users/actions/filter",
     handler: function handler(req, reply) {
@@ -239,21 +248,23 @@ var routes = [{
     handler: function handler(req, reply) {
         var user = new User(req.payload);
         var notificationId = req.payload.notificationId;
-        reply.co(UsersHandler.create(user, notificationId));
+        var advertisingId = req.payload.advertisingId;
+        reply.co(UsersHandler.create(user, notificationId, advertisingId));
     },
     config: {
         validate: {
             payload: {
                 name: Joi.string().optional(),
                 username: Joi.string().optional(),
-                email: Joi.string().required(),
+                email: Joi.string().optional(),
                 profilePicture: Joi.string().optional(),
                 notificationId: Joi.string().optional(),
                 loginType: Joi.array().items(Joi.string()).valid(_.values(LOGIN_TYPES_FILTER)).required(),
                 locale: Joi.string().optional(),
                 coverPicture: Joi.string().optional(),
                 appVersion: Joi.string().optional(),
-                following: Joi.array().items(Joi.string()).optional()
+                following: Joi.array().items(Joi.string()).optional(),
+                advertisingId: Joi.string().optional()
             }
         },
         auth: false,

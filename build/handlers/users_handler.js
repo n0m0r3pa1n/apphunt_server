@@ -13,6 +13,7 @@ exports.getDevicesForUser = getDevicesForUser;
 exports.getDevicesForAllUsers = getDevicesForAllUsers;
 exports.getUserProfile = getUserProfile;
 exports.create = create;
+exports.getAnonymous = getAnonymous;
 exports.update = update;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
@@ -53,6 +54,7 @@ var CONFIG = require('../config/config');
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
 
 var User = require('../models').User;
+var Anonymous = require('../models').Anonymous;
 var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
 
@@ -240,13 +242,37 @@ function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     return user;
 }
 
-function* create(user, notificationId) {
-    var currUser = yield User.findOne({ email: user.email }).populate('devices').exec();
+function* create(user, notificationId, advertisingId) {
+    var currUser;
+    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        if (!advertisingId) {
+            return Boom.badRequest("advertisingId is empty for anonymous user");
+        }
+        var anonymousUser = yield Anonymous.findOne({ advertisingId: advertisingId });
+        if (!anonymousUser) {
+            currUser = null;
+        } else {
+            currUser = yield User.findById(anonymousUser.user).populate('devices').exec();
+        }
+    } else {
+        if (!user.email) {
+            return Boom.badRequest("user email is empty for " + user.loginType + " user");
+        }
+        currUser = yield User.findOne({ email: user.email }).populate('devices').exec();
+    }
     if (!currUser) {
         if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
             user.name = "Anonymous";
             user.username = "anonymous";
             user.profilePicture = 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/10506738_10150004552801856_220367501106153455_o.jpg';
+            if (!user.email) {
+                user.email = yield getUniqueRandomEmail();
+            } else {
+                var isExistingEmail = yield User.findOne({ email: user.email }).exec();
+                if (isExistingEmail) {
+                    user.email = yield getUniqueRandomEmail();
+                }
+            }
         }
 
         currUser = yield User.create(user);
@@ -278,11 +304,36 @@ function* create(user, notificationId) {
         }
     }
     yield currUser.save();
+    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        yield Anonymous.create({ advertisingId: advertisingId, user: currUser });
+    }
 
     var myUser = currUser.toObject();
     myUser.token = AuthHandler.generateToken(currUser._id);
     myUser.id = myUser._id;
     return myUser;
+}
+
+function* getAnonymous() {
+    return yield Anonymous.find({}).exec();
+}
+
+function* getUniqueRandomEmail() {
+    var isExistingEmail = false;
+    var text;
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    do {
+        text = "";
+        for (var i = 0; i < 9; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
+        text += "@anonymous.com";
+
+        isExistingEmail = yield User.findOne({ email: text }).exec();
+    } while (isExistingEmail);
+
+    return text;
 }
 
 function postTweet(user) {

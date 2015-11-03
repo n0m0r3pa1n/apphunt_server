@@ -84,6 +84,7 @@ apiServer.ext('onRequest', function (request, reply) {
 
 apiServer.ext('onPreHandler', function (request, reply) {
     var userId = request.payload !== null ? request.payload.userId : request.query.userId;
+
     if (userId) {
         var user = User.findOne({ _id: userId }).exec();
         user.then(function (user) {

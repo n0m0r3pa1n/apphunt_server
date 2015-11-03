@@ -182,6 +182,11 @@ var historySchema = new Schema({
     params: {type: Schema.Types.Mixed}
 })
 
+var anonymousUsersSchema = new Schema({
+    advertisingId: {type: String},
+    user: {type: Schema.Types.ObjectId, ref: 'User'}
+})
+
 userSchema.plugin(Timestamps)
 appSchema.plugin(Timestamps)
 voteSchema.plugin(Timestamps)
@@ -201,6 +206,7 @@ appsCollectionSchema.plugin(DeepPopulate)
 usersCollectionSchema.plugin(DeepPopulate)
 
 module.exports.User = Mongoose.model('User', userSchema)
+module.exports.Anonymous = Mongoose.model('Anonymous', anonymousUsersSchema)
 module.exports.Follower = Mongoose.model('Follower', followerSchema)
 module.exports.App = Mongoose.model('App', appSchema)
 module.exports.Vote = Mongoose.model('Vote', voteSchema)
