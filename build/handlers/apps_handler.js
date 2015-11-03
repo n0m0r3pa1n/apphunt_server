@@ -326,7 +326,7 @@ function* changeAppStatus(appPackage, status) {
 
         if (isAppApproved) {
             yield setAppShortUrl(app);
-            postTweet(app, createdBy);
+            //postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app);
 
             var _title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
