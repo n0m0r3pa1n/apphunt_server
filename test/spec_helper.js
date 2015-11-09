@@ -8,6 +8,7 @@ var mockBolt = require('./mock/mock-bolt')
 var mockDevsHunter = require('./mock/mock-devs-hunter')
 var initMock = function() {
     mockDevsHunter.mockGetAndroidApp()
+    mockDevsHunter.mockUpdateAndroidApp()
     mockBadBoy.mockGetAndroidApp()
     mockBadBoy.mockGetIosApp()
     mockBitly.mockUrlsHandler()

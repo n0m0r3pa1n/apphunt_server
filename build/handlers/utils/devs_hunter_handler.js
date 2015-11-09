@@ -14,4 +14,19 @@ function* getAndroidApp(packageName) {
     return response.app;
 }
 
+function* updateAndroidApp(packageName) {
+    var options = {
+        method: 'PUT',
+        uri: DEVS_HUNTER_URL + '/apps/' + packageName
+    };
+
+    var response = JSON.parse((yield rp(options)));
+    if (response.statusCode !== STATUS_CODES.OK) {
+        return null;
+    }
+
+    return response.app;
+}
+
 module.exports.getAndroidApp = getAndroidApp;
+module.exports.updateAndroidApp = updateAndroidApp;

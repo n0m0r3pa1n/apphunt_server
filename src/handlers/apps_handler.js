@@ -51,7 +51,7 @@ export function* create(app, tags, userId) {
     var parsedApp = {}
     try {
         if (app.platform == PLATFORMS.Android) {
-            parsedApp = yield DevsHunter.getAndroidApp(app.package)
+            parsedApp = yield DevsHunter.updateAndroidApp(app.package)
             if (parsedApp === null) {
                 return Boom.notFound("Non-existing app")
             }
