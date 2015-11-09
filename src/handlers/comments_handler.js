@@ -104,7 +104,7 @@ function getCommentedUserName(commentText) {
 export function* get(appId, userId, page,  pageSize) {
     var where = {app: appId, parent: null}
     var query = Comment.find(where).deepPopulate("children.createdBy children.votes").populate('votes').populate("createdBy")
-    query.sort({ votesCount: 'desc', createdAt: 'desc' })
+    query.sort({ createdAt: 'desc' })
 
     if(page != 0  && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize)

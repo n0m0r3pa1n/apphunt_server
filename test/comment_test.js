@@ -66,8 +66,8 @@ describe("Comments", function() {
         }
 
         var response = yield Server.injectThen(opts)
-        response.result.comments[0].votesCount.should.equal(2)
-        response.result.comments[1].votesCount.should.equal(0)
+        response.result.comments[0].votesCount.should.equal(0)
+        response.result.comments[1].votesCount.should.equal(2)
         expect(response.result.comments[0].createdBy.email).to.exist
     });
 
