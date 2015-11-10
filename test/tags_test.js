@@ -21,6 +21,11 @@ describe("Tags", function () {
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
         var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test", "test2"])
         var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["test", "test2"])
+
+        yield dbHelper.approveApp("com.test")
+        yield dbHelper.approveApp("com.test2")
+        yield dbHelper.approveApp("com.test3")
+        
         firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
         firstAppResponse.result.categories.length.should.equal(1)
 
@@ -61,6 +66,9 @@ describe("Tags", function () {
         var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["nomnom", "test15"])
         var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["nomnom", "test15"])
 
+        yield dbHelper.approveApp("com.test")
+        yield dbHelper.approveApp("com.test2")
+        yield dbHelper.approveApp("com.test3")
         var opts = {
             method: "GET",
             url: '/v1/apps/tags?names[]=nomnom&names[]=test15'
@@ -160,6 +168,7 @@ describe("Tags", function () {
         yield dbHelper.makeCollectionPublic(userId, collectionId, appIds)
 
         var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["march", "test2"])
+        yield dbHelper.approveApp("com.test")
 
         var opts = {
             method: "GET",

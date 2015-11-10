@@ -3,6 +3,7 @@ var _ = require('underscore')
 var Config = require('../config/config')
 var TAG_TYPES = Config.TAG_TYPES
 var STATUS_CODES = Config.STATUS_CODES
+var APP_STATUSES = Config.APP_STATUSES
 var COLLECTION_STATUSES = Config.COLLECTION_STATUSES
 
 var Models = require('../models')
@@ -95,7 +96,7 @@ export function* getAppsForTags(names, userId, page, pageSize) {
     var apps = []
     for(let appId of itemIds) {
         var app = yield AppsHandler.getApp(appId, userId)
-        if(app.statusCode == undefined) {
+        if(app.statusCode == undefined && app.status == APP_STATUSES.APPROVED) {
             apps.push(app)
         }
     }
