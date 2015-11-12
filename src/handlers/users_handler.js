@@ -145,75 +145,113 @@ export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
 }
 
 export function* create(user, notificationId, advertisingId) {
-    var currUser;
-    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+    var currUser = null;
+
+    if(user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
         if (!advertisingId) {
             return Boom.badRequest("advertisingId is empty for anonymous user");
         }
-        let anonymousUser = yield Anonymous.findOne({advertisingId: advertisingId})
-        if (!anonymousUser) {
-            currUser = null
-        } else {
-            currUser = yield User.findById(anonymousUser.user).populate('devices').exec()
-        }
+
+        currUser = yield getAnonymousUser(advertisingId)
     } else {
         if (!user.email) {
             return Boom.badRequest("user email is empty for " + user.loginType + " user");
         }
-        currUser = yield User.findOne({email: user.email}).populate('devices').exec();
-    }
-    if (!currUser) {
-        if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
-            user.name = "Anonymous"
-            user.username = "anonymous"
-            user.profilePicture = 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/10506738_10150004552801856_220367501106153455_o.jpg'
-            if (!user.email) {
-                user.email = yield getUniqueRandomEmail()
-            } else {
-                let isExistingEmail = yield User.findOne({email: user.email}).exec();
-                if (isExistingEmail) {
-                    user.email = yield getUniqueRandomEmail()
-                }
-            }
-        }
 
-        currUser = yield User.create(user)
+        currUser = yield getRegisteredUser(user.email)
+    }
+
+    if(currUser) {
+        yield updateUser(currUser, user)
+    } else {
+        currUser = yield createUser(user, advertisingId)
         if (currUser.loginType == LOGIN_TYPES_FILTER.Twitter) {
             postTweet(currUser)
             followUser(currUser)
         }
-    } else {
-        currUser.name = user.name
-        currUser.username = user.username
-        currUser.profilePicture = user.profilePicture
-        currUser.coverPicture = user.coverPicture
-        currUser.loginType = user.loginType
-        currUser.locale = user.locale
-        currUser.appVersion = user.appVersion
     }
 
     if (notificationId) {
-        if (currUser.devices == undefined || currUser.devices == null) {
-            currUser.devices = []
-        }
-
-        if (isUserDeviceExisting(currUser.devices, notificationId) == false) {
-            var device = yield Device.findOneOrCreate({notificationId: notificationId}, {
-                notificationId: notificationId,
-                notificationsEnabled: true
-            });
-            currUser.devices.push(device)
-        }
-    }
-    yield currUser.save()
-    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
-        yield Anonymous.create({advertisingId: advertisingId, user: currUser})
+        yield createUserDevices(currUser, notificationId);
     }
 
     let myUser = currUser.toObject()
     myUser.token = AuthHandler.generateToken(currUser._id)
     myUser.id = myUser._id;
     return myUser;
+}
+
+function* getAnonymousUser(advertisingId) {
+    let anonymousUser = yield Anonymous.findOne({advertisingId: advertisingId}).populate('user').exec()
+    if(anonymousUser) {
+        return yield User.findById(anonymousUser.user).populate('devices').exec()
+    } else {
+        return null;
+    }
+}
+
+function* getRegisteredUser(email) {
+    return yield User.findOne({email: email}).populate('devices').exec();
+}
+
+function* createUser(model, advertisingId) {
+    let isAnonymous = false;
+    if(model.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+        isAnonymous = true
+        model.name = "Anonymous"
+        model.username = "anonymous"
+        model.profilePicture =
+            'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/' +
+            '10506738_10150004552801856_220367501106153455_o.jpg'
+        model.email = yield getUniqueUserEmail(model.email)
+    }
+
+    let user = yield User.create(model)
+    if(isAnonymous) {
+        yield Anonymous.create({advertisingId: advertisingId, user: user})
+    }
+
+    return user
+}
+
+function* updateUser(currUser, model) {
+    currUser.name = model.name
+    currUser.username = model.username
+    currUser.profilePicture = model.profilePicture
+    currUser.coverPicture = model.coverPicture
+    currUser.loginType = model.loginType
+    currUser.locale = model.locale
+    currUser.appVersion = model.appVersion
+
+    yield currUser.save()
+}
+
+function* getUniqueUserEmail(email) {
+    if (!email) {
+        return yield getUniqueRandomEmail()
+    } else {
+        let isExistingEmail = yield User.findOne({email: email}).exec();
+        if (isExistingEmail) {
+            return yield getUniqueRandomEmail()
+        } else {
+            return email
+        }
+    }
+}
+
+function* createUserDevices(currUser, notificationId) {
+    if (currUser.devices == undefined || currUser.devices == null) {
+        currUser.devices = []
+    }
+
+    if (isUserDeviceExisting(currUser.devices, notificationId) == false) {
+        var device = yield Device.findOneOrCreate({notificationId: notificationId}, {
+            notificationId: notificationId,
+            notificationsEnabled: true
+        });
+        currUser.devices.push(device)
+        yield currUser.save()
+    }
 }
 
 export function* getAnonymous() {

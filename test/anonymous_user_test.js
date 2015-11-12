@@ -127,6 +127,14 @@ describe("Anonymous Users", function () {
 
         var result2 = (yield Server.injectThen(opts)).result
         result2.email.should.equal(result.email)
+
+        var opts2 = {
+            method: 'GET',
+            url: '/users/anonymous'
+        }
+
+        var result3 = (yield Server.injectThen(opts2)).result
+        result3.length.should.equal(1)
     });
 
 });
