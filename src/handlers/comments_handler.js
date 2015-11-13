@@ -3,12 +3,11 @@ var Boom = require('boom')
 var CONFIG  = require('../config/config')
 var MESSAGES  = require('../config/messages')
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+var STATUS_CODES = CONFIG.STATUS_CODES
 var CONVERSATION_SYMBOL = '@'
 
-var App = require('../models').App
-var User = require('../models').User
 var Comment = require('../models').Comment
-var Vote = require('../models').Vote
 
 var VotesHandler = require('./votes_handler')
 
@@ -16,17 +15,17 @@ import * as PaginationHandler from './pagination_handler.js'
 import * as NotificationsHandler  from './notifications_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 import * as AppsHandler from './apps_handler.js'
+import * as UsersHandler from './users_handler.js'
 import * as HistoryHandler from './history_handler.js'
-var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 
 export function* create(comment, appId, userId, parentId) {
-    var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec()
-    if (!app) {
+    var app = yield AppsHandler.getApp(appId, userId)
+    if (app.isBoom != undefined && app.isBoom == true) {
         return Boom.notFound("Non-existing app")
     }
 
-    var user = yield User.findById(userId).exec()
+    var user = yield UsersHandler.find(userId)
     if(user == null) {
         return Boom.notFound("Non-existing user")
     }
@@ -58,7 +57,7 @@ export function* create(comment, appId, userId, parentId) {
     if(isConversationComment(comment.text)) {
         var userName = getCommentedUserName(comment.text)
         if(userName !== '') {
-            var mentionedUser = yield User.findOne({username: userName}).populate('devices').exec()
+            var mentionedUser = yield UsersHandler.findByUsername(userName)
             if(mentionedUser !== null) {
                 var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username)
                 var message = comment.text
@@ -141,28 +140,36 @@ function removeVotesField(comments) {
 
 export function* deleteComment(commentId) {
     var comment = yield Comment.findById(commentId).exec()
-    if(comment.children.length > 0) {
-        var childrenIds = comment.children
-        for(var i=0; i<childrenIds.length; i++) {
-            yield deleteComment(childrenIds[i])
-        }
+    if(comment == null) {
+        return Boom.OK();
     }
-    if(comment.parent != null) {
-        var parent = yield Comment.findById(comment.parent).exec()
-        for(var i=0; i<parent.children.length; i++) {
-            var childId = parent.children[i]
-            if(childId == commentId) {
-                parent.children.splice(i, 1);
+
+    if(comment.children.length > 0) {
+        for(let childId of comment.children) {
+            let childComment = yield Comment.findById(childId).exec()
+            if(childComment) {
+                yield deleteComment(childId)
             }
         }
-        yield parent.save()
     }
 
-    var votesIds = comment.votes
-    for(var i=0; i<votesIds.length; i++) {
-        yield Vote.remove({_id: votesIds[i]}).exec()
+    if(comment.parent != null) {
+        var parent = yield Comment.findById(comment.parent).exec()
+        if(parent == null) {
+            comment.parent = null;
+            yield comment.save();
+        } else {
+            for(var i=0; i<parent.children.length; i++) {
+                var childId = parent.children[i]
+                if(childId == commentId) {
+                    parent.children.splice(i, 1);
+                }
+            }
+            yield parent.save()
+        }
     }
 
+    yield VotesHandler.deleteVotesByIds(comment.votes)
     yield Comment.remove({_id: commentId}).exec()
 
     return Boom.OK()
@@ -174,6 +181,7 @@ export function* clearAppComments(appId) {
         var comment = comments[i]
         yield deleteComment(comment._id)
     }
+    return Boom.OK()
 }
 
 export function* getCommentsForUser(creatorId, userId, page, pageSize) {

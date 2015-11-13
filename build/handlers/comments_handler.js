@@ -28,6 +28,10 @@ var _apps_handlerJs = require('./apps_handler.js');
 
 var AppsHandler = _interopRequireWildcard(_apps_handlerJs);
 
+var _users_handlerJs = require('./users_handler.js');
+
+var UsersHandler = _interopRequireWildcard(_users_handlerJs);
+
 var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
@@ -37,24 +41,21 @@ var Boom = require('boom');
 var CONFIG = require('../config/config');
 var MESSAGES = require('../config/messages');
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
+var STATUS_CODES = CONFIG.STATUS_CODES;
 var CONVERSATION_SYMBOL = '@';
 
-var App = require('../models').App;
-var User = require('../models').User;
 var Comment = require('../models').Comment;
-var Vote = require('../models').Vote;
 
 var VotesHandler = require('./votes_handler');
 
-var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
-
 function* create(comment, appId, userId, parentId) {
-    var app = yield App.findById(appId).populate('createdBy').deepPopulate('createdBy.devices').exec();
-    if (!app) {
+    var app = yield AppsHandler.getApp(appId, userId);
+    if (app.isBoom != undefined && app.isBoom == true) {
         return Boom.notFound("Non-existing app");
     }
 
-    var user = yield User.findById(userId).exec();
+    var user = yield UsersHandler.find(userId);
     if (user == null) {
         return Boom.notFound("Non-existing user");
     }
@@ -86,7 +87,7 @@ function* create(comment, appId, userId, parentId) {
     if (isConversationComment(comment.text)) {
         var userName = getCommentedUserName(comment.text);
         if (userName !== '') {
-            var mentionedUser = yield User.findOne({ username: userName }).populate('devices').exec();
+            var mentionedUser = yield UsersHandler.findByUsername(userName);
             if (mentionedUser !== null) {
                 var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username);
                 var message = comment.text;
@@ -167,28 +168,57 @@ function removeVotesField(comments) {
 
 function* deleteComment(commentId) {
     var comment = yield Comment.findById(commentId).exec();
-    if (comment.children.length > 0) {
-        var childrenIds = comment.children;
-        for (var i = 0; i < childrenIds.length; i++) {
-            yield deleteComment(childrenIds[i]);
-        }
+    if (comment == null) {
+        return Boom.OK();
     }
-    if (comment.parent != null) {
-        var parent = yield Comment.findById(comment.parent).exec();
-        for (var i = 0; i < parent.children.length; i++) {
-            var childId = parent.children[i];
-            if (childId == commentId) {
-                parent.children.splice(i, 1);
+
+    if (comment.children.length > 0) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = comment.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var _childId = _step.value;
+
+                var childComment = yield Comment.findById(_childId).exec();
+                if (childComment) {
+                    yield deleteComment(_childId);
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator['return']) {
+                    _iterator['return']();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
             }
         }
-        yield parent.save();
     }
 
-    var votesIds = comment.votes;
-    for (var i = 0; i < votesIds.length; i++) {
-        yield Vote.remove({ _id: votesIds[i] }).exec();
+    if (comment.parent != null) {
+        var parent = yield Comment.findById(comment.parent).exec();
+        if (parent == null) {
+            comment.parent = null;
+            yield comment.save();
+        } else {
+            for (var i = 0; i < parent.children.length; i++) {
+                var childId = parent.children[i];
+                if (childId == commentId) {
+                    parent.children.splice(i, 1);
+                }
+            }
+            yield parent.save();
+        }
     }
 
+    yield VotesHandler.deleteVotesByIds(comment.votes);
     yield Comment.remove({ _id: commentId }).exec();
 
     return Boom.OK();
@@ -200,6 +230,7 @@ function* clearAppComments(appId) {
         var comment = comments[i];
         yield deleteComment(comment._id);
     }
+    return Boom.OK();
 }
 
 function* getCommentsForUser(creatorId, userId, page, pageSize) {
@@ -209,30 +240,6 @@ function* getCommentsForUser(creatorId, userId, page, pageSize) {
     if (userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId);
     }
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = result.comments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var comment = _step.value;
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    removeVotesField(result.comments);
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
@@ -240,8 +247,6 @@ function* getCommentsForUser(creatorId, userId, page, pageSize) {
     try {
         for (var _iterator2 = result.comments[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var comment = _step2.value;
-
-            comment.app = yield AppsHandler.getApp(comment.app);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -254,6 +259,32 @@ function* getCommentsForUser(creatorId, userId, page, pageSize) {
         } finally {
             if (_didIteratorError2) {
                 throw _iteratorError2;
+            }
+        }
+    }
+
+    removeVotesField(result.comments);
+    var _iteratorNormalCompletion3 = true;
+    var _didIteratorError3 = false;
+    var _iteratorError3 = undefined;
+
+    try {
+        for (var _iterator3 = result.comments[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var comment = _step3.value;
+
+            comment.app = yield AppsHandler.getApp(comment.app);
+        }
+    } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                _iterator3['return']();
+            }
+        } finally {
+            if (_didIteratorError3) {
+                throw _iteratorError3;
             }
         }
     }

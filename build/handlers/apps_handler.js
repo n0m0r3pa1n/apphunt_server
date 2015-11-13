@@ -301,8 +301,9 @@ function postTweet(app, user) {
 
 function* deleteApp(packageName) {
     var app = yield App.findOne({ 'package': packageName }).exec();
+
     yield VotesHandler.clearAppVotes(app.votes);
-    yield CommentsHandler.clearAppComments(app._id);
+    var clearCommentsResult = yield CommentsHandler.clearAppComments(app._id);
     yield TagsHandler.removeAppFromTags(app._id);
     yield HistoryHandler.deleteEventsForApp(app._id);
     yield App.remove({ 'package': packageName }).exec();
@@ -546,7 +547,7 @@ function* filterApps(packages, platform) {
 }
 
 function* getApp(appId, userId) {
-    var app = yield App.findById(appId).deepPopulate('votes.user').populate('createdBy categories').exec();
+    var app = yield App.findById(appId).deepPopulate('votes.user createdBy.devices').populate('createdBy categories').exec();
     if (!app) {
         return Boom.notFound('App can not be found!');
     }

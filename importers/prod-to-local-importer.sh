@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 #
 # Script to import apphunt server db to localhost

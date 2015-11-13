@@ -51,6 +51,10 @@ export function* find(userId) {
     return yield User.findById(userId).exec()
 }
 
+export function* findByUsername(username) {
+    return yield User.findOne({username: username}).populate('devices').exec()
+}
+
 export function* getUserDevices(userId) {
     let user = yield User.findById(userId).populate('devices').exec()
     if (user == null) {
@@ -147,21 +151,19 @@ export function* getUserProfile(userId, fromDate, toDate, currentUserId) {
 export function* create(user, notificationId, advertisingId) {
     var currUser = null;
 
-    if(user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+    if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
         if (!advertisingId) {
             return Boom.badRequest("advertisingId is empty for anonymous user");
         }
-
         currUser = yield getAnonymousUser(advertisingId)
     } else {
         if (!user.email) {
             return Boom.badRequest("user email is empty for " + user.loginType + " user");
         }
-
         currUser = yield getRegisteredUser(user.email)
     }
 
-    if(currUser) {
+    if (currUser) {
         yield updateUser(currUser, user)
     } else {
         currUser = yield createUser(user, advertisingId)
@@ -183,7 +185,7 @@ export function* create(user, notificationId, advertisingId) {
 
 function* getAnonymousUser(advertisingId) {
     let anonymousUser = yield Anonymous.findOne({advertisingId: advertisingId}).populate('user').exec()
-    if(anonymousUser) {
+    if (anonymousUser) {
         return yield User.findById(anonymousUser.user).populate('devices').exec()
     } else {
         return null;
@@ -196,7 +198,7 @@ function* getRegisteredUser(email) {
 
 function* createUser(model, advertisingId) {
     let isAnonymous = false;
-    if(model.loginType == LOGIN_TYPES_FILTER.Anonymous) {
+    if (model.loginType == LOGIN_TYPES_FILTER.Anonymous) {
         isAnonymous = true
         model.name = "Anonymous"
         model.username = "anonymous"
@@ -207,7 +209,7 @@ function* createUser(model, advertisingId) {
     }
 
     let user = yield User.create(model)
-    if(isAnonymous) {
+    if (isAnonymous) {
         yield Anonymous.create({advertisingId: advertisingId, user: user})
     }
 

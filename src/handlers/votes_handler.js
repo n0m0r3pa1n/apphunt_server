@@ -236,6 +236,14 @@ function* deleteCollectionVote(collectionId, userId) {
     }
 }
 
+function* deleteVotesByIds(votesIds) {
+    for(let i=0; i<votesIds.length; i++) {
+        yield Vote.remove({_id: votesIds[i]}).exec()
+    }
+
+    return Boom.OK()
+}
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
 module.exports.hasUserVotedForApp = hasUserVotedForApp
@@ -246,6 +254,7 @@ module.exports.createCommentVote = createCommentVote
 module.exports.deleteCommentVote = deleteCommentVote
 module.exports.setHasUserVotedForCommentField = setHasUserVotedForCommentField
 module.exports.clearAppVotes = clearAppVotes
+module.exports.deleteVotesByIds = deleteVotesByIds
 
 module.exports.createCollectionVote = createCollectionVote
 module.exports.deleteCollectionVote = deleteCollectionVote

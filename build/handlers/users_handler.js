@@ -6,6 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 exports.get = get;
 exports.getLoginTypes = getLoginTypes;
 exports.find = find;
+exports.findByUsername = findByUsername;
 exports.getUserDevices = getUserDevices;
 exports.filterExistingUsers = filterExistingUsers;
 exports.getDeviceIdsForUser = getDeviceIdsForUser;
@@ -85,6 +86,10 @@ function getLoginTypes() {
 
 function* find(userId) {
     return yield User.findById(userId).exec();
+}
+
+function* findByUsername(username) {
+    return yield User.findOne({ username: username }).populate('devices').exec();
 }
 
 function* getUserDevices(userId) {
@@ -249,13 +254,11 @@ function* create(user, notificationId, advertisingId) {
         if (!advertisingId) {
             return Boom.badRequest("advertisingId is empty for anonymous user");
         }
-
         currUser = yield getAnonymousUser(advertisingId);
     } else {
         if (!user.email) {
             return Boom.badRequest("user email is empty for " + user.loginType + " user");
         }
-
         currUser = yield getRegisteredUser(user.email);
     }
 
