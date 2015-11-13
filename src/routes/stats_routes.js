@@ -1,5 +1,6 @@
+var _ = require('underscore')
 var Joi = require('joi')
-var UsersStatsHandler = require('../handlers/stats/users_stats_handler')
+import * as UsersStatsHandler from '../handlers/stats/users_stats_handler'
 var periodSchema = require('../schemas/stats_period_schema').periodSchema
 var userStatsRoutes = [
     {
@@ -67,7 +68,27 @@ var userStatsRoutes = [
             description: 'Get a list of all registered users.',
             tags: ['api']
         }
+    },
+    {
+        method: "GET",
+        path: "/stats/users/anonymous/actions",
+        handler: function(req,reply) {
+            var model = req.query
+            reply.co(UsersStatsHandler.getAnonymousUserActions(model))
+        },
+        config: {
+            validate: {
+                query: _.extend({
+                    page: Joi.number().optional(),
+                    pageSize: Joi.number().optional()
+                }, periodSchema)
+            },
+            auth: false,
+            description: 'Get a list of all registered users.',
+            tags: ['api']
+        }
     }
+
 ]
 
 module.exports.userStatsRoutes = userStatsRoutes

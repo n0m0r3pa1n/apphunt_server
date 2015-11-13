@@ -1,11 +1,12 @@
 var Models = require('../../models')
 var User = Models.User
+var Anonymous = Models.Anonymous
 var Comment = Models.Comment
 var Vote = Models.Vote
 
 import * as PaginationHandler from './../pagination_handler'
 
-function* getAllUsers(username, loginType, page, pageSize) {
+export function* getAllUsers(username, loginType, page, pageSize) {
     var where = {};
     if(username !== undefined) {
         where = {username: {$regex: username, $options: 'i'}};
@@ -21,7 +22,7 @@ function* getAllUsers(username, loginType, page, pageSize) {
     return yield PaginationHandler.getPaginatedResults(query, page, pageSize)
 }
 
-function* getUserCommentsCount(fromDate, toDate) {
+export function* getUserCommentsCount(fromDate, toDate) {
     var where = {}
     where.createdAt = {"$gte": fromDate, "$lt": toDate};
     var comments = yield Comment.find(where).populate('createdBy').exec()
@@ -35,7 +36,7 @@ function* getUserCommentsCount(fromDate, toDate) {
     return size;
 }
 
-function* getLoggedInUsersCount(fromDate, toDate) {
+export function* getLoggedInUsersCount(fromDate, toDate) {
     var where = {}
     where.createdAt = {"$gte": fromDate, "$lt": toDate};
     where.loginType = {"$ne": "fake"}
@@ -43,7 +44,7 @@ function* getLoggedInUsersCount(fromDate, toDate) {
     return yield User.count(where).exec()
 }
 
-function* getUsersVotesForApps(fromDate, toDate) {
+export function* getUsersVotesForApps(fromDate, toDate) {
     var where = {}
     where.createdAt = {"$gte": fromDate, "$lt": toDate};
     where.loginType = {"$ne": "fake"}
@@ -51,8 +52,15 @@ function* getUsersVotesForApps(fromDate, toDate) {
     // TODO: figure out the logic for finding votes for apps
 }
 
+export function* getAnonymousUserActions({fromDate, toDate, page, pageSize}) {
+    var where = {}
+    where.createdAt = {"$gte": fromDate, "$lt": toDate};
+    var query = Anonymous.find({})
+    console.log(query)
 
-module.exports.getAllUsers = getAllUsers
-module.exports.getUserCommentsCount = getUserCommentsCount
-module.exports.getLoggedInUsersCount = getLoggedInUsersCount
-module.exports.getUsersVotesForApps = getUsersVotesForApps
+    let results = yield PaginationHandler.getPaginatedResults(query, page, pageSize)
+    console.log(results)
+
+    return {statusCode: "Test"}
+}
+

@@ -175,6 +175,7 @@ appsCollectionSchema.plugin(Timestamps);
 usersCollectionSchema.plugin(Timestamps);
 followerSchema.plugin(Timestamps);
 historySchema.plugin(Timestamps);
+anonymousUsersSchema.plugin(Timestamps);
 
 appSchema.plugin(DeepPopulate);
 userSchema.plugin(DeepPopulate);
