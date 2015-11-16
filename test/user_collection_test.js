@@ -220,8 +220,29 @@ describe("User Collections", function() {
         var usersDetails = response.result.collections[0].usersDetails
         usersDetails[0].user._id.toString().should.equal(userId.toString())
         usersDetails[1].user._id.toString().should.equal(user2Id.toString())
-
     });
+
+    it("should get dynamic top hunters collection", function* () {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail("mailmail@yahoo.com")).result.id
+        var user3Id = (yield dbHelper.createUserWithLoginType("mailmail2@test.com", "fake")).result.id
+
+        var app = (yield dbHelper.createApp(userId)).result
+        yield dbHelper.approveApp(app.package)
+        yield dbHelper.createComment(app._id, user2Id)
+        yield dbHelper.voteApp(app._id, user3Id)
+
+        var today = new Date()
+        var opts = {
+            method: 'GET',
+            url: '/user-collections/top-hunters/today'
+        }
+
+        var collectionResponse2 = yield Server.injectThen(opts)
+        collectionResponse2.result.collections.length.should.eq(1)
+        collectionResponse2.result.collections[0].usersDetails.length.should.eq(2)
+    })
+
 
     it("should remove user from users collection", function*() {
         var userId = (yield dbHelper.createUser()).result.id

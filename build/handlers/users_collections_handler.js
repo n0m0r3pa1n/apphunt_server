@@ -17,6 +17,8 @@ var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 var _ = require("underscore");
 var Boom = require('boom');
 var models = require("../models");
+var LOGIN_TYPES = require('../config/config').LOGIN_TYPES;
+
 var UsersCollection = models.UsersCollection;
 var User = models.User;
 var App = models.App;
@@ -101,6 +103,52 @@ function* search(q, page, pageSize) {
     return response;
 }
 
+function* getTopHuntersCollectionForCurrentMonth() {
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    var toDate = new Date();
+
+    var allScores = yield UserScoreHandler.getUsersScore(firstDay, toDate);
+    var realUsersScore = [];
+    allScores.map(function (userScore) {
+        if (userScore.loginType != LOGIN_TYPES.Fake && userScore.loginType != LOGIN_TYPES.Anonymous) {
+            if (realUsersScore.length < 10) {
+                var collections = userScore.collections;
+                var votes = userScore.votes;
+                var apps = userScore.apps;
+                var score = userScore.score;
+                var comments = userScore.comments;
+
+                delete userScore["comments"];
+                delete userScore["score"];
+                delete userScore["apps"];
+                delete userScore["votes"];
+                delete userScore["collections"];
+
+                realUsersScore.push({
+                    comments: comments,
+                    apps: apps,
+                    votes: votes,
+                    collections: collections,
+                    score: score,
+                    user: userScore
+                });
+            }
+        }
+    });
+
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var collection = {
+        name: "Top Hunters for " + monthNames[date.getMonth()],
+        description: "Top Hunters for " + monthNames[date.getMonth()],
+        usersDetails: realUsersScore
+    };
+
+    return {
+        collections: [collection]
+    };
+}
+
 function orderUsersInCollection(collection) {
     collection = collection.toObject();
     collection.usersDetails.sort(function (u1, u2) {
@@ -135,3 +183,4 @@ module.exports.search = search;
 module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser;
 module.exports.removeUser = removeUser;
 module.exports.remove = remove;
+module.exports.getTopHuntersCollectionForCurrentMonth = getTopHuntersCollectionForCurrentMonth;

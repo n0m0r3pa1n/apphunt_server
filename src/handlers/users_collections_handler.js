@@ -1,6 +1,8 @@
 var _ = require("underscore")
 var Boom = require('boom')
 var models = require("../models")
+var LOGIN_TYPES = require('../config/config').LOGIN_TYPES
+
 var UsersCollection = models.UsersCollection
 var User = models.User
 var App = models.App
@@ -23,15 +25,15 @@ function* create(usersCollection, userId) {
 
 function* addUsers(collectionId, usersIds, fromDate, toDate) {
     var collection = yield UsersCollection.findById(collectionId).exec()
-    if(!collection) {
+    if (!collection) {
         return Boom.notFound("Non-existing collection")
     }
 
-    for(var i=0; i<usersIds.length; i++) {
+    for (var i = 0; i < usersIds.length; i++) {
         var userId = usersIds[i];
-        if(!isUserAlreadyAdded(collection.usersDetails, userId)) {
+        if (!isUserAlreadyAdded(collection.usersDetails, userId)) {
             let user = yield UsersHandler.find(userId)
-            if(user == null) {
+            if (user == null) {
                 console.log('User cannot be found!')
                 continue;
             }
@@ -46,9 +48,9 @@ function* addUsers(collectionId, usersIds, fromDate, toDate) {
 }
 
 function isUserAlreadyAdded(userDetails, userId) {
-    for(var j=0; j<userDetails.length; j++) {
+    for (var j = 0; j < userDetails.length; j++) {
         var currUserId = userDetails[j].user
-        if(userId == currUserId) {
+        if (userId == currUserId) {
             return true;
         }
     }
@@ -58,7 +60,7 @@ function isUserAlreadyAdded(userDetails, userId) {
 
 function* get(collectionId, userId) {
     var collection = yield UsersCollection.findById(collectionId).populate("createdBy").deepPopulate("usersDetails.user").exec()
-    if(!collection) {
+    if (!collection) {
         return Boom.notFound("Non-existing collection")
     }
     collection = orderUsersInCollection(collection)
@@ -75,7 +77,7 @@ function* getCollections(page, pageSize) {
 
 function* findPagedCollections(where, page, pageSize) {
     var query = UsersCollection.find(where).deepPopulate('usersDetails.user').populate("createdBy").populate("usersDetails")
-    query.sort({createdAt: 'desc' })
+    query.sort({createdAt: 'desc'})
 
     return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize)
 }
@@ -84,16 +86,64 @@ function* search(q, page, pageSize) {
     var where = {name: {$regex: q, $options: 'i'}}
     var response = yield findPagedCollections(where, page, pageSize)
     var collections = []
-    for(var i=0; i<response.collections.length; i++) {
+    for (var i = 0; i < response.collections.length; i++) {
         collections[i] = orderUsersInCollection(response.collections[i])
     }
     response.collections = collections
     return response
 }
 
+function* getTopHuntersCollectionForCurrentMonth() {
+    let date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    let toDate = new Date()
+
+    let allScores = yield UserScoreHandler.getUsersScore(firstDay, toDate)
+    let realUsersScore = []
+    allScores.map((userScore) => {
+        if(userScore.loginType != LOGIN_TYPES.Fake && userScore.loginType != LOGIN_TYPES.Anonymous) {
+            if(realUsersScore.length < 10) {
+                let collections = userScore.collections
+                let votes = userScore.votes
+                let apps = userScore.apps
+                let score = userScore.score
+                let comments = userScore.comments
+
+                delete userScore["comments"]
+                delete userScore["score"]
+                delete userScore["apps"]
+                delete userScore["votes"]
+                delete userScore["collections"]
+
+                realUsersScore.push({
+                    comments: comments,
+                    apps: apps,
+                    votes: votes,
+                    collections: collections,
+                    score: score,
+                    user: userScore
+                })
+            }
+        }
+    })
+
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    let collection = {
+        name: "Top Hunters for " + monthNames[date.getMonth()],
+        description: "Top Hunters for " + monthNames[date.getMonth()],
+        usersDetails: realUsersScore
+    };
+
+    return {
+        collections: [collection]
+    }
+}
+
 function orderUsersInCollection(collection) {
     collection = collection.toObject()
-    collection.usersDetails.sort(function(u1, u2) {
+    collection.usersDetails.sort(function (u1, u2) {
         return u2.score - u1.score
     })
     return collection
@@ -101,9 +151,9 @@ function orderUsersInCollection(collection) {
 
 function* removeUser(collectionId, userDetailsId) {
     var collection = yield UsersCollection.findById(collectionId).exec()
-    for(var i=0; i< collection.usersDetails.length; i++) {
+    for (var i = 0; i < collection.usersDetails.length; i++) {
         var currUserDetailsId = collection.usersDetails[i]._id.toString()
-        if(currUserDetailsId == userDetailsId) {
+        if (currUserDetailsId == userDetailsId) {
             collection.usersDetails.splice(i, 1);
         }
     }
@@ -125,3 +175,4 @@ module.exports.search = search
 module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser
 module.exports.removeUser = removeUser
 module.exports.remove = remove
+module .exports.getTopHuntersCollectionForCurrentMonth = getTopHuntersCollectionForCurrentMonth

@@ -20,6 +20,7 @@ var User = Models.User;
 var Anonymous = Models.Anonymous;
 var Comment = Models.Comment;
 var Vote = Models.Vote;
+var ObjectId = require('mongodb').ObjectId;
 
 function* getAllUsers(username, loginType, page, pageSize) {
     var where = {};
@@ -70,16 +71,24 @@ function* getUsersVotesForApps(fromDate, toDate) {
 function* getAnonymousUserActions(_ref) {
     var fromDate = _ref.fromDate;
     var toDate = _ref.toDate;
-    var page = _ref.page;
-    var pageSize = _ref.pageSize;
+    var _ref$page = _ref.page;
+    var page = _ref$page === undefined ? 0 : _ref$page;
+    var _ref$pageSize = _ref.pageSize;
+    var pageSize = _ref$pageSize === undefined ? 0 : _ref$pageSize;
 
     var where = {};
-    where.createdAt = { "$gte": fromDate, "$lt": toDate };
-    var query = Anonymous.find({});
-    console.log(query);
-
+    where._id = { "$gte": objectIdWithTimestamp(fromDate.getTime()), "$lt": objectIdWithTimestamp(toDate.getTime()) };
+    var query = Anonymous.find(where);
     var results = yield PaginationHandler.getPaginatedResults(query, page, pageSize);
-    console.log(results);
 
-    return { statusCode: "Test" };
+    return results;
+}
+
+function objectIdWithTimestamp(timestamp) {
+    // Convert date object to hex seconds since Unix epoch
+    var hexSeconds = Math.floor(timestamp / 1000).toString(16);
+    // Create an ObjectId with that hex timestamp
+    var constructedObjectId = ObjectId(hexSeconds + "0000000000000000");
+
+    return constructedObjectId;
 }

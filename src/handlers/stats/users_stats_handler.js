@@ -3,6 +3,7 @@ var User = Models.User
 var Anonymous = Models.Anonymous
 var Comment = Models.Comment
 var Vote = Models.Vote
+var ObjectId = require('mongodb').ObjectId
 
 import * as PaginationHandler from './../pagination_handler'
 
@@ -52,15 +53,22 @@ export function* getUsersVotesForApps(fromDate, toDate) {
     // TODO: figure out the logic for finding votes for apps
 }
 
-export function* getAnonymousUserActions({fromDate, toDate, page, pageSize}) {
+export function* getAnonymousUserActions({fromDate, toDate, page=0, pageSize=0}) {
     var where = {}
-    where.createdAt = {"$gte": fromDate, "$lt": toDate};
-    var query = Anonymous.find({})
-    console.log(query)
-
+    where._id = {"$gte": objectIdWithTimestamp(fromDate.getTime()), "$lt": objectIdWithTimestamp(toDate.getTime())};
+    var query = Anonymous.find(where)
     let results = yield PaginationHandler.getPaginatedResults(query, page, pageSize)
-    console.log(results)
 
-    return {statusCode: "Test"}
+    return results
+}
+
+
+function objectIdWithTimestamp(timestamp) {
+    // Convert date object to hex seconds since Unix epoch
+    var hexSeconds = Math.floor(timestamp/1000).toString(16);
+    // Create an ObjectId with that hex timestamp
+    var constructedObjectId = ObjectId(hexSeconds + "0000000000000000");
+
+    return constructedObjectId
 }
 

@@ -377,6 +377,18 @@ var collectionsRoutes = [
     },
     {
         method: "GET",
+        path: "/user-collections/top-hunters/today",
+        handler: function(req,reply) {
+            reply.co(UsersCollectionsHandler.getTopHuntersCollectionForCurrentMonth())
+        },
+        config: {
+            auth: false,
+            description: 'Get user collection for current month.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
         path: "/user-collections/available",
         handler: function(req,reply) {
             reply.co(UsersCollectionsHandler.getAvailableCollectionsForUser(req.query.userId))
