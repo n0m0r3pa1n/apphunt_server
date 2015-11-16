@@ -17,6 +17,9 @@ var UsersHandler = _interopRequireWildcard(_users_handlerJs);
 var _ = require("underscore");
 var Boom = require('boom');
 var models = require("../models");
+var NodeCache = require("node-cache");
+var myCache = new NodeCache();
+
 var LOGIN_TYPES = require('../config/config').LOGIN_TYPES;
 
 var UsersCollection = models.UsersCollection;
@@ -144,9 +147,18 @@ function* getTopHuntersCollectionForCurrentMonth() {
         usersDetails: realUsersScore
     };
 
-    return {
+    var response = {
         collections: [collection]
     };
+
+    myCache.set("myKey", response, function (err, success) {
+        if (!err && success) {
+            console.log(success);
+            // true
+            // ... do something ...
+        }
+    });
+    return response;
 }
 
 function orderUsersInCollection(collection) {

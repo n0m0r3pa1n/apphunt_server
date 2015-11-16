@@ -1,6 +1,9 @@
 var _ = require("underscore")
 var Boom = require('boom')
 var models = require("../models")
+var NodeCache = require( "node-cache" );
+var myCache = new NodeCache();
+
 var LOGIN_TYPES = require('../config/config').LOGIN_TYPES
 
 var UsersCollection = models.UsersCollection
@@ -94,6 +97,11 @@ function* search(q, page, pageSize) {
 }
 
 function* getTopHuntersCollectionForCurrentMonth() {
+    let response = myCache.get("myKey");
+    if(response != undefined) {
+       return response;
+    }
+
     let date = new Date();
     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     let toDate = new Date()
@@ -136,9 +144,17 @@ function* getTopHuntersCollectionForCurrentMonth() {
         usersDetails: realUsersScore
     };
 
-    return {
+    let response = {
         collections: [collection]
     }
+
+    let tenHours = 36000;
+    myCache.set("myKey", response, tenHours, function( err, success ){
+        if(err) {
+            console.log(err)
+        }
+    });
+    return response
 }
 
 function orderUsersInCollection(collection) {
