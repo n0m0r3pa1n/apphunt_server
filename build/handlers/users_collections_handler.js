@@ -137,7 +137,7 @@ function* getTopHuntersCollectionForCurrentMonth() {
 
                 realUsersScore.push({
                     comments: comments,
-                    apps: apps,
+                    addedApps: apps,
                     votes: votes,
                     collections: collections,
                     score: score,
