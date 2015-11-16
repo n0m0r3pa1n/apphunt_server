@@ -97,7 +97,8 @@ function* search(q, page, pageSize) {
 }
 
 function* getTopHuntersCollectionForCurrentMonth() {
-    let response = myCache.get("myKey");
+    var keyTopHunters = "topHunters";
+    let response = myCache.get(keyTopHunters);
     if(response != undefined) {
         console.log("response from cache")
        return response;
@@ -150,7 +151,7 @@ function* getTopHuntersCollectionForCurrentMonth() {
     }
 
     let tenHours = 36000;
-    myCache.set("myKey", response, tenHours, function( err, success ){
+    myCache.set(keyTopHunters, response, tenHours, function( err, success ){
         if(err) {
             console.log(err)
         }
