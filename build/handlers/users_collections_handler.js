@@ -107,6 +107,12 @@ function* search(q, page, pageSize) {
 }
 
 function* getTopHuntersCollectionForCurrentMonth() {
+    var response = myCache.get("myKey");
+    if (response != undefined) {
+        console.log("response from cache");
+        return response;
+    }
+
     var date = new Date();
     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     var toDate = new Date();
@@ -147,15 +153,14 @@ function* getTopHuntersCollectionForCurrentMonth() {
         usersDetails: realUsersScore
     };
 
-    var response = {
+    response = {
         collections: [collection]
     };
 
-    myCache.set("myKey", response, function (err, success) {
-        if (!err && success) {
-            console.log(success);
-            // true
-            // ... do something ...
+    var tenHours = 36000;
+    myCache.set("myKey", response, tenHours, function (err, success) {
+        if (err) {
+            console.log(err);
         }
     });
     return response;

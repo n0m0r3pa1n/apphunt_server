@@ -99,6 +99,7 @@ function* search(q, page, pageSize) {
 function* getTopHuntersCollectionForCurrentMonth() {
     let response = myCache.get("myKey");
     if(response != undefined) {
+        console.log("response from cache")
        return response;
     }
 
@@ -144,7 +145,7 @@ function* getTopHuntersCollectionForCurrentMonth() {
         usersDetails: realUsersScore
     };
 
-    let response = {
+    response = {
         collections: [collection]
     }
 
