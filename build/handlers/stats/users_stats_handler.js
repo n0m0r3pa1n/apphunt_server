@@ -11,6 +11,14 @@ exports.getAnonymousUserActions = getAnonymousUserActions;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
+var _comments_handler = require('./../comments_handler');
+
+var CommentsHandler = _interopRequireWildcard(_comments_handler);
+
+var _votes_handler = require('./../votes_handler');
+
+var VotesHandler = _interopRequireWildcard(_votes_handler);
+
 var _pagination_handler = require('./../pagination_handler');
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handler);
@@ -21,6 +29,8 @@ var Anonymous = Models.Anonymous;
 var Comment = Models.Comment;
 var Vote = Models.Vote;
 var ObjectId = require('mongodb').ObjectId;
+
+var LOGIN_TYPES = require('../../config/config').LOGIN_TYPES;
 
 function* getAllUsers(username, loginType, page, pageSize) {
     var where = {};
@@ -71,17 +81,38 @@ function* getUsersVotesForApps(fromDate, toDate) {
 function* getAnonymousUserActions(_ref) {
     var fromDate = _ref.fromDate;
     var toDate = _ref.toDate;
-    var _ref$page = _ref.page;
-    var page = _ref$page === undefined ? 0 : _ref$page;
-    var _ref$pageSize = _ref.pageSize;
-    var pageSize = _ref$pageSize === undefined ? 0 : _ref$pageSize;
 
-    var where = {};
-    where._id = { "$gte": objectIdWithTimestamp(fromDate.getTime()), "$lt": objectIdWithTimestamp(toDate.getTime()) };
-    var query = Anonymous.find(where);
-    var results = yield PaginationHandler.getPaginatedResults(query, page, pageSize);
+    var comments = yield CommentsHandler.getComments(fromDate, toDate);
+    var votes = yield VotesHandler.getVotes(fromDate, toDate);
 
-    return results;
+    var anonymousComments = comments.reduce(function (acc, obj) {
+        if (obj.createdBy.loginType == LOGIN_TYPES.Anonymous) {
+            if (!acc["votesCount"]) {
+                acc["votesCount"] = 1;
+            } else {
+                acc["votesCount"] = acc["votesCount"] + 1;
+            }
+        }
+
+        return acc;
+    }, {});
+
+    var anonymousVotes = votes.reduce(function (acc, obj) {
+        if (obj.user.loginType == LOGIN_TYPES.Anonymous) {
+            if (!acc["votesCount"]) {
+                acc["votesCount"] = 1;
+            } else {
+                acc["votesCount"] = acc["votesCount"] + 1;
+            }
+        }
+
+        return acc;
+    }, {});
+
+    return {
+        votesCount: anonymousVotes.votesCount == undefined ? 0 : anonymousVotes.votesCount,
+        commentsCount: anonymousComments.votesCount == undefined ? 0 : anonymousComments.votesCount
+    };
 }
 
 function objectIdWithTimestamp(timestamp) {

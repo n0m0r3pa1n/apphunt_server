@@ -244,10 +244,22 @@ function* deleteVotesByIds(votesIds) {
     return Boom.OK()
 }
 
+function* getVotes(fromDate, toDate) {
+    let where = {
+        createdAt: {
+            "$lte": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate()),
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate())
+        }
+    }
+
+    return yield Vote.find(where).populate('user').exec()
+}
+
 module.exports.createAppVote = createAppVote
 module.exports.deleteAppVote = deleteAppVote
 module.exports.hasUserVotedForApp = hasUserVotedForApp
 module.exports.setHasUserVotedForAppField = setHasUserVotedForAppField
+module.exports.getVotes = getVotes
 
 module.exports.hasUserVotedForComment = hasUserVotedForComment
 module.exports.createCommentVote = createCommentVote

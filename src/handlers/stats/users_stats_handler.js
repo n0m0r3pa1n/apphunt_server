@@ -5,6 +5,10 @@ var Comment = Models.Comment
 var Vote = Models.Vote
 var ObjectId = require('mongodb').ObjectId
 
+var LOGIN_TYPES = require('../../config/config').LOGIN_TYPES
+
+import * as CommentsHandler from './../comments_handler'
+import * as VotesHandler from './../votes_handler'
 import * as PaginationHandler from './../pagination_handler'
 
 export function* getAllUsers(username, loginType, page, pageSize) {
@@ -53,13 +57,38 @@ export function* getUsersVotesForApps(fromDate, toDate) {
     // TODO: figure out the logic for finding votes for apps
 }
 
-export function* getAnonymousUserActions({fromDate, toDate, page=0, pageSize=0}) {
-    var where = {}
-    where._id = {"$gte": objectIdWithTimestamp(fromDate.getTime()), "$lt": objectIdWithTimestamp(toDate.getTime())};
-    var query = Anonymous.find(where)
-    let results = yield PaginationHandler.getPaginatedResults(query, page, pageSize)
+export function* getAnonymousUserActions({fromDate, toDate}) {
+    let comments = yield CommentsHandler.getComments(fromDate, toDate)
+    let votes = yield VotesHandler.getVotes(fromDate, toDate)
 
-    return results
+    let anonymousComments = comments.reduce(function(acc, obj) {
+        if(obj.createdBy.loginType == LOGIN_TYPES.Anonymous) {
+            if(!acc["votesCount"]) {
+                acc["votesCount"] = 1
+            } else {
+                acc["votesCount"] = acc["votesCount"]+ 1;
+            }
+        }
+
+        return acc
+    }, {})
+
+    let anonymousVotes = votes.reduce(function(acc, obj) {
+        if(obj.user.loginType == LOGIN_TYPES.Anonymous) {
+            if(!acc["votesCount"]) {
+                acc["votesCount"] = 1
+            } else {
+                acc["votesCount"] = acc["votesCount"]+ 1;
+            }
+        }
+
+        return acc
+    }, {})
+
+    return {
+        votesCount: anonymousVotes.votesCount == undefined ? 0 : anonymousVotes.votesCount,
+        commentsCount: anonymousComments.votesCount == undefined ? 0 : anonymousComments.votesCount,
+    }
 }
 
 

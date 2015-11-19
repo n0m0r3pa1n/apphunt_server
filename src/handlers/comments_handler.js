@@ -200,9 +200,22 @@ export function* getCommentsForUser(creatorId, userId, page, pageSize) {
     }
 
     return result;
+
+    module.exports.get = get
 }
 
-module.exports.get = get
-module.exports.getCount = getCount
+export function* getComments(fromDate, toDate) {
+    let where = {
+        createdAt: {
+            "$lte": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate()),
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate())
+        }
+    }
+
+    return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('createdBy votes')
+}
+
+
+
 module.exports.deleteComment = deleteComment
 module.exports.clearAppComments = clearAppComments

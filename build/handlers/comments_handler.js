@@ -9,6 +9,7 @@ exports.getCount = getCount;
 exports.deleteComment = deleteComment;
 exports.clearAppComments = clearAppComments;
 exports.getCommentsForUser = getCommentsForUser;
+exports.getComments = getComments;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -290,9 +291,20 @@ function* getCommentsForUser(creatorId, userId, page, pageSize) {
     }
 
     return result;
+
+    module.exports.get = get;
 }
 
-module.exports.get = get;
-module.exports.getCount = getCount;
+function* getComments(fromDate, toDate) {
+    var where = {
+        createdAt: {
+            "$lte": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate()),
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate())
+        }
+    };
+
+    return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('createdBy votes');
+}
+
 module.exports.deleteComment = deleteComment;
 module.exports.clearAppComments = clearAppComments;

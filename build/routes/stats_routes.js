@@ -81,10 +81,7 @@ var userStatsRoutes = [{
     },
     config: {
         validate: {
-            query: _.extend({
-                page: Joi.number().optional(),
-                pageSize: Joi.number().optional()
-            }, periodSchema)
+            query: periodSchema
         },
         auth: false,
         description: 'Get a list of all registered users.',
