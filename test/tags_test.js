@@ -18,9 +18,9 @@ describe("Tags", function () {
 
     it("should get apps with tags", function*() {
         var userResponse = yield dbHelper.createUser()
-        var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["test", "test2"])
-        var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test", "test2"])
-        var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["test", "test2"])
+        var firstAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test", ["33test22", "test2"])
+        var secondAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test2", ["test21", "test2"])
+        var thirdAppResponse = yield dbHelper.createAppWithTags(userResponse.result.id, "com.test3", ["12test1", "test2"])
 
         yield dbHelper.approveApp("com.test")
         yield dbHelper.approveApp("com.test2")

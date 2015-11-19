@@ -171,9 +171,9 @@ function* getAppsForTags(names, userId, page, pageSize) {
         for (var _iterator4 = names[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
             var _name = _step4.value;
 
-            var tag = yield Tag.findOne({ name: { $regex: '^' + _name + '$', $options: 'i' }, type: TAG_TYPES.APPLICATION });
-            if (tag !== null) {
-                tags.push(tag);
+            var foundTags = yield Tag.find({ name: { $regex: _name, $options: 'i' }, type: TAG_TYPES.APPLICATION }).exec();
+            if (foundTags.length > 0) {
+                tags = tags.concat(foundTags);
             }
         }
     } catch (err) {
@@ -194,6 +194,7 @@ function* getAppsForTags(names, userId, page, pageSize) {
     if (tags.length == 0) {
         return response;
     }
+
     var itemIds = getSortedItemIds(tags);
     if (page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize);

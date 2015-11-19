@@ -77,15 +77,16 @@ export function* getAppsForTags(names, userId, page, pageSize) {
     }
     let tags = []
     for(let name of names) {
-        let tag = yield Tag.findOne({name: {$regex: '^' + name + '$', $options: 'i'}, type: TAG_TYPES.APPLICATION})
-        if(tag !== null) {
-            tags.push(tag)
+        let foundTags = yield Tag.find({name: {$regex: name, $options: 'i'}, type: TAG_TYPES.APPLICATION}).exec()
+        if(foundTags.length > 0) {
+            tags = tags.concat(foundTags)
         }
     }
 
     if(tags.length == 0) {
         return response
     }
+
     let itemIds = getSortedItemIds(tags);
     if(page != 0 && pageSize != 0) {
         response = PaginationHandler.getPaginationWithResults(itemIds, page, pageSize)
