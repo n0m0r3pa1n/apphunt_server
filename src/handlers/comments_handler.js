@@ -200,22 +200,23 @@ export function* getCommentsForUser(creatorId, userId, page, pageSize) {
     }
 
     return result;
-
-    module.exports.get = get
 }
 
 export function* getComments(fromDate, toDate) {
+    var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
+
     let where = {
         createdAt: {
-            "$lte": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate()),
-            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate())
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
         }
     }
 
-    return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('createdBy votes')
+    return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('app createdBy votes')
 }
 
 
-
+module.exports.get = get
 module.exports.deleteComment = deleteComment
 module.exports.clearAppComments = clearAppComments

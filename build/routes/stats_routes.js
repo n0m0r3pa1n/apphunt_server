@@ -74,17 +74,17 @@ var userStatsRoutes = [{
     }
 }, {
     method: "GET",
-    path: "/stats/users/anonymous/actions",
+    path: "/stats/users/actions",
     handler: function handler(req, reply) {
         var model = req.query;
-        reply.co(UsersStatsHandler.getAnonymousUserActions(model));
+        reply.co(UsersStatsHandler.getUsersActions(model));
     },
     config: {
         validate: {
             query: periodSchema
         },
         auth: false,
-        description: 'Get a list of all registered users.',
+        description: 'Get a list of users actions (Comments and Votes) for fake, login, anonymous.',
         tags: ['api']
     }
 }];

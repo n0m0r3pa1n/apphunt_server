@@ -4,6 +4,7 @@ var Anonymous = Models.Anonymous
 var Comment = Models.Comment
 var Vote = Models.Vote
 var ObjectId = require('mongodb').ObjectId
+var _ = require("underscore")
 
 var LOGIN_TYPES = require('../../config/config').LOGIN_TYPES
 
@@ -57,38 +58,83 @@ export function* getUsersVotesForApps(fromDate, toDate) {
     // TODO: figure out the logic for finding votes for apps
 }
 
-export function* getAnonymousUserActions({fromDate, toDate}) {
+export function* getUsersActions({fromDate, toDate}) {
     let comments = yield CommentsHandler.getComments(fromDate, toDate)
     let votes = yield VotesHandler.getVotes(fromDate, toDate)
 
-    let anonymousComments = comments.reduce(function(acc, obj) {
-        if(obj.createdBy.loginType == LOGIN_TYPES.Anonymous) {
-            if(!acc["votesCount"]) {
-                acc["votesCount"] = 1
-            } else {
-                acc["votesCount"] = acc["votesCount"]+ 1;
-            }
-        }
+    let commentsResponse = {
+        loginnedCommentsCount: 0,
+        anonymousCommentsCount: 0,
+        loginned: [],
+        anonymous: []
+    }
 
-        return acc
-    }, {})
+    let groupedComments = _.groupBy(comments, (comment) => {
+        return comment.createdBy.id
+    })
 
-    let anonymousVotes = votes.reduce(function(acc, obj) {
-        if(obj.user.loginType == LOGIN_TYPES.Anonymous) {
-            if(!acc["votesCount"]) {
-                acc["votesCount"] = 1
-            } else {
-                acc["votesCount"] = acc["votesCount"]+ 1;
-            }
-        }
+    populateCommentsResponse(groupedComments, commentsResponse)
 
-        return acc
-    }, {})
+    let votesResponse = {
+        loginned: [],
+        anonymous: [],
+        fake: [],
+        loginnedVotesCount: 0,
+        anonymousVotesCount: 0,
+        fakeVotesCount: 0
+    }
+
+    var groupedVotes = _.groupBy(votes, function(vote){
+        return vote.user.id;
+    });
+    populateVotesResponse(groupedVotes, votesResponse)
 
     return {
-        votesCount: anonymousVotes.votesCount == undefined ? 0 : anonymousVotes.votesCount,
-        commentsCount: anonymousComments.votesCount == undefined ? 0 : anonymousComments.votesCount,
+        votes: votesResponse,
+        comments: commentsResponse
     }
+}
+
+function populateVotesResponse(groupedVotes, votesResponse) {
+    Object.keys(groupedVotes).forEach(function(userId) {
+        let user = groupedVotes[userId][0].user
+        let votesCount = groupedVotes[userId].length
+        let obj = {
+            user: user,
+            votesCount: votesCount
+        }
+
+        if(user.loginType == LOGIN_TYPES.Anonymous) {
+            votesResponse.anonymous.push(obj)
+            votesResponse.anonymousVotesCount += votesCount
+        } else if(user.loginType == LOGIN_TYPES.Fake){
+            votesResponse.fake.push(obj)
+            votesResponse.fakeVotesCount += votesCount
+        } else {
+            votesResponse.loginned.push(obj)
+            votesResponse.loginnedVotesCount += votesCount
+        }
+    });
+}
+
+function populateCommentsResponse(groupedComments, commentsResponse) {
+    Object.keys(groupedComments).forEach(function(userId) {
+        let user = groupedComments[userId][0].createdBy
+        let commentsCount = groupedComments[userId].length
+        let obj = {
+            user: user,
+            comments: groupedComments[userId],
+            commentsCount: commentsCount
+        }
+
+        if(user.loginType == LOGIN_TYPES.Anonymous) {
+            commentsResponse.anonymous.push(obj)
+            commentsResponse.anonymousCommentsCount += commentsCount
+        } else {
+            commentsResponse.loginned.push(obj)
+            commentsResponse.loginnedCommentsCount += commentsCount
+        }
+    });
 }
 
 

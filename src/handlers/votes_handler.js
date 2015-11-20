@@ -245,10 +245,12 @@ function* deleteVotesByIds(votesIds) {
 }
 
 function* getVotes(fromDate, toDate) {
+    var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
     let where = {
         createdAt: {
-            "$lte": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate()),
-            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate())
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
         }
     }
 
