@@ -164,6 +164,13 @@ var anonymousUsersSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
+var adSchema = new Schema({
+    name: { type: String },
+    picture: { type: String },
+    priority: { type: Number, 'default': 1 },
+    link: { type: String }
+});
+
 userSchema.plugin(Timestamps);
 appSchema.plugin(Timestamps);
 voteSchema.plugin(Timestamps);
@@ -176,6 +183,7 @@ usersCollectionSchema.plugin(Timestamps);
 followerSchema.plugin(Timestamps);
 historySchema.plugin(Timestamps);
 anonymousUsersSchema.plugin(Timestamps);
+adSchema.plugin(Timestamps);
 
 appSchema.plugin(DeepPopulate);
 userSchema.plugin(DeepPopulate);
@@ -199,3 +207,4 @@ module.exports.CollectionBanner = Mongoose.model('CollectionBanner', collectionB
 module.exports.AppVersion = Mongoose.model('AppVersion', appVersionSchema);
 module.exports.Tag = Mongoose.model('Tag', tagSchema);
 module.exports.History = Mongoose.model('History', historySchema);
+module.exports.Ad = Mongoose.model('Ad', adSchema);
