@@ -2,6 +2,8 @@
 
 var _routesTags_routesJs = require("./routes/tags_routes.js");
 
+var _routesAds_routesJs = require("./routes/ads_routes.js");
+
 var userRoutes = require('./routes/users_routes').userRoutes;
 var followerRoutes = require('./routes/followers_routes').followerRoutes;
 var appRoutes = require('./routes/apps_routes').appRoutes;
@@ -26,4 +28,5 @@ routes = routes.concat(collectionsRoutes);
 routes = routes.concat(versionRoutes);
 routes = routes.concat(_routesTags_routesJs.tagRoutes);
 routes = routes.concat(historyRoutes);
+routes = routes.concat(_routesAds_routesJs.adRoutes);
 module.exports.routes = routes;
