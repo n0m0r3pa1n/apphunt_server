@@ -12,15 +12,9 @@ var AppsCollection = models.AppsCollection;
 var CONFIG = require('../config/config');
 var COLLECTION_STATUS = CONFIG.COLLECTION_STATUSES;
 var APP_STATUSES = CONFIG.APP_STATUSES;
+var Points = CONFIG.Points;
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
-
-var Points = {
-    vote: 10,
-    comment: 50,
-    app: 40,
-    collection: 50
-};
 
 function* getUserDetails(userId, fromDate, toDate) {
 

@@ -4,13 +4,7 @@ var dbHelper = require('./helper/dbhelper')
 require('./spec_helper')
 var AppsCollection = require("../build/models").AppsCollection
 var STATUS_CODES = require('../build/config/config').STATUS_CODES
-
-var Points = {
-    vote: 10,
-    comment: 50,
-    app: 40,
-    collection: 50
-}
+var Points = require('../build/config/config').Points
 
 describe("User Collections", function() {
 
