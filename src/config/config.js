@@ -128,3 +128,9 @@ module.exports.STATUS_CODES = {
     CONFLICT: 409,
     METHOD_NOT_ALLOWED: 405
 }
+module.exports.Points = {
+    vote: 5,
+    comment: 50,
+    app: 40,
+    collection: 50
+}
