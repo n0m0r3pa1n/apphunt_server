@@ -10,8 +10,8 @@ var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
 var historyRoutes = [{
-    method: "GET",
-    path: "/users/{userId}/history",
+    method: 'GET',
+    path: '/users/{userId}/history',
     handler: function handler(req, reply) {
         reply.co(HistoryHandler.getHistory(req.params.userId, req.query.date));
     },
@@ -25,12 +25,12 @@ var historyRoutes = [{
             }
         },
         auth: false,
-        description: "Get history for user.",
+        description: 'Get history for user.',
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/users/{userId}/history/refresh",
+    method: 'GET',
+    path: '/users/{userId}/history/refresh',
     handler: function handler(req, reply) {
         //TODO: Remove route
         reply.co(HistoryHandler.postRefreshEvent(req.params.userId));
@@ -42,7 +42,7 @@ var historyRoutes = [{
             }
         },
         auth: false,
-        description: "Make user id history refresh.",
+        description: 'Make user id history refresh.',
         tags: ['api']
     }
 }];

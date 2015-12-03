@@ -37,7 +37,7 @@ var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
-var _ = require("underscore");
+var _ = require('underscore');
 var Boom = require('boom');
 var CONFIG = require('../config/config');
 var MESSAGES = require('../config/messages');
@@ -53,19 +53,19 @@ var VotesHandler = require('./votes_handler');
 function* create(comment, appId, userId, parentId) {
     var app = yield AppsHandler.getApp(appId, userId);
     if (app.isBoom != undefined && app.isBoom == true) {
-        return Boom.notFound("Non-existing app");
+        return Boom.notFound('Non-existing app');
     }
 
     var user = yield UsersHandler.find(userId);
     if (user == null) {
-        return Boom.notFound("Non-existing user");
+        return Boom.notFound('Non-existing user');
     }
 
     var parentComment = null;
     if (parentId !== undefined) {
         parentComment = yield Comment.findById(parentId).exec();
         if (!parentComment) {
-            return Boom.notFound("Non-existing parent comment");
+            return Boom.notFound('Non-existing parent comment');
         }
     }
 
@@ -117,9 +117,9 @@ function isConversationComment(commentText) {
 }
 
 function getCommentedUserName(commentText) {
-    var userName = "";
+    var userName = '';
     var conversationSymbolPosition = commentText.search(CONVERSATION_SYMBOL);
-    var usernameMatches = commentText.match("\@[a-zA-Z0-9_]+");
+    var usernameMatches = commentText.match('@[a-zA-Z0-9_]+');
     if (usernameMatches.length === 0) {
         return userName;
     }
@@ -131,14 +131,14 @@ function getCommentedUserName(commentText) {
 
 function* get(appId, userId, page, pageSize) {
     var where = { app: appId, parent: null };
-    var query = Comment.find(where).deepPopulate("children.createdBy children.votes").populate('votes').populate("createdBy");
+    var query = Comment.find(where).deepPopulate('children.createdBy children.votes').populate('votes').populate('createdBy');
     query.sort({ createdAt: 'desc' });
 
     if (page != 0 && pageSize != 0) {
         query = query.limit(pageSize).skip((page - 1) * pageSize);
     }
 
-    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, "comments", Comment.count({ app: appId }), page, pageSize);
+    var resultComments = yield PaginationHandler.getPaginatedResultsWithNameAndCount(query, 'comments', Comment.count({ app: appId }), page, pageSize);
     if (userId !== undefined) {
         resultComments.comments = yield VotesHandler.setHasUserVotedForCommentField(resultComments.comments, userId);
     }
@@ -235,9 +235,9 @@ function* clearAppComments(appId) {
 }
 
 function* getCommentsForUser(creatorId, userId, page, pageSize) {
-    var query = Comment.find({ createdBy: creatorId }).deepPopulate("children.createdBy children.votes").populate('createdBy votes');
+    var query = Comment.find({ createdBy: creatorId }).deepPopulate('children.createdBy children.votes').populate('createdBy votes');
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "comments", page, pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'comments', page, pageSize);
     if (userId !== undefined) {
         result.comments = yield VotesHandler.setHasUserVotedForCommentField(result.comments, userId);
     }
@@ -299,12 +299,12 @@ function* getComments(fromDate, toDate) {
 
     var where = {
         createdAt: {
-            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
-            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+            '$gte': new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            '$lt': new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
         }
     };
 
-    return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('app createdBy votes');
+    return yield Comment.find(where).deepPopulate('children.createdBy children.votes').populate('app createdBy votes');
 }
 
 module.exports.get = get;

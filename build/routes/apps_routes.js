@@ -18,8 +18,8 @@ var PLATFORMS = [PLATFORMS_ENUM.Android, PLATFORMS_ENUM.iOS];
 var APP_STATUSES = [APP_STATUSES_FILTER_ENUM.WAITING, APP_STATUSES_FILTER_ENUM.APPROVED, APP_STATUSES_FILTER_ENUM.ALL];
 
 var routes = [{
-    method: "GET",
-    path: "/apps",
+    method: 'GET',
+    path: '/apps',
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -54,8 +54,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/apps/search",
+    method: 'GET',
+    path: '/apps/search',
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -82,8 +82,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/apps",
+    method: 'POST',
+    path: '/apps',
     handler: function handler(req, reply) {
         var app = new App(req.payload);
         reply.co(AppsHandler.create(app, req.payload.tags, req.payload.userId));
@@ -104,8 +104,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "PUT",
-    path: "/apps",
+    method: 'PUT',
+    path: '/apps',
     handler: function handler(req, reply) {
         var app = new App(req.payload.app);
         reply.co(AppsHandler.update(app));
@@ -121,8 +121,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/apps",
+    method: 'DELETE',
+    path: '/apps',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.deleteApp(req.query['package']));
     },
@@ -137,8 +137,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/apps/packages",
+    method: 'POST',
+    path: '/apps/packages',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.getAppsByPackages(req.payload.packages));
     },
@@ -153,8 +153,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/apps/{appId}",
+    method: 'GET',
+    path: '/apps/{appId}',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.getApp(req.params.appId, req.query.userId));
     },
@@ -172,8 +172,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "GET",
-    path: "/apps/random",
+    method: 'GET',
+    path: '/apps/random',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.getRandomApp(req.query.userId));
     },
@@ -188,8 +188,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/apps/actions/filter",
+    method: 'POST',
+    path: '/apps/actions/filter',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.filterApps(req.payload.packages, req.payload.platform));
     },
@@ -203,8 +203,8 @@ var routes = [{
         auth: false
     }
 }, {
-    method: "POST",
-    path: "/apps/{appPackage}/status",
+    method: 'POST',
+    path: '/apps/{appPackage}/status',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.changeAppStatus(req.params.appPackage, req.payload.status));
     },
@@ -220,8 +220,8 @@ var routes = [{
         auth: false
     }
 }, {
-    method: "PUT",
-    path: "/apps/{appId}/actions/favourite",
+    method: 'PUT',
+    path: '/apps/{appId}/actions/favourite',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.favourite(req.params.appId, req.query.userId));
     },
@@ -239,8 +239,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/apps/{appId}/actions/favourite",
+    method: 'DELETE',
+    path: '/apps/{appId}/actions/favourite',
     handler: function handler(req, reply) {
         reply.co(AppsHandler.unfavourite(req.params.appId, req.query.userId));
     },

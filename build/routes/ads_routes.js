@@ -13,8 +13,8 @@ var AdsHandler = _interopRequireWildcard(_handlersAds_handlerJs);
 var Joi = require('joi');
 
 var adRoutes = [{
-    method: "GET",
-    path: "/ad",
+    method: 'GET',
+    path: '/ad',
     handler: function handler(req, reply) {
         reply.co(AdsHandler.getAd());
     },
@@ -23,8 +23,8 @@ var adRoutes = [{
         auth: false
     }
 }, {
-    method: "POST",
-    path: "/ads",
+    method: 'POST',
+    path: '/ads',
     handler: function handler(req, reply) {
         reply.co(AdsHandler.createAd(req.payload));
     },
