@@ -29,7 +29,7 @@ var Anonymous = Models.Anonymous;
 var Comment = Models.Comment;
 var Vote = Models.Vote;
 var ObjectId = require('mongodb').ObjectId;
-var _ = require("underscore");
+var _ = require('underscore');
 
 var LOGIN_TYPES = require('../../config/config').LOGIN_TYPES;
 
@@ -40,7 +40,7 @@ function* getAllUsers(username, loginType, page, pageSize) {
     }
 
     if (loginType !== undefined && loginType == 'real') {
-        where.loginType = { "$ne": 'fake' };
+        where.loginType = { '$ne': 'fake' };
     } else if (loginType !== undefined) {
         where.loginType = loginType;
     }
@@ -51,7 +51,7 @@ function* getAllUsers(username, loginType, page, pageSize) {
 
 function* getUserCommentsCount(fromDate, toDate) {
     var where = {};
-    where.createdAt = { "$gte": fromDate, "$lt": toDate };
+    where.createdAt = { '$gte': fromDate, '$lt': toDate };
     var comments = yield Comment.find(where).populate('createdBy').exec();
     var size = 0;
     for (var i = 0; i < comments.length; i++) {
@@ -65,18 +65,19 @@ function* getUserCommentsCount(fromDate, toDate) {
 
 function* getLoggedInUsersCount(fromDate, toDate) {
     var where = {};
-    where.createdAt = { "$gte": fromDate, "$lt": toDate };
-    where.loginType = { "$ne": "fake" };
+    where.createdAt = { '$gte': fromDate, '$lt': toDate };
+    where.loginType = { '$ne': 'fake' };
 
     return yield User.count(where).exec();
 }
 
 function* getUsersVotesForApps(fromDate, toDate) {
     var where = {};
-    where.createdAt = { "$gte": fromDate, "$lt": toDate };
-    where.loginType = { "$ne": "fake" };
+    where.createdAt = { '$gte': fromDate, '$lt': toDate };
+    where.loginType = { '$ne': 'fake' }
 
     // TODO: figure out the logic for finding votes for apps
+    ;
 }
 
 function* getUsersActions(_ref) {
@@ -165,7 +166,7 @@ function objectIdWithTimestamp(timestamp) {
     // Convert date object to hex seconds since Unix epoch
     var hexSeconds = Math.floor(timestamp / 1000).toString(16);
     // Create an ObjectId with that hex timestamp
-    var constructedObjectId = ObjectId(hexSeconds + "0000000000000000");
+    var constructedObjectId = ObjectId(hexSeconds + '0000000000000000');
 
     return constructedObjectId;
 }

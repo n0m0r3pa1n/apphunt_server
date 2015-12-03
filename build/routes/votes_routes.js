@@ -5,8 +5,8 @@ var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
 var routes = [{
-    method: "POST",
-    path: "/apps/votes",
+    method: 'POST',
+    path: '/apps/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.createAppVote(req.query.userId, req.query.appId));
     },
@@ -22,8 +22,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/apps/votes",
+    method: 'DELETE',
+    path: '/apps/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.deleteAppVote(req.query.userId, req.query.appId));
     },
@@ -39,8 +39,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/comments/votes",
+    method: 'POST',
+    path: '/comments/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.createCommentVote(req.query.commentId, req.query.userId));
     },
@@ -56,8 +56,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/comments/votes",
+    method: 'DELETE',
+    path: '/comments/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.deleteCommentVote(req.query.userId, req.query.commentId));
     },
@@ -73,8 +73,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "POST",
-    path: "/app-collections/votes",
+    method: 'POST',
+    path: '/app-collections/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.createCollectionVote(req.query.collectionId, req.query.userId));
     },
@@ -90,8 +90,8 @@ var routes = [{
         tags: ['api']
     }
 }, {
-    method: "DELETE",
-    path: "/app-collections/votes",
+    method: 'DELETE',
+    path: '/app-collections/votes',
     handler: function handler(req, reply) {
         reply.co(VotesHandler.deleteCollectionVote(req.query.collectionId, req.query.userId));
     },

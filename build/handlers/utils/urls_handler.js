@@ -1,6 +1,6 @@
 "use strict";
 
-var HuntMe = require('huntme');
+var HuntMe = require("huntme");
 
 function* getShortLink(links) {
     var huntMe = new HuntMe("54ec824e61fc8103004a436a");

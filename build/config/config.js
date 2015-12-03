@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 var _ = require("underscore");
-var DEVS_HUNTER_URL = 'http://devs-hunter.herokuapp.com';
+var DEVS_HUNTER_URL = "http://devs-hunter.herokuapp.com";
 var GCM_API_KEY = "AIzaSyC52GhMMCZPKyYYuQcNxFuDUg5nOZXmTSs";
 var API_VERSION = 1.0;
 var MIN_APPS_LENGTH_FOR_COLLECTION = 4;

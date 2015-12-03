@@ -5,7 +5,7 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.getAd = getAd;
 exports.createAd = createAd;
-var _ = require("underscore");
+var _ = require('underscore');
 var Boom = require('boom');
 
 var Ad = require('../models').Ad;
