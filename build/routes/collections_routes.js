@@ -8,14 +8,14 @@ var AppsCollectionsHandler = _interopRequireWildcard(_handlersApps_collections_h
 
 var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
-var AppsCollection = require('../models').AppsCollection;
-var UsersCollection = require('../models').UsersCollection;
+var AppsCollection = require("../models").AppsCollection;
+var UsersCollection = require("../models").UsersCollection;
 var UsersCollectionsHandler = require('../handlers/users_collections_handler');
 var COLLECTION_STATUSES = require('../config/config').COLLECTION_STATUSES;
 
 var collectionsRoutes = [{
-    method: 'GET',
-    path: '/app-collections',
+    method: "GET",
+    path: "/app-collections",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -36,8 +36,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/mine',
+    method: "GET",
+    path: "/app-collections/mine",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -56,8 +56,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/{collectionId}',
+    method: "GET",
+    path: "/app-collections/{collectionId}",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.get(req.params.collectionId, req.query.userId));
     },
@@ -75,8 +75,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/available',
+    method: "GET",
+    path: "/app-collections/available",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -98,8 +98,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/favourites',
+    method: "GET",
+    path: "/app-collections/favourites",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -118,8 +118,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'PUT',
-    path: '/app-collections/{collectionId}/actions/favourite',
+    method: "PUT",
+    path: "/app-collections/{collectionId}/actions/favourite",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.favourite(req.params.collectionId, req.query.userId));
     },
@@ -137,8 +137,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'DELETE',
-    path: '/app-collections/{collectionId}/actions/favourite',
+    method: "DELETE",
+    path: "/app-collections/{collectionId}/actions/favourite",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.unfavourite(req.params.collectionId, req.query.userId));
     },
@@ -156,8 +156,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/search',
+    method: "GET",
+    path: "/app-collections/search",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -180,8 +180,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'POST',
-    path: '/app-collections',
+    method: "POST",
+    path: "/app-collections",
     handler: function handler(req, reply) {
         var appsCollection = AppsCollection(req.payload);
         reply.co(AppsCollectionsHandler.create(appsCollection, req.payload.tags, req.payload.userId));
@@ -201,8 +201,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'PUT',
-    path: '/app-collections/{collectionId}',
+    method: "PUT",
+    path: "/app-collections/{collectionId}",
     handler: function handler(req, reply) {
         var collectionId = req.params.collectionId;
         var collection = req.payload.collection;
@@ -230,8 +230,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'DELETE',
-    path: '/app-collections',
+    method: "DELETE",
+    path: "/app-collections",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.removeCollection(req.query.collectionId));
     },
@@ -246,8 +246,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'DELETE',
-    path: '/app-collections/apps',
+    method: "DELETE",
+    path: "/app-collections/apps",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.removeApp(req.query.collectionId, req.query.appId));
     },
@@ -263,8 +263,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/user-collections',
+    method: "GET",
+    path: "/user-collections",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -282,8 +282,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'POST',
-    path: '/user-collections',
+    method: "POST",
+    path: "/user-collections",
     handler: function handler(req, reply) {
         var usersCollection = UsersCollection(req.payload);
         reply.co(UsersCollectionsHandler.create(usersCollection, req.payload.userId));
@@ -302,8 +302,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'PUT',
-    path: '/user-collections/{collectionId}',
+    method: "PUT",
+    path: "/user-collections/{collectionId}",
     handler: function handler(req, reply) {
         var collectionId = req.params.collectionId;
         var users = req.payload.users;
@@ -325,8 +325,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/user-collections/{collectionId}',
+    method: "GET",
+    path: "/user-collections/{collectionId}",
     handler: function handler(req, reply) {
         reply.co(UsersCollectionsHandler.get(req.params.collectionId, req.query.userId));
     },
@@ -344,8 +344,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/user-collections/search',
+    method: "GET",
+    path: "/user-collections/search",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;
         var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
@@ -365,8 +365,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/user-collections/top-hunters/today',
+    method: "GET",
+    path: "/user-collections/top-hunters/today",
     handler: function handler(req, reply) {
         reply.co(UsersCollectionsHandler.getTopHuntersCollectionForCurrentMonth());
     },
@@ -376,8 +376,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/user-collections/available',
+    method: "GET",
+    path: "/user-collections/available",
     handler: function handler(req, reply) {
         reply.co(UsersCollectionsHandler.getAvailableCollectionsForUser(req.query.userId));
     },
@@ -392,8 +392,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'DELETE',
-    path: '/user-collections/users',
+    method: "DELETE",
+    path: "/user-collections/users",
     handler: function handler(req, reply) {
         reply.co(UsersCollectionsHandler.removeUser(req.query.collectionId, req.query.userDetailsId));
     },
@@ -409,8 +409,8 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'DELETE',
-    path: '/user-collections',
+    method: "DELETE",
+    path: "/user-collections",
     handler: function handler(req, reply) {
         reply.co(UsersCollectionsHandler.remove(req.query.collectionId));
     },
@@ -425,19 +425,19 @@ var collectionsRoutes = [{
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/app-collections/banners',
+    method: "GET",
+    path: "/app-collections/banners",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.getBanners());
     },
     config: {
         auth: false,
-        description: 'Get collection banners',
+        description: "Get collection banners",
         tags: ['api']
     }
 }, {
-    method: 'POST',
-    path: '/app-collections/banners',
+    method: "POST",
+    path: "/app-collections/banners",
     handler: function handler(req, reply) {
         reply.co(AppsCollectionsHandler.createBanner(req.payload.url));
     },
@@ -448,7 +448,7 @@ var collectionsRoutes = [{
             }
         },
         auth: false,
-        description: 'Create collection banner',
+        description: "Create collection banner",
         tags: ['api']
     }
 }];

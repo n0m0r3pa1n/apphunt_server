@@ -21,27 +21,27 @@ exports.createBanner = createBanner;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
-var _handlersTags_handlerJs = require("../handlers/tags_handler.js");
+var _handlersTags_handlerJs = require('../handlers/tags_handler.js');
 
 var TagsHandler = _interopRequireWildcard(_handlersTags_handlerJs);
 
-var _history_handlerJs = require("./history_handler.js");
+var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
-var _pagination_handlerJs = require("./pagination_handler.js");
+var _pagination_handlerJs = require('./pagination_handler.js');
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
-var _users_handlerJs = require("./users_handler.js");
+var _users_handlerJs = require('./users_handler.js');
 
 var UserHandler = _interopRequireWildcard(_users_handlerJs);
 
-var _notifications_handlerJs = require("./notifications_handler.js");
+var _notifications_handlerJs = require('./notifications_handler.js');
 
 var NotificationsHandler = _interopRequireWildcard(_notifications_handlerJs);
 
-var _followers_handlerJs = require("./followers_handler.js");
+var _followers_handlerJs = require('./followers_handler.js');
 
 var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
 
@@ -53,14 +53,14 @@ var App = models.App;
 var User = models.User;
 var CollectionBanner = models.CollectionBanner;
 
-var VotesHandler = require("./votes_handler");
+var VotesHandler = require('./votes_handler');
 
-var CONFIG = require("../config/config");
+var CONFIG = require('../config/config');
 var COLLECTION_STATUSES = CONFIG.COLLECTION_STATUSES;
 var MIN_APPS_LENGTH_FOR_COLLECTION = CONFIG.MIN_APPS_LENGTH_FOR_COLLECTION;
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
-var HISTORY_MESSAGES = require("../config/messages").HISTORY_MESSAGES;
+var HISTORY_MESSAGES = require('../config/messages').HISTORY_MESSAGES;
 
 function* create(appsCollection, tags, userId) {
     var user = yield User.findById(userId).exec();
@@ -79,14 +79,14 @@ function* create(appsCollection, tags, userId) {
 }
 
 function* update(collectionId, newCollection, userId) {
-    var collection = yield AppsCollection.findById(collectionId).populate("createdBy").exec();
+    var collection = yield AppsCollection.findById(collectionId).populate('createdBy').exec();
     if (!collection) {
-        return Boom.notFound("Collection cannot be found!");
+        return Boom.notFound('Collection cannot be found!');
     }
 
     var user = yield UserHandler.find(userId);
     if (user == null) {
-        return Boom.notFound("User cannot be found!");
+        return Boom.notFound('User cannot be found!');
     }
 
     if (!(collection.createdBy.id === userId)) {
@@ -141,7 +141,7 @@ function* update(collectionId, newCollection, userId) {
     collection.picture = newCollection.picture;
 
     var savedCollection = yield collection.save();
-    var result = yield AppsCollection.findById(savedCollection.id).populate("createdBy apps votes").deepPopulate("apps.createdBy apps.categories").exec();
+    var result = yield AppsCollection.findById(savedCollection.id).populate('createdBy apps votes').deepPopulate('apps.createdBy apps.categories').exec();
 
     return yield getPopulatedCollection(result, userId);
 }
@@ -153,12 +153,12 @@ function objToString(obj) {
 function* favourite(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).exec();
     if (!collection) {
-        return Boom.notFound("Collection cannot be found!");
+        return Boom.notFound('Collection cannot be found!');
     }
 
     var user = yield User.findById(userId);
     if (user == null) {
-        return Boom.notFound("User cannot be found!");
+        return Boom.notFound('User cannot be found!');
     }
 
     for (var favouritedBy in collection.favouritedBy) {
@@ -186,7 +186,7 @@ function* favourite(collectionId, userId) {
 function* unfavourite(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).exec();
     if (!collection) {
-        return Boom.notFound("Collection cannot be found!");
+        return Boom.notFound('Collection cannot be found!');
     }
     var size = collection.favouritedBy.length;
     for (var i = 0; i < size; i++) {
@@ -202,9 +202,9 @@ function* unfavourite(collectionId, userId) {
 }
 
 function* get(collectionId, userId) {
-    var collection = yield AppsCollection.findById(collectionId).deepPopulate("votes.user apps.createdBy apps.categories").populate("createdBy").populate("apps").exec();
+    var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user apps.createdBy apps.categories').populate("createdBy").populate("apps").exec();
     if (!collection) {
-        return Boom.notFound("Collection cannot be found!");
+        return Boom.notFound('Collection cannot be found!');
     }
 
     return yield getPopulatedCollection(collection, userId);
@@ -242,7 +242,7 @@ function getCategoriesForApp(app) {
 
 function* searchCollections(status, userId, sortBy, page, pageSize) {
     var where = status === undefined ? {} : { status: status };
-    var sort = sortBy == "vote" ? { votesCount: "desc", updatedAt: "desc" } : { updatedAt: "desc", votesCount: "desc" };
+    var sort = sortBy == "vote" ? { votesCount: 'desc', updatedAt: 'desc' } : { updatedAt: 'desc', votesCount: 'desc' };
     var result = yield getPagedCollectionsResult(where, sort, page, pageSize);
 
     if (result.collections !== undefined && result.collections.length > 0) {
@@ -402,7 +402,7 @@ function* getCollectionsCount(userId) {
 }
 
 function* search(q, page, pageSize, userId) {
-    var where = { name: { $regex: q, $options: "i" } };
+    var where = { name: { $regex: q, $options: 'i' } };
     var response = yield getPagedCollectionsResult(where, {}, page, pageSize);
     var collections = [];
     for (var i = 0; i < response.collections.length; i++) {
@@ -474,7 +474,7 @@ function orderAppsInCollection(collection) {
 }
 
 function* getPagedCollectionsResult(where, sort, page, pageSize) {
-    var query = AppsCollection.find(where).deepPopulate("votes.user apps.createdBy apps.categories").populate("createdBy").populate("apps");
+    var query = AppsCollection.find(where).deepPopulate('votes.user apps.createdBy apps.categories').populate("createdBy").populate("apps");
     query.sort(sort);
 
     return yield PaginationHandler.getPaginatedResultsWithName(query, "collections", page, pageSize);
