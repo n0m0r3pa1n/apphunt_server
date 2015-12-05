@@ -232,7 +232,7 @@ export function* deleteApp(packageName) {
 }
 
 export function* changeAppStatus(appPackage, status) {
-    var app = yield App.findOne({package: appPackage}).exec()
+    var app = yield App.findOne({package: appPackage}).populate('developer createdBy').exec()
     if (app == null) {
         return Boom.notFound("Non-existing app")
     }
@@ -252,7 +252,6 @@ export function* changeAppStatus(appPackage, status) {
             yield setAppShortUrl(app);
             //postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
-
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
             NotificationsHandler.sendNotifications(devices, title, message, app.icon, NOTIFICATION_TYPES.APP_APPROVED)
