@@ -312,7 +312,7 @@ function* deleteApp(packageName) {
 }
 
 function* changeAppStatus(appPackage, status) {
-    var app = yield App.findOne({ 'package': appPackage }).exec();
+    var app = yield App.findOne({ 'package': appPackage }).populate('developer createdBy').exec();
     if (app == null) {
         return Boom.notFound("Non-existing app");
     }
@@ -332,7 +332,6 @@ function* changeAppStatus(appPackage, status) {
             yield setAppShortUrl(app);
             //postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app);
-
             var _title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name);
             var _message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt));
             NotificationsHandler.sendNotifications(devices, _title, _message, app.icon, NOTIFICATION_TYPES.APP_APPROVED);
