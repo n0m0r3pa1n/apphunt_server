@@ -158,8 +158,8 @@ function* getTopHuntersCollectionForCurrentMonth() {
         collections: [collection]
     };
 
-    var tenHours = 36000;
-    myCache.set(keyTopHunters, response, tenHours, function (err, success) {
+    var twoHours = 7200;
+    myCache.set(keyTopHunters, response, twoHours, function (err, success) {
         if (err) {
             console.log(err);
         }
