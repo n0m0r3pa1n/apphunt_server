@@ -46,8 +46,8 @@ function* getFollowers(profileId, userId) {
     var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
     var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
-    var query = Follower.find({ following: profileId }).select('-_id follower').populate('follower');
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'followers', page, pageSize);
+    var query = Follower.find({ following: profileId }).select("-_id follower").populate("follower");
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "followers", page, pageSize);
     var followers = [];
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -130,8 +130,8 @@ function* getFollowing(profileId) {
     var page = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
     var pageSize = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
-    var query = Follower.find({ follower: profileId }).select('-_id following').populate('following');
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'following', page, pageSize);
+    var query = Follower.find({ follower: profileId }).select("-_id following").populate("following");
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "following", page, pageSize);
     var followings = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
@@ -175,17 +175,17 @@ function* isFollowing(followerId, followingId) {
 function* followUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     yield followSingleUser(followingId, followerId);
 
-    var title = 'App hunter followed you';
+    var title = "App hunter followed you";
     var message = HistoryHandler.getText(HISTORY_EVENT_TYPES.USER_FOLLOWED, { userName: follower.name });
     yield NotificationsHandler.sendNotificationsToUsers([followingId], title, message, follower.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED, { followerId: followerId });
     return Boom.OK();
@@ -194,11 +194,11 @@ function* followUser(followingId, followerId) {
 function* addFollowings(userId, followingIds) {
     var user = yield UsersHandler.find(userId);
     if (user == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     if (followingIds == undefined || followingIds.length == 0) {
-        return Boom.badRequest('Following ids are required');
+        return Boom.badRequest("Following ids are required");
     }
 
     var _iteratorNormalCompletion4 = true;
@@ -237,11 +237,11 @@ function* addFollowings(userId, followingIds) {
 function* addFollowers(followingId, followerIds) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     if (followerIds == undefined || followerIds.length == 0) {
-        return Boom.badRequest('Follower ids are required');
+        return Boom.badRequest("Follower ids are required");
     }
 
     var _iteratorNormalCompletion5 = true;
@@ -274,8 +274,8 @@ function* addFollowers(followingId, followerIds) {
         }
     }
 
-    var title = 'You are a followers dream';
-    yield NotificationsHandler.sendNotificationsToUsers([followingId], title, followerIds.length + ' users followed you!', following.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED);
+    var title = "You are a followers dream";
+    yield NotificationsHandler.sendNotificationsToUsers([followingId], title, followerIds.length + " users followed you!", following.profilePicture, NOTIFICATION_TYPES.USER_FOLLOWED);
     return Boom.OK();
 }
 
@@ -291,12 +291,12 @@ function* followSingleUser(followingId, followerId) {
 function* unfollowUser(followingId, followerId) {
     var following = yield UsersHandler.find(followingId);
     if (following == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var follower = yield UsersHandler.find(followerId);
     if (follower == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     yield Follower.remove({ following: followingId, follower: followerId }).exec();
