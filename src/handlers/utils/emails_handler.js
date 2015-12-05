@@ -45,7 +45,11 @@ function sendEmailToDeveloper(app) {
             },
             tags: ['developer', 'apphunt', 'new-app']
         }
-        bolt.sendEmail(emailParameters)
+        try {
+            bolt.sendEmail(emailParameters)
+        } catch (e) {
+            console.log(e)
+        }
     }
 }
 
