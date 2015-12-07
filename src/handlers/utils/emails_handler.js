@@ -30,6 +30,7 @@ function sendEmailToDeveloper(app) {
                         name: app.name,
                         icon: app.icon,
                         description: app.description,
+                        package: app.package,
                         developer: {
                             name: developer.name
                         }
