@@ -98,7 +98,7 @@ var bitly = {
 var boltAppId = "54ef44e5fa12501100634591";
 
 var EMAIL_TEMPLATES_PATH = "assets/templates/email/";
-var APP_HUNT_EMAIL = "apphunt@naughtyspirit.co";
+var APP_HUNT_EMAIL = "support@theapphunt.com";
 var APP_HUNT_TWITTER_HANDLE = "TheAppHunt";
 
 var PRIVATE_KEY = "AppHunt!#Private";
