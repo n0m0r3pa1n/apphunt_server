@@ -316,9 +316,19 @@ function* changeAppStatus(appPackage, status) {
     if (app == null) {
         return Boom.notFound("Non-existing app");
     }
-    var createdBy = yield User.findOne(app.createdBy).populate('devices').exec();
-    var devices = createdBy.devices;
 
+    if (app.developer == null) {
+        var parsedApp = yield DevsHunter.getAndroidApp(appPackage);
+        if (parsedApp === null) {
+            return Boom.notFound("Non-existing app");
+        }
+
+        var d = parsedApp.developer;
+        app.developer = yield Developer.findOneOrCreate({ email: d.email }, { name: d.name, email: d.email });
+    }
+
+    var createdBy = yield User.findById(app.createdBy._id).populate('devices').exec();
+    var devices = createdBy.devices;
     if (status === APP_STATUSES.REJECTED) {
         var title = String.format(MESSAGES.APP_REJECTED_TITLE, app.name);
         var message = MESSAGES.APP_REJECTED_MESSAGE;
