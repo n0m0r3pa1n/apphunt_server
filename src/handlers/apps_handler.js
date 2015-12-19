@@ -239,12 +239,10 @@ export function* changeAppStatus(appPackage, status) {
 
     if(app.developer == null) {
         var parsedApp = yield DevsHunter.getAndroidApp(appPackage)
-        if (parsedApp === null) {
-            return Boom.notFound("Non-existing app")
+        if (parsedApp != null && parsedApp.developer != null && parsedApp.developer != undefined) {
+            var d = parsedApp.developer
+            app.developer = yield Developer.findOneOrCreate({email: d.email}, {name: d.name, email: d.email})
         }
-
-        var d = parsedApp.developer
-        app.developer = yield Developer.findOneOrCreate({email: d.email}, {name: d.name, email: d.email})
     }
 
     var createdBy = yield User.findById(app.createdBy._id).populate('devices').exec()

@@ -6,6 +6,8 @@ var App = require('../models').App
 var Comment = require('../models').Comment
 var User = require('../models').User
 var AppsCollection = require('../models').AppsCollection
+var PLATFORMS = require('../config/config').PLATFORMS
+var APP_STATUSES = require('../config/config').APP_STATUSES
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
@@ -15,6 +17,10 @@ function* createAppVote(userId, appId) {
     var app = yield query.populate("votes").exec()
     if(!app) {
         return Boom.notFound('App not found')
+    }
+
+    if(app.platform !== PLATFORMS.Android) {
+        return Boom.badRequest("You cannot vote apps other than Android and not approved!")
     }
 
     for(var i=0; i< app.votes.length; i++) {
