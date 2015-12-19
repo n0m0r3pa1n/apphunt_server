@@ -68,53 +68,14 @@ function* deleteAppVote(userId, appId) {
 
 // <editor-fold desc="Comments">
 function* createCommentVote(commentId, userId) {
-    var comment = yield Comment.findById(commentId).populate('votes').exec();
-    if (!comment) {
-        return Boom.notFound('Non-existing parent comment');
-    }
-
-    for (var i = 0; i < comment.votes.length; i++) {
-        var currUserId = comment.votes[i].user;
-        if (currUserId == userId) {
-            return Boom.conflict('Vote exists');
-        }
-    }
-
-    var user = yield User.findById(userId).exec();
-    var vote = new Vote();
-    vote.user = user;
-
-    vote = yield vote.save();
-    comment.votes.push(vote);
-    comment.votesCount = comment.votes.length;
-
-    yield comment.save();
-
     return {
-        votesCount: comment.votesCount
+        votesCount: 1
     };
 }
 
 function* deleteCommentVote(userId, commentId) {
-    var user = yield User.findById(userId).exec();
-
-    var query = Comment.findById(commentId);
-    var comment = yield query.populate("votes").exec();
-    if (!comment) {
-        return Boom.notFound('Non-existing comment');
-    }
-
-    for (var i = 0; i < comment.votes.length; i++) {
-        var currUserId = comment.votes[i].user;
-        if (currUserId == userId) {
-            comment.votes.splice(i, 1);
-            comment.votesCount = comment.votes.length;
-        }
-    }
-
-    yield comment.save();
     return {
-        votesCount: comment.votesCount
+        votesCount: 1
     };
 }
 // </editor-fold>
