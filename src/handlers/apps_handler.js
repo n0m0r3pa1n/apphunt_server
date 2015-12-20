@@ -281,9 +281,16 @@ export function* changeAppStatus(appPackage, status) {
 
 function* sendNotificationsToFollowers(createdBy, appName, icon) {
     let followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers
+    if(followers.length == 0) {
+        return;
+    }
+
     let devices = []
     for (let follower of followers) {
-        devices = devices.concat(yield UsersHandler.getDevicesForUser(follower._id))
+        let followerDevices = yield UsersHandler.getDevicesForUser(follower._id)
+        if(followerDevices != undefined && followerDevices != null && followerDevices.length > 0){
+            devices = devices.concat(followerDevices);
+        }
     }
 
     let message = String.format(MESSAGES.FOLLOWING_APP_APPROVED_MESSAGE, appName)

@@ -360,6 +360,10 @@ function* changeAppStatus(appPackage, status) {
 
 function* sendNotificationsToFollowers(createdBy, appName, icon) {
     var followers = (yield FollowersHandler.getFollowers(createdBy._id)).followers;
+    if (followers.length == 0) {
+        return;
+    }
+
     var devices = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
@@ -369,7 +373,10 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
         for (var _iterator3 = followers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var follower = _step3.value;
 
-            devices = devices.concat((yield UsersHandler.getDevicesForUser(follower._id)));
+            var followerDevices = yield UsersHandler.getDevicesForUser(follower._id);
+            if (followerDevices != undefined && followerDevices != null && followerDevices.length > 0) {
+                devices = devices.concat(followerDevices);
+            }
         }
     } catch (err) {
         _didIteratorError3 = true;
