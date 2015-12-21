@@ -8,6 +8,7 @@ exports.getRandomApp = getRandomApp;
 exports.update = update;
 exports.deleteApp = deleteApp;
 exports.changeAppStatus = changeAppStatus;
+exports.getTrendingApps = getTrendingApps;
 exports.getApps = getApps;
 exports.getAppsForUser = getAppsForUser;
 exports.filterApps = filterApps;
@@ -68,6 +69,7 @@ var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER;
 var APP_HUNT_TWITTER_HANDLE = CONFIG.APP_HUNT_TWITTER_HANDLE;
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES;
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES;
+var TrendingAppsPoints = CONFIG.TrendingAppsPoints;
 
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES;
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
@@ -76,6 +78,7 @@ var VotesHandler = require('./votes_handler');
 var UrlsHandler = require('./utils/urls_handler');
 var EmailsHandler = require('./utils/emails_handler');
 
+var FlurryHandler = require('./utils/flurry_handler.js');
 var DateUtils = require('../utils/date_utils');
 
 var Models = require('../models');
@@ -412,6 +415,210 @@ function* setAppShortUrl(app) {
     app.shortUrl = yield UrlsHandler.getShortLink(links);
 }
 
+function* getTrendingApps(userId) {
+
+    var toDate = new Date();
+
+    var fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - 31);
+
+    var votes = yield VotesHandler.getVotes(fromDate, toDate);
+    var comments = yield CommentsHandler.getComments(fromDate, toDate);
+
+    var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
+    if (installedPackages.length > 100) {
+        installedPackages = installedPackages.slice(0, 100);
+    }
+    var appsWithPoints = yield getAppsWithPopulatedVotesPoints(votes);
+    populateCommentsPoints(comments, appsWithPoints);
+    yield populateAppsInstallsPoints(installedPackages, appsWithPoints);
+    var sortedAppsByPoints = _.sortBy(appsWithPoints, function (item) {
+        return item.points;
+    });
+    sortedAppsByPoints.reverse();
+    var apps = [];
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+        for (var _iterator4 = sortedAppsByPoints[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var appPoints = _step4.value;
+
+            var app = yield App.findOne(appPoints.app).deepPopulate("votes.user").populate("categories").populate("createdBy");
+            apps.push((yield getPopulatedApp(app, userId)));
+        }
+    } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                _iterator4['return']();
+            }
+        } finally {
+            if (_didIteratorError4) {
+                throw _iteratorError4;
+            }
+        }
+    }
+
+    return { apps: apps };
+}
+
+function* populateAppsInstallsPoints(installedPackages, appsWithPoints) {
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
+
+    try {
+        for (var _iterator5 = installedPackages[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var installedPackage = _step5.value;
+
+            var appPoints = getTrendingAppPoints("package", installedPackage["@name"], appsWithPoints);
+            if (appPoints != null) {
+                appPoints.points += installedPackage["@totalCount"] * TrendingAppsPoints.install;
+            } else {
+                var app = yield App.findOne({ 'package': installedPackage["@name"] });
+                appsWithPoints.push({
+                    app: app,
+                    points: installedPackage["@totalCount"] * TrendingAppsPoints.install
+                });
+            }
+        }
+    } catch (err) {
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                _iterator5['return']();
+            }
+        } finally {
+            if (_didIteratorError5) {
+                throw _iteratorError5;
+            }
+        }
+    }
+}
+
+function populateCommentsPoints(comments, appsWithPoints) {
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
+
+    try {
+        for (var _iterator6 = comments[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var comment = _step6.value;
+
+            var app = comment.app;
+            var appPoints = getTrendingAppPoints("_id", app._id, appsWithPoints);
+            if (appPoints != null) {
+                appPoints.points += TrendingAppsPoints.comment;
+            } else {
+                appsWithPoints.push({
+                    app: app,
+                    points: TrendingAppsPoints.comment
+                });
+            }
+        }
+    } catch (err) {
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                _iterator6['return']();
+            }
+        } finally {
+            if (_didIteratorError6) {
+                throw _iteratorError6;
+            }
+        }
+    }
+}
+
+function* getAppsWithPopulatedVotesPoints(votes) {
+    console.log("Votes count: ", votes.length);
+    var result = [];
+    var i = 0;
+    var _iteratorNormalCompletion7 = true;
+    var _didIteratorError7 = false;
+    var _iteratorError7 = undefined;
+
+    try {
+        for (var _iterator7 = votes[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+            var vote = _step7.value;
+
+            i++;
+            var app = yield App.findOne({ 'votes': vote._id });
+            console.log("App vote:", vote._id);
+            if (app == null) {
+                console.log("NULLLLL", vote._id, i);
+                continue;
+            }
+            var appPoints = getTrendingAppPoints("_id", app._id, result);
+            if (appPoints != null) {
+                appPoints.points += TrendingAppsPoints.vote;
+            } else {
+                result.push({
+                    app: app,
+                    points: TrendingAppsPoints.vote
+                });
+            }
+        }
+    } catch (err) {
+        _didIteratorError7 = true;
+        _iteratorError7 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+                _iterator7['return']();
+            }
+        } finally {
+            if (_didIteratorError7) {
+                throw _iteratorError7;
+            }
+        }
+    }
+
+    console.log("AAAAA");
+    return result;
+}
+
+function getTrendingAppPoints(paramName, param, items) {
+    var result = null;
+    var _iteratorNormalCompletion8 = true;
+    var _didIteratorError8 = false;
+    var _iteratorError8 = undefined;
+
+    try {
+        for (var _iterator8 = items[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var item = _step8.value;
+
+            if (String(item.app[paramName]) == String(param)) {
+                result = item;
+                break;
+            }
+        }
+    } catch (err) {
+        _didIteratorError8 = true;
+        _iteratorError8 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+                _iterator8['return']();
+            }
+        } finally {
+            if (_didIteratorError8) {
+                throw _iteratorError8;
+            }
+        }
+    }
+
+    return result;
+}
+
 function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, userType, query) {
     var where = {};
 
@@ -446,28 +653,28 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
     if (userType != undefined) {
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
+        var _iteratorNormalCompletion9 = true;
+        var _didIteratorError9 = false;
+        var _iteratorError9 = undefined;
 
         try {
-            for (var _iterator4 = result.apps[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                var app = _step4.value;
+            for (var _iterator9 = result.apps[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                var app = _step9.value;
 
                 app.votes = getAppVotesForUserType(app.votes, userType);
                 app.votesCount = app.votes.length;
             }
         } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
+            _didIteratorError9 = true;
+            _iteratorError9 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-                    _iterator4['return']();
+                if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+                    _iterator9['return']();
                 }
             } finally {
-                if (_didIteratorError4) {
-                    throw _iteratorError4;
+                if (_didIteratorError9) {
+                    throw _iteratorError9;
                 }
             }
         }
@@ -523,13 +730,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion5 = true;
-    var _didIteratorError5 = false;
-    var _iteratorError5 = undefined;
+    var _iteratorNormalCompletion10 = true;
+    var _didIteratorError10 = false;
+    var _iteratorError10 = undefined;
 
     try {
-        for (var _iterator5 = appsToBeAdded[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var app = _step5.value;
+        for (var _iterator10 = appsToBeAdded[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+            var app = _step10.value;
 
             var parsedApp = null;
             try {
@@ -543,16 +750,16 @@ function* filterApps(packages, platform) {
             }
         }
     } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
+        _didIteratorError10 = true;
+        _iteratorError10 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-                _iterator5['return']();
+            if (!_iteratorNormalCompletion10 && _iterator10['return']) {
+                _iterator10['return']();
             }
         } finally {
-            if (_didIteratorError5) {
-                throw _iteratorError5;
+            if (_didIteratorError10) {
+                throw _iteratorError10;
             }
         }
     }
@@ -575,13 +782,13 @@ function* getFavouriteAppsCount(userId) {
 
 function* getAppsByPackages(packages) {
     var apps = [];
-    var _iteratorNormalCompletion6 = true;
-    var _didIteratorError6 = false;
-    var _iteratorError6 = undefined;
+    var _iteratorNormalCompletion11 = true;
+    var _didIteratorError11 = false;
+    var _iteratorError11 = undefined;
 
     try {
-        for (var _iterator6 = packages[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var pack = _step6.value;
+        for (var _iterator11 = packages[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var pack = _step11.value;
 
             var app = yield App.findOne({ 'package': pack }).populate('createdBy categories').exec();
             if (app != null) {
@@ -589,16 +796,16 @@ function* getAppsByPackages(packages) {
             }
         }
     } catch (err) {
-        _didIteratorError6 = true;
-        _iteratorError6 = err;
+        _didIteratorError11 = true;
+        _iteratorError11 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-                _iterator6['return']();
+            if (!_iteratorNormalCompletion11 && _iterator11['return']) {
+                _iterator11['return']();
             }
         } finally {
-            if (_didIteratorError6) {
-                throw _iteratorError6;
+            if (_didIteratorError11) {
+                throw _iteratorError11;
             }
         }
     }
@@ -725,27 +932,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion7 = true;
-        var _didIteratorError7 = false;
-        var _iteratorError7 = undefined;
+        var _iteratorNormalCompletion12 = true;
+        var _didIteratorError12 = false;
+        var _iteratorError12 = undefined;
 
         try {
-            for (var _iterator7 = apps[i].categories[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                var category = _step7.value;
+            for (var _iterator12 = apps[i].categories[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                var category = _step12.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError7 = true;
-            _iteratorError7 = err;
+            _didIteratorError12 = true;
+            _iteratorError12 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion7 && _iterator7['return']) {
-                    _iterator7['return']();
+                if (!_iteratorNormalCompletion12 && _iterator12['return']) {
+                    _iterator12['return']();
                 }
             } finally {
-                if (_didIteratorError7) {
-                    throw _iteratorError7;
+                if (_didIteratorError12) {
+                    throw _iteratorError12;
                 }
             }
         }

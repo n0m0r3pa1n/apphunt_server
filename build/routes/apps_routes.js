@@ -55,6 +55,29 @@ var routes = [{
     }
 }, {
     method: "GET",
+    path: "/apps/trending",
+    handler: function handler(req, reply) {
+        var page = req.query.page === undefined ? 0 : req.query.page;
+        var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize;
+        var userId = req.query.userId;
+        var platform = req.query.platform;
+        reply.co(AppsHandler.getTrendingApps(userId, platform, page, pageSize));
+    },
+    config: {
+        validate: {
+            query: {
+                platform: Joi.array().items(Joi.string()).valid(PLATFORMS)['default'](PLATFORMS.Android).optional(),
+                page: Joi.number().integer().min(1).optional(),
+                pageSize: Joi.number().integer().min(1).optional(),
+                userId: Joi.string().optional()
+            }
+        },
+        auth: false,
+        description: 'Get trending apps. UserId is optional if you want to know if the user has voted for each app.',
+        tags: ['api']
+    }
+}, {
+    method: "GET",
     path: "/apps/search",
     handler: function handler(req, reply) {
         var page = req.query.page === undefined ? 0 : req.query.page;

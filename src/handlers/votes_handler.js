@@ -8,6 +8,7 @@ var User = require('../models').User
 var AppsCollection = require('../models').AppsCollection
 var PLATFORMS = require('../config/config').PLATFORMS
 var APP_STATUSES = require('../config/config').APP_STATUSES
+var LOGIN_TYPES = require('../config/config').LOGIN_TYPES
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
@@ -50,14 +51,19 @@ function* deleteAppVote(userId, appId) {
     if(!app) {
         return Boom.notFound('App not found')
     }
+
+    var voteToRemoveId = null
     for(var i=0; i< app.votes.length; i++) {
         var currUserId = app.votes[i].user
         if(currUserId == userId) {
+            voteToRemoveId = app.votes[i]._id
             app.votes.splice(i, 1);
         }
     }
+
     app.votesCount = app.votes.length
     yield app.save()
+    yield Vote.remove({_id: voteToRemoveId}).exec()
     return {
         votesCount: app.votesCount
     }
@@ -189,15 +195,18 @@ function* deleteCollectionVote(collectionId, userId) {
         return Boom.notFound('Non-existing apps collection')
     }
 
+    var voteToRemoveId = null
     for(var i=0; i< collection.votes.length; i++) {
         var currUserId = collection.votes[i].user
         if(currUserId == userId) {
+            voteToRemoveId = collection.votes[i]
             collection.votes.splice(i, 1);
             collection.votesCount = collection.votes.length
         }
     }
 
     yield collection.save()
+    yield Vote.remove({_id: voteToRemoveId}).exec()
     return {
         votesCount: collection.votesCount
     }
@@ -221,7 +230,15 @@ function* getVotes(fromDate, toDate) {
         }
     }
 
-    return yield Vote.find(where).populate('user').exec()
+    let result = []
+    let votes = yield Vote.find(where).populate('user').exec()
+    for(let vote of votes) {
+        if(vote.user != LOGIN_TYPES.Fake) {
+            result.push(vote)
+        }
+    }
+
+    return result
 }
 
 module.exports.createAppVote = createAppVote

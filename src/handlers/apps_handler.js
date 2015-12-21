@@ -18,6 +18,7 @@ var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER
 var APP_HUNT_TWITTER_HANDLE = CONFIG.APP_HUNT_TWITTER_HANDLE
 var NOTIFICATION_TYPES = CONFIG.NOTIFICATION_TYPES
 var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
+var TrendingAppsPoints = CONFIG.TrendingAppsPoints
 
 var LOGIN_TYPES = CONFIG.LOGIN_TYPES
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER
@@ -32,6 +33,8 @@ import * as NotificationsHandler from './notifications_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 import * as UsersHandler from './users_handler.js'
 import * as CommentsHandler from './comments_handler.js'
+
+var FlurryHandler= require('./utils/flurry_handler.js')
 var DateUtils = require('../utils/date_utils')
 
 var Models = require('../models')
@@ -310,6 +313,103 @@ function* setAppShortUrl(app) {
         })
     }
     app.shortUrl = yield UrlsHandler.getShortLink(links)
+}
+
+export function* getTrendingApps(userId) {
+
+    var toDate = new Date()
+
+    var fromDate = new Date()
+    fromDate.setDate(fromDate.getDate() - 31);
+
+    var votes = yield VotesHandler.getVotes(fromDate, toDate)
+    var comments = yield CommentsHandler.getComments(fromDate, toDate)
+
+    var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate))
+    if(installedPackages.length > 100) {
+        installedPackages = installedPackages.slice(0, 100)
+    }
+    var appsWithPoints = yield getAppsWithPopulatedVotesPoints(votes)
+    populateCommentsPoints(comments, appsWithPoints)
+    yield populateAppsInstallsPoints(installedPackages, appsWithPoints)
+    var sortedAppsByPoints = _.sortBy(appsWithPoints, function(item) {
+        return item.points
+    })
+    sortedAppsByPoints.reverse()
+    var apps = []
+    for(let appPoints of sortedAppsByPoints) {
+        let app = yield App.findOne(appPoints.app).deepPopulate("votes.user").populate("categories").populate("createdBy")
+        apps.push(yield getPopulatedApp(app, userId))
+    }
+
+    return {apps: apps}
+}
+
+function* populateAppsInstallsPoints(installedPackages, appsWithPoints) {
+    for(let installedPackage of installedPackages) {
+        let appPoints = getTrendingAppPoints("package", installedPackage["@name"], appsWithPoints)
+        if(appPoints != null) {
+            appPoints.points += installedPackage["@totalCount"] * TrendingAppsPoints.install
+        } else {
+            var app = yield App.findOne({package: installedPackage["@name"]})
+            appsWithPoints.push({
+                app: app,
+                points: installedPackage["@totalCount"] * TrendingAppsPoints.install
+            })
+        }
+    }
+}
+
+function populateCommentsPoints(comments, appsWithPoints) {
+    for(let comment of comments) {
+        let app = comment.app
+        let appPoints = getTrendingAppPoints("_id", app._id, appsWithPoints)
+        if(appPoints != null) {
+            appPoints.points += TrendingAppsPoints.comment
+        } else {
+            appsWithPoints.push({
+                app: app,
+                points: TrendingAppsPoints.comment
+            })
+        }
+    }
+}
+
+function* getAppsWithPopulatedVotesPoints(votes){
+    console.log("Votes count: ", votes.length)
+    var result = []
+    var i = 0
+    for(let vote of votes) {
+        i ++
+        let app = yield App.findOne({'votes': vote._id})
+        console.log("App vote:", vote._id)
+        if(app == null) {
+            console.log("NULLLLL", vote._id, i)
+            continue;
+        }
+        let appPoints = getTrendingAppPoints("_id",app._id, result)
+        if(appPoints != null) {
+            appPoints.points += TrendingAppsPoints.vote
+        } else {
+            result.push({
+                app: app,
+                points: TrendingAppsPoints.vote
+            })
+        }
+    }
+    console.log("AAAAA")
+    return result
+}
+
+function getTrendingAppPoints(paramName, param, items) {
+    var result = null
+    for(let item of items) {
+        if(String(item.app[paramName]) == String(param)) {
+            result = item;
+            break;
+        }
+    }
+    return result
 }
 
 export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userId, userType, query) {
