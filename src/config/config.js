@@ -134,3 +134,9 @@ module.exports.Points = {
     app: 40,
     collection: 50
 }
+
+module.exports.TrendingAppsPoints = {
+    vote: 1,
+    comment: 4,
+    install: 2
+}
