@@ -318,6 +318,19 @@ function* setAppShortUrl(app) {
 }
 
 export function* getTrendingApps(userId, page, pageSize) {
+    var totalCount = 150;
+    if(page == 0 || pageSize == 0) {
+        page = 1
+        pageSize = totalCount
+    }
+
+    let skip = (page-1) * pageSize
+    let limit = (skip + pageSize) > totalCount ? totalCount - skip : pageSize
+
+    if(skip > totalCount) {
+        return {apps: [], page: page}
+    }
+
     var flurryCacheKey = "flurryCacheKey"
     console.time("Total")
     var toDate = new Date()
@@ -354,7 +367,6 @@ export function* getTrendingApps(userId, page, pageSize) {
 
     console.time("Flurry")
     let sixHours = 21600;
-    var totalCount = 150;
 
     var flurryAppsWithPoints = myCache.get(flurryCacheKey)
 
@@ -391,18 +403,6 @@ export function* getTrendingApps(userId, page, pageSize) {
     sortedAppsByPoints.reverse()
     if(sortedAppsByPoints.length > totalCount) {
         sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount)
-    }
-
-    if(page == 0 || pageSize == 0) {
-        page = 1
-        pageSize = totalCount
-    }
-
-    let skip = (page-1) * pageSize
-    let limit = (skip + pageSize) > totalCount ? totalCount - skip : pageSize
-
-    if(skip > totalCount) {
-        return {apps: [], page: page}
     }
 
     sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit)
