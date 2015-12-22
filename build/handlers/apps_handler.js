@@ -491,6 +491,9 @@ function* getTrendingApps(userId) {
     var installedPackages = myCache.get(flurryCacheKey);
     if (installedPackages == undefined || installedPackages == null) {
         installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
+        if (installedPackages.length > 100) {
+            installedPackages = installedPackages.slice(0, 100);
+        }
         myCache.set(flurryCacheKey, installedPackages, sixHours, function (err, success) {
             if (err) {
                 console.log(err);
@@ -498,10 +501,6 @@ function* getTrendingApps(userId) {
         });
     }
 
-    if (installedPackages.length > 100) {
-        installedPackages = installedPackages.slice(0, 100);
-    }
-    console.log(installedPackages.length);
     yield populateAppsInstallsPoints(installedPackages, appsPoints);
 
     var sortedAppsByPoints = _.sortBy(appsPoints, function (item) {
@@ -513,6 +512,7 @@ function* getTrendingApps(userId) {
     }
 
     var apps = [];
+    console.time('Populate Apps');
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
     var _iteratorError5 = undefined;
@@ -540,6 +540,7 @@ function* getTrendingApps(userId) {
         }
     }
 
+    console.timeEnd('Populate Apps');
     console.timeEnd("Total");
 
     return { apps: apps };
