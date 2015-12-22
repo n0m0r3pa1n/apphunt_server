@@ -397,7 +397,7 @@ export function* getTrendingApps(userId, page, pageSize) {
         page = 1
         pageSize = totalCount
     }
-    
+
     let skip = (page-1) * pageSize
     let limit = (skip + pageSize) > totalCount ? totalCount - skip : pageSize
 
@@ -406,10 +406,16 @@ export function* getTrendingApps(userId, page, pageSize) {
     }
 
     sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit)
+
+    var appIds = []
+    for(let appPoints of sortedAppsByPoints) {
+        appIds.push(appPoints.appId)
+    }
+
     console.time("Populate Apps")
     let apps = []
-    for(let point of sortedAppsByPoints) {
-        let app = yield App.findOne({_id: point.appId}).populate('createdBy categories votes')
+    let populatedApps = yield App.find({_id: {$in : appIds}}).populate('createdBy categories votes')
+    for(let app of populatedApps) {
         let populatedApp = yield getPopulatedApp(app, userId)
         apps.push(populatedApp)
     }
