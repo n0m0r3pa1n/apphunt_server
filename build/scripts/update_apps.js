@@ -85,30 +85,34 @@ Co(function* () {
     console.log("Votes: " + i);
 
     //561f7d783a6a7a0300bffad5
-    //let historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
-    //console.log(historyEvents)
-    //var params = historyEvents.params
-    //params.appId = mongoose.Types.ObjectId("561f7d783a6a7a0300bffad5")
-    //console.log("params:", params)
 
-    //historyEvents = historyEvents.toObject()
-    //historyEvents.params = params
-    //historyEvents.params.appId = mongoose.Types.ObjectId("562ba9e825940f0300536697")
+    var historyEvents = yield History.find({ type: HISTORY_EVENT_TYPES.USER_MENTIONED }).exec();
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
 
-    //yield History.update({_id: historyEvents._id}, {params: params})
-    //
-    //historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
-    //console.log(historyEvents)
-    //let historyEvents = yield History.find({type: HISTORY_EVENT_TYPES.USER_MENTIONED}).exec()
-    //for (let event of historyEvents) {
-    //
-    //    var params = event.params
-    //    params.appId = mongoose.Types.ObjectId(event.params.appId)
-    //    yield History.update({_id: event._id}, {params: params})
-    //}
+    try {
+        for (var _iterator2 = historyEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _event = _step2.value;
 
-    //let commentEvent = yield History.findOne({type: HISTORY_EVENT_TYPES.USER_COMMENT})
-    //console.log(commentEvent)
+            var params = _event.params;
+            params.appId = mongoose.Types.ObjectId(_event.params.appId);
+            yield History.update({ _id: _event._id }, { params: params });
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
 
     console.log("FINISHED");
 });

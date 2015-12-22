@@ -53,30 +53,14 @@ Co(function* () {
     console.log("Votes: " + i)
 
     //561f7d783a6a7a0300bffad5
-    //let historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
-    //console.log(historyEvents)
-    //var params = historyEvents.params
-    //params.appId = mongoose.Types.ObjectId("561f7d783a6a7a0300bffad5")
-    //console.log("params:", params)
 
-    //historyEvents = historyEvents.toObject()
-    //historyEvents.params = params
-    //historyEvents.params.appId = mongoose.Types.ObjectId("562ba9e825940f0300536697")
+    let historyEvents = yield History.find({type: HISTORY_EVENT_TYPES.USER_MENTIONED}).exec()
+    for (let event of historyEvents) {
 
-    //yield History.update({_id: historyEvents._id}, {params: params})
-    //
-    //historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
-    //console.log(historyEvents)
-    //let historyEvents = yield History.find({type: HISTORY_EVENT_TYPES.USER_MENTIONED}).exec()
-    //for (let event of historyEvents) {
-    //
-    //    var params = event.params
-    //    params.appId = mongoose.Types.ObjectId(event.params.appId)
-    //    yield History.update({_id: event._id}, {params: params})
-    //}
-
-    //let commentEvent = yield History.findOne({type: HISTORY_EVENT_TYPES.USER_COMMENT})
-    //console.log(commentEvent)
+        var params = event.params
+        params.appId = mongoose.Types.ObjectId(event.params.appId)
+        yield History.update({_id: event._id}, {params: params})
+    }
 
     console.log("FINISHED")
 })

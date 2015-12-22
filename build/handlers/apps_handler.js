@@ -424,7 +424,9 @@ function* getTrendingApps(userId, page, pageSize) {
     var fromDate = new Date();
     fromDate.setDate(fromDate.getDate() - 31);
 
+    console.time("Events Request");
     var votesAndCommentsEvents = yield HistoryHandler.getEvents(fromDate, toDate, HISTORY_EVENT_TYPES.APP_FAVOURITED, HISTORY_EVENT_TYPES.APP_VOTED, HISTORY_EVENT_TYPES.APP_UNVOTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.USER_MENTIONED);
+    console.timeEnd("Events Request");
 
     var appsPoints = [];
     var _iteratorNormalCompletion4 = true;
@@ -487,10 +489,12 @@ function* getTrendingApps(userId, page, pageSize) {
         }
     }
 
+    console.time("Flurry");
     var sixHours = 21600;
     var installedPackages = myCache.get(flurryCacheKey);
     var totalCount = 150;
     if (installedPackages == undefined || installedPackages == null) {
+        console.log("FLURRY REQUEST");
         installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
         if (installedPackages.length > totalCount) {
             installedPackages = installedPackages.slice(0, totalCount);
@@ -501,9 +505,10 @@ function* getTrendingApps(userId, page, pageSize) {
             }
         });
     }
-
+    console.timeEnd("Flurry");
+    console.time("Install Points");
     yield populateAppsInstallsPoints(installedPackages, appsPoints);
-
+    console.timeEnd("Install Points");
     var sortedAppsByPoints = _.sortBy(appsPoints, function (item) {
         return item.points;
     });
@@ -512,6 +517,12 @@ function* getTrendingApps(userId, page, pageSize) {
         sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
     }
 
+    if (page == 0 || pageSize == 0) {
+        page = 1;
+        pageSize = totalCount;
+    }
+    console.log(page);
+    console.log(pageSize);
     var skip = (page - 1) * pageSize;
     var limit = skip + pageSize > totalCount ? totalCount - skip : pageSize;
 
@@ -574,7 +585,6 @@ function* populateAppsInstallsPoints(installedPackages, appsPoints) {
 
             var app = yield App.findOne({ 'package': installedPackage["@name"] }).exec();
             if (app == null) {
-                console.log("AAAAAAAAAAAAAAAaa", installedPackage["@name"]);
                 continue;
             }
             var appPoints = getTrendingAppPoints(app._id, appsPoints);
