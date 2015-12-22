@@ -68,14 +68,17 @@ function* deleteAppVote(userId, appId) {
     }
 
     var voteToRemoveId = null;
+    var indexToRemove = 0;
     for (var i = 0; i < app.votes.length; i++) {
         var currUserId = app.votes[i].user;
         if (currUserId == userId) {
             voteToRemoveId = app.votes[i]._id;
-            app.votes.splice(i, 1);
+            indexToRemove = i;
+            break;
         }
     }
 
+    app.votes.splice(indexToRemove, 1);
     app.votesCount = app.votes.length;
     yield app.save();
     yield Vote.remove({ _id: voteToRemoveId }).exec();
