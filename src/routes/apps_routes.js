@@ -57,12 +57,11 @@ var routes = [
             var pageSize = req.query.pageSize === undefined ? 0 : req.query.pageSize
             var userId = req.query.userId
             var platform = req.query.platform
-            reply.co(AppsHandler.getTrendingApps(userId, platform, page, pageSize))
+            reply.co(AppsHandler.getTrendingApps(userId, page, pageSize))
         },
         config: {
             validate: {
                 query: {
-                    platform: Joi.array().items(Joi.string()).valid(PLATFORMS).default(PLATFORMS.Android).optional(),
                     page: Joi.number().integer().min(1).optional(),
                     pageSize: Joi.number().integer().min(1).optional(),
                     userId: Joi.string().optional(),
