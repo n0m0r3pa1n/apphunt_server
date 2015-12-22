@@ -25,7 +25,7 @@ describe("Tags", function () {
         yield dbHelper.approveApp("com.test")
         yield dbHelper.approveApp("com.test2")
         yield dbHelper.approveApp("com.test3")
-        
+
         firstAppResponse.statusCode.should.equal(STATUS_CODES.OK)
         firstAppResponse.result.categories.length.should.equal(1)
 

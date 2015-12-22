@@ -10,93 +10,73 @@ var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/apphunt'
 Mongoose.connect(dbURI)
 
 var Co = require('co')
+var mongoose = require('mongoose');
 var App = require('../models').App
 var Vote = require('../models').Vote
+var History = require('../models').History
 var AppsCollection = require("../models").AppsCollection
 var Comment = require("../models").Comment
 var DevsHunter = require('../handlers/utils/devs_hunter_handler')
 import * as AppsHandler from '../handlers/apps_handler.js'
-import * as VotesHandler from '../handlers/votes_handler.js'
+import * as HistoryHandler from '../handlers/history_handler.js'
+var VotesHandler = require('../handlers/votes_handler.js')
 
 var CONFIG = require('../config/config')
 var PLATFORMS = CONFIG.PLATFORMS
+var LOGIN_TYPES = CONFIG.LOGIN_TYPES
 var APP_STATUS_FILTER = CONFIG.APP_STATUSES_FILTER
+var HISTORY_EVENT_TYPES = CONFIG.HISTORY_EVENT_TYPES
 
 Co(function* () {
-    let c = yield App.find({"votes": "56748434162cf80300d5fa94"})
+    var toDate = new Date()
 
-
-    let votesCount = yield Vote.count()
-    let deletedVotes = 0
-    let votesToDelete = []
-    for(let i=0; i < votesCount; i = i + 1000) {
-        let votes = yield Vote.find({}).skip(i).limit(1000)
-        for(let vote of votes) {
-            let app = yield App.findOne({'votes': vote._id})
-            if(app == null) {
-                var collection = yield AppsCollection.find({"votes": vote._id})
-                var comment = yield Comment.find({"votes": vote._id})
-                if(collection.length == 0 && comment.length == 0){
-                    deletedVotes++;
-                    votesToDelete.push(vote._id)
-                    console.log("EMPTY", vote._id)
-                }
-            }
+    var fromDate = new Date()
+    fromDate.setDate(fromDate.getDate() - 31);
+    let votes = yield VotesHandler.getVotes(fromDate, toDate)
+    let i =0
+    for(let vote of votes) {
+        let app = yield App.findOne({'votes': vote._id}).populate('createdBy')
+        if(app == null || vote.user.loginType == LOGIN_TYPES.Fake) {
+            console.log('NULL')
+            continue;
         }
-    }
+        i++
+        let historyEvent = yield History.create({type: HISTORY_EVENT_TYPES.APP_VOTED, user: vote.user, params: {
+            appId: app._id
+        }})
 
-    for(let voteId of votesToDelete) {
-        yield Vote.remove({_id: voteId}).exec()
+        console.log(i)
+        historyEvent.createdAt = vote.createdAt
+        yield historyEvent.save(function(err, obj) {
+        })
     }
+    console.log("Votes: " + i)
 
-    console.log("Deleted " + deletedVotes + " from " + votesCount)
-    //var i = 0;
-    //for(let vote of votes) {
-    //    i ++
-    //    let app = yield App.findOne({'votes': vote._id})
-    //    //console.log("App vote:", vote._id)
-    //    if(app == null) {
-    //        console.log("NULLLLL", vote._id, i)
-    //        var collection = yield AppsCollection.find({"votes": vote._id})
-    //        var comment = yield Comment.find({"votes": vote._id})
-    //        //console.log("Collection", collection)
-    //        //console.log("Comment", comment)
-    //        if(collection.length == 0 && comment.length == 0){
-    //         console.log("EMPTY", vote._id)
-    //        }
-    //        continue;
-    //    }
+    //561f7d783a6a7a0300bffad5
+    //let historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
+    //console.log(historyEvents)
+    //var params = historyEvents.params
+    //params.appId = mongoose.Types.ObjectId("561f7d783a6a7a0300bffad5")
+    //console.log("params:", params)
+
+    //historyEvents = historyEvents.toObject()
+    //historyEvents.params = params
+    //historyEvents.params.appId = mongoose.Types.ObjectId("562ba9e825940f0300536697")
+
+    //yield History.update({_id: historyEvents._id}, {params: params})
     //
+    //historyEvents = yield History.findOne({_id: '562ba9e825940f0300536697'})
+    //console.log(historyEvents)
+    //let historyEvents = yield History.find({type: HISTORY_EVENT_TYPES.USER_MENTIONED}).exec()
+    //for (let event of historyEvents) {
+    //
+    //    var params = event.params
+    //    params.appId = mongoose.Types.ObjectId(event.params.appId)
+    //    yield History.update({_id: event._id}, {params: params})
     //}
-    console.log("AAAAA")
 
-    ////let apps = yield App.find({status: APP_STATUS_FILTER.APPROVED, platform: PLATFORMS.Android}).exec()
-    ////let size = apps.length
-    //
-    ////let nullApps = 0
-    ////for(let i = 1200; i < size; i++) {
-    //    //let app = apps[i]
-    //    let parsedApp = yield DevsHunter.updateAndroidApp("jlelse.readit")
-    //    if(parsedApp == null) {
-    //        console.log("Null " + i + " " + app.package)
-    //        //nullApps++;
-    //        //yield AppsHandler.deleteApp(app.package)
-    //        //continue;
-    //    }
-    //    let app = yield App.findOne({package: 'jlelse.readit'}).exec()
-    //    console.log(app)
-    //    app.screenshots = parsedApp.screenshots
-    //    app.name = parsedApp.name
-    //    app.isFree = parsedApp.isFree
-    //    app.icon = parsedApp.icon
-    //    app.url = parsedApp.url
-    //    app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total
-    //    yield app.save(function(err, obj) {
-    //        console.log("AAAAAAAAA")
-    //        console.log(err)
-    //        console.log(obj)
-    //    })
-    ////}
-    //
-    //console.log(`Finished with ${nullApps} null apps`)
+    //let commentEvent = yield History.findOne({type: HISTORY_EVENT_TYPES.USER_COMMENT})
+    //console.log(commentEvent)
+
+    console.log("FINISHED")
 })

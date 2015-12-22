@@ -64,7 +64,7 @@ export function* create(comment, appId, userId, parentId) {
                 NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
                     NOTIFICATION_TYPES.USER_MENTIONED, {appId: appId})
                 yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, {mentionedUserId: String(mentionedUser._id),
-                    appId: String(app._id), appName: app.name, userName: user.name})
+                    appId: app._id, appName: app.name, userName: user.name})
             }
         }
     } else {
@@ -214,6 +214,20 @@ export function* getComments(fromDate, toDate) {
     }
 
     return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('app createdBy votes')
+}
+
+export function* getUnpopulatedComments(fromDate, toDate) {
+    var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
+    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
+
+    let where = {
+        createdAt: {
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+        }
+    }
+
+    return yield Comment.find(where).populate('app').deepPopulate("app.categories app.createdBy").exec();
 }
 
 

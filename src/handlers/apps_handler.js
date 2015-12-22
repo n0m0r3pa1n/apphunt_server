@@ -6,6 +6,8 @@ var Boom = require('boom')
 var TweetComposer = require('../utils/tweet_composer')
 var CONFIG = require('../config/config')
 var MESSAGES = require('../config/messages')
+var NodeCache = require( "node-cache" );
+var myCache = new NodeCache();
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
@@ -186,7 +188,7 @@ export function* getRandomApp(userId) {
     let count = yield App.count()
     let rand = Math.floor(Math.random() * count);
 
-    let app = yield App.findOne().deepPopulate('votes.user').populate('createdBy categories').skip(rand).exec()
+    let app = yield App.findOne().populate('createdBy categories votes').skip(rand).exec()
     return yield getPopulatedApp(app, userId);
 }
 
@@ -316,95 +318,98 @@ function* setAppShortUrl(app) {
 }
 
 export function* getTrendingApps(userId) {
-
+    var flurryCacheKey = "flurryCacheKey"
+    console.time("Total")
     var toDate = new Date()
-
     var fromDate = new Date()
     fromDate.setDate(fromDate.getDate() - 31);
 
-    var votes = yield VotesHandler.getVotes(fromDate, toDate)
-    var comments = yield CommentsHandler.getComments(fromDate, toDate)
+    var votesAndCommentsEvents = yield HistoryHandler.getEvents(fromDate, toDate,
+        HISTORY_EVENT_TYPES.APP_FAVOURITED,
+        HISTORY_EVENT_TYPES.APP_VOTED,
+        HISTORY_EVENT_TYPES.APP_UNVOTED,
+        HISTORY_EVENT_TYPES.USER_COMMENT,
+        HISTORY_EVENT_TYPES.USER_MENTIONED)
 
-    var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate))
+    var appsPoints = []
+    for(let eventItem of votesAndCommentsEvents) {
+        var appId = eventItem.appId
+        var points = 0
+        for(let event of eventItem.events) {
+            if(event.type == HISTORY_EVENT_TYPES.USER_COMMENT || event.type == HISTORY_EVENT_TYPES.USER_MENTIONED) {
+                points += TrendingAppsPoints.comment
+            } else if(event.type == HISTORY_EVENT_TYPES.APP_VOTED) {
+                points += TrendingAppsPoints.vote
+            } else if(event.type == HISTORY_EVENT_TYPES.APP_UNVOTED) {
+                points -= TrendingAppsPoints.vote
+            } else if(event.type == HISTORY_EVENT_TYPES.APP_FAVOURITED) {
+                points += TrendingAppsPoints.favourite
+            }
+        }
+
+        appsPoints.push({appId: appId, points: points})
+    }
+
+    let sixHours = 21600;
+    var installedPackages = myCache.get(flurryCacheKey)
+    if(installedPackages == undefined || installedPackages == null) {
+        installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate))
+        myCache.set(flurryCacheKey, installedPackages, sixHours , function( err, success ){
+            if(err) {
+                console.log(err)
+            }
+        });
+    }
+
     if(installedPackages.length > 100) {
         installedPackages = installedPackages.slice(0, 100)
     }
-    var appsWithPoints = yield getAppsWithPopulatedVotesPoints(votes)
-    populateCommentsPoints(comments, appsWithPoints)
-    yield populateAppsInstallsPoints(installedPackages, appsWithPoints)
-    var sortedAppsByPoints = _.sortBy(appsWithPoints, function(item) {
+    console.log(installedPackages.length)
+    yield populateAppsInstallsPoints(installedPackages, appsPoints)
+
+    var sortedAppsByPoints = _.sortBy(appsPoints, function(item) {
         return item.points
     })
     sortedAppsByPoints.reverse()
-    var apps = []
-    for(let appPoints of sortedAppsByPoints) {
-        let app = yield App.findOne(appPoints.app).deepPopulate("votes.user").populate("categories").populate("createdBy")
-        apps.push(yield getPopulatedApp(app, userId))
+    if(sortedAppsByPoints.length > 100) {
+        sortedAppsByPoints = sortedAppsByPoints.slice(0, 100)
     }
+
+    let apps = []
+    for(let point of sortedAppsByPoints) {
+        let app = yield App.findOne({_id: point.appId}).populate('createdBy categories votes')
+        let populatedApp = yield getPopulatedApp(app, userId)
+        apps.push(populatedApp)
+    }
+    console.timeEnd("Total")
 
     return {apps: apps}
 }
 
-function* populateAppsInstallsPoints(installedPackages, appsWithPoints) {
+function* populateAppsInstallsPoints(installedPackages, appsPoints) {
     for(let installedPackage of installedPackages) {
-        let appPoints = getTrendingAppPoints("package", installedPackage["@name"], appsWithPoints)
+        var app = yield App.findOne({package: installedPackage["@name"]}).exec()
+        if(app == null) {
+            console.log("AAAAAAAAAAAAAAAaa", installedPackage["@name"])
+            continue
+        }
+        let appPoints = getTrendingAppPoints(app._id, appsPoints)
+
         if(appPoints != null) {
             appPoints.points += installedPackage["@totalCount"] * TrendingAppsPoints.install
         } else {
-            var app = yield App.findOne({package: installedPackage["@name"]})
-            appsWithPoints.push({
-                app: app,
+            appsPoints.push({
+                appId: app._id,
                 points: installedPackage["@totalCount"] * TrendingAppsPoints.install
             })
         }
     }
 }
 
-function populateCommentsPoints(comments, appsWithPoints) {
-    for(let comment of comments) {
-        let app = comment.app
-        let appPoints = getTrendingAppPoints("_id", app._id, appsWithPoints)
-        if(appPoints != null) {
-            appPoints.points += TrendingAppsPoints.comment
-        } else {
-            appsWithPoints.push({
-                app: app,
-                points: TrendingAppsPoints.comment
-            })
-        }
-    }
-}
-
-function* getAppsWithPopulatedVotesPoints(votes){
-    console.log("Votes count: ", votes.length)
-    var result = []
-    var i = 0
-    for(let vote of votes) {
-        i ++
-        let app = yield App.findOne({'votes': vote._id})
-        console.log("App vote:", vote._id)
-        if(app == null) {
-            console.log("NULLLLL", vote._id, i)
-            continue;
-        }
-        let appPoints = getTrendingAppPoints("_id",app._id, result)
-        if(appPoints != null) {
-            appPoints.points += TrendingAppsPoints.vote
-        } else {
-            result.push({
-                app: app,
-                points: TrendingAppsPoints.vote
-            })
-        }
-    }
-    console.log("AAAAA")
-    return result
-}
-
-function getTrendingAppPoints(paramName, param, items) {
+function getTrendingAppPoints(appId, items) {
     var result = null
     for(let item of items) {
-        if(String(item.app[paramName]) == String(param)) {
+        if(String(item.appId) == String(appId)) {
             result = item;
             break;
         }

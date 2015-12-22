@@ -25,9 +25,9 @@ function* getInstalledPackages(fromDate, toDate, version) {
     if (version != undefined && version !== "all") {
         url += "&versionName=" + version;
     }
-
     var data = yield rp.get(url);
-    return parseEventDetails(JSON.parse(data));
+    data = typeof data == "string" ? JSON.parse(data) : data;
+    return parseEventDetails(data);
 }
 
 function parseEventDetails(eventDetails) {

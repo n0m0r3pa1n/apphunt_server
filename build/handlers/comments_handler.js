@@ -10,6 +10,7 @@ exports.deleteComment = deleteComment;
 exports.clearAppComments = clearAppComments;
 exports.getCommentsForUser = getCommentsForUser;
 exports.getComments = getComments;
+exports.getUnpopulatedComments = getUnpopulatedComments;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -94,7 +95,7 @@ function* create(comment, appId, userId, parentId) {
                 var message = comment.text;
                 NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_MENTIONED, { appId: appId });
                 yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, { mentionedUserId: String(mentionedUser._id),
-                    appId: String(app._id), appName: app.name, userName: user.name });
+                    appId: app._id, appName: app.name, userName: user.name });
             }
         }
     } else {
@@ -305,6 +306,20 @@ function* getComments(fromDate, toDate) {
     };
 
     return yield Comment.find(where).deepPopulate("children.createdBy children.votes").populate('app createdBy votes');
+}
+
+function* getUnpopulatedComments(fromDate, toDate) {
+    var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
+
+    var where = {
+        createdAt: {
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+        }
+    };
+
+    return yield Comment.find(where).populate('app').deepPopulate("app.categories app.createdBy").exec();
 }
 
 module.exports.get = get;
