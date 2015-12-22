@@ -270,7 +270,7 @@ function* getRandomApp(userId) {
     var count = yield App.count();
     var rand = Math.floor(Math.random() * count);
 
-    var app = yield App.findOne().populate('createdBy categories votes').skip(rand).exec();
+    var app = yield App.findOne().deepPopulate('votes.user').populate('createdBy categories').skip(rand).exec();
     return yield getPopulatedApp(app, userId);
 }
 
