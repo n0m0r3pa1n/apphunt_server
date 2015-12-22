@@ -439,13 +439,13 @@ function* getTrendingApps(userId, page, pageSize) {
 
             var appId = eventItem.appId;
             var points = 0;
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
+            var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
 
             try {
-                for (var _iterator6 = eventItem.events[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                    var _event = _step6.value;
+                for (var _iterator7 = eventItem.events[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var _event = _step7.value;
 
                     if (_event.type == HISTORY_EVENT_TYPES.USER_COMMENT || _event.type == HISTORY_EVENT_TYPES.USER_MENTIONED) {
                         points += TrendingAppsPoints.comment;
@@ -458,16 +458,16 @@ function* getTrendingApps(userId, page, pageSize) {
                     }
                 }
             } catch (err) {
-                _didIteratorError6 = true;
-                _iteratorError6 = err;
+                _didIteratorError7 = true;
+                _iteratorError7 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion6 && _iterator6['return']) {
-                        _iterator6['return']();
+                    if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+                        _iterator7['return']();
                     }
                 } finally {
-                    if (_didIteratorError6) {
-                        throw _iteratorError6;
+                    if (_didIteratorError7) {
+                        throw _iteratorError7;
                     }
                 }
             }
@@ -491,15 +491,18 @@ function* getTrendingApps(userId, page, pageSize) {
 
     console.time("Flurry");
     var sixHours = 21600;
-    var installedPackages = myCache.get(flurryCacheKey);
     var totalCount = 150;
-    if (installedPackages == undefined || installedPackages == null) {
+
+    var flurryAppsWithPoints = myCache.get(flurryCacheKey);
+
+    if (flurryAppsWithPoints == undefined || flurryAppsWithPoints == null) {
         console.log("FLURRY REQUEST");
-        installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
+        var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
         if (installedPackages.length > totalCount) {
             installedPackages = installedPackages.slice(0, totalCount);
         }
-        myCache.set(flurryCacheKey, installedPackages, sixHours, function (err, success) {
+        flurryAppsWithPoints = yield getAppsWithInstallsPoints(installedPackages);
+        myCache.set(flurryCacheKey, flurryAppsWithPoints, sixHours, function (err, success) {
             if (err) {
                 console.log(err);
             }
@@ -507,43 +510,23 @@ function* getTrendingApps(userId, page, pageSize) {
     }
     console.timeEnd("Flurry");
     console.time("Install Points");
-    yield populateAppsInstallsPoints(installedPackages, appsPoints);
+
     console.timeEnd("Install Points");
-    var sortedAppsByPoints = _.sortBy(appsPoints, function (item) {
-        return item.points;
-    });
-    sortedAppsByPoints.reverse();
-    if (sortedAppsByPoints.length > totalCount) {
-        sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
-    }
 
-    if (page == 0 || pageSize == 0) {
-        page = 1;
-        pageSize = totalCount;
-    }
-    console.log(page);
-    console.log(pageSize);
-    var skip = (page - 1) * pageSize;
-    var limit = skip + pageSize > totalCount ? totalCount - skip : pageSize;
-
-    if (skip > totalCount) {
-        return { apps: [], page: page };
-    }
-
-    sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit);
-    console.time("Populate Apps");
-    var apps = [];
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
     var _iteratorError5 = undefined;
 
     try {
-        for (var _iterator5 = sortedAppsByPoints[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var point = _step5.value;
+        for (var _iterator5 = flurryAppsWithPoints[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var fluryAppPoints = _step5.value;
 
-            var app = yield App.findOne({ _id: point.appId }).populate('createdBy categories votes');
-            var populatedApp = yield getPopulatedApp(app, userId);
-            apps.push(populatedApp);
+            var currentAppPoints = getTrendingAppPoints(fluryAppPoints.appId, appsPoints);
+            if (currentAppPoints != null) {
+                currentAppPoints.points += fluryAppPoints.points;
+            } else {
+                appsPoints.push(fluryAppPoints);
+            }
         }
     } catch (err) {
         _didIteratorError5 = true;
@@ -556,6 +539,56 @@ function* getTrendingApps(userId, page, pageSize) {
         } finally {
             if (_didIteratorError5) {
                 throw _iteratorError5;
+            }
+        }
+    }
+
+    var sortedAppsByPoints = _.sortBy(appsPoints, function (item) {
+        return item.points;
+    });
+    sortedAppsByPoints.reverse();
+    if (sortedAppsByPoints.length > totalCount) {
+        sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
+    }
+
+    if (page == 0 || pageSize == 0) {
+        page = 1;
+        pageSize = totalCount;
+    }
+
+    var skip = (page - 1) * pageSize;
+    var limit = skip + pageSize > totalCount ? totalCount - skip : pageSize;
+
+    if (skip > totalCount) {
+        return { apps: [], page: page };
+    }
+
+    sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit);
+    console.time("Populate Apps");
+    var apps = [];
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
+
+    try {
+        for (var _iterator6 = sortedAppsByPoints[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var point = _step6.value;
+
+            var app = yield App.findOne({ _id: point.appId }).populate('createdBy categories votes');
+            var populatedApp = yield getPopulatedApp(app, userId);
+            apps.push(populatedApp);
+        }
+    } catch (err) {
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                _iterator6['return']();
+            }
+        } finally {
+            if (_didIteratorError6) {
+                throw _iteratorError6;
             }
         }
     }
@@ -574,60 +607,25 @@ function getTotalPages(totalRecordsCount, pageSize) {
     return Math.ceil(totalRecordsCount / pageSize);
 }
 
-function* populateAppsInstallsPoints(installedPackages, appsPoints) {
-    var _iteratorNormalCompletion7 = true;
-    var _didIteratorError7 = false;
-    var _iteratorError7 = undefined;
-
-    try {
-        for (var _iterator7 = installedPackages[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-            var installedPackage = _step7.value;
-
-            var app = yield App.findOne({ 'package': installedPackage["@name"] }).exec();
-            if (app == null) {
-                continue;
-            }
-            var appPoints = getTrendingAppPoints(app._id, appsPoints);
-
-            if (appPoints != null) {
-                appPoints.points += installedPackage["@totalCount"] * TrendingAppsPoints.install;
-            } else {
-                appsPoints.push({
-                    appId: app._id,
-                    points: installedPackage["@totalCount"] * TrendingAppsPoints.install
-                });
-            }
-        }
-    } catch (err) {
-        _didIteratorError7 = true;
-        _iteratorError7 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion7 && _iterator7['return']) {
-                _iterator7['return']();
-            }
-        } finally {
-            if (_didIteratorError7) {
-                throw _iteratorError7;
-            }
-        }
-    }
-}
-
-function getTrendingAppPoints(appId, items) {
-    var result = null;
+function* getAppsWithInstallsPoints(installedPackages) {
+    var appsPoints = [];
     var _iteratorNormalCompletion8 = true;
     var _didIteratorError8 = false;
     var _iteratorError8 = undefined;
 
     try {
-        for (var _iterator8 = items[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var item = _step8.value;
+        for (var _iterator8 = installedPackages[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var installedPackage = _step8.value;
 
-            if (String(item.appId) == String(appId)) {
-                result = item;
-                break;
+            var app = yield App.findOne({ 'package': installedPackage["@name"] }).exec();
+            if (app == null) {
+                continue;
             }
+
+            appsPoints.push({
+                appId: app._id,
+                points: installedPackage["@totalCount"] * TrendingAppsPoints.install
+            });
         }
     } catch (err) {
         _didIteratorError8 = true;
@@ -640,6 +638,39 @@ function getTrendingAppPoints(appId, items) {
         } finally {
             if (_didIteratorError8) {
                 throw _iteratorError8;
+            }
+        }
+    }
+
+    return appsPoints;
+}
+
+function getTrendingAppPoints(appId, appPoints) {
+    var result = null;
+    var _iteratorNormalCompletion9 = true;
+    var _didIteratorError9 = false;
+    var _iteratorError9 = undefined;
+
+    try {
+        for (var _iterator9 = appPoints[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var item = _step9.value;
+
+            if (String(item.appId) == String(appId)) {
+                result = item;
+                break;
+            }
+        }
+    } catch (err) {
+        _didIteratorError9 = true;
+        _iteratorError9 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+                _iterator9['return']();
+            }
+        } finally {
+            if (_didIteratorError9) {
+                throw _iteratorError9;
             }
         }
     }
@@ -681,28 +712,28 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
     if (userType != undefined) {
-        var _iteratorNormalCompletion9 = true;
-        var _didIteratorError9 = false;
-        var _iteratorError9 = undefined;
+        var _iteratorNormalCompletion10 = true;
+        var _didIteratorError10 = false;
+        var _iteratorError10 = undefined;
 
         try {
-            for (var _iterator9 = result.apps[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                var app = _step9.value;
+            for (var _iterator10 = result.apps[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                var app = _step10.value;
 
                 app.votes = getAppVotesForUserType(app.votes, userType);
                 app.votesCount = app.votes.length;
             }
         } catch (err) {
-            _didIteratorError9 = true;
-            _iteratorError9 = err;
+            _didIteratorError10 = true;
+            _iteratorError10 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion9 && _iterator9['return']) {
-                    _iterator9['return']();
+                if (!_iteratorNormalCompletion10 && _iterator10['return']) {
+                    _iterator10['return']();
                 }
             } finally {
-                if (_didIteratorError9) {
-                    throw _iteratorError9;
+                if (_didIteratorError10) {
+                    throw _iteratorError10;
                 }
             }
         }
@@ -758,13 +789,13 @@ function* filterApps(packages, platform) {
 
     var appsToBeAdded = _.difference(packages, existingAppsPackages);
     var packagesResult = [];
-    var _iteratorNormalCompletion10 = true;
-    var _didIteratorError10 = false;
-    var _iteratorError10 = undefined;
+    var _iteratorNormalCompletion11 = true;
+    var _didIteratorError11 = false;
+    var _iteratorError11 = undefined;
 
     try {
-        for (var _iterator10 = appsToBeAdded[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-            var app = _step10.value;
+        for (var _iterator11 = appsToBeAdded[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var app = _step11.value;
 
             var parsedApp = null;
             try {
@@ -778,16 +809,16 @@ function* filterApps(packages, platform) {
             }
         }
     } catch (err) {
-        _didIteratorError10 = true;
-        _iteratorError10 = err;
+        _didIteratorError11 = true;
+        _iteratorError11 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion10 && _iterator10['return']) {
-                _iterator10['return']();
+            if (!_iteratorNormalCompletion11 && _iterator11['return']) {
+                _iterator11['return']();
             }
         } finally {
-            if (_didIteratorError10) {
-                throw _iteratorError10;
+            if (_didIteratorError11) {
+                throw _iteratorError11;
             }
         }
     }
@@ -810,13 +841,13 @@ function* getFavouriteAppsCount(userId) {
 
 function* getAppsByPackages(packages) {
     var apps = [];
-    var _iteratorNormalCompletion11 = true;
-    var _didIteratorError11 = false;
-    var _iteratorError11 = undefined;
+    var _iteratorNormalCompletion12 = true;
+    var _didIteratorError12 = false;
+    var _iteratorError12 = undefined;
 
     try {
-        for (var _iterator11 = packages[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-            var pack = _step11.value;
+        for (var _iterator12 = packages[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+            var pack = _step12.value;
 
             var app = yield App.findOne({ 'package': pack }).populate('createdBy categories').exec();
             if (app != null) {
@@ -824,16 +855,16 @@ function* getAppsByPackages(packages) {
             }
         }
     } catch (err) {
-        _didIteratorError11 = true;
-        _iteratorError11 = err;
+        _didIteratorError12 = true;
+        _iteratorError12 = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion11 && _iterator11['return']) {
-                _iterator11['return']();
+            if (!_iteratorNormalCompletion12 && _iterator12['return']) {
+                _iterator12['return']();
             }
         } finally {
-            if (_didIteratorError11) {
-                throw _iteratorError11;
+            if (_didIteratorError12) {
+                throw _iteratorError12;
             }
         }
     }
@@ -960,27 +991,27 @@ function* formatApps(userId, apps) {
     for (var i = 0; i < apps.length; i++) {
         apps[i].commentsCount = yield setCommentsCount(apps[i]._id);
         var categories = [];
-        var _iteratorNormalCompletion12 = true;
-        var _didIteratorError12 = false;
-        var _iteratorError12 = undefined;
+        var _iteratorNormalCompletion13 = true;
+        var _didIteratorError13 = false;
+        var _iteratorError13 = undefined;
 
         try {
-            for (var _iterator12 = apps[i].categories[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                var category = _step12.value;
+            for (var _iterator13 = apps[i].categories[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                var category = _step13.value;
 
                 categories.push(category.name);
             }
         } catch (err) {
-            _didIteratorError12 = true;
-            _iteratorError12 = err;
+            _didIteratorError13 = true;
+            _iteratorError13 = err;
         } finally {
             try {
-                if (!_iteratorNormalCompletion12 && _iterator12['return']) {
-                    _iterator12['return']();
+                if (!_iteratorNormalCompletion13 && _iterator13['return']) {
+                    _iterator13['return']();
                 }
             } finally {
-                if (_didIteratorError12) {
-                    throw _iteratorError12;
+                if (_didIteratorError13) {
+                    throw _iteratorError13;
                 }
             }
         }

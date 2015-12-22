@@ -354,15 +354,18 @@ export function* getTrendingApps(userId, page, pageSize) {
 
     console.time("Flurry")
     let sixHours = 21600;
-    var installedPackages = myCache.get(flurryCacheKey)
     var totalCount = 150;
-    if(installedPackages == undefined || installedPackages == null) {
+
+    var flurryAppsWithPoints = myCache.get(flurryCacheKey)
+
+    if(flurryAppsWithPoints == undefined || flurryAppsWithPoints == null) {
         console.log("FLURRY REQUEST")
-        installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate))
+        var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate))
         if(installedPackages.length > totalCount) {
             installedPackages = installedPackages.slice(0, totalCount)
         }
-        myCache.set(flurryCacheKey, installedPackages, sixHours , function( err, success ){
+        flurryAppsWithPoints = yield getAppsWithInstallsPoints(installedPackages)
+        myCache.set(flurryCacheKey, flurryAppsWithPoints, sixHours , function( err, success ){
             if(err) {
                 console.log(err)
             }
@@ -370,8 +373,18 @@ export function* getTrendingApps(userId, page, pageSize) {
     }
     console.timeEnd("Flurry")
     console.time("Install Points")
-    yield populateAppsInstallsPoints(installedPackages, appsPoints)
+
     console.timeEnd("Install Points")
+
+    for(let fluryAppPoints of flurryAppsWithPoints) {
+        let currentAppPoints = getTrendingAppPoints(fluryAppPoints.appId, appsPoints)
+        if(currentAppPoints != null) {
+            currentAppPoints.points += fluryAppPoints.points
+        } else {
+            appsPoints.push(fluryAppPoints)
+        }
+    }
+
     var sortedAppsByPoints = _.sortBy(appsPoints, function(item) {
         return item.points
     })
@@ -384,8 +397,7 @@ export function* getTrendingApps(userId, page, pageSize) {
         page = 1
         pageSize = totalCount
     }
-    console.log(page)
-    console.log(pageSize)
+    
     let skip = (page-1) * pageSize
     let limit = (skip + pageSize) > totalCount ? totalCount - skip : pageSize
 
@@ -416,28 +428,26 @@ function getTotalPages(totalRecordsCount, pageSize) {
     return Math.ceil(totalRecordsCount / pageSize)
 }
 
-function* populateAppsInstallsPoints(installedPackages, appsPoints) {
+function* getAppsWithInstallsPoints(installedPackages) {
+    var appsPoints = []
     for(let installedPackage of installedPackages) {
         var app = yield App.findOne({package: installedPackage["@name"]}).exec()
         if(app == null) {
             continue
         }
-        let appPoints = getTrendingAppPoints(app._id, appsPoints)
 
-        if(appPoints != null) {
-            appPoints.points += installedPackage["@totalCount"] * TrendingAppsPoints.install
-        } else {
-            appsPoints.push({
-                appId: app._id,
-                points: installedPackage["@totalCount"] * TrendingAppsPoints.install
-            })
-        }
+        appsPoints.push({
+            appId: app._id,
+            points: installedPackage["@totalCount"] * TrendingAppsPoints.install
+        })
+
     }
+    return appsPoints
 }
 
-function getTrendingAppPoints(appId, items) {
+function getTrendingAppPoints(appId, appPoints) {
     var result = null
-    for(let item of items) {
+    for(let item of appPoints) {
         if(String(item.appId) == String(appId)) {
             result = item;
             break;
