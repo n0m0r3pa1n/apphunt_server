@@ -563,6 +563,7 @@ function* getTrendingApps(userId, page, pageSize) {
         sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
     }
 
+    console.log(skip, skip + limit);
     sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit);
 
     var appIds = [];
@@ -594,16 +595,25 @@ function* getTrendingApps(userId, page, pageSize) {
     console.time("Populate Apps");
     var apps = [];
     var populatedApps = yield App.find({ _id: { $in: appIds } }).populate('createdBy categories votes');
+
     var _iteratorNormalCompletion7 = true;
     var _didIteratorError7 = false;
     var _iteratorError7 = undefined;
 
     try {
-        for (var _iterator7 = populatedApps[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-            var app = _step7.value;
+        var _loop = function* () {
+            var id = _step7.value;
+
+            var app = _.find(populatedApps, function (item) {
+                return String(item._id) == String(id);
+            });
 
             var populatedApp = yield getPopulatedApp(app, userId);
             apps.push(populatedApp);
+        };
+
+        for (var _iterator7 = appIds[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+            yield* _loop();
         }
     } catch (err) {
         _didIteratorError7 = true;
