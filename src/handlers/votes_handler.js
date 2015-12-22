@@ -143,6 +143,9 @@ function hasUserVotedForPopulatedObj(obj, userId) {
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
         var currentUserId = null
+        if(user == null) {
+            continue;
+        }
         if("_id" in user) {
             currentUserId = user._id
         } else {

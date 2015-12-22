@@ -607,7 +607,6 @@ function* getTrendingApps(userId, page, pageSize) {
             var app = _.find(populatedApps, function (item) {
                 return String(item._id) == String(id);
             });
-
             var populatedApp = yield getPopulatedApp(app, userId);
             apps.push(populatedApp);
         };
@@ -868,7 +867,6 @@ function* getApp(appId, userId) {
     if (!app) {
         return Boom.notFound('App can not be found!');
     }
-
     return yield getPopulatedApp(app, userId);
 }
 

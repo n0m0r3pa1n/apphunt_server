@@ -569,7 +569,6 @@ export function* getApp(appId, userId) {
     if (!app) {
         return Boom.notFound('App can not be found!')
     }
-
     return yield getPopulatedApp(app, userId)
 }
 
