@@ -417,7 +417,7 @@ function* setAppShortUrl(app) {
     app.shortUrl = yield UrlsHandler.getShortLink(links);
 }
 
-function* getTrendingApps(userId) {
+function* getTrendingApps(userId, page, pageSize) {
     var flurryCacheKey = "flurryCacheKey";
     console.time("Total");
     var toDate = new Date();
@@ -489,10 +489,11 @@ function* getTrendingApps(userId) {
 
     var sixHours = 21600;
     var installedPackages = myCache.get(flurryCacheKey);
+    var totalCount = 150;
     if (installedPackages == undefined || installedPackages == null) {
         installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
-        if (installedPackages.length > 100) {
-            installedPackages = installedPackages.slice(0, 100);
+        if (installedPackages.length > totalCount) {
+            installedPackages = installedPackages.slice(0, totalCount);
         }
         myCache.set(flurryCacheKey, installedPackages, sixHours, function (err, success) {
             if (err) {
@@ -507,12 +508,20 @@ function* getTrendingApps(userId) {
         return item.points;
     });
     sortedAppsByPoints.reverse();
-    if (sortedAppsByPoints.length > 100) {
-        sortedAppsByPoints = sortedAppsByPoints.slice(0, 100);
+    if (sortedAppsByPoints.length > totalCount) {
+        sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
     }
 
+    var skip = (page - 1) * pageSize;
+    var limit = skip + pageSize > totalCount ? totalCount - skip : pageSize;
+
+    if (skip > totalCount) {
+        return { apps: [], page: page };
+    }
+
+    sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit);
+    console.time("Populate Apps");
     var apps = [];
-    console.time('Populate Apps');
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
     var _iteratorError5 = undefined;
@@ -540,10 +549,18 @@ function* getTrendingApps(userId) {
         }
     }
 
-    console.timeEnd('Populate Apps');
+    console.timeEnd("Populate Apps");
     console.timeEnd("Total");
 
-    return { apps: apps };
+    return { apps: apps, totalCount: totalCount, page: page, pageSize: pageSize, totalPages: getTotalPages(totalCount, pageSize) };
+}
+
+function getTotalPages(totalRecordsCount, pageSize) {
+    if (pageSize == 0 || totalRecordsCount == 0) {
+        return 0;
+    }
+
+    return Math.ceil(totalRecordsCount / pageSize);
 }
 
 function* populateAppsInstallsPoints(installedPackages, appsPoints) {
