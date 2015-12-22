@@ -1,5 +1,12 @@
 'use strict';
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var _history_handlerJs = require('./history_handler.js');
+
+var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
+
+// <editor-fold desc="App votes">
 var Boom = require('boom');
 
 var Mongoose = require('mongoose');
@@ -9,10 +16,10 @@ var Comment = require('../models').Comment;
 var User = require('../models').User;
 var AppsCollection = require('../models').AppsCollection;
 var PLATFORMS = require('../config/config').PLATFORMS;
+var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
 var APP_STATUSES = require('../config/config').APP_STATUSES;
 var LOGIN_TYPES = require('../config/config').LOGIN_TYPES;
 
-// <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
     var user = yield User.findById(userId).exec();
 
@@ -40,6 +47,12 @@ function* createAppVote(userId, appId) {
     app.votesCount = app.votes.length;
     yield app.save();
 
+    if (user.loginType != LOGIN_TYPES.Fake) {
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_VOTED, user._id, {
+            appId: app._id
+        });
+    }
+
     return {
         votesCount: app.votesCount
     };
@@ -66,6 +79,9 @@ function* deleteAppVote(userId, appId) {
     app.votesCount = app.votes.length;
     yield app.save();
     yield Vote.remove({ _id: voteToRemoveId }).exec();
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_UNVOTED, user._id, {
+        appId: app._id
+    });
     return {
         votesCount: app.votesCount
     };
@@ -132,7 +148,13 @@ function hasUserVotedForPopulatedObj(obj, userId) {
     }
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
-        if (user !== null && String(userId) == String(user._id)) {
+        var currentUserId = null;
+        if ("_id" in user) {
+            currentUserId = user._id;
+        } else {
+            currentUserId = user;
+        }
+        if (user !== null && String(userId) == String(currentUserId)) {
             return true;
         }
     }
@@ -154,10 +176,14 @@ function hasUserVotedForUnpopulatedObj(obj, userId) {
 
 // </editor-fold>
 
-function* clearAppVotes(voteIds) {
+function* clearAppVotes(voteIds, appId) {
     for (var i = 0; i < voteIds; i++) {
         var voteId = voteIds[i];
-        yield Vote.remove({ _id: voteId }).exec();
+        var vote = yield Vote.findById(voteId);
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_UNVOTED, vote.user, {
+            appId: app._id
+        });
+        yield vote.remove().exec();
     }
 }
 
@@ -230,36 +256,7 @@ function* getVotes(fromDate, toDate) {
         }
     };
 
-    var result = [];
-    var votes = yield Vote.find(where).populate('user').exec();
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = votes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var vote = _step.value;
-
-            if (vote.user != LOGIN_TYPES.Fake) {
-                result.push(vote);
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return result;
+    return yield Vote.find(where).populate('user').exec();
 }
 
 module.exports.createAppVote = createAppVote;

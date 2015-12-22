@@ -7,8 +7,11 @@ var Comment = require('../models').Comment
 var User = require('../models').User
 var AppsCollection = require('../models').AppsCollection
 var PLATFORMS = require('../config/config').PLATFORMS
+var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES
 var APP_STATUSES = require('../config/config').APP_STATUSES
 var LOGIN_TYPES = require('../config/config').LOGIN_TYPES
+
+import * as HistoryHandler from './history_handler.js'
 
 // <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
@@ -16,17 +19,17 @@ function* createAppVote(userId, appId) {
 
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
-    if(!app) {
+    if (!app) {
         return Boom.notFound('App not found')
     }
 
-    if(app.platform !== PLATFORMS.Android) {
+    if (app.platform !== PLATFORMS.Android) {
         return Boom.badRequest("You cannot vote apps other than Android and not approved!")
     }
 
-    for(var i=0; i< app.votes.length; i++) {
+    for (var i = 0; i < app.votes.length; i++) {
         var currUserId = app.votes[i].user
-        if(currUserId == userId) {
+        if (currUserId == userId) {
             return Boom.conflict('Vote exists')
         }
     }
@@ -38,6 +41,12 @@ function* createAppVote(userId, appId) {
     app.votesCount = app.votes.length
     yield app.save()
 
+    if (user.loginType != LOGIN_TYPES.Fake) {
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_VOTED, user._id, {
+            appId: app._id
+        })
+    }
+
     return {
         votesCount: app.votesCount
     }
@@ -48,14 +57,14 @@ function* deleteAppVote(userId, appId) {
 
     var query = App.findById(appId)
     var app = yield query.populate("votes").exec()
-    if(!app) {
+    if (!app) {
         return Boom.notFound('App not found')
     }
 
     var voteToRemoveId = null
-    for(var i=0; i< app.votes.length; i++) {
+    for (var i = 0; i < app.votes.length; i++) {
         var currUserId = app.votes[i].user
-        if(currUserId == userId) {
+        if (currUserId == userId) {
             voteToRemoveId = app.votes[i]._id
             app.votes.splice(i, 1);
         }
@@ -64,6 +73,9 @@ function* deleteAppVote(userId, appId) {
     app.votesCount = app.votes.length
     yield app.save()
     yield Vote.remove({_id: voteToRemoveId}).exec()
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_UNVOTED, user._id, {
+        appId: app._id
+    })
     return {
         votesCount: app.votesCount
     }
@@ -91,9 +103,9 @@ function hasUserVotedForComment(comment, userId) {
 
 function* setHasUserVotedForCommentField(comments, userId) {
     var resultComments = []
-    for(var i =0; i< comments.length; i++) {
+    for (var i = 0; i < comments.length; i++) {
         var comment = comments[i]
-        if(comment instanceof Comment) {
+        if (comment instanceof Comment) {
             comment = comment.toObject()
         }
         comment.hasVoted = hasUserVotedForComment(comment, userId)
@@ -125,12 +137,18 @@ function hasUserVotedForAppsCollection(collection, userId) {
 }
 
 function hasUserVotedForPopulatedObj(obj, userId) {
-    if(userId == undefined || userId == null) {
+    if (userId == undefined || userId == null) {
         return false;
     }
     for (var j = 0; j < obj.votes.length; j++) {
         var user = obj.votes[j].user;
-        if (user !== null && String(userId) == String(user._id)) {
+        var currentUserId = null
+        if("_id" in user) {
+            currentUserId = user._id
+        } else {
+            currentUserId = user
+        }
+        if (user !== null && String(userId) == String(currentUserId)) {
             return true;
         }
     }
@@ -138,7 +156,7 @@ function hasUserVotedForPopulatedObj(obj, userId) {
 }
 
 function hasUserVotedForUnpopulatedObj(obj, userId) {
-    if(!userId) {
+    if (!userId) {
         return false;
     }
     for (var j = 0; j < obj.votes.length; j++) {
@@ -153,20 +171,24 @@ function hasUserVotedForUnpopulatedObj(obj, userId) {
 // </editor-fold>
 
 
-function* clearAppVotes(voteIds) {
-    for(var i =0; i< voteIds; i++) {
+function* clearAppVotes(voteIds, appId) {
+    for (var i = 0; i < voteIds; i++) {
         var voteId = voteIds[i]
-        yield Vote.remove({_id: voteId}).exec()
+        var vote = yield Vote.findById(voteId)
+        yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_UNVOTED, vote.user, {
+            appId: app._id
+        })
+        yield vote.remove().exec()
     }
 }
 
 function* createCollectionVote(collectionId, userId) {
     var collection = yield AppsCollection.findById(collectionId).deepPopulate('votes.user').exec()
-    if(!collection) {
+    if (!collection) {
         return Boom.notFound('Non-existing collection')
     }
 
-    if(hasUserVotedForPopulatedObj(collection, userId)) {
+    if (hasUserVotedForPopulatedObj(collection, userId)) {
         return Boom.conflict('Vote exists')
     }
 
@@ -191,14 +213,14 @@ function* deleteCollectionVote(collectionId, userId) {
 
     var query = AppsCollection.findById(collectionId)
     var collection = yield query.populate("votes").exec()
-    if(!collection) {
+    if (!collection) {
         return Boom.notFound('Non-existing apps collection')
     }
 
     var voteToRemoveId = null
-    for(var i=0; i< collection.votes.length; i++) {
+    for (var i = 0; i < collection.votes.length; i++) {
         var currUserId = collection.votes[i].user
-        if(currUserId == userId) {
+        if (currUserId == userId) {
             voteToRemoveId = collection.votes[i]
             collection.votes.splice(i, 1);
             collection.votesCount = collection.votes.length
@@ -213,7 +235,7 @@ function* deleteCollectionVote(collectionId, userId) {
 }
 
 function* deleteVotesByIds(votesIds) {
-    for(let i=0; i<votesIds.length; i++) {
+    for (let i = 0; i < votesIds.length; i++) {
         yield Vote.remove({_id: votesIds[i]}).exec()
     }
 
@@ -230,15 +252,7 @@ function* getVotes(fromDate, toDate) {
         }
     }
 
-    let result = []
-    let votes = yield Vote.find(where).populate('user').exec()
-    for(let vote of votes) {
-        if(vote.user != LOGIN_TYPES.Fake) {
-            result.push(vote)
-        }
-    }
-
-    return result
+    return yield Vote.find(where).populate('user').exec()
 }
 
 module.exports.createAppVote = createAppVote

@@ -9,6 +9,7 @@ exports.getHistory = getHistory;
 exports.getUnseenHistory = getUnseenHistory;
 exports.getText = getText;
 exports.deleteEventsForApp = deleteEventsForApp;
+exports.getEvents = getEvents;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -91,8 +92,15 @@ function* createEvent(type, userId) {
         case HISTORY_EVENT_TYPES.USER_IN_TOP_HUNTERS:
             //TODO
             break;
+        case HISTORY_EVENT_TYPES.APP_VOTED:
+        case HISTORY_EVENT_TYPES.APP_UNVOTED:
+            break;
         default:
             return;
+    }
+
+    if (interestedUsers.length == 0) {
+        return;
     }
 
     interestedUsers = _.uniq(interestedUsers, function (obj) {
@@ -297,7 +305,11 @@ function* getEventsForApps(createdAt, userId) {
         for (var _iterator4 = apps[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
             var app = _step4.value;
 
-            var appEvents = yield History.find({ createdAt: createdAt, user: { $ne: userId }, 'params.appId': app._id }).populate('user').exec();
+            var appEvents = yield History.find({
+                createdAt: createdAt,
+                user: { $ne: userId },
+                'params.appId': app._id
+            }).populate('user').exec();
             var _iteratorNormalCompletion5 = true;
             var _didIteratorError5 = false;
             var _iteratorError5 = undefined;
@@ -501,4 +513,81 @@ function* getEventsForFavouriteCollections(createdAt, userId) {
 
 function* deleteEventsForApp(appId) {
     yield History.remove({ 'params.appId': appId }).exec();
+}
+
+function* getEvents(fromDate, toDate) {
+    for (var _len = arguments.length, eventTypes = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+        eventTypes[_key - 2] = arguments[_key];
+    }
+
+    var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+    toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
+
+    var where = {
+        createdAt: {
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+        }
+    };
+    if (eventTypes.length == 1) {
+        where.type = eventTypes[0];
+    } else {
+        where.type = { $in: eventTypes };
+    }
+
+    var events = yield History.aggregate([{
+        $match: where
+    }, {
+        $group: {
+            _id: {
+                appId: "$params.appId",
+                type: "$type"
+            },
+            eventsCount: { $sum: 1 }
+        }
+    }, {
+        $group: {
+            _id: "$_id.appId",
+            events: {
+                $push: {
+                    type: "$_id.type",
+                    count: "$eventsCount"
+                }
+            }
+        }
+    }], function (err, result) {
+        if (err) {
+            return;
+        }
+    });
+    var result = [];
+    var _iteratorNormalCompletion11 = true;
+    var _didIteratorError11 = false;
+    var _iteratorError11 = undefined;
+
+    try {
+        for (var _iterator11 = events[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+            var _event5 = _step11.value;
+
+            result.push({
+                appId: _event5._id,
+                events: _event5.events
+            });
+        }
+    } catch (err) {
+        _didIteratorError11 = true;
+        _iteratorError11 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion11 && _iterator11['return']) {
+                _iterator11['return']();
+            }
+        } finally {
+            if (_didIteratorError11) {
+                throw _iteratorError11;
+            }
+        }
+    }
+
+    return result;
 }

@@ -78,6 +78,8 @@ var historyEventTypes = {
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
     APP_FAVOURITED: "appFavourited",
+    APP_VOTED: "appVoted",
+    APP_UNVOTED: "appUnvoted",
 
     USER_MENTIONED: "userMentioned",
     USER_FOLLOWED: "userFollowed",
@@ -145,5 +147,6 @@ module.exports.Points = {
 module.exports.TrendingAppsPoints = {
     vote: 1,
     comment: 4,
-    install: 2
+    install: 2,
+    favourite: 2
 };
