@@ -608,6 +608,7 @@ function* getTrendingApps(userId, page, pageSize) {
                 return String(item._id) == String(id);
             });
             var populatedApp = yield getPopulatedApp(app, userId);
+            populatedApp.commentsCount = yield setCommentsCount(id);
             apps.push(populatedApp);
         };
 
