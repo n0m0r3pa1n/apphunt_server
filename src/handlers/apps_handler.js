@@ -496,7 +496,6 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
 
     var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy")
     query.sort({votesCount: 'desc', createdAt: 'desc'})
-
     var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize)
     result.apps = convertToArray(result.apps)
     if (userType != undefined) {
@@ -504,6 +503,7 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
             app.votes = getAppVotesForUserType(app.votes, userType)
             app.votesCount = app.votes.length
         }
+
         result.apps = _.sortBy(result.apps, 'votesCount')
         result.apps.reverse()
     }
@@ -517,6 +517,9 @@ export function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize
 function getAppVotesForUserType(userVotes, userType) {
     return _.filter(userVotes, function (vote) {
         let pass = false;
+        if(vote.user == null) {
+            return true;
+        }
         if (userType == LOGIN_TYPES_FILTER.Fake) {
             pass = vote.user.loginType == LOGIN_TYPES.Fake ? true : false
         } else if (userType == LOGIN_TYPES_FILTER.Real) {
