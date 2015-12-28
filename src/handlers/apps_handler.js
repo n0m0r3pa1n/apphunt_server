@@ -185,10 +185,11 @@ function* getPopulatedApp(app, userId) {
     return app;
 }
 export function* getRandomApp(userId) {
-    let count = yield App.count()
+    let where = {platform: PLATFORMS.Android, status: APP_STATUSES.APPROVED}
+    let count = yield App.find(where).count().exec()
     let rand = Math.floor(Math.random() * count);
 
-    let app = yield App.findOne().deepPopulate('votes.user').populate('createdBy categories').skip(rand).exec()
+    let app = yield App.findOne(where).deepPopulate('votes.user').populate('createdBy categories').skip(rand).exec()
     return yield getPopulatedApp(app, userId);
 }
 

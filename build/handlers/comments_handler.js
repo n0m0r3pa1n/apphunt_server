@@ -102,10 +102,7 @@ function* create(comment, appId, userId, parentId, mentionedUserId) {
     } else {
         var title = String.format(MESSAGES.USER_COMMENTED_TITLE, user.username, app.name);
         var message = comment.text;
-        var isFollowing = yield FollowersHandler.isFollowing(app.createdBy._id, userId);
-        if (isFollowing) {
-            NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.FOLLOWING_COMMENTED_APP, { appId: appId });
-        }
+        NotificationsHandler.sendNotifications(app.createdBy.devices, title, message, user.profilePicture, NOTIFICATION_TYPES.USER_COMMENT, { appId: appId });
 
         yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_COMMENT, user._id, { appId: app._id,
             appName: app.name, userName: user.name });
