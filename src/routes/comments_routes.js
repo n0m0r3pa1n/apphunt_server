@@ -8,7 +8,8 @@ var routes = [
         path: "/comments",
         handler: function(req, reply) {
             var comment = new Comment(req.payload)
-            reply.co(CommentsHandler.create(comment, req.payload.appId, req.payload.userId, req.payload.parentId))
+            reply.co(CommentsHandler.create(comment, req.payload.appId, req.payload.userId,
+                req.payload.parentId, req.payload.mentionedUserId))
         },
         config: {
             validate: {
@@ -16,7 +17,8 @@ var routes = [
                     appId: Joi.string().required(),
                     userId: Joi.string().required(),
                     text: Joi.string().required(),
-                    parentId: Joi.string().optional()
+                    parentId: Joi.string().optional(),
+                    mentionedUserId: Joi.string().optional()
                 }
             },
             auth: false,
