@@ -66,7 +66,7 @@ var notificationTypes = {
     FOLLOWING_ADDED_APP: "followingAddedApp",
     FOLLOWING_FAVOURITED_APP: "followingFavouritedApp",
     FOLLOWING_FAVOURITED_COLLECTION: "followingFavouritedCollection",
-    FOLLOWING_COMMENTED_APP: "followingCommentedApp",
+    USER_COMMENT: "userComment"
 }
 
 var historyEventTypes = {
