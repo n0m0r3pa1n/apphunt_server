@@ -51,6 +51,10 @@ export function* find(userId) {
     return yield User.findById(userId).exec()
 }
 
+export function* findWithDevices(userId) {
+    return yield User.findById(userId).populate('devices').exec()
+}
+
 export function* findByUsername(username) {
     return yield User.findOne({username: username}).populate('devices').exec()
 }

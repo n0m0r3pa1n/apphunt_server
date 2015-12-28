@@ -162,7 +162,6 @@ describe("Comments", function() {
         var appId = (yield dbHelper.createApp(userId)).result.id
         var commentId = (yield dbHelper.createComment(appId, userId)).result.id
         var childCommentResponse = yield dbHelper.createCommentWithText(appId, userId, commentId, "@" + userName + " om nom nom")
-
         childCommentResponse.result.parent.id.should.equal(commentId)
 
 
@@ -221,6 +220,29 @@ describe("Comments", function() {
         response.result.comments.length.should.eq(2)
         response.result.totalCount.should.eq(2)
         expect(response.result.comments[0].app.name).to.exist
+    });
+
+    it("should reply to a user comment with metnionedUserid with notification", function*() {
+        var userResult = (yield dbHelper.createUser()).result
+        var userId = userResult.id
+        var userName = userResult.username
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        var commentId = (yield dbHelper.createComment(appId, userId)).result.id
+        var childCommentResponse = yield dbHelper.createCommentWithText(appId, userId, commentId, "@" + userName + " om nom nom", userId)
+        childCommentResponse.result.parent.id.should.equal(commentId)
+
+
+        yield dbHelper.voteComment(childCommentResponse.result.id, userId)
+
+        var opts = {
+            method: 'GET',
+            url: '/v1/comments/' + appId + "?page=1&pageSize=2&userId=" + userId
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.comments[0].children.length.should.equal(1)
+        expect(response.result.comments[0].children[0].hasVoted).to.exist
+        //response.result.comments[0].children[0].hasVoted.should.equal(true)
     });
 
 })
