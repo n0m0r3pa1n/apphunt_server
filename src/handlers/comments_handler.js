@@ -19,7 +19,7 @@ import * as UsersHandler from './users_handler.js'
 import * as HistoryHandler from './history_handler.js'
 
 
-export function* create(comment, appId, userId, parentId) {
+export function* create(comment, appId, userId, parentId, mentionedUserId) {
     var app = yield AppsHandler.getApp(appId, userId)
     if (app.isBoom != undefined && app.isBoom == true) {
         return Boom.notFound("Non-existing app")
@@ -54,17 +54,17 @@ export function* create(comment, appId, userId, parentId) {
         createdCommentObject.parent.id = String(createdCommentObject.parent._id);
     }
 
-    if(isConversationComment(comment.text)) {
+    if(mentionedUserId) {
+        var mentionedUser = yield UsersHandler.findWithDevices(mentionedUserId)
+        if(mentionedUser !== null) {
+            yield notifyForComment(app, comment, user, mentionedUser)
+        }
+    } else if(isConversationComment(comment.text)) {
         var userName = getCommentedUserName(comment.text)
         if(userName !== '') {
             var mentionedUser = yield UsersHandler.findByUsername(userName)
             if(mentionedUser !== null) {
-                var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username)
-                var message = comment.text
-                NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
-                    NOTIFICATION_TYPES.USER_MENTIONED, {appId: appId})
-                yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, userId, {mentionedUserId: String(mentionedUser._id),
-                    appId: app._id, appName: app.name, userName: user.name})
+                yield notifyForComment(app, comment, user, mentionedUser)
             }
         }
     } else {
@@ -81,6 +81,15 @@ export function* create(comment, appId, userId, parentId) {
     }
 
     return createdCommentObject
+}
+
+function* notifyForComment(app, comment, user, mentionedUser) {
+    var title = String.format(MESSAGES.USER_MENTIONED_TITLE, user.username)
+    var message = comment.text
+    NotificationsHandler.sendNotifications(mentionedUser.devices, title, message, user.profilePicture,
+        NOTIFICATION_TYPES.USER_MENTIONED, {appId: app._id})
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.USER_MENTIONED, user._id, {mentionedUserId: String(mentionedUser._id),
+        appId: app._id, appName: app.name, userName: user.name})
 }
 
 function isConversationComment(commentText) {

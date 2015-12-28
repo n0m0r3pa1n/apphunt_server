@@ -164,7 +164,7 @@ function createComment(appId, userId, parentId) {
     return Server.injectThen(opts)
 }
 
-function createCommentWithText(appId, userId, parentId, commentText) {
+function createCommentWithText(appId, userId, parentId, commentText, mentionedUserId) {
     var opts = {
         method: 'POST',
         url: '/v1/comments',
@@ -176,6 +176,10 @@ function createCommentWithText(appId, userId, parentId, commentText) {
     }
     if(parentId !== undefined) {
         opts.payload.parentId = parentId
+    }
+
+    if(mentionedUserId !== undefined) {
+        opts.payload.mentionedUserId = mentionedUserId
     }
     return Server.injectThen(opts)
 }

@@ -6,6 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 exports.get = get;
 exports.getLoginTypes = getLoginTypes;
 exports.find = find;
+exports.findWithDevices = findWithDevices;
 exports.findByUsername = findByUsername;
 exports.getUserDevices = getUserDevices;
 exports.filterExistingUsers = filterExistingUsers;
@@ -86,6 +87,10 @@ function getLoginTypes() {
 
 function* find(userId) {
     return yield User.findById(userId).exec();
+}
+
+function* findWithDevices(userId) {
+    return yield User.findById(userId).populate('devices').exec();
 }
 
 function* findByUsername(username) {
