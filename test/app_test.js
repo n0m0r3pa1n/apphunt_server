@@ -178,8 +178,8 @@ describe("Apps", function () {
 
     it("should get random app", function*() {
         var userResponse = yield dbHelper.createUser()
-        yield dbHelper.createApp(userResponse.result.id)
         yield dbHelper.createAppWithPackage(userResponse.result.id, "com.poliiii")
+        yield dbHelper.approveApp('com.poliiii')
 
         var opts = {
             method: 'GET',
@@ -188,8 +188,6 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         expect(response.result._id).to.exist
-
-
 
     })
 
