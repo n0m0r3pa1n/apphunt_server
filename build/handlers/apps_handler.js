@@ -608,13 +608,18 @@ function* getTrendingApps(userId, page, pageSize) {
             var app = _.find(populatedApps, function (item) {
                 return String(item._id) == String(id);
             });
+            if (app == null) {
+                return 'continue';
+            }
             var populatedApp = yield getPopulatedApp(app, userId);
             populatedApp.commentsCount = yield setCommentsCount(id);
             apps.push(populatedApp);
         };
 
         for (var _iterator7 = appIds[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-            yield* _loop();
+            var _ret = yield* _loop();
+
+            if (_ret === 'continue') continue;
         }
     } catch (err) {
         _didIteratorError7 = true;
