@@ -420,6 +420,9 @@ export function* getTrendingApps(userId, page, pageSize) {
 
     for(let id of appIds) {
         let app = _.find(populatedApps, function (item) {return String(item._id) == String(id)})
+        if(app == null) {
+            continue;
+        }
         let populatedApp = yield getPopulatedApp(app, userId)
         populatedApp.commentsCount = yield setCommentsCount(id)
         apps.push(populatedApp)
