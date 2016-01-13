@@ -263,8 +263,6 @@ export function* changeAppStatus(appPackage, status) {
         var isAppApproved = app.status == APP_STATUSES.WAITING && status == APP_STATUSES.APPROVED;
 
         if (isAppApproved) {
-            yield setAppShortUrl(app);
-            //postTweet(app, createdBy)
             EmailsHandler.sendEmailToDeveloper(app)
             let title = String.format(MESSAGES.APP_APPROVED_TITLE, app.name)
             let message = String.format(MESSAGES.APP_APPROVED_MESSAGE, app.name, DateUtils.formatDate(app.createdAt))
@@ -316,6 +314,7 @@ function* setAppShortUrl(app) {
         })
     }
     app.shortUrl = yield UrlsHandler.getShortLink(links)
+    console.log(app.shortUrl)
 }
 
 export function* getTrendingApps(userId, page, pageSize) {
