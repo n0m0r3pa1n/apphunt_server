@@ -47,7 +47,8 @@ var adRoutes = [{
     config: {
         validate: {
             query: {
-                userId: Joi.objectId().required()
+                userId: Joi.objectId().required(),
+                adLoadNumber: Joi.number().optional()
             }
         },
         auth: false

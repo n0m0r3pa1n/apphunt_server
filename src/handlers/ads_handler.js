@@ -32,7 +32,11 @@ export function* createAd({name, picture, link}) {
     return Boom.OK()
 }
 
-export function* shouldShowAd(userId) {
+export function* shouldShowAd(userId, adLoadNumber = 0) {
+    if(adLoadNumber % 3 != 0) {
+        return {shouldShowAd: false}
+    }
+
     let historyEventTypes = [
         HISTORY_EVENT_TYPES.APP_SUBMITTED,
         HISTORY_EVENT_TYPES.USER_COMMENT,
