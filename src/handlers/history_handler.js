@@ -85,6 +85,27 @@ export function* postRefreshEvent(userId) {
     return Boom.OK()
 }
 
+export function* getRecentUserActions(userId, historyEventTypes, date, toDate = new Date(date.getTime() + DAY_MILLISECONDS)) {
+    let user = yield UsersHandler.find(userId)
+    if (user == null) {
+        return Boom.notFound("User is not existing!")
+    }
+    var where = {}
+
+    where.createdAt = {
+        "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+        "$lt": toDate.toISOString()
+    };
+    where.user = userId
+
+    where.type = {
+        $in: historyEventTypes
+    }
+
+    let userEvents = yield History.find(where).exec()
+    return {events: userEvents, fromDate: date, toDate: toDate}
+}
+
 export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY_MILLISECONDS)) {
     let user = yield UsersHandler.find(userId)
     if (user == null) {
@@ -118,6 +139,7 @@ export function* getHistory(userId, date, toDate = new Date(date.getTime() + DAY
         type: HISTORY_EVENT_TYPES.USER_FOLLOWED,
         'params.followingId': userId
     }).populate('user').exec())
+
     let events = yield getPopulatedResponseWithIsFollowing(userId, results)
     events = _.sortBy(events, function (event) {
         return event.createdAt

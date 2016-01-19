@@ -24,6 +24,41 @@ describe("Ads", function () {
         response.result.name.should.eq("Ad Name")
     });
 
+    it('should not display ad to user user', function*() {
+        yield createAd()
+        var user = (yield dbHelper.createUser()).result
+        var app = (yield dbHelper.createApp(user.id)).result
+        yield dbHelper.approveApp(app.package)
+
+        yield dbHelper.createComment(app.id, user.id)
+
+        var opts = {
+            method: 'GET',
+            url: '/ads/status?userId=' + user.id
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.shouldShowAd.should.eq(false)
+    })
+
+    it('should display ad to user user', function*() {
+        yield createAd()
+        var user = (yield dbHelper.createUser()).result
+        var user2 = (yield dbHelper.createUserWithEmail('user@test.com')).result
+        var app = (yield dbHelper.createApp(user2.id)).result
+        yield dbHelper.approveApp(app.package)
+
+        yield dbHelper.createComment(app.id, user.id)
+
+        var opts = {
+            method: 'GET',
+            url: '/ads/status?userId=' + user.id
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.shouldShowAd.should.eq(true)
+    })
+
     function createAd() {
         var opts = {
             method: "POST",
@@ -37,5 +72,4 @@ describe("Ads", function () {
 
         return Server.injectThen(opts)
     }
-
 })

@@ -1,5 +1,5 @@
 var Joi = require('joi')
-
+Joi.objectId = require('joi-objectid')
 import * as AdsHandler from '../handlers/ads_handler.js'
 
 export var adRoutes = [
@@ -10,8 +10,7 @@ export var adRoutes = [
             reply.co(AdsHandler.getAd())
         },
         config: {
-            validate: {
-            },
+            validate: {},
             auth: false
         }
     },
@@ -31,5 +30,21 @@ export var adRoutes = [
             },
             auth: false
         }
+    },
+    {
+        method: 'GET',
+        path: '/ads/status',
+        handler: function (req, reply) {
+            reply.co(AdsHandler.shouldShowAd(req.query.userId))
+        },
+        config: {
+            validate: {
+                query: {
+                    userId: Joi.objectId().required()
+                }
+            },
+            auth: false
+        }
+
     }
 ]
