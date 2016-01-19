@@ -42,7 +42,7 @@ var adRoutes = [{
     method: 'GET',
     path: '/ads/status',
     handler: function handler(req, reply) {
-        reply.co(AdsHandler.shouldShowAd(req.query.userId));
+        reply.co(AdsHandler.shouldShowAd(req.query.userId, req.query.adLoadNumber));
     },
     config: {
         validate: {

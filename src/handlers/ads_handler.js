@@ -33,7 +33,7 @@ export function* createAd({name, picture, link}) {
 }
 
 export function* shouldShowAd(userId, adLoadNumber = 0) {
-    if(adLoadNumber % 3 != 0) {
+    if(adLoadNumber % 2 == 0) {
         return {shouldShowAd: false}
     }
 

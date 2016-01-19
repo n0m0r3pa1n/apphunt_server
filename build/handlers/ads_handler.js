@@ -52,7 +52,7 @@ function* createAd(_ref) {
 function* shouldShowAd(userId) {
     var adLoadNumber = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
-    if (adLoadNumber % 3 != 0) {
+    if (adLoadNumber % 2 == 0) {
         return { shouldShowAd: false };
     }
 
