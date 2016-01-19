@@ -347,7 +347,6 @@ export function* getTrendingApps(userId, page, pageSize) {
         HISTORY_EVENT_TYPES.USER_COMMENT,
         HISTORY_EVENT_TYPES.USER_MENTIONED)
     console.timeEnd("Events Request")
-
     var appsPoints = []
     for(let eventItem of votesAndCommentsEvents) {
         var appId = eventItem.appId
@@ -366,7 +365,6 @@ export function* getTrendingApps(userId, page, pageSize) {
 
         appsPoints.push({appId: appId, points: points})
     }
-
     console.time("Flurry")
     let sixHours = 21600;
 
@@ -386,9 +384,6 @@ export function* getTrendingApps(userId, page, pageSize) {
         });
     }
     console.timeEnd("Flurry")
-    console.time("Install Points")
-
-    console.timeEnd("Install Points")
 
     for(let fluryAppPoints of flurryAppsWithPoints) {
         let currentAppPoints = getTrendingAppPoints(fluryAppPoints.appId, appsPoints)
@@ -398,7 +393,6 @@ export function* getTrendingApps(userId, page, pageSize) {
             appsPoints.push(fluryAppPoints)
         }
     }
-
     var sortedAppsByPoints = _.sortBy(appsPoints, function(item) {
         return item.points
     })
@@ -406,10 +400,7 @@ export function* getTrendingApps(userId, page, pageSize) {
     if(sortedAppsByPoints.length > totalCount) {
         sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount)
     }
-
-    console.log(skip, skip+limit)
     sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit)
-
     var appIds = []
     for(let appPoints of sortedAppsByPoints) {
         appIds.push(appPoints.appId)
@@ -578,7 +569,11 @@ export function* getApp(appId, userId) {
     if (!app) {
         return Boom.notFound('App can not be found!')
     }
-    return yield getPopulatedApp(app, userId)
+    let populatedApp = yield getPopulatedApp(app, userId)
+    populatedApp.commentsCount = yield setCommentsCount(appId)
+
+    return populatedApp
+
 }
 
 export function* getFavouriteAppsCount(userId) {

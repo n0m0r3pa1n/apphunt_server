@@ -441,7 +441,6 @@ function* getTrendingApps(userId, page, pageSize) {
     console.time('Events Request');
     var votesAndCommentsEvents = yield HistoryHandler.getEvents(fromDate, toDate, HISTORY_EVENT_TYPES.APP_FAVOURITED, HISTORY_EVENT_TYPES.APP_VOTED, HISTORY_EVENT_TYPES.APP_UNVOTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.USER_MENTIONED);
     console.timeEnd('Events Request');
-
     var appsPoints = [];
     var _iteratorNormalCompletion4 = true;
     var _didIteratorError4 = false;
@@ -522,9 +521,6 @@ function* getTrendingApps(userId, page, pageSize) {
         });
     }
     console.timeEnd('Flurry');
-    console.time('Install Points');
-
-    console.timeEnd('Install Points');
 
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
@@ -563,10 +559,7 @@ function* getTrendingApps(userId, page, pageSize) {
     if (sortedAppsByPoints.length > totalCount) {
         sortedAppsByPoints = sortedAppsByPoints.slice(0, totalCount);
     }
-
-    console.log(skip, skip + limit);
     sortedAppsByPoints = sortedAppsByPoints.slice(skip, skip + limit);
-
     var appIds = [];
     var _iteratorNormalCompletion6 = true;
     var _didIteratorError6 = false;
@@ -876,7 +869,10 @@ function* getApp(appId, userId) {
     if (!app) {
         return Boom.notFound('App can not be found!');
     }
-    return yield getPopulatedApp(app, userId);
+    var populatedApp = yield getPopulatedApp(app, userId);
+    populatedApp.commentsCount = yield setCommentsCount(appId);
+
+    return populatedApp;
 }
 
 function* getFavouriteAppsCount(userId) {

@@ -709,7 +709,8 @@ describe("Apps", function () {
         })
 
 
-        var userId = (yield dbHelper.createUser()).result.id
+        var user = (yield dbHelper.createUser()).result
+        var userId = user.id
         var app1Id = (yield dbHelper.createAppWithPackage(userId, "package1")).result.id
         var app2Id = (yield dbHelper.createAppWithPackage(userId, "package2")).result.id
 
@@ -725,8 +726,8 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts)
         response.result.apps.length.should.eq(2)
-        response.result.apps[0].package.should.eq('package1')
-        response.result.apps[1].package.should.eq('package2')
+        response.result.apps[0].package.should.eq('package2')
+        response.result.apps[1].package.should.eq('package1')
     });
 })
 
