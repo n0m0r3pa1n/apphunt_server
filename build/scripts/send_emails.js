@@ -15,10 +15,10 @@ Mongoose.connect(dbURI, function (err, obj) {});
 
 var Co = require('co');
 var Fs = require('fs');
-var Bolt = require("bolt-js");
+var Bolt = require('bolt-js');
 var json2csv = require('json2csv');
 
-var APP_HUNT_EMAIL = "georgi@theapphunt.com";
+var APP_HUNT_EMAIL = 'georgi@theapphunt.com';
 var EMAIL_TEMPLATES_PATH = require('../config/config').EMAIL_TEMPLATES_PATH;
 var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER;
 
@@ -59,12 +59,12 @@ Co(function* () {
                         user.lastName = _name[_name.length - 1];
                     } else if (_name.length == 1) {
                         user.firstName = _name[0];
-                        user.lastName = "";
+                        user.lastName = '';
                     } else {
-                        user.firstName = "Hunter";
-                        user.lastName = "";
+                        user.firstName = 'Hunter';
+                        user.lastName = '';
                     }
-                    console.log("Added " + i + " of " + length);
+                    console.log('Added ' + i + ' of ' + length);
 
                     data.push({ email: user.email, firstName: user.firstName, lastName: user.lastName });
                 }

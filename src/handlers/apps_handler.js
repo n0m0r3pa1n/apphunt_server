@@ -108,6 +108,8 @@ export function* create(app, tags, userId) {
     var createdApp = yield App.create(app)
     yield VotesHandler.createAppVote(userId, createdApp.id)
     yield TagsHandler.saveTagsForApp(tags, createdApp.id, createdApp.name, [getFormattedCategory(parsedApp.category)])
+    yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_SUBMITTED, userId,
+        {appName: app.name, appPackage: app.package})
 
     return createdApp
 }

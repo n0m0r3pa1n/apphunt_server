@@ -70,6 +70,7 @@ var notificationTypes = {
 }
 
 var historyEventTypes = {
+    APP_SUBMITTED: "appSubmitted",
     APP_APPROVED: "appApproved",
     APP_REJECTED: "appRejected",
     APP_FAVOURITED: "appFavourited",
@@ -138,8 +139,8 @@ module.exports.Points = {
 }
 
 module.exports.TrendingAppsPoints = {
-    vote: 1,
+    vote: 2,
     comment: 4,
-    install: 2,
+    install: 1,
     favourite: 2
 }

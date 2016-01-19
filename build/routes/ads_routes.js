@@ -11,10 +11,10 @@ var _handlersAds_handlerJs = require('../handlers/ads_handler.js');
 var AdsHandler = _interopRequireWildcard(_handlersAds_handlerJs);
 
 var Joi = require('joi');
-
+Joi.objectId = require('joi-objectid');
 var adRoutes = [{
-    method: "GET",
-    path: "/ad",
+    method: 'GET',
+    path: '/ad',
     handler: function handler(req, reply) {
         reply.co(AdsHandler.getAd());
     },
@@ -23,8 +23,8 @@ var adRoutes = [{
         auth: false
     }
 }, {
-    method: "POST",
-    path: "/ads",
+    method: 'POST',
+    path: '/ads',
     handler: function handler(req, reply) {
         reply.co(AdsHandler.createAd(req.payload));
     },
@@ -38,5 +38,20 @@ var adRoutes = [{
         },
         auth: false
     }
+}, {
+    method: 'GET',
+    path: '/ads/status',
+    handler: function handler(req, reply) {
+        reply.co(AdsHandler.shouldShowAd(req.query.userId));
+    },
+    config: {
+        validate: {
+            query: {
+                userId: Joi.objectId().required()
+            }
+        },
+        auth: false
+    }
+
 }];
 exports.adRoutes = adRoutes;

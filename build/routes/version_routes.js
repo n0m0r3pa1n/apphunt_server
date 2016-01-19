@@ -6,7 +6,7 @@ var _handlersVersion_handlerJs = require("../handlers/version_handler.js");
 
 var VersionHandler = _interopRequireWildcard(_handlersVersion_handlerJs);
 
-var Joi = require('joi');
+var Joi = require("joi");
 
 var versionRoutes = [{
     method: "GET",
@@ -16,8 +16,8 @@ var versionRoutes = [{
     },
     config: {
         auth: false,
-        description: 'Get latest android app version code',
-        tags: ['api']
+        description: "Get latest android app version code",
+        tags: ["api"]
     }
 }, {
     method: "PUT",
@@ -32,8 +32,8 @@ var versionRoutes = [{
             }
         },
         auth: false,
-        description: 'Get latest android app version code',
-        tags: ['api']
+        description: "Get latest android app version code",
+        tags: ["api"]
     }
 }];
 
