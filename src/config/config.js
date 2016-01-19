@@ -139,8 +139,8 @@ module.exports.Points = {
 }
 
 module.exports.TrendingAppsPoints = {
-    vote: 2,
-    comment: 4,
-    install: 0.5,
-    favourite: 2
+    vote: 6,
+    comment: 15,
+    install: 1,
+    favourite: 8
 }
