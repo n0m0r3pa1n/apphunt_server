@@ -50,6 +50,12 @@ function* createAd(_ref) {
 }
 
 function* shouldShowAd(userId) {
+    var adLoadNumber = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
+    if (adLoadNumber % 3 != 0) {
+        return { shouldShowAd: false };
+    }
+
     var historyEventTypes = [HISTORY_EVENT_TYPES.APP_SUBMITTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.COLLECTION_CREATED];
 
     var recentUserHistory = yield HistoryHandler.getRecentUserActions(userId, historyEventTypes, new Date());
