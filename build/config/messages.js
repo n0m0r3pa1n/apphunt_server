@@ -14,8 +14,8 @@ var APP_APPROVED_MESSAGE = '{0} will be featured on AppHunt on {1}';
 var USER_COMMENTED_TITLE = '{0} commented on {1}';
 var USER_MENTIONED_TITLE = '{0} mentioned you on AppHunt';
 
-var AD_FREE_MESSAGE = 'You are FREE from receiving any ads! Keep up the good work!';
-var AD_NOT_FREE_MESSAGE = 'Push yourself some more! Leave some comments, submit an app or just be more active and you won\'t see any ads!';
+var AD_FREE_MESSAGE = 'You are FREE from receiving interstitial ads! Keep up the good work!';
+var AD_NOT_FREE_MESSAGE = 'Push yourself some more! Leave some comments, submit an app or just be more active and you won\'t see interstitial ads!';
 
 var historyMessages = {};
 
