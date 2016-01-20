@@ -83,7 +83,6 @@ function* getUserAdStatus(userId) {
             collections++;
         }
     });
-    console.log(comments);
 
     if (appsSubmitted >= MIN_SUBMTTED_APPS || comments >= MIN_COMMENTS_COUNT || collections >= MIN_COLLECTIONS_CREATED) {
         return { shouldShowAd: false, message: AD_FREE_MESSAGE };

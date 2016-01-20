@@ -65,7 +65,6 @@ export function* getUserAdStatus(userId) {
             collections++;
         }
     })
-    console.log(comments)
 
     if(appsSubmitted >= MIN_SUBMTTED_APPS ||
         comments >= MIN_COMMENTS_COUNT ||
