@@ -6,6 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 exports.getAd = getAd;
 exports.createAd = createAd;
 exports.shouldShowAd = shouldShowAd;
+exports.getUserAdStatus = getUserAdStatus;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
@@ -19,6 +20,8 @@ var Boom = require('boom');
 var Ad = require('../models').Ad;
 
 var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
+var AD_FREE_MESSAGE = require('../config/messages').AD_FREE_MESSAGE;
+var AD_NOT_FREE_MESSAGE = require('../config/messages').AD_NOT_FREE_MESSAGE;
 
 var MIN_SUBMTTED_APPS = 1;
 var MIN_COMMENTS_COUNT = 3;
@@ -56,11 +59,16 @@ function* shouldShowAd(userId) {
         return { shouldShowAd: false };
     }
 
+    return yield getUserAdStatus(userId);
+}
+
+function* getUserAdStatus(userId) {
+    var showAdMessage = '';
     var historyEventTypes = [HISTORY_EVENT_TYPES.APP_SUBMITTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.COLLECTION_CREATED];
 
     var recentUserHistory = yield HistoryHandler.getRecentUserActions(userId, historyEventTypes, new Date());
     if (recentUserHistory.events.length == 0) {
-        return { shouldShowAd: true };
+        return { shouldShowAd: true, message: AD_NOT_FREE_MESSAGE };
     }
 
     var appsSubmitted = 0,
@@ -75,10 +83,11 @@ function* shouldShowAd(userId) {
             collections++;
         }
     });
+    console.log(comments);
 
     if (appsSubmitted >= MIN_SUBMTTED_APPS || comments >= MIN_COMMENTS_COUNT || collections >= MIN_COLLECTIONS_CREATED) {
-        return { shouldShowAd: false };
+        return { shouldShowAd: false, message: AD_FREE_MESSAGE };
     }
 
-    return { shouldShowAd: true };
+    return { shouldShowAd: true, message: AD_NOT_FREE_MESSAGE };
 }
