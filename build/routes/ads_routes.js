@@ -53,6 +53,19 @@ var adRoutes = [{
         },
         auth: false
     }
-
+}, {
+    method: 'GET',
+    path: '/users/{userId}/ads/status',
+    handler: function handler(req, reply) {
+        reply.co(AdsHandler.getUserAdStatus(req.params.userId));
+    },
+    config: {
+        validate: {
+            params: {
+                userId: Joi.objectId().required()
+            }
+        },
+        auth: false
+    }
 }];
 exports.adRoutes = adRoutes;

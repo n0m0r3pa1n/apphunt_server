@@ -34,7 +34,7 @@ describe("Ads", function () {
 
         var opts = {
             method: 'GET',
-            url: '/ads/status?userId=' + user.id
+            url: '/ads/status?userId=' + user.id + "&adLoadNumber=2"
         }
 
         var response = yield Server.injectThen(opts)
@@ -52,12 +52,49 @@ describe("Ads", function () {
 
         var opts = {
             method: 'GET',
-            url: '/ads/status?userId=' + user.id
+            url: '/ads/status?userId=' + user.id + "&adLoadNumber=1"
         }
 
         var response = yield Server.injectThen(opts)
         response.result.shouldShowAd.should.eq(true)
     })
+
+    it('should get non ad free user ad status', function*() {
+        yield createAd()
+        var user = (yield dbHelper.createUser()).result
+        var user2 = (yield dbHelper.createUserWithEmail('user@test.com')).result
+        var app = (yield dbHelper.createApp(user2.id)).result
+        yield dbHelper.approveApp(app.package)
+        yield dbHelper.createComment(app.id, user.id)
+
+        var opts = {
+            method: 'GET',
+            url: '/users/'+user.id+'/ads/status'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.shouldShowAd.should.eq(true)
+    })
+
+    it('should get ad free user ad status', function*() {
+        yield createAd()
+        var user = (yield dbHelper.createUser()).result
+        var user2 = (yield dbHelper.createUserWithEmail('user@test.com')).result
+        var app = (yield dbHelper.createApp(user2.id)).result
+        yield dbHelper.approveApp(app.package)
+        yield dbHelper.createComment(app.id, user.id)
+        yield dbHelper.createCommentWithText(app.id, user.id, undefined, 'test')
+        yield dbHelper.createCommentWithText(app.id, user.id, undefined, 'test2')
+
+        var opts = {
+            method: 'GET',
+            url: '/users/'+user.id+'/ads/status'
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.shouldShowAd.should.eq(false)
+    })
+
 
     function createAd() {
         var opts = {
