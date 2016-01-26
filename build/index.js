@@ -8,9 +8,9 @@ var AuthenticationHandler = _interopRequireWildcard(_handlersAuthentication_hand
 
 var _handlersUtilsEvent_emitterJs = require('./handlers/utils/event_emitter.js');
 
-var _ioHistory_socketJs = require('./io/history_socket.js');
+var _ioSocketJs = require('./io/socket.js');
 
-var History = _interopRequireWildcard(_ioHistory_socketJs);
+var History = _interopRequireWildcard(_ioSocketJs);
 
 var _configConfigJs = require('./config/config.js');
 

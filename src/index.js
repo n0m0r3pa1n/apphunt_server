@@ -11,7 +11,7 @@ var User = require('./models').User
 
 import * as AuthenticationHandler from './handlers/authentication_handler.js'
 import {EventEmitter} from './handlers/utils/event_emitter.js'
-import * as History from './io/history_socket.js'
+import * as History from './io/socket.js'
 import {PRIVATE_KEY} from './config/config.js'
 
 var STATUS_CODES = require('./config/config').STATUS_CODES

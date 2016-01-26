@@ -314,6 +314,18 @@ function addFollowings(userId, followingIds) {
     return Server.injectThen(opts)
 }
 
+function createChatRoom(name) {
+    var opts = {
+        method: "POST",
+        url: '/chat/rooms',
+        payload: {
+            name: name
+        }
+    }
+
+    return Server.injectThen(opts)
+}
+
 function unfollowUser(followingId, followerId) {
     var opts = {
         method: "DELETE",
@@ -416,6 +428,7 @@ module.exports.followUser = followUser
 module.exports.addFollowers = addFollowers
 module.exports.addFollowings = addFollowings
 module.exports.unfollowUser = unfollowUser
+module.exports.createChatRoom = createChatRoom
 module.exports.EMAIL = dummyEmail
 module.exports.CATEGORY_1 = category1
 module.exports.CATEGORY_2 = category2

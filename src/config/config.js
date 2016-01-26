@@ -99,6 +99,8 @@ var EMAIL_TEMPLATES_PATH = "assets/templates/email/"
 var APP_HUNT_EMAIL = "support@theapphunt.com"
 var APP_HUNT_TWITTER_HANDLE = "TheAppHunt"
 
+var TOP_HUNTERS_CHAT_ROOM = "Top Hunters Chat"
+
 export const PRIVATE_KEY = "AppHunt!#Private"
 export const AUTH_TYPE = "jwt"
 
@@ -124,6 +126,7 @@ module.exports.EMAIL_TEMPLATES_PATH = EMAIL_TEMPLATES_PATH
 module.exports.APP_HUNT_EMAIL = APP_HUNT_EMAIL
 module.exports.APP_HUNT_TWITTER_HANDLE = APP_HUNT_TWITTER_HANDLE
 module.exports.MIN_APPS_LENGTH_FOR_COLLECTION = MIN_APPS_LENGTH_FOR_COLLECTION
+module.exports.TOP_HUNTERS_CHAT_ROOM = TOP_HUNTERS_CHAT_ROOM
 module.exports.STATUS_CODES = {
     OK: 200,
     BAD_REQUEST: 400,

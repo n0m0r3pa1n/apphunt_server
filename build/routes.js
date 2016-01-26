@@ -13,6 +13,7 @@ var voteRoutes = require('./routes/votes_routes').voteRoutes;
 var collectionsRoutes = require('./routes/collections_routes').collectionsRoutes;
 var versionRoutes = require('./routes/version_routes').versionRoutes;
 var historyRoutes = require('./routes/history_routes').historyRoutes;
+var chatRoutes = require('./routes/chat_routes').chatRoutes;
 
 var statsRoutes = require('./routes/stats_routes').userStatsRoutes;
 
@@ -28,5 +29,6 @@ routes = routes.concat(collectionsRoutes);
 routes = routes.concat(versionRoutes);
 routes = routes.concat(_routesTags_routesJs.tagRoutes);
 routes = routes.concat(historyRoutes);
+routes = routes.concat(chatRoutes);
 routes = routes.concat(_routesAds_routesJs.adRoutes);
 module.exports.routes = routes;

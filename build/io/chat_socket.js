@@ -17,20 +17,14 @@ var _handlersFollowers_handlerJs = require('../handlers/followers_handler.js');
 
 var FollowersHandler = _interopRequireWildcard(_handlersFollowers_handlerJs);
 
-var _handlersChat_handlerJs = require('../handlers/chat_handler.js');
-
-var ChatHandler = _interopRequireWildcard(_handlersChat_handlerJs);
-
-var TOP_HUNTERS_CHAT_ROOM = require('../config/config').TOP_HUNTERS_CHAT_ROOM;
 var Co = require('co');
 
 function setup(server) {
     var io = require('socket.io')(server.listener);
-    var userHistoryRoom = 'UserHistory';
-    var topHuntersRoom = 'TopHunters';
-    var historyClients = [];
+    var room = 'TopHunters';
+    var clients = [];
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
-        var clients = io.sockets.adapter.rooms[userHistoryRoom];
+        var clients = io.sockets.adapter.rooms[room];
         for (var clientId in clients) {
             var _iteratorNormalCompletion = true;
             var _didIteratorError = false;
@@ -70,10 +64,12 @@ function setup(server) {
         }
     });
     io.on('connection', function (socket) {
+        console.log('connection');
         socket.on('add user', function (userId) {
-            historyClients.push(userId);
+            console.log('add user', userId);
+            clients.push(userId);
             socket.userId = userId;
-            socket.join(userHistoryRoom);
+            socket.join(room);
         });
 
         socket.on('last seen event', function (userId, eventId, date) {
@@ -84,42 +80,8 @@ function setup(server) {
         });
 
         socket.on('disconnect', function () {
-            historyClients.splice(historyClients.indexOf(socket.userId), 1);
-        });
-
-        socket.on('add user to top hunters chat', function (user) {
-            socket.user = user;
-            socket.join(topHuntersRoom);
-
-            sendChatUsersList(io, socket);
-        });
-
-        socket.on('new top hunters message', function (text, userId) {
-            var updateStream = Co.wrap(function* (message, userId) {
-                yield ChatHandler.saveMessage(userId, TOP_HUNTERS_CHAT_ROOM, message);
-            });
-            updateStream(text, userId);
-
-            io.to(topHuntersRoom).emit('new top hunters message', {
-                message: text,
-                user: socket.user
-            });
+            clients.splice(clients.indexOf(socket.userId), 1);
+            console.log('disconnect', socket.userId);
         });
     });
-
-    function sendChatUsersList(io) {
-        io.to(topHuntersRoom).emit('hunters list', { users: getCurrentUsersList(topHuntersRoom) });
-    }
-
-    function getCurrentUsersList(roomName) {
-        var clients = io.sockets.adapter.rooms[roomName];
-        var users = [];
-        for (var clientId in clients) {
-            users.push(io.sockets.connected[clientId].user);
-        }
-
-        return users;
-    }
 }
-
-//sendChatUsersList(io, socket)
