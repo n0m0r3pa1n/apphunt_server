@@ -193,6 +193,23 @@ var routes = [
     },
     {
         method: "GET",
+        path: "/users/{userId}/hunter-status",
+        handler: function(req,reply) {
+            reply.co(UsersHandler.isTopHunter(req.params.userId))
+        },
+        config: {
+            validate: {
+                params: {
+                    userId: Joi.string().required()
+                }
+            },
+            auth: false,
+            description: 'Get all apps collections.',
+            tags: ['api']
+        }
+    },
+    {
+        method: "GET",
         path: "/users/{favouritedBy}/favourite-collections",
         handler: function(req,reply) {
             var page = req.query.page === undefined  ? 0 : req.query.page

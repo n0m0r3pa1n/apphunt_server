@@ -40,7 +40,7 @@ function* getMessagesForRoom(roomName, fromDate) {
 
         where.room = room.id;
 
-        var messages = yield Message.find(where).populate('owner').exec();
+        var messages = yield Message.find(where).sort({ createdAt: 'ascending' }).populate('owner').exec();
         return { messages: messages };
     })();
 }

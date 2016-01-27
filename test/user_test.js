@@ -346,4 +346,79 @@ describe("Users", function() {
         var response2 = yield Server.injectThen(opts)
         response2.result.users.length.should.eq(2)
     });
+
+    it("should display user top hunters status", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        yield dbHelper.createAppWithPackage(userId, "sasasa")
+
+        var appsCollectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, appsCollectionId, appIds)
+
+        yield dbHelper.createComment(appId, userId)
+
+        var userCollectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+
+        var fromDate = new Date();
+        var toDate = new Date();
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + userCollectionId,
+            payload: {
+                users: [userId],
+                fromDate: fromDate,
+                toDate: toDate
+            }
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.usersDetails.length.should.equal(1)
+        opts = {
+            method: 'GET',
+            url: '/users/' + userId + "/hunter-status",
+        }
+
+        response = yield Server.injectThen(opts)
+        response.result.isTopHunter.should.eq(true)
+    });
+
+    it("should not display user as top hunter", function*() {
+        var userId = (yield dbHelper.createUser()).result.id
+        var user2Id = (yield dbHelper.createUserWithEmail('test')).result.id
+        var appId = (yield dbHelper.createApp(userId)).result.id
+        yield dbHelper.createAppWithPackage(userId, "sasasa")
+
+        var appsCollectionId = (yield dbHelper.createAppsCollection(userId)).result.id
+        var appIds = yield dbHelper.createFourAppsWithIds(userId)
+        yield dbHelper.makeCollectionPublic(userId, appsCollectionId, appIds)
+
+        yield dbHelper.createComment(appId, userId)
+
+        var userCollectionId = (yield dbHelper.createUsersCollection(userId)).result.id
+
+        var fromDate = new Date();
+        var toDate = new Date();
+
+        var opts = {
+            method: 'PUT',
+            url: '/user-collections/' + userCollectionId,
+            payload: {
+                users: [userId],
+                fromDate: fromDate,
+                toDate: toDate
+            }
+        }
+
+        var response = yield Server.injectThen(opts)
+        response.result.usersDetails.length.should.equal(1)
+        opts = {
+            method: 'GET',
+            url: '/users/' + user2Id + "/hunter-status",
+        }
+
+        response = yield Server.injectThen(opts)
+        response.result.isTopHunter.should.eq(false)
+    });
 })

@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports.get = get;
 exports.getLoginTypes = getLoginTypes;
+exports.isTopHunter = isTopHunter;
 exports.find = find;
 exports.findWithDevices = findWithDevices;
 exports.findByUsername = findByUsername;
@@ -60,6 +61,8 @@ var Anonymous = require('../models').Anonymous;
 var Device = require('../models').Device;
 var UserScoreHandler = require('./user_score_handler');
 
+var UserCollectionsHandler = require('./users_collections_handler');
+
 function* get(q, loginType, page, pageSize) {
     var where = {};
     if (q !== undefined) {
@@ -83,6 +86,42 @@ function* get(q, loginType, page, pageSize) {
 
 function getLoginTypes() {
     return _.values(LOGIN_TYPES_FILTER);
+}
+
+function* isTopHunter(userId) {
+    var user = yield find(userId);
+    if (!user) {
+        return Boom.notFound('User does not exist!');
+    }
+    var topHunters = (yield UserCollectionsHandler.getTopHuntersList()).users;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = topHunters[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var hunter = _step.value;
+
+            if (hunter._id == userId) {
+                return { isTopHunter: true };
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return { isTopHunter: false };
 }
 
 function* find(userId) {
@@ -113,48 +152,16 @@ function* filterExistingUsers(userId, names) {
     }
 
     var matchingUsers = [];
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = names[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var _name = _step.value;
-
-            var users = yield User.find({ name: { $regex: _name, $options: 'i' } }).exec();
-            matchingUsers = matchingUsers.concat(users);
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-                _iterator['return']();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return { users: yield getPopulatedIsFollowing(user.id, matchingUsers) };
-}
-
-function* getPopulatedIsFollowing(followerId, users) {
-    var result = [];
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-        for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var user = _step2.value;
+        for (var _iterator2 = names[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _name = _step2.value;
 
-            user = user.toObject();
-            user.isFollowing = yield FollowersHandler.isFollowing(followerId, user._id);
-            result.push(user);
+            var users = yield User.find({ name: { $regex: _name, $options: 'i' } }).exec();
+            matchingUsers = matchingUsers.concat(users);
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -171,24 +178,22 @@ function* getPopulatedIsFollowing(followerId, users) {
         }
     }
 
-    return result;
+    return { users: yield getPopulatedIsFollowing(user.id, matchingUsers) };
 }
 
-function* getDeviceIdsForUser(user) {
-    if (user.populated('devices')) {
-        user = yield User.findOne(user).populate('devices');
-    }
-
-    var notificationIds = [];
+function* getPopulatedIsFollowing(followerId, users) {
+    var result = [];
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
     var _iteratorError3 = undefined;
 
     try {
-        for (var _iterator3 = user.devices[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-            var device = _step3.value;
+        for (var _iterator3 = users[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var user = _step3.value;
 
-            notificationIds = notificationIds.concat(device.notificationId);
+            user = user.toObject();
+            user.isFollowing = yield FollowersHandler.isFollowing(followerId, user._id);
+            result.push(user);
         }
     } catch (err) {
         _didIteratorError3 = true;
@@ -201,6 +206,40 @@ function* getDeviceIdsForUser(user) {
         } finally {
             if (_didIteratorError3) {
                 throw _iteratorError3;
+            }
+        }
+    }
+
+    return result;
+}
+
+function* getDeviceIdsForUser(user) {
+    if (user.populated('devices')) {
+        user = yield User.findOne(user).populate('devices');
+    }
+
+    var notificationIds = [];
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+        for (var _iterator4 = user.devices[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var device = _step4.value;
+
+            notificationIds = notificationIds.concat(device.notificationId);
+        }
+    } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                _iterator4['return']();
+            }
+        } finally {
+            if (_didIteratorError4) {
+                throw _iteratorError4;
             }
         }
     }

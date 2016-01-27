@@ -96,6 +96,20 @@ function* search(q, page, pageSize) {
     return response
 }
 
+function* getTopHuntersList() {
+    let usersSet = new Set()
+    let collections = yield UsersCollection.find({}).deepPopulate('usersDetails.user').exec()
+    for (let collection of collections) {
+        for(let detail of collection.usersDetails) {
+            if(!usersSet.has(detail.user)) {
+                usersSet.add(detail.user)
+            }
+        }
+    }
+
+    return {users: Array.from(usersSet)}
+}
+
 function* getTopHuntersCollectionForCurrentMonth() {
     var keyTopHunters = "topHunters";
     let response = myCache.get(keyTopHunters);
@@ -193,4 +207,5 @@ module.exports.search = search
 module.exports.getAvailableCollectionsForUser = getAvailableCollectionsForUser
 module.exports.removeUser = removeUser
 module.exports.remove = remove
-module .exports.getTopHuntersCollectionForCurrentMonth = getTopHuntersCollectionForCurrentMonth
+module.exports.getTopHuntersCollectionForCurrentMonth = getTopHuntersCollectionForCurrentMonth
+module.exports.getTopHuntersList = getTopHuntersList

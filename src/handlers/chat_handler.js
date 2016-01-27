@@ -25,7 +25,7 @@ export function* getMessagesForRoom(roomName, fromDate, toDate = new Date(fromDa
 
     where.room = room.id
 
-    let messages = yield Message.find(where).populate('owner').exec()
+    let messages = yield Message.find(where).sort({createdAt: 'ascending'}).populate('owner').exec()
     return {messages: messages}
 }
 

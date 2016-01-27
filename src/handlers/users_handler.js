@@ -18,6 +18,8 @@ import * as AuthHandler from './authentication_handler.js'
 import * as ScoresHandler from './user_score_handler.js'
 import * as FollowersHandler from './followers_handler.js'
 
+var UserCollectionsHandler = require('./users_collections_handler')
+
 
 export function* get(q, loginType, page, pageSize) {
     var where = {}
@@ -45,6 +47,21 @@ export function* get(q, loginType, page, pageSize) {
 
 export function getLoginTypes() {
     return _.values(LOGIN_TYPES_FILTER)
+}
+
+export function* isTopHunter(userId) {
+    let user = yield find(userId)
+    if(!user) {
+        return Boom.notFound('User does not exist!')
+    }
+    let topHunters = (yield UserCollectionsHandler.getTopHuntersList()).users
+    for(let hunter of topHunters) {
+        if(hunter._id == userId) {
+            return {isTopHunter: true}
+        }
+    }
+
+    return {isTopHunter: false}
 }
 
 export function* find(userId) {
