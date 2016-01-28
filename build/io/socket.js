@@ -109,7 +109,7 @@ function setup(server) {
     });
 
     function sendChatUsersList(io) {
-        io.to(topHuntersRoom).emit('hunters list', { users: JSON.stringify(getCurrentUsersList(topHuntersRoom)) });
+        io.to(topHuntersRoom).emit('hunters list', { users: getCurrentUsersList(topHuntersRoom) });
     }
 
     function getCurrentUsersList(roomName) {
