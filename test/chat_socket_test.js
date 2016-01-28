@@ -49,6 +49,7 @@ describe("Chat Socket", function () {
 
         client1.on('hunters list', function(data, error) {
             loadNumber++
+            data.users = JSON.parse(data.users)
             if(loadNumber == 3) {
                 data.users.length.should.eq(3)
                 client1.disconnect()

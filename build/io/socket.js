@@ -26,8 +26,8 @@ var Co = require('co');
 
 function setup(server) {
     var io = require('socket.io')(server.listener);
-    var userHistoryRoom = 'UserHistory';
-    var topHuntersRoom = 'TopHunters';
+    var userHistoryRoom = "UserHistory";
+    var topHuntersRoom = "TopHunters";
     var historyClients = [];
     _handlersUtilsEvent_emitterJs.EventEmitter.on('refresh', function (data, event) {
         var clients = io.sockets.adapter.rooms[userHistoryRoom];
@@ -85,6 +85,7 @@ function setup(server) {
 
         socket.on('disconnect', function () {
             historyClients.splice(historyClients.indexOf(socket.userId), 1);
+            //sendChatUsersList(io, socket)
         });
 
         socket.on('add user to top hunters chat', function (user) {
@@ -108,7 +109,7 @@ function setup(server) {
     });
 
     function sendChatUsersList(io) {
-        io.to(topHuntersRoom).emit('hunters list', { users: getCurrentUsersList(topHuntersRoom) });
+        io.to(topHuntersRoom).emit('hunters list', { users: JSON.stringify(getCurrentUsersList(topHuntersRoom)) });
     }
 
     function getCurrentUsersList(roomName) {
@@ -121,5 +122,3 @@ function setup(server) {
         return users;
     }
 }
-
-//sendChatUsersList(io, socket)

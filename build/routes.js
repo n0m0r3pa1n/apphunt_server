@@ -1,8 +1,8 @@
 'use strict';
 
-var _routesTags_routesJs = require('./routes/tags_routes.js');
+var _routesTags_routesJs = require("./routes/tags_routes.js");
 
-var _routesAds_routesJs = require('./routes/ads_routes.js');
+var _routesAds_routesJs = require("./routes/ads_routes.js");
 
 var userRoutes = require('./routes/users_routes').userRoutes;
 var followerRoutes = require('./routes/followers_routes').followerRoutes;

@@ -13,7 +13,7 @@ var collectionStatuses = Config.COLLECTION_STATUSES;
 var loginTypes = Config.LOGIN_TYPES;
 var historyEventTypes = Config.HISTORY_EVENT_TYPES;
 
-var _ = require('underscore');
+var _ = require("underscore");
 
 Mongoose.plugin(function (schema) {
 

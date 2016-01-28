@@ -33,7 +33,7 @@ var _apps_collections_handlerJs = require('./apps_collections_handler.js');
 
 var AppsCollectionsHandler = _interopRequireWildcard(_apps_collections_handlerJs);
 
-var _pagination_handlerJs = require('./pagination_handler.js');
+var _pagination_handlerJs = require("./pagination_handler.js");
 
 var PaginationHandler = _interopRequireWildcard(_pagination_handlerJs);
 
@@ -51,7 +51,7 @@ var FollowersHandler = _interopRequireWildcard(_followers_handlerJs);
 
 var _ = require('underscore');
 var Boom = require('boom');
-var Bolt = require('bolt-js');
+var Bolt = require("bolt-js");
 var TweetComposer = require('../utils/tweet_composer');
 var CONFIG = require('../config/config');
 var LOGIN_TYPES_FILTER = CONFIG.LOGIN_TYPES_FILTER;
@@ -81,7 +81,7 @@ function* get(q, loginType, page, pageSize) {
 
     var query = User.find(where);
 
-    return yield PaginationHandler.getPaginatedResultsWithName(query, 'users', page, pageSize);
+    return yield PaginationHandler.getPaginatedResultsWithName(query, "users", page, pageSize);
 }
 
 function getLoginTypes() {
@@ -148,7 +148,7 @@ function* getUserDevices(userId) {
 function* filterExistingUsers(userId, names) {
     var user = yield find(userId);
     if (user == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
 
     var matchingUsers = [];
@@ -259,12 +259,12 @@ function* getDevicesForAllUsers() {
 function* getUserProfile(userId, fromDate, toDate, currentUserId) {
     var user = yield find(userId);
     if (user == null) {
-        return Boom.notFound('User is not existing!');
+        return Boom.notFound("User is not existing!");
     }
     if (currentUserId != undefined) {
         var currentUser = yield find(currentUserId);
         if (currentUser == null) {
-            return Boom.notFound('Current user is not existing!');
+            return Boom.notFound("Current user is not existing!");
         }
     }
 
@@ -296,12 +296,12 @@ function* create(user, notificationId, advertisingId) {
 
     if (user.loginType == LOGIN_TYPES_FILTER.Anonymous) {
         if (!advertisingId) {
-            return Boom.badRequest('advertisingId is empty for anonymous user');
+            return Boom.badRequest("advertisingId is empty for anonymous user");
         }
         currUser = yield getAnonymousUser(advertisingId);
     } else {
         if (!user.email) {
-            return Boom.badRequest('user email is empty for ' + user.loginType + ' user');
+            return Boom.badRequest("user email is empty for " + user.loginType + " user");
         }
         currUser = yield getRegisteredUser(user.email);
     }
@@ -343,8 +343,8 @@ function* createUser(model, advertisingId) {
     var isAnonymous = false;
     if (model.loginType == LOGIN_TYPES_FILTER.Anonymous) {
         isAnonymous = true;
-        model.name = 'Anonymous';
-        model.username = 'anonymous';
+        model.name = "Anonymous";
+        model.username = "anonymous";
         model.profilePicture = 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xfp1/t31.0-1/c379.0.1290.1290/' + '10506738_10150004552801856_220367501106153455_o.jpg';
         model.email = yield getUniqueUserEmail(model.email);
     }
@@ -404,14 +404,14 @@ function* getAnonymous() {
 function* getUniqueRandomEmail() {
     var isExistingEmail = false;
     var text;
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     do {
-        text = '';
+        text = "";
         for (var i = 0; i < 9; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
 
-        text += '@anonymous.com';
+        text += "@anonymous.com";
 
         isExistingEmail = yield User.findOne({ email: text }).exec();
     } while (isExistingEmail);
@@ -424,7 +424,7 @@ function postTweet(user) {
     var tweetComposer = new TweetComposer(CONFIG.APP_HUNT_TWITTER_HANDLE);
     var tweetOptions = {
         username: user.username,
-        hashTags: ['app']
+        hashTags: ["app"]
     };
 
     bolt.postTweet(tweetComposer.composeWelcomeTweet(tweetOptions));

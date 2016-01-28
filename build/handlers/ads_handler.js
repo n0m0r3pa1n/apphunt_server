@@ -14,7 +14,7 @@ var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
-var _ = require('underscore');
+var _ = require("underscore");
 var Boom = require('boom');
 
 var Ad = require('../models').Ad;
@@ -63,7 +63,7 @@ function* shouldShowAd(userId) {
 }
 
 function* getUserAdStatus(userId) {
-    var showAdMessage = '';
+    var showAdMessage = "";
     var historyEventTypes = [HISTORY_EVENT_TYPES.APP_SUBMITTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.COLLECTION_CREATED];
 
     var recentUserHistory = yield HistoryHandler.getRecentUserActions(userId, historyEventTypes, new Date());

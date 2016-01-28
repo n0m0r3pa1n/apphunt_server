@@ -26,8 +26,8 @@ var mongoose = require('mongoose');
 var App = require('../models').App;
 var Vote = require('../models').Vote;
 var History = require('../models').History;
-var AppsCollection = require('../models').AppsCollection;
-var Comment = require('../models').Comment;
+var AppsCollection = require("../models").AppsCollection;
+var Comment = require("../models").Comment;
 var DevsHunter = require('../handlers/utils/devs_hunter_handler');
 
 var VotesHandler = require('../handlers/votes_handler.js');
@@ -82,7 +82,7 @@ Co(function* () {
         }
     }
 
-    console.log('Votes: ' + i);
+    console.log("Votes: " + i);
 
     //561f7d783a6a7a0300bffad5
 
@@ -114,5 +114,5 @@ Co(function* () {
         }
     }
 
-    console.log('FINISHED');
+    console.log("FINISHED");
 });

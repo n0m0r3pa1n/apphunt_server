@@ -34,8 +34,8 @@ function* getMessagesForRoom(roomName, fromDate) {
         var where = {};
 
         where.createdAt = {
-            '$gte': new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
-            '$lt': toDate.toISOString()
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": toDate.toISOString()
         };
 
         where.room = room.id;

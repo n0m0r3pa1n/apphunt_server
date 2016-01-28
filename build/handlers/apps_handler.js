@@ -52,13 +52,13 @@ var CommentsHandler = _interopRequireWildcard(_comments_handlerJs);
 
 var DevsHunter = require('./utils/devs_hunter_handler');
 var Badboy = require('badboy');
-var _ = require('underscore');
-var Bolt = require('bolt-js');
+var _ = require("underscore");
+var Bolt = require("bolt-js");
 var Boom = require('boom');
 var TweetComposer = require('../utils/tweet_composer');
 var CONFIG = require('../config/config');
 var MESSAGES = require('../config/messages');
-var NodeCache = require('node-cache');
+var NodeCache = require("node-cache");
 var myCache = new NodeCache();
 
 var DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -102,7 +102,7 @@ function* create(app, tags, userId) {
         if (app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.updateAndroidApp(app['package']);
             if (parsedApp === null) {
-                return Boom.notFound('Non-existing app');
+                return Boom.notFound("Non-existing app");
             }
 
             var d = parsedApp.developer;
@@ -110,19 +110,19 @@ function* create(app, tags, userId) {
             app.developer = developer;
         } else {
             parsedApp = yield Badboy.getiOSApp(app['package']);
-            parsedApp.category = parsedApp.categories == null || parsedApp.categories == undefined || parsedApp.categories.length == 0 ? '' : parsedApp.categories[0];
+            parsedApp.category = parsedApp.categories == null || parsedApp.categories == undefined || parsedApp.categories.length == 0 ? "" : parsedApp.categories[0];
         }
     } catch (e) {
         parsedApp = null;
     }
 
     if (parsedApp == null) {
-        return Boom.notFound('Non-existing app');
+        return Boom.notFound("Non-existing app");
     }
 
     var user = yield User.findOne({ _id: userId }).exec();
     if (user == null) {
-        return Boom.notFound('Non-existing user');
+        return Boom.notFound("Non-existing user");
     }
 
     app.status = APP_STATUSES.WAITING;
@@ -173,7 +173,7 @@ function* getAppCategories(appCategories) {
 }
 
 function getFormattedCategory(category) {
-    var res = category.split('/');
+    var res = category.split("/");
 
     var newCategory = res[res.length - 1].toLowerCase();
     newCategory = newCategory.capitalizeFirstLetter();
@@ -184,16 +184,16 @@ function getFormattedCategory(category) {
 
     var split = newCategory.split(' ');
     if (split.length > 1) {
-        finalCategory = '';
+        finalCategory = "";
         for (var i = 0; i < split.length; i++) {
             var part = split[i];
             if (i == split.length - 1) {
                 finalCategory += part.capitalizeFirstLetter();
             } else {
-                if (part === 'Game') {
+                if (part === "Game") {
                     continue;
                 }
-                finalCategory += part.capitalizeFirstLetter() + ' ';
+                finalCategory += part.capitalizeFirstLetter() + " ";
             }
         }
     }
@@ -279,7 +279,7 @@ function* getRandomApp(userId) {
 function* update(app) {
     var existingApp = yield App.findOne({ 'package': app['package'] }).populate('developer createdBy').exec();
     if (!existingApp) {
-        return Boom.notFound('Non-existing app');
+        return Boom.notFound("Non-existing app");
     }
 
     existingApp.createdAt = app.createdAt;
@@ -297,7 +297,7 @@ function postTweet(app, user) {
         name: app.name,
         description: app.description,
         url: app.shortUrl,
-        hashTag: 'app'
+        hashTag: "app"
     };
     if (user.loginType == LOGIN_TYPES.Twitter) {
         tweetOptions.user = user.username;
@@ -321,7 +321,7 @@ function* deleteApp(packageName) {
 function* changeAppStatus(appPackage, status) {
     var app = yield App.findOne({ 'package': appPackage }).populate('developer createdBy').exec();
     if (app == null) {
-        return Boom.notFound('Non-existing app');
+        return Boom.notFound("Non-existing app");
     }
 
     if (app.developer == null) {
@@ -405,13 +405,13 @@ function* sendNotificationsToFollowers(createdBy, appName, icon) {
 
 function* setAppShortUrl(app) {
     var links = [{
-        url: app.url, platform: 'default'
+        url: app.url, platform: "default"
     }];
 
     if (app.platform == PLATFORMS.Android) {
         links.push({
-            url: 'market://details?id=' + app['package'],
-            platform: 'android'
+            url: "market://details?id=" + app['package'],
+            platform: "android"
         });
     }
     app.shortUrl = yield UrlsHandler.getShortLink(links);
@@ -432,15 +432,15 @@ function* getTrendingApps(userId, page, pageSize) {
         return { apps: [], page: page };
     }
 
-    var flurryCacheKey = 'flurryCacheKey';
-    console.time('Total');
+    var flurryCacheKey = "flurryCacheKey";
+    console.time("Total");
     var toDate = new Date();
     var fromDate = new Date();
     fromDate.setDate(fromDate.getDate() - 31);
 
-    console.time('Events Request');
+    console.time("Events Request");
     var votesAndCommentsEvents = yield HistoryHandler.getEvents(fromDate, toDate, HISTORY_EVENT_TYPES.APP_FAVOURITED, HISTORY_EVENT_TYPES.APP_VOTED, HISTORY_EVENT_TYPES.APP_UNVOTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.USER_MENTIONED);
-    console.timeEnd('Events Request');
+    console.timeEnd("Events Request");
     var appsPoints = [];
     var _iteratorNormalCompletion4 = true;
     var _didIteratorError4 = false;
@@ -502,13 +502,13 @@ function* getTrendingApps(userId, page, pageSize) {
         }
     }
 
-    console.time('Flurry');
+    console.time("Flurry");
     var sixHours = 21600;
 
     var flurryAppsWithPoints = myCache.get(flurryCacheKey);
 
     if (flurryAppsWithPoints == undefined || flurryAppsWithPoints == null) {
-        console.log('FLURRY REQUEST');
+        console.log("FLURRY REQUEST");
         var installedPackages = yield FlurryHandler.getInstalledPackages(DateUtils.formatDate(fromDate), DateUtils.formatDate(toDate));
         if (installedPackages.length > totalCount) {
             installedPackages = installedPackages.slice(0, totalCount);
@@ -520,7 +520,7 @@ function* getTrendingApps(userId, page, pageSize) {
             }
         });
     }
-    console.timeEnd('Flurry');
+    console.timeEnd("Flurry");
 
     var _iteratorNormalCompletion5 = true;
     var _didIteratorError5 = false;
@@ -586,7 +586,7 @@ function* getTrendingApps(userId, page, pageSize) {
         }
     }
 
-    console.time('Populate Apps');
+    console.time("Populate Apps");
     var apps = [];
     var populatedApps = yield App.find({ _id: { $in: appIds } }).populate('createdBy categories votes');
 
@@ -629,8 +629,8 @@ function* getTrendingApps(userId, page, pageSize) {
         }
     }
 
-    console.timeEnd('Populate Apps');
-    console.timeEnd('Total');
+    console.timeEnd("Populate Apps");
+    console.timeEnd("Total");
 
     return { apps: apps, totalCount: totalCount, page: page, pageSize: pageSize, totalPages: getTotalPages(totalCount, pageSize) };
 }
@@ -653,14 +653,14 @@ function* getAppsWithInstallsPoints(installedPackages) {
         for (var _iterator9 = installedPackages[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
             var installedPackage = _step9.value;
 
-            var app = yield App.findOne({ 'package': installedPackage['@name'] }).exec();
+            var app = yield App.findOne({ 'package': installedPackage["@name"] }).exec();
             if (app == null) {
                 continue;
             }
 
             appsPoints.push({
                 appId: app._id,
-                points: installedPackage['@totalCount'] * TrendingAppsPoints.install
+                points: installedPackage["@totalCount"] * TrendingAppsPoints.install
             });
         }
     } catch (err) {
@@ -721,7 +721,7 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
         where.name = { $regex: query, $options: 'i' };
     }
 
-    var responseDate = '';
+    var responseDate = "";
     if (dateStr !== undefined) {
         var date = new Date(dateStr);
         var toDate = new Date(date.getTime() + DAY_MILLISECONDS);
@@ -730,10 +730,10 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
             toDate = new Date(toDateFromString.getTime() + DAY_MILLISECONDS);
         }
         where.createdAt = {
-            '$gte': new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-            '$lt': toDate.toISOString()
+            "$gte": new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+            "$lt": toDate.toISOString()
         };
-        responseDate += date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
+        responseDate += date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
     }
 
     where.platform = platform;
@@ -742,9 +742,9 @@ function* getApps(dateStr, toDateStr, platform, appStatus, page, pageSize, userI
         where.status = appStatus;
     }
 
-    var query = App.find(where).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    var query = App.find(where).deepPopulate("votes.user").populate("categories").populate("createdBy");
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
     if (userType != undefined) {
         var _iteratorNormalCompletion11 = true;
@@ -808,9 +808,9 @@ function* getAppsForUser(creatorId) {
         var query = App.find({
             createdBy: creatorId,
             status: APP_STATUSES.APPROVED
-        }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+        }).deepPopulate("votes.user").populate("categories").populate("createdBy");
         query.sort({ votesCount: 'desc', createdAt: 'desc' });
-        var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+        var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
         result.apps = convertToArray(result.apps);
         yield formatApps(userId, result.apps);
 
@@ -861,7 +861,7 @@ function* filterApps(packages, platform) {
         }
     }
 
-    return { 'availablePackages': packagesResult, 'existingPackages': existingAppsPackages };
+    return { "availablePackages": packagesResult, "existingPackages": existingAppsPackages };
 }
 
 function* getApp(appId, userId) {
@@ -921,10 +921,10 @@ function* searchApps(q, platform, status, page, pageSize, userId) {
         where.status = APP_STATUSES.APPROVED;
     }
 
-    var query = App.find(where).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    var query = App.find(where).deepPopulate('votes.user').populate("categories").populate("createdBy");
     query.sort({ votesCount: 'desc', createdAt: 'desc' });
 
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
     yield formatApps(userId, result.apps);
     return result;
@@ -943,7 +943,7 @@ function* favourite(appId, userId) {
 
     for (var favouritedBy in app.favouritedBy) {
         if (favouritedBy == userId) {
-            return Boom.conflict('User has already favourited app!');
+            return Boom.conflict("User has already favourited app!");
         }
     }
     app.favouritedBy.push(userId);
@@ -956,7 +956,7 @@ function* favourite(appId, userId) {
     });
     var isFollowing = yield FollowersHandler.isFollowing(app.createdBy, userId);
     if (isFollowing) {
-        var title = 'Check this cool app';
+        var title = "Check this cool app";
         var messages = HistoryHandler.getText(HISTORY_EVENT_TYPES.APP_FAVOURITED, {
             appName: app.name,
             userName: user.name
@@ -990,9 +990,9 @@ function* unfavourite(appId, userId) {
 }
 
 function* getFavouriteApps(creatorId, userId, page, pageSize) {
-    var query = App.find({ favouritedBy: creatorId }).deepPopulate('votes.user').populate('categories').populate('createdBy');
+    var query = App.find({ favouritedBy: creatorId }).deepPopulate('votes.user').populate("categories").populate("createdBy");
 
-    var result = yield PaginationHandler.getPaginatedResultsWithName(query, 'apps', page, pageSize);
+    var result = yield PaginationHandler.getPaginatedResultsWithName(query, "apps", page, pageSize);
     result.apps = convertToArray(result.apps);
     yield formatApps(userId, result.apps);
     return result;

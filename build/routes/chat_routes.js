@@ -10,8 +10,8 @@ var Joi = require('joi');
 Joi.objectId = require('joi-objectid');
 
 var chatRoutes = [{
-    method: 'GET',
-    path: '/chat/rooms/{roomId}/messages',
+    method: "GET",
+    path: "/chat/rooms/{roomId}/messages",
     handler: function handler(req, reply) {
         reply.co({});
     },
@@ -22,12 +22,12 @@ var chatRoutes = [{
             }
         },
         auth: false,
-        description: 'Get room message history.',
+        description: "Get room message history.",
         tags: ['api']
     }
 }, {
-    method: 'GET',
-    path: '/chat/rooms/history',
+    method: "GET",
+    path: "/chat/rooms/history",
     handler: function handler(req, reply) {
         reply.co(ChatHandler.getMessagesForRoom(req.query.name, req.query.date));
     },
@@ -39,12 +39,12 @@ var chatRoutes = [{
             }
         },
         auth: false,
-        description: 'Get room message history by name',
+        description: "Get room message history by name",
         tags: ['api']
     }
 }, {
-    method: 'POST',
-    path: '/chat/rooms',
+    method: "POST",
+    path: "/chat/rooms",
     handler: function handler(req, reply) {
         reply.co(ChatHandler.createChatRoom(req.payload.name));
     },
@@ -55,7 +55,7 @@ var chatRoutes = [{
             }
         },
         auth: false,
-        description: 'Create a new chat room',
+        description: "Create a new chat room",
         tags: ['api']
     }
 }];
