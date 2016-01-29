@@ -68,7 +68,8 @@ export function setup(server) {
 
 
     function sendChatUsersList(io) {
-        io.to(topHuntersRoom).emit('hunters list', { users: getCurrentUsersList(topHuntersRoom) })
+        var currentUsers = getCurrentUsersList(topHuntersRoom)
+        io.to(topHuntersRoom).emit('hunters list', {users: currentUsers})
     }
 
     function getCurrentUsersList(roomName) {
