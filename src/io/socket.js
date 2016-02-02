@@ -1,3 +1,4 @@
+var _ = require("underscore")
 import {EventEmitter} from '../handlers/utils/event_emitter.js'
 import * as HistoryHandler from '../handlers/history_handler.js'
 import * as FollowersHandler from '../handlers/followers_handler.js'
@@ -14,11 +15,11 @@ export function setup(server) {
     EventEmitter.on('refresh', function (data, event) {
         var clients = io.sockets.adapter.rooms[userHistoryRoom];
         for (var clientId in clients) {
-            for(let userId of data.interestedUsers) {
-                if(String(userId) == String(io.sockets.connected[clientId].userId)) {
+            for (let userId of data.interestedUsers) {
+                if (String(userId) == String(io.sockets.connected[clientId].userId)) {
                     event = event.toObject()
                     event.text = HistoryHandler.getText(event.type, event.params)
-                    Co.wrap(function*(event, clientId){
+                    Co.wrap(function*(event, clientId) {
                         event.user.isFollowing = yield FollowersHandler.isFollowing(userId, event.user._id)
                         io.sockets.connected[clientId].emit('refresh', {event: event})
                     })(event, clientId)
@@ -43,7 +44,6 @@ export function setup(server) {
 
         socket.on('disconnect', function () {
             historyClients.splice(historyClients.indexOf(socket.userId), 1)
-            //sendChatUsersList(io, socket)
         });
 
         socket.on('add user to top hunters chat', function (user) {
@@ -52,6 +52,11 @@ export function setup(server) {
 
             sendChatUsersList(io, socket)
         });
+
+        socket.on('leave top hunters room', function (user) {
+            socket.leave(topHuntersRoom)
+            sendChatUsersList(io)
+        })
 
         socket.on('new top hunters message', function (text, userId) {
             var updateStream = Co.wrap(function* (message, userId) {
@@ -68,7 +73,7 @@ export function setup(server) {
 
 
     function sendChatUsersList(io) {
-        var currentUsers = getCurrentUsersList(topHuntersRoom)
+        var currentUsers = _.uniq(getCurrentUsersList(topHuntersRoom))
         io.to(topHuntersRoom).emit('hunters list', {users: currentUsers})
     }
 

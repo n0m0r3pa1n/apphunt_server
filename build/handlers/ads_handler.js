@@ -67,7 +67,7 @@ function* getUserAdStatus(userId) {
     var historyEventTypes = [HISTORY_EVENT_TYPES.APP_SUBMITTED, HISTORY_EVENT_TYPES.USER_COMMENT, HISTORY_EVENT_TYPES.COLLECTION_CREATED];
 
     var recentUserHistory = yield HistoryHandler.getRecentUserActions(userId, historyEventTypes, new Date());
-    if (recentUserHistory.events.length == 0) {
+    if (recentUserHistory.events == undefined || recentUserHistory.events.length == 0) {
         return { shouldShowAd: true, message: AD_NOT_FREE_MESSAGE };
     }
 

@@ -91,7 +91,7 @@ function getLoginTypes() {
 function* isTopHunter(userId) {
     var user = yield find(userId);
     if (!user) {
-        return Boom.notFound('User does not exist!');
+        return { isTopHunter: false };
     }
     var topHunters = (yield UserCollectionsHandler.getTopHuntersList()).users;
     var _iteratorNormalCompletion = true;

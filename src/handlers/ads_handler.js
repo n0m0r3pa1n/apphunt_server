@@ -51,7 +51,7 @@ export function* getUserAdStatus(userId) {
     ]
 
     let recentUserHistory = yield HistoryHandler.getRecentUserActions(userId, historyEventTypes, new Date())
-    if(recentUserHistory.events.length == 0) {
+    if(recentUserHistory.events == undefined || recentUserHistory.events.length == 0) {
         return {shouldShowAd: true, message: AD_NOT_FREE_MESSAGE};
     }
 

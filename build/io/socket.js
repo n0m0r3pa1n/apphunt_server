@@ -21,6 +21,8 @@ var _handlersChat_handlerJs = require('../handlers/chat_handler.js');
 
 var ChatHandler = _interopRequireWildcard(_handlersChat_handlerJs);
 
+var _ = require("underscore");
+
 var TOP_HUNTERS_CHAT_ROOM = require('../config/config').TOP_HUNTERS_CHAT_ROOM;
 var Co = require('co');
 
@@ -85,7 +87,6 @@ function setup(server) {
 
         socket.on('disconnect', function () {
             historyClients.splice(historyClients.indexOf(socket.userId), 1);
-            //sendChatUsersList(io, socket)
         });
 
         socket.on('add user to top hunters chat', function (user) {
@@ -93,6 +94,11 @@ function setup(server) {
             socket.join(topHuntersRoom);
 
             sendChatUsersList(io, socket);
+        });
+
+        socket.on('leave top hunters room', function (user) {
+            socket.leave(topHuntersRoom);
+            sendChatUsersList(io);
         });
 
         socket.on('new top hunters message', function (text, userId) {
@@ -109,7 +115,7 @@ function setup(server) {
     });
 
     function sendChatUsersList(io) {
-        var currentUsers = getCurrentUsersList(topHuntersRoom);
+        var currentUsers = _.uniq(getCurrentUsersList(topHuntersRoom));
         io.to(topHuntersRoom).emit('hunters list', { users: currentUsers });
     }
 

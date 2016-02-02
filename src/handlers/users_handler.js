@@ -37,7 +37,6 @@ export function* get(q, loginType, page, pageSize) {
         } else {
             where.loginType = loginType
         }
-
     }
 
     var query = User.find(where)
@@ -52,7 +51,7 @@ export function getLoginTypes() {
 export function* isTopHunter(userId) {
     let user = yield find(userId)
     if(!user) {
-        return Boom.notFound('User does not exist!')
+        return {isTopHunter: false}
     }
     let topHunters = (yield UserCollectionsHandler.getTopHuntersList()).users
     for(let hunter of topHunters) {
