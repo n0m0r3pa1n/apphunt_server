@@ -141,6 +141,10 @@ function* create(app, tags, userId) {
     app.name = parsedApp.name;
     app.url = parsedApp.url;
 
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    app.createdAt = tomorrow;
+
     if (app.platform == PLATFORMS.Android) {
         app.screenshots = parsedApp.screenshots;
         app.averageScore = parsedApp.score.total == undefined ? 0 : parsedApp.score.total;
