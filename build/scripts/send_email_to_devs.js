@@ -15,11 +15,11 @@ Mongoose.connect(dbURI, function (err, obj) {});
 
 var Co = require('co');
 var Fs = require('fs');
-var Bolt = require('bolt-js');
+var Bolt = require("bolt-js");
 var Handlebars = require('handlebars');
 
-var _ = require('underscore');
-var APP_HUNT_EMAIL = 'support@theapphunt.com';
+var _ = require("underscore");
+var APP_HUNT_EMAIL = "support@theapphunt.com";
 var EMAIL_TEMPLATES_PATH = require('../config/config').EMAIL_TEMPLATES_PATH;
 var LOGIN_TYPES_FILTER = require('../config/config').LOGIN_TYPES_FILTER;
 var PLATFORMS = require('../config/config').PLATFORMS;
@@ -30,12 +30,12 @@ var Developer = require('../models').Developer;
 var App = require('../models').App;
 var DevsHunter = require('../handlers/utils/devs_hunter_handler');
 
-var emailTemplateUrl = '../../' + EMAIL_TEMPLATES_PATH + 'developer_new_feature.hbs';
+var emailTemplateUrl = '../../' + EMAIL_TEMPLATES_PATH + "developer_new_feature.hbs";
 var templateFile = Fs.readFileSync(emailTemplateUrl);
 var bolt = new Bolt(boltAppId);
 
 Co(function* () {
-    var apps = yield App.find({ platform: PLATFORMS.Android }).populate('developer createdBy').exec();
+    var apps = yield App.find({ platform: PLATFORMS.Android }).populate("developer createdBy").exec();
     console.log(apps.length);
     var developers = _.groupBy(apps, function (app) {
         return String(app.developer._id);
@@ -49,7 +49,7 @@ Co(function* () {
         sendEmailToDev(developer, developerApps);
     });
 
-    console.log('Sent ' + i);
+    console.log("Sent " + i);
 });
 
 function sendEmailToDev(developer, apps) {
@@ -63,13 +63,13 @@ function sendEmailToDev(developer, apps) {
 
     var emailParameters = {
         from: {
-            name: 'AppHunt',
+            name: "AppHunt",
             email: APP_HUNT_EMAIL
         }, to: {
             name: developer.name,
             email: developer.email
         },
-        subject: 'Get a free special landing page for your Android apps on AppHunt!',
+        subject: "Get a free special landing page for your Android apps on AppHunt!",
         message: {
             text: html
         },

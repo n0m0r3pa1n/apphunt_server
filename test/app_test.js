@@ -514,7 +514,7 @@ describe("Apps", function () {
 
         var response = yield Server.injectThen(opts);
         var apps = response.result.apps
-        apps.length.should.equal(0)
+        apps.length.should.equal(2)
     });
 
     it("should get apps by name and date range", function*() {
@@ -730,5 +730,3 @@ describe("Apps", function () {
         response.result.apps[1].package.should.eq('package1')
     });
 })
-
-

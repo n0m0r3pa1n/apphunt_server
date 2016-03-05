@@ -53,7 +53,7 @@ function createAppWithParams(userId, appPackage, platform, tags) {
         payload: {
             package: appPackage,
             userId: userId,
-            description: "Test description",
+            description: "An awesome app to try",
             platform: platform,
             tags: tags
         }

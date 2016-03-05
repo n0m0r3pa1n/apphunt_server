@@ -11,6 +11,7 @@ var mockUpdateAndroidApp = function() {
             package: 'com.example.test',
             description: 'Test',
             url: 'https://play.google.com/store/apps/details?id=com.koli',
+            publicationDate: new Date(),
             developer: {
                 name: "test",
                 email: "test@test.com"

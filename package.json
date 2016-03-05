@@ -20,6 +20,8 @@
     "joi": "^6.4.3",
     "joi-objectid": "^1.1.0",
     "jsonwebtoken": "^5.0.2",
+    "language-detect": "^1.1.0",
+    "languagedetect": "^1.1.1",
     "mongodb": "^2.0.48",
     "mongoose": "4.0.6",
     "mongoose-deep-populate": "^1.1.0",

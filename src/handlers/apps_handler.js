@@ -38,6 +38,8 @@ import * as CommentsHandler from './comments_handler.js'
 
 var FlurryHandler= require('./utils/flurry_handler.js')
 var DateUtils = require('../utils/date_utils')
+var LanguageDetect = require('languagedetect');
+var lngDetector = new LanguageDetect();
 
 var Models = require('../models')
 var App = Models.App
@@ -46,6 +48,9 @@ var User = Models.User
 var AppCategory = Models.AppCategory
 
 export function* create(app, tags, userId) {
+    // TODO: Add language recognition
+    //let languages = lngDetector.detect(app.description)
+
     app.package = getClearedAppPackage(app.package)
 
     var existingApp = yield App.findOne({package: app.package}).exec()
@@ -57,7 +62,9 @@ export function* create(app, tags, userId) {
     try {
         if (app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.updateAndroidApp(app.package)
-            if (parsedApp === null) {
+
+            let comparisonDate = new Date('2015-01-01')
+            if (parsedApp === null || parsedApp.score.total < 4 || parsedApp.publicationDate < comparisonDate) {
                 return Boom.notFound("Non-existing app")
             }
 
@@ -110,6 +117,8 @@ export function* create(app, tags, userId) {
     yield TagsHandler.saveTagsForApp(tags, createdApp.id, createdApp.name, [getFormattedCategory(parsedApp.category)])
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_SUBMITTED, userId,
         {appName: app.name, appPackage: app.package})
+
+    yield changeAppStatus(createdApp.package, APP_STATUSES.APPROVED)
 
     return createdApp
 }

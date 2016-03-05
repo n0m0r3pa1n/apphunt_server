@@ -6,6 +6,7 @@ var _history_handlerJs = require('./history_handler.js');
 
 var HistoryHandler = _interopRequireWildcard(_history_handlerJs);
 
+// <editor-fold desc="App votes">
 var Boom = require('boom');
 
 var Mongoose = require('mongoose');
@@ -19,18 +20,17 @@ var HISTORY_EVENT_TYPES = require('../config/config').HISTORY_EVENT_TYPES;
 var APP_STATUSES = require('../config/config').APP_STATUSES;
 var LOGIN_TYPES = require('../config/config').LOGIN_TYPES;
 
-// <editor-fold desc="App votes">
 function* createAppVote(userId, appId) {
     var user = yield User.findById(userId).exec();
 
     var query = App.findById(appId);
-    var app = yield query.populate('votes').exec();
+    var app = yield query.populate("votes").exec();
     if (!app) {
         return Boom.notFound('App not found');
     }
 
     if (app.platform !== PLATFORMS.Android) {
-        return Boom.badRequest('You cannot vote apps other than Android and not approved!');
+        return Boom.badRequest("You cannot vote apps other than Android and not approved!");
     }
 
     for (var i = 0; i < app.votes.length; i++) {
@@ -62,7 +62,7 @@ function* deleteAppVote(userId, appId) {
     var user = yield User.findById(userId).exec();
 
     var query = App.findById(appId);
-    var app = yield query.populate('votes').exec();
+    var app = yield query.populate("votes").exec();
     if (!app) {
         return Boom.notFound('App not found');
     }
@@ -155,7 +155,7 @@ function hasUserVotedForPopulatedObj(obj, userId) {
         if (user == null) {
             continue;
         }
-        if ('_id' in user) {
+        if ("_id" in user) {
             currentUserId = user._id;
         } else {
             currentUserId = user;
@@ -222,7 +222,7 @@ function* deleteCollectionVote(collectionId, userId) {
     var user = yield User.findById(userId).exec();
 
     var query = AppsCollection.findById(collectionId);
-    var collection = yield query.populate('votes').exec();
+    var collection = yield query.populate("votes").exec();
     if (!collection) {
         return Boom.notFound('Non-existing apps collection');
     }
@@ -257,8 +257,8 @@ function* getVotes(fromDate, toDate) {
     toDate = new Date(toDate.getTime() + DAY_MILLISECONDS);
     var where = {
         createdAt: {
-            '$gte': new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
-            '$lt': new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
+            "$gte": new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate()),
+            "$lt": new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate())
         }
     };
 

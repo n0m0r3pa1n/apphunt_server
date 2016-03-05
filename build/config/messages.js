@@ -2,7 +2,7 @@
 
 var HISTORY_EVENT_TYPES = require('./config').HISTORY_EVENT_TYPES;
 var APP_REJECTED_TITLE = '{0} is rejected';
-var APP_REJECTED_MESSAGE = 'Your submission does not meet AppHunt\'s criteria. The app should be new and with description in English.';
+var APP_REJECTED_MESSAGE = "Your submission does not meet AppHunt's criteria. The app should be new and with description in English.";
 
 var FOLLOWING_APP_APPROVED_TITLE = '{0} added an app';
 var FOLLOWING_APP_APPROVED_MESSAGE = '{0} is now on AppHunt';
@@ -14,8 +14,8 @@ var APP_APPROVED_MESSAGE = '{0} will be featured on AppHunt on {1}';
 var USER_COMMENTED_TITLE = '{0} commented on {1}';
 var USER_MENTIONED_TITLE = '{0} mentioned you on AppHunt';
 
-var AD_FREE_MESSAGE = 'You are FREE from receiving interstitial ads! Keep up the good work!';
-var AD_NOT_FREE_MESSAGE = 'Push yourself some more! Leave some comments, submit an app or just be more active and you won\'t see interstitial ads!';
+var AD_FREE_MESSAGE = "You are FREE from receiving interstitial ads! Keep up the good work!";
+var AD_NOT_FREE_MESSAGE = "Push yourself some more! Leave some comments, submit an app or just be more active and you won't see interstitial ads!";
 
 var historyMessages = {};
 
