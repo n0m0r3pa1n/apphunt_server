@@ -64,7 +64,7 @@ export function* create(app, tags, userId) {
             parsedApp = yield DevsHunter.updateAndroidApp(app.package)
 
             let comparisonDate = new Date('2015-01-01')
-            if (parsedApp === null || parsedApp.score.total < 4 || new Date(parsedApp.publicationDate) < comparisonDate) {
+            if (parsedApp === null) {
                 return Boom.notFound("Non-existing app")
             }
 
@@ -122,7 +122,9 @@ export function* create(app, tags, userId) {
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_SUBMITTED, userId,
         {appName: app.name, appPackage: app.package})
 
-    yield changeAppStatus(createdApp.package, APP_STATUSES.APPROVED)
+    if(parsedApp.score.total >= 4 || new Date(parsedApp.publicationDate) > comparisonDate) {
+        yield changeAppStatus(createdApp.package, APP_STATUSES.APPROVED)
+    }
 
     return createdApp
 }

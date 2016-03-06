@@ -302,7 +302,7 @@ describe("Users", function() {
         response.result.length.should.equal(2)
         response.result[0]._id.toString().should.equal(String(user2Id))
         expect(response.result[0].apps).to.exist
-        response.result[0].apps.should.eq(2)
+        response.result[0].apps.should.eq(0)
     });
 
     it("should get favourite apps collection for user", function*() {

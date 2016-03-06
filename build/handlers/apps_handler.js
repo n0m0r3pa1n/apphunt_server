@@ -107,8 +107,8 @@ function* create(app, tags, userId) {
         if (app.platform == PLATFORMS.Android) {
             parsedApp = yield DevsHunter.updateAndroidApp(app['package']);
 
-            var comparisonDate = new Date('2015-01-01');
-            if (parsedApp === null || parsedApp.score.total < 4 || new Date(parsedApp.publicationDate) < comparisonDate) {
+            var _comparisonDate = new Date('2015-01-01');
+            if (parsedApp === null) {
                 return Boom.notFound("Non-existing app");
             }
 
@@ -161,7 +161,9 @@ function* create(app, tags, userId) {
     yield TagsHandler.saveTagsForApp(tags, createdApp.id, createdApp.name, [getFormattedCategory(parsedApp.category)]);
     yield HistoryHandler.createEvent(HISTORY_EVENT_TYPES.APP_SUBMITTED, userId, { appName: app.name, appPackage: app['package'] });
 
-    yield changeAppStatus(createdApp['package'], APP_STATUSES.APPROVED);
+    if (parsedApp.score.total >= 4 || new Date(parsedApp.publicationDate) > comparisonDate) {
+        yield changeAppStatus(createdApp['package'], APP_STATUSES.APPROVED);
+    }
 
     return createdApp;
 }
